@@ -3,7 +3,7 @@ package fi.dy.masa.enderutilities.compat.jei;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;

@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.effects.Effects;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;

@@ -18,7 +18,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.entity.base.EntityThrowableEU;
 import fi.dy.masa.enderutilities.entity.base.IItemData;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 

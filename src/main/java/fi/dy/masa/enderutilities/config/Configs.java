@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.setup;
+package fi.dy.masa.enderutilities.config;
 
 public class Configs
 {

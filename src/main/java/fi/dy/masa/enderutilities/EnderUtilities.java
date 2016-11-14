@@ -18,21 +18,21 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import fi.dy.masa.enderutilities.config.ConfigReader;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.setup.ConfigReader;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.setup.ModRegistry;
-import fi.dy.masa.enderutilities.setup.Registry;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.ModRegistry;
+import fi.dy.masa.enderutilities.registry.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
-     guiFactory = "fi.dy.masa.enderutilities.setup.EnderUtilitiesGuiFactory",
+     guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
      acceptedMinecraftVersions = "1.10.2")
 public class EnderUtilities

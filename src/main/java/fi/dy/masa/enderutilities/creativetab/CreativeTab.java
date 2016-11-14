@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 
 public class CreativeTab
 {

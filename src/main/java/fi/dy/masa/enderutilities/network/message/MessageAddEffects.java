@@ -12,8 +12,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.effects.Effects;
-import fi.dy.masa.enderutilities.setup.Configs;
 import io.netty.buffer.ByteBuf;
 
 public class MessageAddEffects implements IMessage

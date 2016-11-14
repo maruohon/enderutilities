@@ -9,7 +9,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosBox;
 import fi.dy.masa.enderutilities.util.BlockPosEU;

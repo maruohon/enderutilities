@@ -37,7 +37,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import fi.dy.masa.enderutilities.entity.base.IEntityDoubleTargeting;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTargeting

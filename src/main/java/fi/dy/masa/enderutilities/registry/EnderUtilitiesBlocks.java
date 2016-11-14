@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.setup;
+package fi.dy.masa.enderutilities.registry;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks

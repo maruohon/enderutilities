@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
-import fi.dy.masa.enderutilities.setup.Registry;
+import fi.dy.masa.enderutilities.registry.Registry;
 
 public class EntityUtils
 {

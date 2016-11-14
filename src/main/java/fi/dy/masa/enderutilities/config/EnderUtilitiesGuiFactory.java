@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.setup;
+package fi.dy.masa.enderutilities.config;
 
 import java.util.Set;
 import net.minecraft.client.Minecraft;

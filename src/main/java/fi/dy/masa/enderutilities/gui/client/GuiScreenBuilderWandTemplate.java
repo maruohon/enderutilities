@@ -16,7 +16,7 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSendString;
 import fi.dy.masa.enderutilities.network.message.MessageSendString.Type;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 
 public class GuiScreenBuilderWandTemplate extends GuiScreen
 {

@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 

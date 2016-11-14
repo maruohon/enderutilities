@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.setup.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.BlockPosDistance;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 

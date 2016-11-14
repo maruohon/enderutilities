@@ -1,7 +1,8 @@
-package fi.dy.masa.enderutilities.setup;
+package fi.dy.masa.enderutilities.registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import fi.dy.masa.enderutilities.config.Configs;
 
 public class Registry
 {

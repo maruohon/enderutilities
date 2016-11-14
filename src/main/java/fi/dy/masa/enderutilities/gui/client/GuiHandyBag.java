@@ -22,7 +22,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag.RestockMode;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.setup.ModRegistry;
+import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallback
