@@ -149,19 +149,19 @@ public class InventoryItem extends ItemStackHandlerBasic
     public boolean isCurrentlyAccessible()
     {
         //System.out.println("InventoryItem#isCurrentlyAccessible() - " + (this.isRemote ? "client" : "server"));
-        return true;
+        return this.getContainerItemStack() != null;
     }
 
     public boolean isAccessibleBy(Entity entity)
     {
         //System.out.println("InventoryItem#isAccessibleByPlayer() - " + (this.isRemote ? "client" : "server"));
-        return true;
+        return this.getContainerItemStack() != null;
     }
 
     public boolean isAccessibleBy(UUID uuid)
     {
         //System.out.println("InventoryItem#isAccessibleBy() - " + (this.isRemote ? "client" : "server"));
-        return true;
+        return this.getContainerItemStack() != null;
     }
 
     public boolean isPrivate()
