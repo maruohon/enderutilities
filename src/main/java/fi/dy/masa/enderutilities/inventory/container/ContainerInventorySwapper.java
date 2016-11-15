@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerItem
 {
     public final InventoryItemModular inventoryItemModular;
+    private ItemStack modularStackLast;
 
     public ContainerInventorySwapper(EntityPlayer player, ItemStack containerStack)
     {
@@ -165,6 +166,24 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     }
 
     @Override
+    public void detectAndSendChanges()
+    {
+        if (this.player.worldObj.isRemote == false)
+        {
+            ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
+
+            // The Bag's stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            if (modularStack != this.modularStackLast)
+            {
+                this.inventoryItemModular.readFromContainerItemStack();
+                this.modularStackLast = modularStack;
+            }
+        }
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         ItemStack stack = this.getContainerItem();
@@ -187,19 +206,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             return null;
         }
 
-        ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
-
         stack = super.slotClick(slotNum, dragType, clickType, player);
-
-        ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
-
-        // The Bag's stack changed after the click, re-read the inventory contents.
-        if (modularStackPre != modularStackPost)
-        {
-            //System.out.println("slotClick() - updating container");
-            this.inventoryItemModular.readFromContainerItemStack();
-        }
-
         this.detectAndSendChanges();
 
         return stack;

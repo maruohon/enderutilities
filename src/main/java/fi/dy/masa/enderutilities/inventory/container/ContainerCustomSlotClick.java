@@ -543,6 +543,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             this.middleClickSlot(slotNum, player);
         }
 
+        this.detectAndSendChanges();
+
         return null;
     }
 }

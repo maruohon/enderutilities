@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -35,6 +34,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     private final InventoryCrafting craftMatrix;
     private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
+    private ItemStack modularStackLast;
     private int craftingSlot = 0;
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
@@ -249,23 +249,20 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    public void detectAndSendChanges()
     {
-        ItemStack modularStackPre = this.inventoryItemModular.getModularItemStack();
-
-        ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
-
-        ItemStack modularStackPost = this.inventoryItemModular.getModularItemStack();
-
-        // The Bag's stack changed after the click, re-read the inventory contents.
-        if (modularStackPre != modularStackPost)
+        if (this.player.worldObj.isRemote == false)
         {
-            //System.out.println("slotClick() - updating container");
-            this.inventoryItemModular.readFromContainerItemStack();
+            ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
+
+            // The Bag's stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            if (modularStack != this.modularStackLast)
+            {
+                this.inventoryItemModular.readFromContainerItemStack();
+                this.modularStackLast = modularStack;
+            }
         }
 
-        this.detectAndSendChanges();
-
-        return stack;
+        super.detectAndSendChanges();
     }
 }
