@@ -58,7 +58,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
     {
-        if (player == null || player.worldObj.isRemote == true || player.isSneaking() == false
+        if (player == null || player.getEntityWorld().isRemote || player.isSneaking() == false
             || OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return false;
@@ -77,7 +77,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
             }
 
             // If the target entity is a player, then they have to be sneaking too
-            if ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isSneaking() == true)
+            if ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isSneaking())
             {
                 UtilItemModular.useEnderCharge(stack, cost, false);
                 TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
@@ -99,7 +99,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
 
         // Don't activate when sneaking and looking at a block, aka. binding to a new location
-        if (player.isSneaking() == true)
+        if (player.isSneaking())
         {
             RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
             if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
@@ -146,7 +146,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         EntityPlayer player = (EntityPlayer) livingBase;
         int useTime = USE_TIME;
         // Use a shorter delay in creative mode
-        if (player.capabilities.isCreativeMode == true)
+        if (player.capabilities.isCreativeMode)
         {
             useTime >>= 2;
         }

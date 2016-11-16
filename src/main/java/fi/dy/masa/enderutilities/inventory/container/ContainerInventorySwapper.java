@@ -168,7 +168,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     @Override
     public void detectAndSendChanges()
     {
-        if (this.player.worldObj.isRemote == false)
+        if (this.player.getEntityWorld().isRemote == false)
         {
             ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
 

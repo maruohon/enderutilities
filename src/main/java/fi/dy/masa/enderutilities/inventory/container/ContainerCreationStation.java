@@ -165,8 +165,8 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
-        this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.worldObj));
-        this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.worldObj));
+        this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.getEntityWorld()));
+        this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.getEntityWorld()));
     }
 
     @Override
@@ -220,9 +220,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
             return ret;
         }
         // Crafting grid slots, try to merge to the main item inventory first
-        else if (this.craftingGridSlotsLeft.contains(slotNum) == true || this.craftingGridSlotsRight.contains(slotNum) == true)
+        else if (this.craftingGridSlotsLeft.contains(slotNum) || this.craftingGridSlotsRight.contains(slotNum))
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false) == true)
+            if (this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false))
             {
                 return true;
             }
@@ -273,11 +273,11 @@ public class ContainerCreationStation extends ContainerLargeStacks
         }
 
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
-        if (this.craftingGridSlotsLeft.contains(slotNum) == true || slotNum == 40)
+        if (this.craftingGridSlotsLeft.contains(slotNum) || slotNum == 40)
         {
             this.tecs.lastInteractedCraftingGrid = 0;
         }
-        else if (this.craftingGridSlotsRight.contains(slotNum) == true || slotNum == 50)
+        else if (this.craftingGridSlotsRight.contains(slotNum) || slotNum == 50)
         {
             this.tecs.lastInteractedCraftingGrid = 1;
         }
@@ -325,7 +325,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
     @Override
     public void detectAndSendChanges()
     {
-        if (this.tecs.getWorld().isRemote == true)
+        if (this.tecs.getWorld().isRemote)
         {
             return;
         }

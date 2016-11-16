@@ -74,7 +74,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             this.canBePickedUp = 1;
 
-            if (((EntityPlayer)shooter).capabilities.isCreativeMode == true)
+            if (((EntityPlayer)shooter).capabilities.isCreativeMode)
             {
                 this.canBePickedUp = 2;
             }
@@ -84,7 +84,7 @@ public class EntityEnderArrow extends EntityArrow
         double d0 = par3EntityLivingBase.posX - shooter.posX;
         double d1 = par3EntityLivingBase.getEntityBoundingBox().minY + (double)(par3EntityLivingBase.height / 3.0F) - this.posY;
         double d2 = par3EntityLivingBase.posZ - shooter.posZ;
-        double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d2 * d2);
+        double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
 
         if (d3 >= 1.0E-7D)
         {
@@ -108,7 +108,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             this.canBePickedUp = 1;
 
-            if (((EntityPlayer)shooter).capabilities.isCreativeMode == true)
+            if (((EntityPlayer)shooter).capabilities.isCreativeMode)
             {
                 this.canBePickedUp = 2;
             }
@@ -125,7 +125,7 @@ public class EntityEnderArrow extends EntityArrow
         y = this.posY - 0.10000000149011612d;
         z += (double)(MathHelper.cos(this.rotationYaw / 180.0f * (float)Math.PI) * 0.74f) * (double)(MathHelper.cos(this.rotationPitch / 180.0f * (float)Math.PI));
         z -= (double)(MathHelper.sin(this.rotationYaw / 180.0f * (float)Math.PI) * 0.1f);
-        if (worldIn.isAirBlock(new BlockPos((int)MathHelper.floor_double(x), (int)y, (int)MathHelper.floor_double(z))) == true)
+        if (worldIn.isAirBlock(new BlockPos((int)MathHelper.floor(x), (int)y, (int)MathHelper.floor(z))))
         {
             this.posX = x;
             this.posZ = z;
@@ -160,7 +160,7 @@ public class EntityEnderArrow extends EntityArrow
             return;
         }
 
-        EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, this.getArrowStack());
+        EntityItem entityitem = new EntityItem(this.getEntityWorld(), this.posX, this.posY, this.posZ, this.getArrowStack());
         Random r = new Random();
 
         entityitem.motionX = 0.01d * r.nextGaussian();
@@ -168,7 +168,7 @@ public class EntityEnderArrow extends EntityArrow
         entityitem.motionZ = 0.01d * r.nextGaussian();
         entityitem.setDefaultPickupDelay();
 
-        this.worldObj.spawnEntityInWorld(entityitem);
+        this.getEntityWorld().spawnEntityInWorld(entityitem);
     }
 
     /**
@@ -180,20 +180,20 @@ public class EntityEnderArrow extends EntityArrow
 
         if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F)
         {
-            float f = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+            float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
             this.prevRotationYaw = this.rotationYaw = (float)(Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
             this.prevRotationPitch = this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f) * 180.0D / Math.PI);
         }
 
         BlockPos pos = new BlockPos(this.blockX, this.blockY, this.blockZ);
-        IBlockState state = this.worldObj.getBlockState(pos);
+        IBlockState state = this.getEntityWorld().getBlockState(pos);
         Block block = state.getBlock();
 
         if (state.getMaterial() != Material.AIR)
         {
-            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, pos);
+            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.getEntityWorld(), pos);
 
-            if (aabb != Block.NULL_AABB && aabb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)) == true)
+            if (aabb != Block.NULL_AABB && aabb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)))
             {
                 this.inGround = true;
             }
@@ -233,7 +233,7 @@ public class EntityEnderArrow extends EntityArrow
         ++this.ticksInAir;
         Vec3d vec31 = new Vec3d(this.posX, this.posY, this.posZ);
         Vec3d vec3 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-        RayTraceResult rayTraceResult = this.worldObj.rayTraceBlocks(vec31, vec3, false, true, false);
+        RayTraceResult rayTraceResult = this.getEntityWorld().rayTraceBlocks(vec31, vec3, false, true, false);
         vec31 = new Vec3d(this.posX, this.posY, this.posZ);
         vec3 = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
 
@@ -244,7 +244,7 @@ public class EntityEnderArrow extends EntityArrow
 
         Entity shooter = this.getShooter();
         Entity entity = null;
-        List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
@@ -262,7 +262,7 @@ public class EntityEnderArrow extends EntityArrow
                 if (rayTraceResultTmp != null)
                 {
                     if (rayTraceResultTmp.typeOfHit == RayTraceResult.Type.ENTITY &&
-                        rayTraceResultTmp.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResultTmp.entityHit).isSpectator() == true)
+                        rayTraceResultTmp.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResultTmp.entityHit).isSpectator())
                     {
                         continue;
                     }
@@ -294,9 +294,9 @@ public class EntityEnderArrow extends EntityArrow
             if (this.tpMode == ItemEnderBow.BOW_MODE_TP_SELF)
             {
                 // Valid shooter
-                if (this.worldObj.isRemote == false && shooter != null)
+                if (this.getEntityWorld().isRemote == false && shooter != null)
                 {
-                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true) == true)
+                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true))
                     {
                         this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
@@ -312,20 +312,20 @@ public class EntityEnderArrow extends EntityArrow
                     this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
                     if (EntityUtils.doesEntityStackHaveBlacklistedEntities(rayTraceResult.entityHit) == false &&
-                        (Configs.enderBowAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false))
+                        (Configs.enderBowAllowPlayers || EntityUtils.doesEntityStackHavePlayers(rayTraceResult.entityHit) == false))
                     {
-                        if (this.worldObj.isRemote == false)
+                        if (this.getEntityWorld().isRemote == false)
                         {
                             this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, rayTraceResult.entityHit);
                             if (this.tpTarget != null)
                             {
                                 Entity e = rayTraceResult.entityHit;
-                                if (this.tpTarget.hasRotation == true && entity != null)
+                                if (this.tpTarget.hasRotation && entity != null)
                                 {
                                     entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);
                                 }
 
-                                if (this.applyPersistence == true && e instanceof EntityLiving)
+                                if (this.applyPersistence && e instanceof EntityLiving)
                                 {
                                     EntityUtils.applyMobPersistence((EntityLiving)e);
                                 }
@@ -356,13 +356,13 @@ public class EntityEnderArrow extends EntityArrow
                 this.blockX = mopPos.getX();
                 this.blockY = mopPos.getY();
                 this.blockZ = mopPos.getZ();
-                state = this.worldObj.getBlockState(mopPos);
+                state = this.getEntityWorld().getBlockState(mopPos);
                 this.inBlock = state.getBlock();
                 this.inData = this.inBlock.getMetaFromState(state);
                 this.motionX = (double)((float)(rayTraceResult.hitVec.xCoord - this.posX));
                 this.motionY = (double)((float)(rayTraceResult.hitVec.yCoord - this.posY));
                 this.motionZ = (double)((float)(rayTraceResult.hitVec.zCoord - this.posZ));
-                f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
+                f2 = MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
                 this.posX -= this.motionX / (double)f2 * 0.05000000074505806D;
                 this.posY -= this.motionY / (double)f2 * 0.05000000074505806D;
                 this.posZ -= this.motionZ / (double)f2 * 0.05000000074505806D;
@@ -373,7 +373,7 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (state.getMaterial() != Material.AIR)
                 {
-                    this.inBlock.onEntityCollidedWithBlock(this.worldObj, mopPos, state, this);
+                    this.inBlock.onEntityCollidedWithBlock(this.getEntityWorld(), mopPos, state, this);
                 }
             }
         }
@@ -382,14 +382,14 @@ public class EntityEnderArrow extends EntityArrow
         {
             for (i = 0; i < 4; ++i)
             {
-                this.worldObj.spawnParticle(EnumParticleTypes.CRIT, this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
+                this.getEntityWorld().spawnParticle(EnumParticleTypes.CRIT, this.posX + this.motionX * (double)i / 4.0D, this.posY + this.motionY * (double)i / 4.0D, this.posZ + this.motionZ * (double)i / 4.0D, -this.motionX, -this.motionY + 0.2D, -this.motionZ);
             }
         }
 
         this.posX += this.motionX;
         this.posY += this.motionY;
         this.posZ += this.motionZ;
-        f2 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        f2 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
         this.rotationYaw = (float)(Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
 
         for (this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f2) * 180.0D / Math.PI); this.rotationPitch - this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
@@ -410,7 +410,7 @@ public class EntityEnderArrow extends EntityArrow
             for (int l = 0; l < 4; ++l)
             {
                 f4 = 0.25F;
-                this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
+                this.getEntityWorld().spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
             }
             f3 = 0.8F;
         }
@@ -476,7 +476,7 @@ public class EntityEnderArrow extends EntityArrow
         if (tagCompound.hasKey("shooterUUIDMost", Constants.NBT.TAG_LONG) && tagCompound.hasKey("shooterUUIDLeast", Constants.NBT.TAG_LONG))
         {
             this.shooterUUID = new UUID(tagCompound.getLong("shooterUUIDMost"), tagCompound.getLong("shooterUUIDLeast"));
-            this.shootingEntity = this.worldObj.getPlayerEntityByUUID(this.shooterUUID);
+            this.shootingEntity = this.getEntityWorld().getPlayerEntityByUUID(this.shooterUUID);
         }
         this.tpTarget = TargetData.readTargetFromNBT(tagCompound);
         this.tpMode = tagCompound.getByte("tpMode");
@@ -488,12 +488,12 @@ public class EntityEnderArrow extends EntityArrow
      */
     public void onCollideWithPlayer(EntityPlayer par1EntityPlayer)
     {
-        if (this.worldObj.isRemote == false && this.isDead == false && this.inGround == true && this.arrowShake <= 0 && this.canBePickedUp != 0)
+        if (this.getEntityWorld().isRemote == false && this.isDead == false && this.inGround && this.arrowShake <= 0 && this.canBePickedUp != 0)
         {
             // Normal pick up to inventory
             if (this.canBePickedUp == 1)
             {
-                if (par1EntityPlayer.inventory.addItemStackToInventory(this.getArrowStack()) == true)
+                if (par1EntityPlayer.inventory.addItemStackToInventory(this.getArrowStack()))
                 {
                     this.playSound(SoundEvents.ENTITY_ITEM_PICKUP, 0.2F, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     par1EntityPlayer.onItemPickup(this, 1);
@@ -513,7 +513,7 @@ public class EntityEnderArrow extends EntityArrow
     {
         if (this.shootingEntity == null && this.shooterUUID != null)
         {
-            this.shootingEntity = this.worldObj.getPlayerEntityByUUID(this.shooterUUID);
+            this.shootingEntity = this.getEntityWorld().getPlayerEntityByUUID(this.shooterUUID);
         }
 
         return this.shootingEntity;

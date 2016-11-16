@@ -65,14 +65,14 @@ public class TickHandler
     {
         EntityPlayer player = event.player;
 
-        if (event.side == Side.CLIENT || player.worldObj.isRemote)
+        if (event.side == Side.CLIENT || player.getEntityWorld().isRemote)
         {
             return;
         }
 
         if (event.phase == TickEvent.Phase.START)
         {
-            World world = player.worldObj;
+            World world = player.getEntityWorld();
             BlockPos pos = player.getPosition();
             IBlockState state = world.getBlockState(pos);
             UUID uuid = player.getUniqueID();
@@ -96,7 +96,7 @@ public class TickHandler
         // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
-            if (player.isRiding() == true && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
+            if (player.isRiding() && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
             {
                 ItemMobHarness.addAITask(player.getRidingEntity(), false);
             }
@@ -107,7 +107,7 @@ public class TickHandler
                 NBTTagCompound nbt = stack.getTagCompound();
 
                 // If the player is holding an item that requires a chunk to stay loaded, refresh the timeout value
-                if (nbt != null && nbt.getBoolean("ChunkLoadingRequired") == true)
+                if (nbt != null && nbt.getBoolean("ChunkLoadingRequired"))
                 {
                     TargetData target;
 
@@ -134,6 +134,6 @@ public class TickHandler
             }
         }
 
-        PlayerTaskScheduler.getInstance().runTasks(player.worldObj, player);
+        PlayerTaskScheduler.getInstance().runTasks(player.getEntityWorld(), player);
     }
 }

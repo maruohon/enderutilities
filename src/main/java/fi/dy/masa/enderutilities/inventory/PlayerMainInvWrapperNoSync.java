@@ -27,7 +27,7 @@ public class PlayerMainInvWrapperNoSync extends RangedWrapper
 
             if(stackSlot != null)
             {
-                if (this.getInventoryPlayer().player.worldObj.isRemote)
+                if (this.getInventoryPlayer().player.getEntityWorld().isRemote)
                 {
                     stackSlot.animationsToGo = 5;
                 }

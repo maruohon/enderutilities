@@ -71,7 +71,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player)
+    public boolean isUsableByPlayer(EntityPlayer player)
     {
         return this.craftMatrix.isAccessibleByPlayer(player);
     }

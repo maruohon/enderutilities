@@ -93,9 +93,9 @@ public class BlockPosEU
 
     public BlockPosEU clampCoords()
     {
-        int x = MathHelper.clamp_int(this.posX, -30000000, 30000000);
-        int y = MathHelper.clamp_int(this.posY, 0, 255);
-        int z = MathHelper.clamp_int(this.posZ, -30000000, 30000000);
+        int x = MathHelper.clamp(this.posX, -30000000, 30000000);
+        int y = MathHelper.clamp(this.posY, 0, 255);
+        int z = MathHelper.clamp(this.posZ, -30000000, 30000000);
 
         return new BlockPosEU(x, y, z, this.dimension, this.face);
     }

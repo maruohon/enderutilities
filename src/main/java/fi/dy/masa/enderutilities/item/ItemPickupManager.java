@@ -36,10 +36,10 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -141,7 +141,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
-        if (isEnabled(containerStack) == true)
+        if (isEnabled(containerStack))
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         }
@@ -176,11 +176,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         if (containerTag != null)
         {
             int selection = containerTag.getByte(TAG_NAME_PRESET_SELECTION);
-            if (containerTag.hasKey(TAG_NAME_PRESET + selection, Constants.NBT.TAG_COMPOUND) == true)
+            if (containerTag.hasKey(TAG_NAME_PRESET + selection, Constants.NBT.TAG_COMPOUND))
             {
                 return containerTag.getCompoundTag(TAG_NAME_PRESET + selection);
             }
-            else if (create == true)
+            else if (create)
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 containerTag.setTag(TAG_NAME_PRESET + selection, tag);
@@ -220,7 +220,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         for (int slot : slots)
         {
             ItemStack stack = playerInv.getStackInSlot(slot);
-            if (isEnabled(stack) == true)
+            if (isEnabled(stack))
             {
                 enabledItems.add(stack);
             }
@@ -295,7 +295,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             }
 
             TileEntity te = world.getTileEntity(target.pos);
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == true)
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
                 if (inv == null)
@@ -349,7 +349,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     {
         byte preset = NBTUtils.getByte(manager, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
 
-        InventoryItem inv = new InventoryItem(manager, 36, 1, false, player.worldObj.isRemote, player, TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        InventoryItem inv = new InventoryItem(manager, 36, 1, false, player.getEntityWorld().isRemote, player, TAG_NAME_FILTER_INVENTORY_PRE + preset);
         inv.readFromContainerItemStack();
 
         // Transport filters/functionality enabled
@@ -363,7 +363,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             byte mode = getSettingValue(manager, TAG_NAME_TXFILTER_MODE);
 
             // White list and match found, or black list and no match found
-            if ((mode != 0 && match == true) || (mode == 0 && match == false))
+            if ((mode != 0 && match) || (mode == 0 && match == false))
             {
                 ItemStack stackTmp = this.tryTransportItems(player, manager, itemsIn);
                 // All items successfully transported
@@ -391,12 +391,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             // White list
             if (mode != 0)
             {
-                return match == true ? Result.WHITELISTED : Result.NOT_WHITELISTED;
+                return match ? Result.WHITELISTED : Result.NOT_WHITELISTED;
             }
             // Black list
             else if (mode == 0)
             {
-                return match == true ? Result.BLACKLISTED : Result.NOT_BLACKLISTED;
+                return match ? Result.BLACKLISTED : Result.NOT_BLACKLISTED;
             }
         }
 
@@ -410,7 +410,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
      */
     public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
-        if (event.getEntityPlayer().worldObj.isRemote == true)
+        if (event.getEntityPlayer().getEntityWorld().isRemote)
         {
             return true;
         }
@@ -423,7 +423,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         Iterator<ItemStack> iter = event.drops.iterator();
 
-        while (iter.hasNext() == true)
+        while (iter.hasNext())
         {
             ItemStack stackIn = iter.next();
 
@@ -462,13 +462,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (transported == true)
+        if (transported)
         {
-            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
+            player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
                     ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
-        if (deny == true)
+        if (deny)
         {
             event.setCanceled(true);
         }
@@ -485,7 +485,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     {
         EntityItem entityItem = event.getItem();
 
-        if (event.getEntityPlayer().worldObj.isRemote == true || entityItem.isDead == true ||
+        if (event.getEntityPlayer().getEntityWorld().isRemote || entityItem.isDead ||
                 entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null ||
                 entityItem.getEntityItem().stackSize <= 0)
         {
@@ -532,22 +532,22 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (stack.stackSize != origStackSize || entityItem.isDead == true)
+        if (stack.stackSize != origStackSize || entityItem.isDead)
         {
             if (entityItem.isSilent() == false)
             {
-                player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
-                        ((player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
+                        ((player.getEntityWorld().rand.nextFloat() - player.getEntityWorld().rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 
-            if (stack.stackSize <= 0 || entityItem.isDead == true)
+            if (stack.stackSize <= 0 || entityItem.isDead)
             {
                 FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
                 player.onItemPickup(entityItem, origStackSize);
             }
         }
 
-        if (deny == true)
+        if (deny)
         {
             event.setCanceled(true);
         }

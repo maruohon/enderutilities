@@ -155,7 +155,7 @@ public class EntityUtils
         if (stack != null)
         {
             Item item = stack.getItem();
-            if (item != null && clazz.isAssignableFrom(item.getClass()) == true)
+            if (item != null && clazz.isAssignableFrom(item.getClass()))
             {
                 return stack;
             }
@@ -165,7 +165,7 @@ public class EntityUtils
         if (stack != null)
         {
             Item item = stack.getItem();
-            if (item != null && clazz.isAssignableFrom(item.getClass()) == true)
+            if (item != null && clazz.isAssignableFrom(item.getClass()))
             {
                 return stack;
             }
@@ -229,7 +229,7 @@ public class EntityUtils
 
     public static EnumFacing getClosesLookingDirectionPlanarized(Entity entity, boolean usePitch)
     {
-        if (usePitch == true)
+        if (usePitch)
         {
             EnumFacing facing = getClosestLookingDirection(entity);
 
@@ -370,7 +370,7 @@ public class EntityUtils
 
         for (T entity : list)
         {
-            if (entity.getUniqueID().equals(uuid) == true)
+            if (entity.getUniqueID().equals(uuid))
             {
                 return entity;
             }
@@ -391,23 +391,23 @@ public class EntityUtils
             return null;
         }
 
-        if (uuid.equals(entityInStack.getUniqueID()) == true)
+        if (uuid.equals(entityInStack.getUniqueID()))
         {
             return entityInStack;
         }
 
-        if (startFromBottom == true)
+        if (startFromBottom)
         {
             entityInStack = getBottomEntity(entityInStack);
         }
 
-        if (entityInStack.isBeingRidden() == true)
+        if (entityInStack.isBeingRidden())
         {
             List<Entity> passengers = entityInStack.getPassengers();
 
             for (Entity passenger : passengers)
             {
-                if (uuid.equals(passenger.getUniqueID()) == true)
+                if (uuid.equals(passenger.getUniqueID()))
                 {
                     return passenger;
                 }
@@ -428,7 +428,7 @@ public class EntityUtils
     {
         /*Entity ent;
 
-        for (ent = entity; ent.isRiding() == true; ent = ent.getRidingEntity())
+        for (ent = entity; ent.isRiding(); ent = ent.getRidingEntity())
         {
         }
 
@@ -447,7 +447,7 @@ public class EntityUtils
         }
 
         Entity ent;
-        for (ent = entity; ent.isBeingRidden() == true; ent = ent.getPassengers().get(0))
+        for (ent = entity; ent.isBeingRidden(); ent = ent.getPassengers().get(0))
         {
         }
 
@@ -465,13 +465,13 @@ public class EntityUtils
             return false;
         }
 
-        if (target.isBeingRidden() == true)
+        if (target.isBeingRidden())
         {
             List<Entity> passengers = target.getPassengers();
 
             for (Entity passenger : passengers)
             {
-                if (passenger.equals(rider) == true || isEntityRiddenBy(passenger, rider) == true)
+                if (passenger.equals(rider) || isEntityRiddenBy(passenger, rider))
                 {
                     return true;
                 }
@@ -503,18 +503,18 @@ public class EntityUtils
             return true;
         }
 
-        if (startFromBottom == true)
+        if (startFromBottom)
         {
             entity = getBottomEntity(entity);
         }
 
-        if (entity.isBeingRidden() == true)
+        if (entity.isBeingRidden())
         {
             List<Entity> passengers = entity.getPassengers();
 
             for (Entity passenger : passengers)
             {
-                if (passenger instanceof EntityPlayer || doesEntityStackHavePlayers(passenger, false) == true)
+                if (passenger instanceof EntityPlayer || doesEntityStackHavePlayers(passenger, false))
                 {
                     return true;
                 }
@@ -538,14 +538,14 @@ public class EntityUtils
 
     private static void getAllEntitiesInStack(Entity entity, List<Entity> entities, boolean startFromBottom)
     {
-        if (startFromBottom == true)
+        if (startFromBottom)
         {
             entity = getBottomEntity(entity);
         }
 
         entities.add(entity);
 
-        if (entity.isBeingRidden() == true)
+        if (entity.isBeingRidden())
         {
             for (Entity passenger : entity.getPassengers())
             {
@@ -573,7 +573,7 @@ public class EntityUtils
 
     private static boolean doesEntityStackContainEntity(Entity entity, Entity entityInStack, boolean startFromBottom)
     {
-        if (startFromBottom == true)
+        if (startFromBottom)
         {
             entityInStack = getBottomEntity(entityInStack);
         }
@@ -583,13 +583,13 @@ public class EntityUtils
             return true;
         }
 
-        if (entityInStack.isBeingRidden() == true)
+        if (entityInStack.isBeingRidden())
         {
             List<Entity> passengers = entityInStack.getPassengers();
 
             for (Entity passenger : passengers)
             {
-                if (passenger == entity || doesEntityStackContainEntity(entity, passenger, false) == true)
+                if (passenger == entity || doesEntityStackContainEntity(entity, passenger, false))
                 {
                     return true;
                 }
@@ -617,24 +617,24 @@ public class EntityUtils
     private static boolean doesEntityStackHaveBlacklistedEntities(Entity entity, boolean startFromBottom)
     {
         List<String> blacklist = Registry.getTeleportBlacklist();
-        if (blacklist.contains(entity.getClass().getSimpleName()) == true)
+        if (blacklist.contains(entity.getClass().getSimpleName()))
         {
             return true;
         }
 
-        if (startFromBottom == true)
+        if (startFromBottom)
         {
             entity = getBottomEntity(entity);
         }
 
-        if (entity.isBeingRidden() == true)
+        if (entity.isBeingRidden())
         {
             List<Entity> passengers = entity.getPassengers();
 
             for (Entity passenger : passengers)
             {
-                if (blacklist.contains(passenger.getClass().getSimpleName()) == true ||
-                    doesEntityStackHaveBlacklistedEntities(passenger, false) == true)
+                if (blacklist.contains(passenger.getClass().getSimpleName()) ||
+                    doesEntityStackHaveBlacklistedEntities(passenger, false))
                 {
                     return true;
                 }
@@ -646,7 +646,7 @@ public class EntityUtils
 
     public static boolean unmountFirstRider(Entity entity)
     {
-        if (entity != null && entity.isBeingRidden() == true)
+        if (entity != null && entity.isBeingRidden())
         {
             entity.getPassengers().get(0).dismountRidingEntity();
             return true;
@@ -671,12 +671,12 @@ public class EntityUtils
     public static BlockPos getPositionOfBlockEntityIsCollidingWith(World world, Entity entity, Block block)
     {
         AxisAlignedBB bb = entity.getEntityBoundingBox();
-        int minX = MathHelper.floor_double(bb.minX);
-        int minY = MathHelper.floor_double(bb.minY);
-        int minZ = MathHelper.floor_double(bb.minZ);
-        int maxX = MathHelper.floor_double(bb.maxX);
-        int maxY = MathHelper.floor_double(bb.maxY);
-        int maxZ = MathHelper.floor_double(bb.maxZ);
+        int minX = MathHelper.floor(bb.minX);
+        int minY = MathHelper.floor(bb.minY);
+        int minZ = MathHelper.floor(bb.minZ);
+        int maxX = MathHelper.floor(bb.maxX);
+        int maxY = MathHelper.floor(bb.maxY);
+        int maxZ = MathHelper.floor(bb.maxZ);
 
         for (int y2 = minY; y2 <= maxY; y2++)
         {
@@ -731,7 +731,7 @@ public class EntityUtils
     {
         if (living.isNoDespawnRequired() == false)
         {
-            boolean canDespawn = ((living instanceof EntityMob) && living.isNonBoss() == true) ||
+            boolean canDespawn = ((living instanceof EntityMob) && living.isNonBoss()) ||
                                   (living instanceof EntityWaterMob) ||
                                   ((living instanceof EntityTameable) && ((EntityTameable)living).isTamed() == false);
 
@@ -763,11 +763,11 @@ public class EntityUtils
                 }
             }
 
-            if (canDespawn == true)
+            if (canDespawn)
             {
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
-                living.worldObj.playSound(null, living.getPosition(), Sounds.jailer, SoundCategory.MASTER, 0.8f, 1.2f);
+                living.getEntityWorld().playSound(null, living.getPosition(), Sounds.jailer, SoundCategory.MASTER, 0.8f, 1.2f);
                 //living.playSound(Sounds.jailer, 0.8f, 1.2f);
 
                 return true;
@@ -853,7 +853,7 @@ public class EntityUtils
         int priority = -1;
         Iterator<EntityAITaskEntry> taskEntryIter = living.tasks.taskEntries.iterator();
 
-        while (taskEntryIter.hasNext() == true)
+        while (taskEntryIter.hasNext())
         {
             EntityAITaskEntry taskEntry = taskEntryIter.next();
             //System.out.printf("addAITaskAfterTasks() - start - task: %s\n", taskEntry.action);
@@ -862,7 +862,7 @@ public class EntityUtils
             if (taskEntry.action.getClass() == task.getClass())
             {
                 // Replace the old matching task with the new instance
-                if (replaceMatching == true)
+                if (replaceMatching)
                 {
                     //System.out.printf("addAITaskAfterTasks() - task already present - replacing %s with %s\n", taskEntry.action, task);
                     int p = taskEntry.priority;

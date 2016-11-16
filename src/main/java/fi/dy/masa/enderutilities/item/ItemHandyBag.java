@@ -44,11 +44,11 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -102,7 +102,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
-        if (player.isSneaking() == true)
+        if (player.isSneaking())
         {
             this.tryMoveItems(stack, world, player, pos, side);
 
@@ -147,7 +147,7 @@ public class ItemHandyBag extends ItemInventoryModular
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
+            if (moduleStack.hasDisplayName())
             {
                 String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
                 if (itemName.length() >= 14)
@@ -193,7 +193,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         strRestockMode += restockMode.getDisplayName() + rst;
 
-        if (verbose == true)
+        if (verbose)
         {
             list.add(strPickupMode);
             list.add(strRestockMode);
@@ -204,7 +204,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         String str;
-        if (bagIsOpenable(containerStack) == true)
+        if (bagIsOpenable(containerStack))
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
                     preGreen + I18n.format("enderutilities.tooltip.item.yes");
@@ -316,7 +316,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (world.isRemote == false)
             {
                 InventoryUtils.tryMoveAllItems(wrappedBagInv, inv);
-                player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+                player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
             return EnumActionResult.SUCCESS;
@@ -336,7 +336,7 @@ public class ItemHandyBag extends ItemInventoryModular
                     InventoryUtils.tryMoveAllItems(inv, wrappedBagInv);
                 }
 
-                player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+                player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
             return EnumActionResult.SUCCESS;
@@ -396,7 +396,7 @@ public class ItemHandyBag extends ItemInventoryModular
      */
     public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
-        if (event.getEntityPlayer().worldObj.isRemote == true)
+        if (event.getEntityPlayer().getEntityWorld().isRemote)
         {
             return true;
         }
@@ -407,7 +407,7 @@ public class ItemHandyBag extends ItemInventoryModular
         List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
 
         Iterator<ItemStack> iter = event.drops.iterator();
-        while (iter.hasNext() == true)
+        while (iter.hasNext())
         {
             ItemStack stack = iter.next();
             if (stack == null)
@@ -421,7 +421,7 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 ItemStack bagStack = playerInv.getStackInSlot(slot);
                 // Bag is not locked
-                if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
+                if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack))
                 {
                     ItemStack stackOrig = stack;
                     stack = handleItems(stack, bagStack, player);
@@ -441,13 +441,13 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         // At least some items were picked up
-        if (pickedUp == true)
+        if (pickedUp)
         {
-            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
+            player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER, 0.2F,
                     ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
-        if (event.drops.isEmpty() == true)
+        if (event.drops.isEmpty())
         {
             event.setCanceled(true);
             return false;
@@ -467,7 +467,7 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         EntityItem entityItem = event.getItem();
 
-        if (event.getEntityPlayer().worldObj.isRemote == true || entityItem.isDead == true ||
+        if (event.getEntityPlayer().getEntityWorld().isRemote || entityItem.isDead ||
             entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null ||
             entityItem.getEntityItem().stackSize <= 0)
         {
@@ -486,7 +486,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             ItemStack bagStack = playerInv.getStackInSlot(slot);
             // Bag is not locked
-            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack) == true)
+            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack))
             {
                 stack = handleItems(stack, bagStack, player);
 
@@ -498,7 +498,7 @@ public class ItemHandyBag extends ItemInventoryModular
             }
         }
 
-        if (entityItem.isDead == true)
+        if (entityItem.isDead)
         {
             FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
             player.onItemPickup(entityItem, origStackSize);
@@ -511,9 +511,9 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         // At least some items were picked up
-        if (entityItem.isSilent() == false && (entityItem.isDead == true || stack.stackSize != origStackSize))
+        if (entityItem.isSilent() == false && (entityItem.isDead || stack.stackSize != origStackSize))
         {
-            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER,
+            player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER,
                     0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
         }
 
@@ -529,7 +529,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         // If the bag is locked from opening
-        if (stack.getTagCompound().getCompoundTag("HandyBag").getBoolean("DisableOpen") == true)
+        if (stack.getTagCompound().getCompoundTag("HandyBag").getBoolean("DisableOpen"))
         {
             return false;
         }
@@ -549,7 +549,7 @@ public class ItemHandyBag extends ItemInventoryModular
         {
             ItemStack stack = playerInv.getStackInSlot(slot);
 
-            if (bagIsOpenable(stack) == true)
+            if (bagIsOpenable(stack))
             {
                 return stack;
             }
@@ -689,7 +689,7 @@ public class ItemHandyBag extends ItemInventoryModular
                         {
                             Object baubles = baublesContainer.getMod();
                             BlockPos pos = player.getPosition();
-                            player.openGui(baubles, 0, player.worldObj, pos.getX(), pos.getY(), pos.getZ());
+                            player.openGui(baubles, 0, player.getEntityWorld(), pos.getX(), pos.getY(), pos.getZ());
                         }
                     }
                     catch (Exception e)
@@ -862,10 +862,10 @@ public class ItemHandyBag extends ItemInventoryModular
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
-        String variant = "locked=" + (bagIsOpenable(stack) == true ? "false" : "true") +
+        String variant = "locked=" + (bagIsOpenable(stack) ? "false" : "true") +
                          ",pickupmode=" + PickupMode.fromStack(stack).getVariantName() +
                          ",restockmode=" + RestockMode.fromStack(stack).getName() +
-                         ",tier=" + MathHelper.clamp_int(stack.getMetadata(), 0, 1);
+                         ",tier=" + MathHelper.clamp(stack.getMetadata(), 0, 1);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
     }

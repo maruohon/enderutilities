@@ -80,7 +80,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         entity.stepHeight = 1.0F;
         entity.jumpMovementFactor = entity.getAIMoveSpeed() * 0.1F;
 
-        if (entity.worldObj.isRemote == false)
+        if (entity.getEntityWorld().isRemote == false)
         {
             //float speed = (float)entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
             float speed = this.maxSpeed;
@@ -91,7 +91,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         entity.prevLimbSwingAmount = entity.limbSwingAmount;
         double d1 = entity.posX - entity.prevPosX;
         double d0 = entity.posZ - entity.prevPosZ;
-        float f4 = MathHelper.sqrt_double(d1 * d1 + d0 * d0) * 4.0F;
+        float f4 = MathHelper.sqrt(d1 * d1 + d0 * d0) * 4.0F;
 
         if (f4 > 1.0F)
         {

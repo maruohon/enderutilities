@@ -35,7 +35,7 @@ public class ConfigReader
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
     {
-        if (Reference.MOD_ID.equals(event.getModID()) == true)
+        if (Reference.MOD_ID.equals(event.getModID()))
         {
             loadConfigGeneric(config);
         }
@@ -96,7 +96,7 @@ public class ConfigReader
 
         prop = conf.get(category, "lazyBuildersWandGhostBlockAlpha", 0.7d).setRequiresMcRestart(false);
         prop.setComment("The alpha value to use for the translucent ghost block rendering mode");
-        Configs.buildersWandGhostBlockAlpha = (float) MathHelper.clamp_double(prop.getDouble(), 0, 1);
+        Configs.buildersWandGhostBlockAlpha = (float) MathHelper.clamp(prop.getDouble(), 0, 1);
 
         prop = conf.get(category, "lazyBuildersWandMaxBlockHardness", 10d).setRequiresMcRestart(false);
         prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
@@ -157,7 +157,7 @@ public class ConfigReader
         // Update the version in the config to the current version
         prop.setValue(CURRENT_CONFIG_VERSION);
 
-        if (conf.hasChanged() == true)
+        if (conf.hasChanged())
         {
             conf.save();
         }
@@ -299,7 +299,7 @@ public class ConfigReader
         Configs.disableRecipePartEnderRope        = conf.get(category, "disableRecipePartEnderRope", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipePartEnderStick       = conf.get(category, "disableRecipePartEnderStick", false).setRequiresMcRestart(true).getBoolean();
 
-        if (conf.hasChanged() == true)
+        if (conf.hasChanged())
         {
             conf.save();
         }
@@ -331,7 +331,7 @@ public class ConfigReader
 
         //updateConfigs(conf);
 
-        if (conf.hasChanged() == true)
+        if (conf.hasChanged())
         {
             conf.save();
         }

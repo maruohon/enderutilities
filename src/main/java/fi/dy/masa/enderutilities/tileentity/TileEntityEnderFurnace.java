@@ -100,11 +100,11 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         super.writeToNBT(nbt);
 
         byte flags = 0;
-        if (this.fastMode == true)
+        if (this.fastMode)
         {
             flags |= 0x01;
         }
-        if (this.outputToEnderChest == true)
+        if (this.outputToEnderChest)
         {
             flags |= 0x02;
         }
@@ -124,9 +124,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
         byte flags = 0;
         // 0x10: is cooking something, 0x20: is burning fuel, 0x40: fast mode active
-        if (canSmelt() == true) { flags |= 0x10; }
-        if (isBurning() == true) { flags |= 0x20; }
-        if (this.fastMode == true) { flags |= 0x40; }
+        if (canSmelt()) { flags |= 0x10; }
+        if (isBurning()) { flags |= 0x20; }
+        if (this.fastMode) { flags |= 0x40; }
         nbt.setByte("f", flags);
 
         return nbt;
@@ -142,7 +142,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
         super.handleUpdateTag(tag);
 
-        this.worldObj.checkLight(this.getPos());
+        this.getWorld().checkLight(this.getPos());
     }
 
     public boolean isBurning()
@@ -156,7 +156,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private void updateSmeltingResult()
     {
-        if (this.inputDirty == true)
+        if (this.inputDirty)
         {
             if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) != null)
             {
@@ -176,7 +176,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     /*private void updateFuelCache()
     {
-        if (this.fuelDirty == true)
+        if (this.fuelDirty)
         {
             if (this.itemHandler.getStackInSlot(SLOT_FUEL) != null)
             {
@@ -194,7 +194,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     @Override
     public void update()
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote)
         {
             return;
         }
@@ -210,7 +210,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         {
             cookTimeIncrement = COOKTIME_INC_NOFUEL;
         }
-        else if (this.fastMode == true)
+        else if (this.fastMode)
         {
             cookTimeIncrement = COOKTIME_INC_FAST;
         }
@@ -218,12 +218,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // The furnace is currently burning fuel
         if (this.burnTimeRemaining > 0)
         {
-            int btUse = (this.fastMode == true ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
+            int btUse = (this.fastMode ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
 
             // Not enough fuel burn time remaining for the elapsed tick
             if (btUse > this.burnTimeRemaining)
             {
-                if (hasFuel == true && canSmelt == true)
+                if (hasFuel && canSmelt)
                 {
                     this.burnTimeRemaining += consumeFuelItem();
                     hasFuel = this.hasFuelAvailable();
@@ -240,7 +240,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             dirty = true;
         }
         // Furnace wasn't burning, but it now has fuel and smeltable items, start burning/smelting
-        else if (canSmelt == true && hasFuel == true)
+        else if (canSmelt && hasFuel)
         {
             this.burnTimeRemaining += this.consumeFuelItem();
             hasFuel = this.hasFuelAvailable();
@@ -248,7 +248,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         // Valid items to smelt, room in output
-        if (canSmelt == true)
+        if (canSmelt)
         {
             this.cookTime += cookTimeIncrement;
 
@@ -259,7 +259,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
                 canSmelt = this.canSmelt();
 
                 // We can smelt the next item and we "overcooked" the last one, carry over the extra progress
-                if (canSmelt == true && this.cookTime > COOKTIME_DEFAULT)
+                if (canSmelt && this.cookTime > COOKTIME_DEFAULT)
                 {
                     this.cookTime -= COOKTIME_DEFAULT;
                 }
@@ -270,7 +270,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             }
 
             // If the current fuel ran out and we still have items to cook, consume the next fuel item
-            if (this.burnTimeRemaining == 0 && hasFuel == true && canSmelt == true)
+            if (this.burnTimeRemaining == 0 && hasFuel && canSmelt)
             {
                 this.burnTimeRemaining += consumeFuelItem();
             }
@@ -285,9 +285,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         // Output to Ender Chest enabled
-        if (this.outputToEnderChest == true && this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
+        if (this.outputToEnderChest && this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
         {
-            if (this.moveItemsToEnderChest() == true)
+            if (this.moveItemsToEnderChest())
             {
                 dirty = true;
             }
@@ -295,7 +295,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             this.timer = 0;
         }
 
-        if (dirty == true)
+        if (dirty)
         {
             this.markDirty();
         }
@@ -303,9 +303,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // Check if we need to sync some stuff to the clients
         if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
-            IBlockState state = this.worldObj.getBlockState(this.getPos());
-            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
-            this.worldObj.checkLight(this.getPos());
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            this.getWorld().checkLight(this.getPos());
         }
 
         this.isBurningLast = this.isBurning();
@@ -317,7 +317,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     public void smeltItem()
     {
-        if (this.canSmelt() == true)
+        if (this.canSmelt())
         {
             this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, false);
             this.getBaseItemHandler().extractItem(SLOT_INPUT, 1, false);
@@ -425,7 +425,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             return false;
         }
 
-        return (itemContainsFluidFuel(fuelStack) == true || getItemBurnTime(fuelStack) > 0);
+        return (itemContainsFluidFuel(fuelStack) || getItemBurnTime(fuelStack) > 0);
     }
 
     /**
@@ -559,7 +559,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
                 return FurnaceRecipes.instance().getSmeltingResult(stack) != null;
             }
 
-            return slot == SLOT_FUEL && isItemFuel(stack) == true;
+            return slot == SLOT_FUEL && isItemFuel(stack);
         }
 
         @Override
@@ -617,8 +617,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         if (action == 0)
         {
             this.fastMode = ! this.fastMode;
-            IBlockState state = this.worldObj.getBlockState(this.getPos());
-            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
         }
         // 1: Output mode (output to Ender Chest OFF/ON)
         else if (action == 1)

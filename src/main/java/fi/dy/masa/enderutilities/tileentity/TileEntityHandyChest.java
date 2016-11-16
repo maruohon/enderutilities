@@ -85,7 +85,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, MAX_TIER);
+        this.chestTier = MathHelper.clamp(nbt.getByte("ChestTier"), 0, MAX_TIER);
         this.actionMode = nbt.getByte("QuickMode");
         this.setSelectedModule(nbt.getByte("SelModule"));
         this.setLockMask(nbt.getByte("LockMask"));
@@ -184,7 +184,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     public void setSelectedModule(int index)
     {
-        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
+        this.selectedModule = MathHelper.clamp(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
 
     @Override
@@ -209,7 +209,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void setStorageTier(int tier)
     {
-        this.chestTier = MathHelper.clamp_int(tier, 0, MAX_TIER);
+        this.chestTier = MathHelper.clamp(tier, 0, MAX_TIER);
         this.invSize = INV_SIZES[this.chestTier];
 
         this.initStorage(this.invSize, this.getWorld().isRemote);
@@ -218,22 +218,22 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote)
         {
             return;
         }
 
         Long last = this.clickTimes.get(player.getUniqueID());
-        if (last != null && this.worldObj.getTotalWorldTime() - last < 5)
+        if (last != null && this.getWorld().getTotalWorldTime() - last < 5)
         {
             // Double left clicked fast enough (< 5 ticks) - do the selected item moving action
             this.performGuiAction(player, GUI_ACTION_MOVE_ITEMS, this.actionMode);
-            player.worldObj.playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
             this.clickTimes.remove(player.getUniqueID());
         }
         else
         {
-            this.clickTimes.put(player.getUniqueID(), this.worldObj.getTotalWorldTime());
+            this.clickTimes.put(player.getUniqueID(), this.getWorld().getTotalWorldTime());
         }
     }
 
@@ -261,7 +261,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
             ModuleType type = module.getModuleType(stack);
 
             // Check for a valid item-type Memory Card
-            return  type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) == true &&
+            return  type.equals(ModuleType.TYPE_MEMORY_CARD_ITEMS) &&
                     module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
                     module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
         }

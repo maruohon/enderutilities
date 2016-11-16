@@ -75,7 +75,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     {
         super.readFromNBTCustom(nbt);
 
-        if (nbt.hasKey("CustomName", Constants.NBT.TAG_STRING) == true)
+        if (nbt.hasKey("CustomName", Constants.NBT.TAG_STRING))
         {
             this.customInventoryName = nbt.getString("CustomName");
         }
@@ -90,7 +90,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 
         this.writeItemsToNBT(nbt);
 
-        if (this.hasCustomName() == true)
+        if (this.hasCustomName())
         {
             nbt.setString("CustomName", this.customInventoryName);
         }
@@ -125,7 +125,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     @Override
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        if (this.worldObj.getTileEntity(this.getPos()) != this || player.getDistanceSq(this.getPos()) >= 64.0d)
+        if (this.getWorld().getTileEntity(this.getPos()) != this || player.getDistanceSq(this.getPos()) >= 64.0d)
         {
             return false;
         }

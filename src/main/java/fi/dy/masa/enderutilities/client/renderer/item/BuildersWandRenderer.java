@@ -68,7 +68,7 @@ public class BuildersWandRenderer
 
             // Don't allow targeting the top face of blocks while sneaking
             // This should make sneak building a platform a lot less annoying
-            if (usingPlayer.isSneaking() == true && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
+            if (usingPlayer.isSneaking() && rayTraceResult.sideHit == EnumFacing.UP && mode != Mode.REPLACE)
             {
                 return;
             }
@@ -121,7 +121,7 @@ public class BuildersWandRenderer
 
         boolean renderGhostBlocks = wand.getRenderGhostBlocks(stack, mode);
 
-        if (renderGhostBlocks == true)
+        if (renderGhostBlocks)
         {
             this.renderGhostBlocks(clientPlayer, partialTicks);
         }
@@ -247,7 +247,7 @@ public class BuildersWandRenderer
                 GlStateManager.color(1f, 1f, 1f, 1f);
 
                 // Existing block
-                if (this.mc.theWorld.isAirBlock(pos) == false)
+                if (this.mc.world.isAirBlock(pos) == false)
                 {
                     GlStateManager.translate(-0.001, -0.001, -0.001);
                     GlStateManager.scale(1.002, 1.002, 1.002);
@@ -331,7 +331,7 @@ public class BuildersWandRenderer
 
     public void renderHud(EntityPlayer player)
     {
-        ItemStack stack = this.mc.thePlayer.getHeldItemMainhand();
+        ItemStack stack = this.mc.player.getHeldItemMainhand();
         if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
         {
             return;

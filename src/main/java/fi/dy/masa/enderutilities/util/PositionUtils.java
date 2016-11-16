@@ -748,17 +748,17 @@ public class PositionUtils
         // So we are just getting the border size in the Overworld for now
         World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0);
         int worldLimit = 29999984;
-        double posX = MathHelper.clamp_double(player.posX * scaleX, -worldLimit, worldLimit);
-        double posY = MathHelper.clamp_double(player.posY * scaleY, 0, world != null ? world.getActualHeight() - 1 : 255);
-        double posZ = MathHelper.clamp_double(player.posZ * scaleZ, -worldLimit, worldLimit);
+        double posX = MathHelper.clamp(player.posX * scaleX, -worldLimit, worldLimit);
+        double posY = MathHelper.clamp(player.posY * scaleY, 0, world != null ? world.getActualHeight() - 1 : 255);
+        double posZ = MathHelper.clamp(player.posZ * scaleZ, -worldLimit, worldLimit);
 
         if (world != null)
         {
             WorldBorder border = world.getWorldBorder();
             margin = Math.min(margin, (int)(border.getDiameter() / 2));
 
-            posX = MathHelper.clamp_double(player.posX * scaleX, border.minX() + margin, border.maxX() - margin);
-            posZ = MathHelper.clamp_double(player.posZ * scaleZ, border.minZ() + margin, border.maxZ() - margin);
+            posX = MathHelper.clamp(player.posX * scaleX, border.minX() + margin, border.maxX() - margin);
+            posZ = MathHelper.clamp(player.posZ * scaleZ, border.minZ() + margin, border.maxZ() - margin);
             //System.out.printf("border - size: %.4f posX: %.4f posY: %.4f posZ: %.4f\n", border.getDiameter(), posX, posY, posZ);
         }
 

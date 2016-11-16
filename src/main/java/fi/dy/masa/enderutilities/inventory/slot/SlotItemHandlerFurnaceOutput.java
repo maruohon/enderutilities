@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.stats.AchievementList;
 import net.minecraft.util.math.MathHelper;
-
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
@@ -30,7 +29,7 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
     @Override
     public ItemStack decrStackSize(int amount)
     {
-        if (this.getHasStack() == true)
+        if (this.getHasStack())
         {
             this.amountCrafted += Math.min(amount, this.getStack().stackSize);
         }
@@ -54,9 +53,9 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
     @Override
     protected void onCrafting(ItemStack stack)
     {
-        stack.onCrafting(this.player.worldObj, this.player, this.amountCrafted);
+        stack.onCrafting(this.player.getEntityWorld(), this.player, this.amountCrafted);
 
-        if (this.player.worldObj.isRemote == false)
+        if (this.player.getEntityWorld().isRemote == false)
         {
             int i = this.amountCrafted;
             float f = FurnaceRecipes.instance().getSmeltingExperience(stack);
@@ -67,9 +66,9 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
             }
             else if (f < 1.0F)
             {
-                int j = MathHelper.floor_float((float)i * f);
+                int j = MathHelper.floor((float)i * f);
 
-                if (j < MathHelper.ceiling_float_int((float)i * f) && Math.random() < (double)((float)i * f - (float)j))
+                if (j < MathHelper.ceil((float)i * f) && Math.random() < (double)((float)i * f - (float)j))
                 {
                     ++j;
                 }
@@ -81,7 +80,7 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
             {
                 int k = EntityXPOrb.getXPSplit(i);
                 i -= k;
-                this.player.worldObj.spawnEntityInWorld(new EntityXPOrb(this.player.worldObj, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
+                this.player.getEntityWorld().spawnEntityInWorld(new EntityXPOrb(this.player.getEntityWorld(), this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
             }
         }
 

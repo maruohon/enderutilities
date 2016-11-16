@@ -40,7 +40,7 @@ public class EntityEventHandler
         }
 
         Item item = stack.getItem();
-        boolean isRemote = player.worldObj.isRemote;
+        boolean isRemote = player.getEntityWorld().isRemote;
 
         // This needs to be in the event instead of itemInteractionForEntity() if we want it to also work in creative mode...
         // (Otherwise in creative mode the NBT will get wiped after the use when the item is restored)
@@ -62,17 +62,17 @@ public class EntityEventHandler
         }
         else if (item == EnderUtilitiesItems.enderLasso && event.getTarget() instanceof EntityLivingBase)
         {
-            if (Configs.enderLassoAllowPlayers == true || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
+            if (Configs.enderLassoAllowPlayers || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
             {
-                if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == true &&
-                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, false) == true)
+                if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) &&
+                    UtilItemModular.useEnderCharge(stack, ItemEnderLasso.ENDER_CHARGE_COST, false))
                 {
                     if (event.getTarget() instanceof EntityLiving && UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                     {
                         EntityUtils.applyMobPersistence((EntityLiving)event.getTarget());
                     }
 
-                    if (isRemote == true || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
+                    if (isRemote || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
                     {
                         event.setCanceled(true);
                     }
@@ -112,9 +112,9 @@ public class EntityEventHandler
         // If the player is holding a Portal Scaler, then try to use that and cancel the regular
         // teleport if the Portal Scaler teleportation succeeds
         ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
-        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.worldObj, entity, Blocks.PORTAL))
+        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
         {
-            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.worldObj, (EntityPlayer)entity) == true)
+            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer)entity))
             {
                 event.setCanceled(true);
             }

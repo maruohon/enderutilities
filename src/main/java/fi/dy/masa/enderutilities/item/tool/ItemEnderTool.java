@@ -114,8 +114,8 @@ public class ItemEnderTool extends ItemLocationBoundModular
         TileEntity te = world.getTileEntity(pos);
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() == true && te != null &&
-            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
+        if (player != null && player.isSneaking() && te != null &&
+            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             if (world.isRemote == false)
@@ -126,9 +126,9 @@ public class ItemEnderTool extends ItemLocationBoundModular
             return EnumActionResult.SUCCESS;
         }
         // Hoe
-        else if (ToolType.fromStack(stack).equals(ToolType.HOE) == true)
+        else if (ToolType.fromStack(stack).equals(ToolType.HOE))
         {
-            if (world.isRemote == true)
+            if (world.isRemote)
             {
                 return EnumActionResult.SUCCESS;
             }
@@ -187,7 +187,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
         {
             // Check if we can place the block
-            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block, targetStack) == true)
+            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block, targetStack))
             {
                 EnumActionResult result;
                 // Off-hand
@@ -228,7 +228,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public boolean useHoeArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, int rWidth, int rHeight)
     {
-        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean northSouth = (((int)MathHelper.floor(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
 
         if (northSouth == false)
@@ -265,7 +265,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (side != EnumFacing.DOWN && world.isAirBlock(pos.up()) == true)
+        if (side != EnumFacing.DOWN && world.isAirBlock(pos.up()))
         {
             IBlockState newBlockState = null;
 
@@ -313,7 +313,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
             float hitX, float hitY, float hitZ, int rWidth, int rHeight)
     {
-        boolean northSouth = (((int)MathHelper.floor_float(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
+        boolean northSouth = (((int)MathHelper.floor(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
 
         if (northSouth == false)
@@ -347,7 +347,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             for (int slot = 0; slot < inv.getSlots(); slot++)
             {
-                if (this.plantItemFromInventorySlot(world, player, inv, slot, pos, side, hitX, hitY, hitZ) == true)
+                if (this.plantItemFromInventorySlot(world, player, inv, slot, pos, side, hitX, hitY, hitZ))
                 {
                     // Use Ender Charge if planting from a remote inventory
                     if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
@@ -443,7 +443,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public void setDamage(ItemStack stack, int damage)
     {
-        damage = MathHelper.clamp_int(damage, 0, this.material.getMaxUses());
+        damage = MathHelper.clamp(damage, 0, this.material.getMaxUses());
         NBTUtils.setShort(stack, null, "ToolDamage", (short)damage);
     }
 
@@ -467,7 +467,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         //System.out.println("addToolDamage(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
-        if (stack == null || this.isToolBroken(stack) == true)
+        if (stack == null || this.isToolBroken(stack))
         {
             return false;
         }
@@ -573,7 +573,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == DropsMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true))
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 15);
         }
@@ -583,7 +583,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
     public void handleHarvestDropsEvent(ItemStack toolStack, HarvestDropsEvent event)
     {
-        if (this.isToolBroken(toolStack) == true || event.getWorld() == null || event.getWorld().isRemote == true)
+        if (this.isToolBroken(toolStack) || event.getWorld() == null || event.getWorld().isRemote)
         {
             return;
         }
@@ -605,7 +605,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
         if (mode == DropsMode.PLAYER &&
             this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
-            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
+            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)))
         {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
             return;
@@ -616,7 +616,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             Iterator<ItemStack> iter = drops.iterator();
 
-            while (iter.hasNext() == true)
+            while (iter.hasNext())
             {
                 ItemStack stack = iter.next();
                 if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
@@ -658,7 +658,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
             ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
 
             Iterator<ItemStack> iter = drops.iterator();
-            while (iter.hasNext() == true)
+            while (iter.hasNext())
             {
                 ItemStack stack = iter.next();
                 if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
@@ -667,7 +667,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
                     entityItem.motionX = entityItem.motionZ = 0.0d;
                     entityItem.motionY = 0.15d;
 
-                    if (targetWorld.spawnEntityInWorld(entityItem) == true)
+                    if (targetWorld.spawnEntityInWorld(entityItem))
                     {
                         Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
                         iter.remove();
@@ -678,7 +678,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         // At least something got transported somewhere...
-        if (transported == true)
+        if (transported)
         {
             // Transported the drops to somewhere remote
             if (mode == DropsMode.REMOTE)
@@ -692,7 +692,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         // If we failed to handle the drops ourselves, then try to handle them via other means
         if (drops.size() > 0 &&
             this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
-            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)) == true)
+            MinecraftForge.EVENT_BUS.post(new PlayerItemPickupEvent(player, drops)))
         {
             Effects.addItemTeleportEffects(event.getWorld(), event.getPos());
         }
@@ -707,7 +707,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
-        if (this.isToolBroken(stack) == true)
+        if (this.isToolBroken(stack))
         {
             return 0.2f;
         }
@@ -738,13 +738,13 @@ public class ItemEnderTool extends ItemLocationBoundModular
         }
 
         //if (ForgeHooks.isToolEffective(stack, block, meta))
-        if (state.getBlock().isToolEffective(tool.getToolClass(), state) == true)
+        if (state.getBlock().isToolEffective(tool.getToolClass(), state))
         {
             //System.out.println("getStrVsBlock(); isToolEffective() true: " + eff);
             return eff;
         }
 
-        if (this.canHarvestBlock(state, stack) == true)
+        if (this.canHarvestBlock(state, stack))
         {
             //System.out.println("getStrVsBlock(); canHarvestBlock() true: " + eff);
             return eff;
@@ -757,7 +757,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     @Override
     public boolean canHarvestBlock(IBlockState state, ItemStack stack)
     {
-        if (this.isToolBroken(stack) == true)
+        if (this.isToolBroken(stack))
         {
             return false;
         }
@@ -813,7 +813,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public int getHarvestLevel(ItemStack stack, String toolClass)
     {
         //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
-        if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(ToolType.fromStack(stack).getToolClass()) == true)
+        if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(ToolType.fromStack(stack).getToolClass()))
         {
             return this.material.getHarvestLevel();
         }
@@ -923,7 +923,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         int tier = imodule.getModuleTier(moduleStack);
 
         // Allow the in-world/location and block/inventory type Link Crystals
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == true &&
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) &&
             (tier != ItemLinkCrystal.TYPE_LOCATION && tier != ItemLinkCrystal.TYPE_BLOCK))
         {
             return 0;
@@ -963,16 +963,16 @@ public class ItemEnderTool extends ItemLocationBoundModular
         str = I18n.format(str);
         list.add(I18n.format("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
 
-        if (ToolType.fromStack(stack).equals(ToolType.HOE) == true)
+        if (ToolType.fromStack(stack).equals(ToolType.HOE))
         {
-            str = (powered == true ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
+            str = (powered ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
             str = I18n.format(str);
             list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + str + rst);
         }
         else
         {
             // Dig mode (normal/fast)
-            str = (powered == true ? "enderutilities.tooltip.item.fast" : "enderutilities.tooltip.item.normal");
+            str = (powered ? "enderutilities.tooltip.item.fast" : "enderutilities.tooltip.item.normal");
             str = I18n.format(str);
             list.add(I18n.format("enderutilities.tooltip.item.endertool.digmode") + ": " + preDGreen + str + rst);
         }
@@ -1000,7 +1000,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
         {
             String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
             // Valid target set in the currently selected Link Crystal
-            if (TargetData.itemHasTargetTag(linkCrystalStack) == true)
+            if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
                 ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
@@ -1061,7 +1061,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static DropsMode fromStack(ItemStack stack)
         {
-            int mode = MathHelper.clamp_int(NBTUtils.getByte(stack, null, "DropsMode"), 0, 2);
+            int mode = MathHelper.clamp(NBTUtils.getByte(stack, null, "DropsMode"), 0, 2);
             return values()[mode];
         }
 
@@ -1082,7 +1082,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static PowerStatus fromStack(ItemStack stack)
         {
-            int mode = MathHelper.clamp_int(NBTUtils.getByte(stack, null, "Powered"), 0, 1);
+            int mode = MathHelper.clamp(NBTUtils.getByte(stack, null, "Powered"), 0, 1);
             return values()[mode];
         }
     }
@@ -1158,7 +1158,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
         public static ToolType fromStack(ItemStack stack)
         {
-            int meta = MathHelper.clamp_int(stack.getMetadata(), 0, values().length - 2);
+            int meta = MathHelper.clamp(stack.getMetadata(), 0, values().length - 2);
             return values()[meta];
         }
     }

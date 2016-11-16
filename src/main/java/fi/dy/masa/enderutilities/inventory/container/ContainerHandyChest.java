@@ -38,7 +38,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
     protected void addCustomInventorySlots()
     {
         int customInvStart = this.inventorySlots.size();
-        int tier = MathHelper.clamp_int(this.tehc.getStorageTier(), 0, 3);
+        int tier = MathHelper.clamp(this.tehc.getStorageTier(), 0, 3);
 
         int posX = 8;
         int posY = tier <= 2 ? 41 : 13;
@@ -87,7 +87,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
     @Override
     public void detectAndSendChanges()
     {
-        if (this.tehc.getWorld().isRemote == true)
+        if (this.tehc.getWorld().isRemote)
         {
             return;
         }

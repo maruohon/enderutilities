@@ -109,7 +109,7 @@ public class MessageAddEffects implements IMessage
             {
                 public void run()
                 {
-                    processMessage(message, player, player.worldObj);
+                    processMessage(message, player, player.getEntityWorld());
                 }
             });
 
@@ -132,11 +132,11 @@ public class MessageAddEffects implements IMessage
             }
             else if (message.effectType == EFFECT_ENDER_TOOLS)
             {
-                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds == true)
+                if ((message.flags & SOUND) == SOUND && Configs.useToolSounds)
                 {
                     Effects.playSoundClient(world, message.x, message.y, message.z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.HOSTILE, 0.08f, 1.8f);
                 }
-                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles == true)
+                if ((message.flags & PARTICLES) == PARTICLES && Configs.useToolParticles)
                 {
                     Effects.spawnParticles(world, EnumParticleTypes.PORTAL, message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
                 }

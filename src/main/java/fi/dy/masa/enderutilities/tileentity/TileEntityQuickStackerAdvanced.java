@@ -305,11 +305,11 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
-        if (this.worldObj.isRemote == false)
+        if (this.getWorld().isRemote == false)
         {
             Long last = this.clickTimes.get(player.getUniqueID());
             // Double left clicked fast enough - do the action
-            if (last != null && this.worldObj.getTotalWorldTime() - last < 8)
+            if (last != null && this.getWorld().getTotalWorldTime() - last < 8)
             {
                 // Area mode
                 if (this.isAreaMode())
@@ -326,7 +326,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             }
             else
             {
-                this.clickTimes.put(player.getUniqueID(), this.worldObj.getTotalWorldTime());
+                this.clickTimes.put(player.getUniqueID(), this.getWorld().getTotalWorldTime());
             }
         }
     }
@@ -346,7 +346,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
                     TargetData target = TargetData.getTargetFromItem(lcStack);
                     if (target != null && this.getWorld().isBlockLoaded(target.pos, true) &&
                         target.dimension == this.getWorld().provider.getDimension() &&
-                        PositionUtils.isWithinRange(target.pos, this.getPos(), 32, 32, 32) && target.isTargetBlockUnchanged() == true)
+                        PositionUtils.isWithinRange(target.pos, this.getPos(), 32, 32, 32) && target.isTargetBlockUnchanged())
                     {
                         TileEntity te = this.getWorld().getTileEntity(target.pos);
                         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
@@ -359,7 +359,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
                                 if (result != Result.MOVED_NONE)
                                 {
-                                    Effects.spawnParticlesFromServer(player.worldObj.provider.getDimension(), target.pos, EnumParticleTypes.VILLAGER_HAPPY);
+                                    Effects.spawnParticlesFromServer(player.getEntityWorld().provider.getDimension(), target.pos, EnumParticleTypes.VILLAGER_HAPPY);
                                     movedSome = true;
                                 }
                             }
@@ -373,7 +373,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
         if (movedSome)
         {
-            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.5f, 1.8f);
+            player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.5f, 1.8f);
         }
     }
 
@@ -391,7 +391,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             ItemStack stack = playerInv.getStackInSlot(slotPlayer);
 
             // Only take from slots that have been enabled
-            if ((slotMask & bit) != 0 && stack != null && (filter == null || filter.itemAllowedByFilter(stack) == true))
+            if ((slotMask & bit) != 0 && stack != null && (filter == null || filter.itemAllowedByFilter(stack)))
             {
                 stack = playerInv.extractItem(slotPlayer, 64, false);
                 if (stack == null)
@@ -421,7 +421,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             bit <<= 1;
         }
 
-        if (movedAll == true && ret == Result.MOVED_SOME)
+        if (movedAll && ret == Result.MOVED_SOME)
         {
             ret = Result.MOVED_ALL;
         }
@@ -442,7 +442,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         for (BlockPosDistance posDist : positions)
         {
             TileEntity te = world.getTileEntity(posDist.pos);
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP) == true)
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
 

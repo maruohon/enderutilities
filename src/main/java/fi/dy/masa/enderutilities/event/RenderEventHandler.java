@@ -67,13 +67,13 @@ public class RenderEventHandler
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event)
     {
-        this.renderItemExtras(this.mc.theWorld, this.mc.thePlayer, this.mc.thePlayer, event.getPartialTicks());
+        this.renderItemExtras(this.mc.world, this.mc.player, this.mc.player, event.getPartialTicks());
 
         if (Configs.buildersWandRenderForOtherPlayers)
         {
-            for (EntityPlayer player : this.mc.theWorld.getPlayers(EntityPlayer.class, EntitySelectors.NOT_SPECTATING))
+            for (EntityPlayer player : this.mc.world.getPlayers(EntityPlayer.class, EntitySelectors.NOT_SPECTATING))
             {
-                this.renderItemExtras(this.mc.theWorld, player, this.mc.thePlayer, event.getPartialTicks());
+                this.renderItemExtras(this.mc.world, player, this.mc.player, event.getPartialTicks());
             }
         }
     }
@@ -98,9 +98,9 @@ public class RenderEventHandler
             return;
         }
 
-        if ((this.mc.currentScreen instanceof GuiChat) == false && this.mc.thePlayer != null)
+        if ((this.mc.currentScreen instanceof GuiChat) == false && this.mc.player != null)
         {
-            this.buildersWandRenderer.renderHud(this.mc.thePlayer);
+            this.buildersWandRenderer.renderHud(this.mc.player);
             this.rulerRenderer.renderHud();
         }
     }
@@ -112,7 +112,7 @@ public class RenderEventHandler
 
         if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK)
         {
-            IBlockState state = this.mc.theWorld.getBlockState(trace.getBlockPos());
+            IBlockState state = this.mc.world.getBlockState(trace.getBlockPos());
 
             if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
             {
@@ -125,11 +125,11 @@ public class RenderEventHandler
 
     private void renderPortalPanelText(BlockPos pos, float partialTicks)
     {
-        IBlockState state = this.mc.theWorld.getBlockState(pos);
+        IBlockState state = this.mc.world.getBlockState(pos);
 
         if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
         {
-            TileEntity te = this.mc.theWorld.getTileEntity(pos);
+            TileEntity te = this.mc.world.getTileEntity(pos);
 
             if (te instanceof TileEntityPortalPanel)
             {
@@ -139,7 +139,7 @@ public class RenderEventHandler
                 if (StringUtils.isBlank(name) == false && name.length() > 0)
                 {
                     GlStateManager.alphaFunc(516, 0.1F);
-                    this.renderPortalPanelText(name, this.mc.thePlayer, pos, facing, partialTicks);
+                    this.renderPortalPanelText(name, this.mc.player, pos, facing, partialTicks);
                 }
             }
         }

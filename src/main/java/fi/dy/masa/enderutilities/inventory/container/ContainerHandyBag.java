@@ -176,7 +176,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public void onCraftMatrixChanged(IInventory inv)
     {
-        this.craftResult.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.worldObj));
+        this.craftResult.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.getEntityWorld()));
     }
 
     public void dropCraftingGridContents()
@@ -251,7 +251,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     @Override
     public void detectAndSendChanges()
     {
-        if (this.player.worldObj.isRemote == false)
+        if (this.player.getEntityWorld().isRemote == false)
         {
             ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
 

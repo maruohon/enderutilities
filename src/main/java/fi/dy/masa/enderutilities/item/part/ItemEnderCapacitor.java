@@ -118,7 +118,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             amount = (capacity - charge);
         }
 
-        if (doCharge == true)
+        if (doCharge)
         {
             this.setCharge(nbt, charge + amount);
         }
@@ -148,7 +148,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
             amount = charge;
         }
 
-        if (doUse == true)
+        if (doUse)
         {
             this.setCharge(nbt, charge - amount);
         }
@@ -163,7 +163,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int capacity = this.getCapacity(stack);
 
         list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
-        /*if (EnderUtilities.proxy.isShiftKeyDown() == true)
+        /*if (EnderUtilities.proxy.isShiftKeyDown())
         {
             list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
         }
@@ -234,7 +234,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         String pre = this.getCharge(stack) > 0 ? "tex=charged_" : "tex=empty_";
-        int index = MathHelper.clamp_int(stack.getMetadata(), 0, 3);
+        int index = MathHelper.clamp(stack.getMetadata(), 0, 3);
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, pre + index);
     }

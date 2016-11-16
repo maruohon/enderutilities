@@ -74,17 +74,17 @@ public class InputEventHandler
         boolean keyState = Keyboard.getEventKeyState();
 
         // One of our supported modifier keys was pressed or released
-        if (KEY_CODE_MAPPINGS.containsKey(eventKey) == true)
+        if (KEY_CODE_MAPPINGS.containsKey(eventKey))
         {
             int mask = KEY_CODE_MAPPINGS.get(eventKey);
 
             // Key was pressed
-            if (keyState == true)
+            if (keyState)
             {
                 modifierMask |= mask;
 
                 // Only add scrolling mode mask if the currently selected item is one of our IKeyBound items
-                if (isHoldingKeyboundItem(player) == true)
+                if (isHoldingKeyboundItem(player))
                 {
                     scrollingMask |= mask;
                 }
@@ -98,16 +98,16 @@ public class InputEventHandler
         }
 
         // In-game (no GUI open)
-        if (FMLClientHandler.instance().getClient().inGameHasFocus == true)
+        if (FMLClientHandler.instance().getClient().inGameHasFocus)
         {
-            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState == true)
+            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState)
             {
                 if (this.buildersWandClientSideHandling())
                 {
                     return;
                 }
 
-                if (isHoldingKeyboundItem(player) == true || hasKeyBoundUnselectedItem(player) == true)
+                if (isHoldingKeyboundItem(player) || hasKeyBoundUnselectedItem(player))
                 {
                     int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
@@ -120,11 +120,11 @@ public class InputEventHandler
             // or something similar where the GuiScreen changes, then the bag would suddenly open instead of the player inventory
             // when closing the recipe screen and returning to the inventory.
 
-            // Based on a quick test, the inventory key fires as state == true when opening the inventory (before the gui opens)
+            // Based on a quick test, the inventory key fires as state when opening the inventory (before the gui opens)
             // and as state == false when closing the inventory (after the gui has closed).
             else if (eventKey == this.mc.gameSettings.keyBindInventory.getKeyCode())
             {
-                boolean shouldOpen = keyState == true && player.isSneaking() == Configs.handyBagOpenRequiresSneak;
+                boolean shouldOpen = keyState && player.isSneaking() == Configs.handyBagOpenRequiresSneak;
                 GuiEventHandler.instance().setHandyBagShouldOpen(shouldOpen);
             }
             else if (eventKey == Keyboard.KEY_ESCAPE)
@@ -133,12 +133,12 @@ public class InputEventHandler
             }
 
             // Jump or sneak above an Ender Elevator - activate it
-            if (keyState == true && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
+            if (keyState && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
                 eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
             {
                 // EntityPlayerSP adds 0.5 to all the coordinates for some reason...
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-                IBlockState state = player.worldObj.getBlockState(pos.down());
+                IBlockState state = player.getEntityWorld().getBlockState(pos.down());
 
                 if (state.getBlock() == EnderUtilitiesBlocks.blockElevator)
                 {
@@ -164,7 +164,7 @@ public class InputEventHandler
             if (scrollingMask != 0)
             {
                 EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-                if (isHoldingKeyboundItem(player) == true)
+                if (isHoldingKeyboundItem(player))
                 {
                     int key = HotKeys.KEYCODE_SCROLL | scrollingMask;
 
@@ -174,7 +174,7 @@ public class InputEventHandler
                         key |= HotKeys.SCROLL_MODIFIER_REVERSE;
                     }
 
-                    if (event.isCancelable() == true)
+                    if (event.isCancelable())
                     {
                         event.setCanceled(true);
                     }
@@ -192,7 +192,7 @@ public class InputEventHandler
             return false;
         }
 
-        ItemStack stack = Minecraft.getMinecraft().thePlayer.getHeldItemMainhand();
+        ItemStack stack = Minecraft.getMinecraft().player.getHeldItemMainhand();
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand &&
             ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
         {

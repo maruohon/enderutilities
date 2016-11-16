@@ -65,7 +65,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     @Override
     public void detectAndSendChanges()
     {
-        if (this.player.worldObj.isRemote == true)
+        if (this.player.getEntityWorld().isRemote)
         {
             return;
         }

@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.stats.AchievementList;
-
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
@@ -56,7 +55,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
     {
         if (this.amountCrafted > 0)
         {
-            stack.onCrafting(this.player.worldObj, this.player, this.amountCrafted);
+            stack.onCrafting(this.player.getEntityWorld(), this.player, this.amountCrafted);
         }
 
         this.amountCrafted = 0;
@@ -117,7 +116,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
         net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, craftMatrix);
         this.onCrafting(stack);
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(playerIn);
-        ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.worldObj);
+        ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.getEntityWorld());
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(null);
 
         for (int i = 0; i < remainingItems.length; ++i)

@@ -27,10 +27,10 @@ import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
@@ -76,10 +76,10 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() == true)
+        if (player.isSneaking())
         {
             TileEntity te = world.getTileEntity(pos);
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
                 if (world.isRemote == false && inv != null)
@@ -121,7 +121,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
-        if (isEnabled(containerStack) == true)
+        if (isEnabled(containerStack))
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
                     preGreen + I18n.format("enderutilities.tooltip.item.yes");
@@ -154,7 +154,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         {
             ItemStack stack = playerInv.getStackInSlot(slot);
 
-            if (isEnabled(stack) == true)
+            if (isEnabled(stack))
             {
                 return stack;
             }
@@ -177,7 +177,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
                 getEnabledSlotsMask(stackerStack), player.isSneaking() == false, null);
         if (ret != Result.MOVED_NONE)
         {
-            player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+            player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
         }
 
         return ret;
@@ -192,8 +192,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         }
 
         //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
-        TileEntityQuickStackerAdvanced.quickStackToInventories(player.worldObj, player, getEnabledSlotsMask(stackerStack),
-                PositionUtils.getTileEntityPositions(player.worldObj,
+        TileEntityQuickStackerAdvanced.quickStackToInventories(player.getEntityWorld(), player, getEnabledSlotsMask(stackerStack),
+                PositionUtils.getTileEntityPositions(player.getEntityWorld(),
                         player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL, MAX_RANGE_VERTICAL));
     }
 

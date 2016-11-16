@@ -107,7 +107,7 @@ public class MessageKeyPressed implements IMessage
             if (message.keyPressed == HotKeys.KEYCODE_JUMP || message.keyPressed == HotKeys.KEYCODE_SNEAK)
             {
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-                TileEntity te = player.worldObj.getTileEntity(pos.down());
+                TileEntity te = player.getEntityWorld().getTileEntity(pos.down());
 
                 if (te instanceof TileEntityEnderElevator)
                 {

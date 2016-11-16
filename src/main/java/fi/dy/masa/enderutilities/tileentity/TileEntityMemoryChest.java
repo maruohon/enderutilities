@@ -55,7 +55,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.chestTier = MathHelper.clamp_int(nbt.getByte("ChestTier"), 0, 2);
+        this.chestTier = MathHelper.clamp(nbt.getByte("ChestTier"), 0, 2);
         this.invSize = INV_SIZES[this.chestTier];
         this.setTemplateMask(nbt.getLong("TemplateMask"));
 
@@ -121,7 +121,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
     @Override
     public void setStorageTier(int tier)
     {
-        tier = MathHelper.clamp_int(tier, 0, 2);
+        tier = MathHelper.clamp(tier, 0, 2);
         this.chestTier = tier;
         this.invSize = INV_SIZES[this.chestTier];
 
@@ -223,7 +223,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
             }
 
             // Simple cases for allowing items in: no templated slots, or matching item already in the slot
-            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true)
+            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)))
             {
                 return true;
             }
@@ -238,13 +238,13 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
                 if (slot == i)
                 {
                     //System.out.println("isValid slot match - " + (this.worldObj.isRemote ? "client" : "server"));
-                    return InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]) == true;
+                    return InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[slot]);
                 }
 
                 ItemStack stackTmp = this.getStackInSlot(i);
                 // Space in the inventory slot for this template slot, and the input item matches the template item
                 // => disallow putting the input item in slotNum, unless slotNum was this slot (see above check)
-                if ((stackTmp == null || stackTmp.stackSize < max) && InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[i]) == true)
+                if ((stackTmp == null || stackTmp.stackSize < max) && InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks[i]))
                 {
                     //System.out.println("isValid denied - " + (this.worldObj.isRemote ? "client" : "server"));
                     return false;
@@ -259,7 +259,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
                 return true;
             }
 
-            return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]) == true;
+            return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]);
             */
         }
     }
@@ -283,7 +283,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory imp
             }
 
             // Simple cases for allowing items in: no templated slots, or matching item already in the slot
-            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)) == true)
+            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)))
             {
                 return true;
             }

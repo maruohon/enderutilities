@@ -116,12 +116,12 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
     {
         super.drawScreen(mouseX, mouseY, gameTicks);
 
-        if (this.needsPositionUpdate() == true)
+        if (this.needsPositionUpdate())
         {
             this.updatePositions();
         }
 
-        if (this.hasActivePotionEffects == true)
+        if (this.hasActivePotionEffects)
         {
             this.drawActivePotionEffects();
         }
@@ -212,7 +212,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
 
         int xOff = this.guiLeft + 51 + this.offsetXTier;
         // Draw the player model
-        GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.thePlayer);
+        GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.player);
     }
 
     @Override
@@ -306,7 +306,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
         else if (button.id >= BTN_ID_FIRST_MOVE_ITEMS && button.id <= (BTN_ID_FIRST_MOVE_ITEMS + 5))
         {
             int value = button.id - BTN_ID_FIRST_MOVE_ITEMS;
-            if (GuiScreen.isShiftKeyDown() == true)
+            if (GuiScreen.isShiftKeyDown())
             {
                 value |= 0x8000;
             }
@@ -339,11 +339,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
     protected void updateActivePotionEffects()
     {
         boolean hasVisibleEffect = false;
-        for(PotionEffect potioneffect : this.mc.thePlayer.getActivePotionEffects()) {
+        for(PotionEffect potioneffect : this.mc.player.getActivePotionEffects()) {
             Potion potion = potioneffect.getPotion();
             if(potion.shouldRender(potioneffect)) { hasVisibleEffect = true; break; }
         }
-        if (!this.mc.thePlayer.getActivePotionEffects().isEmpty() && hasVisibleEffect)
+        if (this.mc.player.getActivePotionEffects().isEmpty() == false && hasVisibleEffect)
         {
             if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent(this)))
             {
@@ -368,7 +368,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
         int i = this.guiLeft - 124;
         int j = this.guiTop;
 
-        Collection<PotionEffect> collection = this.mc.thePlayer.getActivePotionEffects();
+        Collection<PotionEffect> collection = this.mc.player.getActivePotionEffects();
 
         if (!collection.isEmpty())
         {

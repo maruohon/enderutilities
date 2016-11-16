@@ -164,7 +164,7 @@ public class TileEntityEnderUtilities extends TileEntity
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket()
     {
-        if (this.worldObj != null)
+        if (this.getWorld() != null)
         {
             return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdatePacketTag(new NBTTagCompound()));
         }
@@ -175,7 +175,7 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        if (tag.hasKey("r") == true)
+        if (tag.hasKey("r"))
         {
             this.setFacing(EnumFacing.getFront((byte)(tag.getByte("r") & 0x07)));
         }
@@ -185,8 +185,8 @@ public class TileEntityEnderUtilities extends TileEntity
             this.ownerData = new OwnerData(tag.getString("o"), tag.getBoolean("pu"));
         }
 
-        IBlockState state = this.worldObj.getBlockState(this.getPos());
-        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     @Override

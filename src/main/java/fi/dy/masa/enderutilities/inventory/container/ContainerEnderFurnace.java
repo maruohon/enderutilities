@@ -107,7 +107,7 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
         {
             case 0:
                 this.fuelProgress = val & 0x7F; // value is 0..100, mask it to he lowest 7 bits (0..127)
-                this.smeltingProgress = MathHelper.clamp_int((val >>> 8) & 0x7F, 0, 100);
+                this.smeltingProgress = MathHelper.clamp((val >>> 8) & 0x7F, 0, 100);
                 break;
             case 1:
                 this.outputToEnderChest = (val == 1);

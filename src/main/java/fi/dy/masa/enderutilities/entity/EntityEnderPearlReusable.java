@@ -39,7 +39,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         super(world, entity);
 
         // Don't drop the items when in creative mode, since currently I can't decrease (or change at all) the stackSize when in creative mode (wtf?)
-        if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode == true)
+        if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode)
         {
             this.canPickUp = false;
         }
@@ -50,7 +50,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         this(world, entity);
 
         this.isElite = isElitePearl;
-        this.teleportDamage = isElitePearl == true ? 1.0f : 2.0f;
+        this.teleportDamage = isElitePearl ? 1.0f : 2.0f;
         this.getDataManager().set(IS_ELITE_PEARL, Boolean.valueOf(this.isElite));
     }
 
@@ -77,7 +77,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     public void onUpdate()
     {
         // The pearl has been dismounted, try to return the item to the thrower's inventory, or drop it as an item
-        if (this.worldObj.isRemote == false && this.isElite == true && this.isBeingRidden() == false)
+        if (this.getEntityWorld().isRemote == false && this.isElite && this.isBeingRidden() == false)
         {
             // Failed to add the pearl straight back to the thrower's inventory: drop the item in the world
             if (this.returnToPlayersInventory() == false)
@@ -100,7 +100,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         // Thrower not found, drop the item if applicable and bail out
         if (thrower == null)
         {
-            if (this.worldObj.isRemote == false && this.canPickUp == true)
+            if (this.getEntityWorld().isRemote == false && this.canPickUp)
             {
                 this.dropAsItem();
             }
@@ -110,14 +110,14 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         // Don't collide with the thrower or the entities in the 'stack' with the thrower
-        if (this.worldObj.isRemote == false && rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
+        if (this.getEntityWorld().isRemote == false && rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
         {
-            if (EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, thrower) == true)
+            if (EntityUtils.doesEntityStackContainEntity(rayTraceResult.entityHit, thrower))
             {
                 return;
             }
 
-            if (rayTraceResult.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResult.entityHit).isSpectator() == true)
+            if (rayTraceResult.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResult.entityHit).isSpectator())
             {
                 return;
             }
@@ -130,8 +130,8 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         // Don't collide with blocks without a collision box
         else if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && rayTraceResult.getBlockPos() != null)
         {
-            IBlockState state = this.worldObj.getBlockState(rayTraceResult.getBlockPos());
-            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.worldObj, rayTraceResult.getBlockPos());
+            IBlockState state = this.getEntityWorld().getBlockState(rayTraceResult.getBlockPos());
+            AxisAlignedBB aabb = state.getCollisionBoundingBox(this.getEntityWorld(), rayTraceResult.getBlockPos());
             if (aabb == Block.NULL_AABB)
             {
                 return;
@@ -143,30 +143,30 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         {
             // If the thrower is currently riding an elite pearl, unmount the pearl
             Entity bottom = thrower.getLowestRidingEntity();
-            if (bottom instanceof EntityEnderPearlReusable && bottom.isBeingRidden() == true)
+            if (bottom instanceof EntityEnderPearlReusable && bottom.isBeingRidden())
             {
                 bottom.removePassengers();
             }
 
-            if (this.worldObj.isRemote == false)
+            if (this.getEntityWorld().isRemote == false)
             {
                 TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
             }
         }
         // An Elite pearl lands, which is still being ridden by something (see above)
-        else if (this.isBeingRidden() == true)
+        else if (this.isBeingRidden())
         {
             Entity entity = this.getPassengers().get(0);
             this.removePassengers();
 
-            if (this.worldObj.isRemote == false)
+            if (this.getEntityWorld().isRemote == false)
             {
                 TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
             }
         }
 
         // Try to add the pearl straight back to the player's inventory
-        if (this.worldObj.isRemote == false && this.returnToPlayersInventory() == false)
+        if (this.getEntityWorld().isRemote == false && this.returnToPlayersInventory() == false)
         {
             this.dropAsItem();
         }
@@ -180,13 +180,13 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
      */
     public boolean returnToPlayersInventory()
     {
-        if (this.canPickUp == false || this.worldObj.isRemote == true)
+        if (this.canPickUp == false || this.getEntityWorld().isRemote)
         {
             return true;
         }
 
         Entity thrower = this.getThrower();
-        int damage = (this.isElite == true ? 1 : 0);
+        int damage = (this.isElite ? 1 : 0);
 
         // Tried to, but failed to add the pearl straight back to the thrower's inventory
         if (thrower instanceof EntityPlayerMP)
@@ -206,20 +206,20 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
     public void dropAsItem()
     {
-        if (this.isDead == true)
+        if (this.isDead)
         {
             return;
         }
 
-        int damage = (this.isElite == true ? 1 : 0);
-        EntityItem entityitem = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
+        int damage = (this.isElite ? 1 : 0);
+        EntityItem entityitem = new EntityItem(this.getEntityWorld(), this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
 
-        entityitem.motionX = 0.05d * this.worldObj.rand.nextGaussian();
-        entityitem.motionY = 0.05d * this.worldObj.rand.nextGaussian() + 0.2d;
-        entityitem.motionZ = 0.05d * this.worldObj.rand.nextGaussian();
+        entityitem.motionX = 0.05d * this.getEntityWorld().rand.nextGaussian();
+        entityitem.motionY = 0.05d * this.getEntityWorld().rand.nextGaussian() + 0.2d;
+        entityitem.motionZ = 0.05d * this.getEntityWorld().rand.nextGaussian();
         entityitem.setDefaultPickupDelay();
 
-        this.worldObj.spawnEntityInWorld(entityitem);
+        this.getEntityWorld().spawnEntityInWorld(entityitem);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     @Override
     public int getItemMetadata(Entity entity)
     {
-        return this.getDataManager().get(IS_ELITE_PEARL).booleanValue() == true ? 1 : 0;
+        return this.getDataManager().get(IS_ELITE_PEARL).booleanValue() ? 1 : 0;
     }
 
     @Override

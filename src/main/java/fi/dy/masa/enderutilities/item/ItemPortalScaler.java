@@ -56,7 +56,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
-        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL) == true)
+        if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL))
         {
             return EnumActionResult.PASS;
         }
@@ -73,15 +73,15 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return EnumActionResult.SUCCESS;
         }
 
-        if (world.isRemote == true)
+        if (world.isRemote)
         {
             return EnumActionResult.SUCCESS;
         }
 
         // When right clicking on Obsidian, try to light a Nether Portal
-        if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) == true &&
-            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) == true &&
-            Blocks.PORTAL.trySpawnPortal(world, pos.offset(side)) == true)
+        if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) &&
+            UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) &&
+            Blocks.PORTAL.trySpawnPortal(world, pos.offset(side)))
         {
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, false);
             world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.8f, 1.0f);
@@ -134,7 +134,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         int cost = this.getTeleportCost(player, posDest, dim);
         //System.out.printf("cost1: %d normal: %s new: %s\n", cost, normalDest, posDest);
 
-        if (UtilItemModular.useEnderCharge(stack, cost, true) == true)
+        if (UtilItemModular.useEnderCharge(stack, cost, true))
         {
             TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
             Entity entity = tp.travelToDimension(player, dim, posDest, 32, false);
@@ -220,13 +220,13 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
             // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
+            if (moduleStack.hasDisplayName())
             {
                 str = " " + preGreen + TextFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
             }
 
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
-            if (this.memoryCardHasScaleFactor(moduleStack) == true)
+            if (this.memoryCardHasScaleFactor(moduleStack))
             {
                 NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
                 byte x = tag.getByte("scaleX");
@@ -261,7 +261,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // Memory Cards installed
         if (memoryCardStack != null)
         {
-            if (this.memoryCardHasScaleFactor(memoryCardStack) == true)
+            if (this.memoryCardHasScaleFactor(memoryCardStack))
             {
                 NBTTagCompound tag = memoryCardStack.getTagCompound().getCompoundTag("PortalScaler");
                 byte x = tag.getByte("scaleX");
@@ -277,7 +277,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 list.add(I18n.format("enderutilities.tooltip.item.nodata"));
             }
 
-            if (verbose == true)
+            if (verbose)
             {
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
@@ -291,7 +291,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
         }
 
-        if (verbose == true)
+        if (verbose)
         {
             // Ender Capacitor charge, if one has been installed
             ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
@@ -370,9 +370,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         if (y == 0) { y += Math.abs(facing.getFrontOffsetY()) * amount * 2; }
         if (z == 0) { z += Math.abs(facing.getFrontOffsetZ()) * amount * 2; }
 
-        x = MathHelper.clamp_int(x, -64, 64);
-        y = MathHelper.clamp_int(y, -64, 64);
-        z = MathHelper.clamp_int(z, -64, 64);
+        x = MathHelper.clamp(x, -64, 64);
+        y = MathHelper.clamp(y, -64, 64);
+        z = MathHelper.clamp(z, -64, 64);
 
         tag.setByte("scaleX", (byte)x);
         tag.setByte("scaleY", (byte)y);

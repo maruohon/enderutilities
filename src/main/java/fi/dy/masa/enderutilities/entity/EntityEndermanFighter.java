@@ -212,7 +212,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     @Override
     public EntityLivingBase getActiveTargetEntity()
     {
-        return this.activeTargetIsPrimary == true ? this.primaryTarget : this.secondaryTarget;
+        return this.activeTargetIsPrimary ? this.primaryTarget : this.secondaryTarget;
     }
 
     @Override
@@ -228,7 +228,8 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         else if (livingBase instanceof EntityPlayer)
         {
             this.setScreaming(true);
-            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_SCREAM, this.getSoundCategory(), 0.5f, 1.2f);
+            this.getEntityWorld().playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_SCREAM,
+                    this.getSoundCategory(), 0.5f, 1.2f);
         }
     }
 
@@ -238,7 +239,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         {
             EntityPlayer player = this.getClosestVulnerablePlayer(this.posX, this.posY, this.posZ, 64.0d);
 
-            if (player != null && this.shouldAttackPlayer(player) == true)
+            if (player != null && this.shouldAttackPlayer(player))
             {
                 return player;
             }
@@ -252,11 +253,11 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         double d4 = -1.0d;
         EntityPlayer player = null;
 
-        for (int i = 0; i < this.worldObj.playerEntities.size(); ++i)
+        for (int i = 0; i < this.getEntityWorld().playerEntities.size(); ++i)
         {
-            EntityPlayer playerTmp = (EntityPlayer)this.worldObj.playerEntities.get(i);
+            EntityPlayer playerTmp = (EntityPlayer)this.getEntityWorld().playerEntities.get(i);
 
-            if (playerTmp.capabilities.disableDamage == false && playerTmp.isEntityAlive() == true
+            if (playerTmp.capabilities.disableDamage == false && playerTmp.isEntityAlive()
                 && this.isPlayerHoldingSummonItem(playerTmp) == false)
             {
                 double d5 = playerTmp.getDistanceSq(x, y, z);
@@ -294,8 +295,8 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     {
         // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
         // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
-        if (this.isBeingControlled == true || this.hasCustomName() == true || player.isEntityAlive() == false
-            || player.capabilities.disableDamage == true || this.isPlayerHoldingSummonItem(player) == true)
+        if (this.isBeingControlled || this.hasCustomName() || player.isEntityAlive() == false
+            || player.capabilities.disableDamage || this.isPlayerHoldingSummonItem(player))
         {
             return false;
         }
@@ -305,13 +306,13 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
     private void updateIsBeingControlled()
     {
-        for (int i = 0; i < this.worldObj.playerEntities.size(); ++i)
+        for (int i = 0; i < this.getEntityWorld().playerEntities.size(); ++i)
         {
-            EntityPlayer playerTmp = (EntityPlayer)this.worldObj.playerEntities.get(i);
+            EntityPlayer playerTmp = (EntityPlayer)this.getEntityWorld().playerEntities.get(i);
 
             // If there is a player holding an Ender Sword in Summon mode within 32 blocks, then this fighter won't attack players
-            if (playerTmp.isEntityAlive() == true && playerTmp.getDistanceSq(this.posX, this.posY, this.posZ) < 1024.0d
-                && this.isPlayerHoldingSummonItem(playerTmp) == true)
+            if (playerTmp.isEntityAlive() && playerTmp.getDistanceSq(this.posX, this.posY, this.posZ) < 1024.0d
+                && this.isPlayerHoldingSummonItem(playerTmp))
             {
                 this.isBeingControlled = true;
                 return;
@@ -325,7 +326,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     {
         double r = bbRadius;
         AxisAlignedBB bb = new AxisAlignedBB(this.posX - r, this.posY - r, this.posZ - r, this.posX + r, this.posY + r, this.posZ + r);
-        List<EntityLivingBase> list = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+        List<EntityLivingBase> list = this.getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, bb);
 
         return EntityUtils.findEntityByUUID(list, uuid);
     }
@@ -359,7 +360,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
     private void switchTargets()
     {
-        if (this.isBeingControlled == true)
+        if (this.isBeingControlled)
         {
             if (this.getPrimaryTarget() == null && this.primaryTargetUUID != null)
             {
@@ -406,7 +407,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
     @Override
     public void onLivingUpdate()
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getEntityWorld().isRemote)
         {
             for (int i = 0; i < 2; ++i)
             {
@@ -415,7 +416,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width;
                 double vx = (this.rand.nextDouble() - 0.5d) * 2.0d;
                 double vz = (this.rand.nextDouble() - 0.5d) * 2.0d;
-                this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, -this.rand.nextDouble(), vz);
+                this.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, -this.rand.nextDouble(), vz);
             }
 
             this.isJumping = false;
@@ -459,7 +460,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
         this.isJumping = false;
 
-        if (this.isEntityAlive() == true)
+        if (this.isEntityAlive())
         {
             this.checkTargetsNotDead();
             this.updateIsBeingControlled();
@@ -472,9 +473,9 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 // is a player and should attack him
                 if (this.getAttackTarget() instanceof EntityPlayer)
                 {
-                    if (this.shouldAttackPlayer((EntityPlayer)this.getAttackTarget()) == true)
+                    if (this.shouldAttackPlayer((EntityPlayer)this.getAttackTarget()))
                     {
-                        if (this.getAttackTarget().getDistanceSqToEntity(this) < 16.0d && this.worldObj.rand.nextFloat() < 0.03f)
+                        if (this.getAttackTarget().getDistanceSqToEntity(this) < 16.0d && this.getEntityWorld().rand.nextFloat() < 0.03f)
                         {
                             this.teleportRandomly();
                         }
@@ -509,7 +510,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         if (this.getAttackTarget() == null && this.isNoDespawnRequired() == false)
         {
             // Despawn ("teleport away") the entity sometime after 10 seconds of not attacking anything
-            if (++this.idleTimer >= 200 && this.worldObj.rand.nextFloat() < 0.03f)
+            if (++this.idleTimer >= 200 && this.getEntityWorld().rand.nextFloat() < 0.03f)
             {
                 for (int i = 0; i < 16; ++i)
                 {
@@ -519,10 +520,10 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                     double x = this.posX + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                     double y = this.posY + this.rand.nextDouble() * (double)this.height;
                     double z = this.posZ + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
-                    this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
+                    this.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
                 }
 
-                this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
+                this.getEntityWorld().playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
 
                 this.setDead();
             }
@@ -580,14 +581,14 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
         boolean foundValidLocation = false;
         BlockPos pos = new BlockPos(this.posX, this.posY, this.posZ);
 
-        if (this.worldObj.isBlockLoaded(pos))
+        if (this.getEntityWorld().isBlockLoaded(pos))
         {
             boolean foundSolidFloor = false;
 
             while (foundSolidFloor == false && pos.getY() > 0)
             {
                 BlockPos pos1 = pos.down();
-                IBlockState state = this.worldObj.getBlockState(pos1);
+                IBlockState state = this.getEntityWorld().getBlockState(pos1);
 
                 if (state.getMaterial().blocksMovement())
                 {
@@ -600,11 +601,12 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 }
             }
 
-            if (foundSolidFloor == true)
+            if (foundSolidFloor)
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.worldObj.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.worldObj.containsAnyLiquid(this.getEntityBoundingBox()) == false)
+                if (this.getEntityWorld().getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() &&
+                        this.getEntityWorld().containsAnyLiquid(this.getEntityBoundingBox()) == false)
                 {
                     foundValidLocation = true;
                 }
@@ -629,10 +631,10 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
                 double d7 = oldX + (this.posX - oldX) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
                 double d8 = oldY + (this.posY - oldY) * d6 + this.rand.nextDouble() * (double)this.height;
                 double d9 = oldZ + (this.posZ - oldZ) * d6 + (this.rand.nextDouble() - 0.5d) * (double)this.width * 2.0d;
-                this.worldObj.spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
+                this.getEntityWorld().spawnParticle(EnumParticleTypes.PORTAL, d7, d8, d9, (double)f, (double)f1, (double)f2);
             }
 
-            this.worldObj.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
+            this.getEntityWorld().playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 0.7f, 1.0f);
 
             return true;
         }
@@ -690,7 +692,7 @@ public class EntityEndermanFighter extends EntityMob implements IEntityDoubleTar
 
             for (int i = 0; i < 64; ++i)
             {
-                if (this.teleportRandomly() == true)
+                if (this.teleportRandomly())
                 {
                     return true;
                 }

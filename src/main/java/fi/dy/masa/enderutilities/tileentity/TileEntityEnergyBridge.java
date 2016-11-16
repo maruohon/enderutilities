@@ -86,8 +86,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     protected void setActiveState(boolean isActive)
     {
         this.isActive = isActive;
-        IBlockState state = this.worldObj.getBlockState(this.getPos());
-        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     public boolean getIsActive()
@@ -100,8 +100,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         if (this.isPowered != value)
         {
             this.isPowered = value;
-            IBlockState state = this.worldObj.getBlockState(this.getPos());
-            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
         }
     }
 
@@ -126,9 +126,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Master blocks (Transmitter or Receiver) re-validate the multiblock every 2 seconds
 
         Type type = this.getType();
-        if (this.worldObj.isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 40)
+        if (this.getWorld().isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 40)
         {
-            this.tryAssembleMultiBlock(this.worldObj, this.getPos(), type);
+            this.tryAssembleMultiBlock(this.getWorld(), this.getPos(), type);
             this.timer = 0;
         }
     }
@@ -160,7 +160,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         Type masterType = worldIn.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
         boolean isValid = this.isStructureValid(worldIn, pos, masterType, positions);
 
-        if (isValid == true)
+        if (isValid)
         {
             if (this.isActive == false)
             {
@@ -171,7 +171,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             this.updatePoweredState(worldIn, positions);
         }
         // This gets called from the periodic validation via update()
-        else if (this.isActive == true)
+        else if (this.isActive)
         {
             this.disassembleMultiblock(worldIn, pos, type);
         }
@@ -256,7 +256,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
 
         // Our machine blocks are all in the right configuration, now just check that there are no other obstructing blocks in the area
-        if (isValid == true)
+        if (isValid)
         {
             return this.isObstructed(world, blockEb, type, positions) == false;
         }
@@ -304,10 +304,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
                                                         new BlockPos(3, 0, 1)
                                                     };
 
-        if (this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.EAST, positionsToCheck) == true ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.SOUTH, positionsToCheck) == true ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.WEST, positionsToCheck) == true ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.NORTH, positionsToCheck) == true)
+        if (this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.EAST, positionsToCheck) ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.SOUTH, positionsToCheck) ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.WEST, positionsToCheck) ||
+            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.NORTH, positionsToCheck))
         {
             return true;
         }
@@ -317,7 +317,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         {
             // Check the two blocks below the transmitter
             if (this.isObstructedQuadrant(worldIn, posMaster, EnumFacing.EAST,
-                    new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}) == true)
+                    new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}))
             {
                 return true;
             }
@@ -386,7 +386,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         if (type == Type.RESONATOR)
         {
             EnumFacing dir = ((TileEntityEnergyBridge)te).getFacing();
-            type = this.worldObj.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+            type = this.getWorld().provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
             int yOffset = type == Type.TRANSMITTER ? 3 : 0;
             posMaster = pos.add(0, yOffset, 0).offset(dir, 3);
         }
@@ -432,7 +432,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     protected void setStateWithCheck(World worldIn, BlockPos pos, Block requiredBlock, Type type, Class <? extends TileEntity> TEClass,
             EnumFacing requiredDirection, boolean state)
     {
-        if (BlockUtils.blockMatches(worldIn, pos, requiredBlock, type.getMeta(), TEClass, requiredDirection) == true)
+        if (BlockUtils.blockMatches(worldIn, pos, requiredBlock, type.getMeta(), TEClass, requiredDirection))
         {
             ((TileEntityEnergyBridge)worldIn.getTileEntity(pos)).setActiveState(state);
         }
@@ -446,7 +446,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
 
         int dim = worldIn.provider.getDimension();
-        boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) == true && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1) == true);
+        boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1));
 
         for (int i = 0; i < 5; ++i)
         {
@@ -481,7 +481,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         {
             for (y = posY; y >= 0; y--)
             {
-                if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
+                if (this.getWorld().getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
                 {
                     break;
                 }
@@ -490,9 +490,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             this.beamYMin = y + 1;
         }
 
-        for (y = posY; y < this.worldObj.getHeight(); y++)
+        for (y = posY; y < this.getWorld().getHeight(); y++)
         {
-            if (this.worldObj.getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
+            if (this.getWorld().getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
             {
                 break;
             }

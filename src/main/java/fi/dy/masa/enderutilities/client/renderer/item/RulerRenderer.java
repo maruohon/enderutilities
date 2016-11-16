@@ -42,7 +42,7 @@ public class RulerRenderer
 
     public void renderHud()
     {
-        EntityPlayer player = this.mc.thePlayer;
+        EntityPlayer player = this.mc.player;
         if (player == null)
         {
             return;
@@ -133,7 +133,7 @@ public class RulerRenderer
         ItemRuler item = (ItemRuler)stack.getItem();
         int selected = item.getLocationSelection(stack);
 
-        if (item.getRenderAllLocations(stack) == true)
+        if (item.getRenderAllLocations(stack))
         {
             int count = item.getLocationCount(stack);
 
@@ -142,7 +142,7 @@ public class RulerRenderer
                 int color = i < COLORS.length ? COLORS[i] : 0x70FFFF;
 
                 // We render the selected location pair last
-                if (i != selected && item.getAlwaysRenderLocation(stack, i) == true)
+                if (i != selected && item.getAlwaysRenderLocation(stack, i))
                 {
                     BlockPosEU posStart = item.getPosition(stack, i, ItemRuler.POS_START);
                     BlockPosEU posEnd = item.getPosition(stack, i, ItemRuler.POS_END);

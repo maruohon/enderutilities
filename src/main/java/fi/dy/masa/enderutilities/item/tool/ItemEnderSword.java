@@ -85,7 +85,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
     public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
-        if (stack == null || this.isToolBroken(stack) == true)
+        if (stack == null || this.isToolBroken(stack))
         {
             return false;
         }
@@ -94,7 +94,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         stack.damageItem(amount, living2);
 
         // Tool just broke
-        if (this.isToolBroken(stack) == true)
+        if (this.isToolBroken(stack))
         {
             living1.renderBrokenItemStack(stack);
         }
@@ -115,7 +115,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     @Override
     public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
-        if (this.isToolBroken(stack) == true)
+        if (this.isToolBroken(stack))
         {
             return 0.2f;
         }
@@ -142,9 +142,9 @@ public class ItemEnderSword extends ItemLocationBoundModular
     public boolean hitEntity(ItemStack stack, EntityLivingBase targetEntity, EntityLivingBase attacker)
     {
         // Summon fighters mode
-        if (targetEntity != null && targetEntity.worldObj.isRemote == false && SwordMode.fromStack(stack) == SwordMode.SUMMON)
+        if (targetEntity != null && targetEntity.getEntityWorld().isRemote == false && SwordMode.fromStack(stack) == SwordMode.SUMMON)
         {
-            this.summonFighterEndermen(targetEntity.worldObj, targetEntity, 3);
+            this.summonFighterEndermen(targetEntity.getEntityWorld(), targetEntity, 3);
         }
 
         return this.addToolDamage(stack, 1, targetEntity, attacker);
@@ -159,7 +159,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             stack.damageItem(amount, livingBase);
 
             // Tool just broke
-            if (this.isToolBroken(stack) == true)
+            if (this.isToolBroken(stack))
             {
                 livingBase.renderBrokenItemStack(stack);
             }
@@ -190,7 +190,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
         else if (mode == SwordMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
-                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == true)
+                UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true))
         {
             return UtilItemModular.getBoundInventory(toolStack, player, 15);
         }
@@ -223,7 +223,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         entityItem.motionX = entityItem.motionZ = 0.0d;
         entityItem.motionY = 0.15d;
 
-        if (targetWorld.spawnEntityInWorld(entityItem) == true)
+        if (targetWorld.spawnEntityInWorld(entityItem))
         {
             Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
             return null;
@@ -234,7 +234,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
     {
-        if (event.getEntity().worldObj.isRemote == true || this.isToolBroken(toolStack) == true || event.getDrops() == null || event.getDrops().size() == 0)
+        if (event.getEntity().getEntityWorld().isRemote || this.isToolBroken(toolStack) || event.getDrops() == null || event.getDrops().size() == 0)
         {
             return;
         }
@@ -254,7 +254,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         Iterator<EntityItem> iter = drops.iterator();
         IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
 
-        while (iter.hasNext() == true)
+        while (iter.hasNext())
         {
             EntityItem item = iter.next();
             ItemStack stack = item.getEntityItem();
@@ -269,9 +269,9 @@ public class ItemEnderSword extends ItemLocationBoundModular
             // Don't try to handle the drops via other means in the Remote mode until after we try to transport them here first
             if (mode == SwordMode.PLAYER &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC &&
-                MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)) == true)
+                MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)))
             {
-                Effects.addItemTeleportEffects(player.worldObj, player.getPosition());
+                Effects.addItemTeleportEffects(player.getEntityWorld(), player.getPosition());
                 stackTmp = null;
             }
             else if (inv != null)
@@ -298,7 +298,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         }
 
         // At least something got transported somewhere...
-        if (transported == true)
+        if (transported)
         {
             // Transported the drops to somewhere remote
             if (mode == SwordMode.REMOTE)
@@ -317,19 +317,19 @@ public class ItemEnderSword extends ItemLocationBoundModular
         if (drops.size() > 0)
         {
             iter = drops.iterator();
-            while (iter.hasNext() == true)
+            while (iter.hasNext())
             {
                 EntityItem item = iter.next();
                 MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item));
 
-                if (item.isDead == true || item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+                if (item.isDead || item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
                 {
                     iter.remove();
                 }
             }
         }
 
-        if (drops.isEmpty() == true)
+        if (drops.isEmpty())
         {
             event.setCanceled(true);
         }
@@ -376,9 +376,9 @@ public class ItemEnderSword extends ItemLocationBoundModular
             fighter.setPosition(x, targetEntity.posY, z);
             IBlockState state = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z));
 
-            if (world.getCollisionBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  == true &&
+            if (world.getCollisionBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  &&
                 world.containsAnyLiquid(fighter.getEntityBoundingBox()) == false &&
-                state.getMaterial().blocksMovement() == true)
+                state.getMaterial().blocksMovement())
             {
                 for (int j = 0; j < 16; ++j)
                 {
@@ -419,8 +419,8 @@ public class ItemEnderSword extends ItemLocationBoundModular
         TileEntity te = world.getTileEntity(pos);
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() == true && te != null &&
-            (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true || te.getClass() == TileEntityEnderChest.class)
+        if (player != null && player.isSneaking() && te != null &&
+            (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te.getClass() == TileEntityEnderChest.class)
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             if (world.isRemote == false)
@@ -449,7 +449,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             double dmg = this.damageVsEntity;
 
             // Broken sword, or in Summon fighters mode, only deal minimal damage directly
-            if (this.isToolBroken(stack) == true || SwordMode.fromStack(stack) == SwordMode.SUMMON)
+            if (this.isToolBroken(stack) || SwordMode.fromStack(stack) == SwordMode.SUMMON)
             {
                 dmg = 0.0d;
             }
@@ -523,7 +523,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         int tier = imodule.getModuleTier(moduleStack);
 
         // Allow the in-world/location and block/inventory type Link Crystals
-        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) == true &&
+        if (moduleType.equals(ModuleType.TYPE_LINKCRYSTAL) &&
             (tier != ItemLinkCrystal.TYPE_LOCATION && tier != ItemLinkCrystal.TYPE_BLOCK))
         {
             return 0;
@@ -580,7 +580,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         {
             String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
             // Valid target set in the currently selected Link Crystal
-            if (TargetData.itemHasTargetTag(linkCrystalStack) == true)
+            if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
                 ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
@@ -630,7 +630,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
         public static SwordMode fromStack(ItemStack stack)
         {
-            int mode = MathHelper.clamp_int(NBTUtils.getByte(stack, null, "SwordMode"), 0, 3);
+            int mode = MathHelper.clamp(NBTUtils.getByte(stack, null, "SwordMode"), 0, 3);
             return values()[mode];
         }
 

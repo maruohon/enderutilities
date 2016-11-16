@@ -33,10 +33,10 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -87,10 +87,10 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() == true)
+        if (player.isSneaking())
         {
             TileEntity te = world.getTileEntity(pos);
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true)
+            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
                 if (world.isRemote == false && inv != null)
@@ -126,7 +126,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         if (moduleStack != null && moduleStack.getTagCompound() != null)
         {
             // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
+            if (moduleStack.hasDisplayName())
             {
                 if (itemName.length() >= 14)
                 {
@@ -166,7 +166,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String strYes = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         String strNo = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
 
-        if (this.isEnabled(containerStack) == true)
+        if (this.isEnabled(containerStack))
         {
             list.add(I18n.format("enderutilities.tooltip.item.enabled") + ": " + strYes);
         }
@@ -231,7 +231,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.inventorySwapper);
         for (int slot : slots)
         {
-            if (this.isEnabled(playerInv.getStackInSlot(slot)) == true)
+            if (this.isEnabled(playerInv.getStackInSlot(slot)))
             {
                 return slot;
             }
@@ -297,7 +297,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         this.swapInventory(getEnabledSlotsMask(swapperStack), swapperInv, inv);
 
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     private void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
@@ -368,7 +368,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             bit <<= 1;
         }
 
-        player.worldObj.playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+        player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
     private void swapPlayerInventory(EntityPlayer player)

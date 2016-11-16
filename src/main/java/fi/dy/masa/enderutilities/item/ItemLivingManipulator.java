@@ -57,7 +57,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.NORMAL || mode == Mode.RELEASE)
         {
-            if (world.isRemote == true)
+            if (world.isRemote)
             {
                 return EnumActionResult.SUCCESS;
             }
@@ -70,7 +70,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
     public EnumActionResult handleInteraction(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
-        if (player.worldObj.isRemote == true)
+        if (player.getEntityWorld().isRemote)
         {
             return EnumActionResult.SUCCESS;
         }
@@ -78,7 +78,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         Mode mode = Mode.getMode(stack);
         if (mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, player.worldObj, livingBase.getPosition(), livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
+            return this.releaseEntity(stack, player.getEntityWorld(), livingBase.getPosition(), livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
         }
 
         return this.captureEntity(stack, player, livingBase);
@@ -299,7 +299,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         int numEntities = this.getStoredEntityCount(containerStack);
         int current = this.getCurrentIndex(containerStack);
 
-        if (reverse == true)
+        if (reverse)
         {
             if (--current < 0)
             {
@@ -335,7 +335,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             }
 
             // If the currently selected module has been renamed, show that name
-            if (moduleStack.hasDisplayName() == true)
+            if (moduleStack.hasDisplayName())
             {
                 str = str + " " + preGreenIta + moduleStack.getDisplayName() + rst;
             }
@@ -375,7 +375,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + Mode.getMode(stack).getDisplayName() + rst);
 
-        if (verbose == true)
+        if (verbose)
         {
             // Item supports Jailer modules, show if one is installed
             if (this.getMaxModules(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
@@ -399,7 +399,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         // Memory Cards installed
         if (memoryCardStack != null)
         {
-            if (verbose == true)
+            if (verbose)
             {
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;

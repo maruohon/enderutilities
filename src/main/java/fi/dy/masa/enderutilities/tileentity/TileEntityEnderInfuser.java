@@ -6,12 +6,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
-
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
@@ -54,7 +52,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         // The stored amount is stored in a Fluid-compatible tag already,
         // just in case I ever decide to change the "Ender Goo" (or Resonant Ender?)
         // to actually be a Fluid, possibly compatible with Resonant Ender.
-        if (nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND) == true)
+        if (nbt.hasKey("Fluid", Constants.NBT.TAG_COMPOUND))
         {
             this.amountStored = nbt.getCompoundTag("Fluid").getInteger("Amount");
         }
@@ -78,7 +76,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
     @Override
     public void update()
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote)
         {
             return;
         }
@@ -177,7 +175,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                         this.chargeableItemCurrentCharge += charge; // = item.getCharge(capacitorStack);
                         dirty = true;
 
-                        if (isModular == true)
+                        if (isModular)
                         {
                             UtilItemModular.setSelectedModuleStack(inputStack, ModuleType.TYPE_ENDERCAPACITOR, chargeableStack);
                         }
@@ -213,7 +211,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
             this.chargeableItemCapacity = 0;
         }
 
-        if (dirty == true)
+        if (dirty)
         {
             this.markDirty();
         }
@@ -242,7 +240,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
             }
 
             // Only allow Ender Pearls and Eyes of Ender to the material slot
-            return slot == SLOT_MATERIAL && (stack.getItem() == Items.ENDER_PEARL || stack.getItem() == Items.ENDER_EYE) == true;
+            return slot == SLOT_MATERIAL && (stack.getItem() == Items.ENDER_PEARL || stack.getItem() == Items.ENDER_EYE);
         }
 
         @Override

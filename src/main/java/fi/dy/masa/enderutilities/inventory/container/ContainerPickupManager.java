@@ -34,16 +34,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, new InventoryItem(containerStack, 1, 1024, true, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
+        super(player, new InventoryItem(containerStack, 1, 1024, true, player.getEntityWorld().isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 
-        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.worldObj.isRemote, player);
+        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.getEntityWorld().isRemote, player);
         this.inventoryItemModules.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
-        this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.worldObj.isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.getEntityWorld().isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
         this.inventoryItemFilters.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 
@@ -141,7 +141,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
             return true;
         }
-        else if (this.isDragging == true)
+        else if (this.isDragging)
         {
             // End of dragging
             if (clickType == ClickType.QUICK_CRAFT && (button == 2 || button == 6))
@@ -183,7 +183,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
-        if (this.filterSlots.contains(slotNum) == true)
+        if (this.filterSlots.contains(slotNum))
         {
             this.fakeSlotClick(slotNum, dragType, clickType, player);
             return null;
@@ -194,7 +194,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         {
             for (int i : this.draggedSlots)
             {
-                if (this.filterSlots.contains(i) == true)
+                if (this.filterSlots.contains(i))
                 {
                     this.fakeSlotClick(i, dragType, clickType, player);
                     return null;
@@ -208,13 +208,13 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
         ItemStack modularStackPost = this.getContainerItem();
 
-        if (player.worldObj.isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.pickupManager)
+        if (player.getEntityWorld().isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.pickupManager)
         {
             boolean sent = ((ItemPickupManager)modularStackPost.getItem()).tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
 
             // The change is not picked up by detectAndSendChanges() because the items are transported out
             // immediately, so the client side container will get out of sync without a forced sync
-            if (sent == true && player instanceof EntityPlayerMP)
+            if (sent && player instanceof EntityPlayerMP)
             {
                 PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, 0, this.getSlot(0).getStack()), (EntityPlayerMP)player);
             }

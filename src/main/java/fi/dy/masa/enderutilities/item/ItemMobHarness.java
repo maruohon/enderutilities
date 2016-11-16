@@ -56,12 +56,12 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-        if (world.isRemote == true)
+        if (world.isRemote)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
-        if (player.isSneaking() == true)
+        if (player.isSneaking())
         {
             RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
             if (rayTraceResult != null && rayTraceResult.typeOfHit != RayTraceResult.Type.ENTITY
@@ -119,20 +119,20 @@ public class ItemMobHarness extends ItemEnderUtilities
         }
 
         // Harness bound to something, mount the entity
-        if (this.hasTarget(stack) == true)
+        if (this.hasTarget(stack))
         {
-            this.mountTarget(stack, player.worldObj, player, entity);
+            this.mountTarget(stack, player.getEntityWorld(), player, entity);
         }
         // Empty harness
         else
         {
             // Empty harness, player looking up and ridden by something: dismount the rider
-            if (player.rotationPitch < -80.0f && player.isBeingRidden() == true)
+            if (player.rotationPitch < -80.0f && player.isBeingRidden())
             {
                 player.removePassengers();
             }
             // Empty harness, target is riding something: dismount target
-            else if (entity.isRiding() == true)
+            else if (entity.isRiding())
             {
                 entity.dismountRidingEntity();
             }
@@ -158,9 +158,9 @@ public class ItemMobHarness extends ItemEnderUtilities
         byte mode = nbt.getByte("Mode");
 
         if (mode >= 1 && mode <= 2 &&
-            nbt.hasKey("TargetUUIDMost", Constants.NBT.TAG_LONG) == true &&
-            nbt.hasKey("TargetUUIDLeast", Constants.NBT.TAG_LONG) == true &&
-            nbt.hasKey("TargetName", Constants.NBT.TAG_STRING) == true)
+            nbt.hasKey("TargetUUIDMost", Constants.NBT.TAG_LONG) &&
+            nbt.hasKey("TargetUUIDLeast", Constants.NBT.TAG_LONG) &&
+            nbt.hasKey("TargetName", Constants.NBT.TAG_STRING))
         {
             return true;
         }
@@ -269,7 +269,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemMobHarness.this.hasTarget(stack) == true ? 1.0F : 0.0F;
+                return stack != null && ItemMobHarness.this.hasTarget(stack) ? 1.0F : 0.0F;
             }
         });
     }

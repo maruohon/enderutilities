@@ -58,16 +58,16 @@ public class TeleportEntity
 
     public static boolean teleportEntityRandomly(Entity entity, double maxDist)
     {
-        if (entity == null || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
+        if (entity == null || canTeleportEntity(entity) == false || entity.getEntityWorld().isRemote)
         {
             return false;
         }
 
         // Sound and particles on the original location
-        addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+        addTeleportSoundsAndParticles(entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ);
 
         // Do the actual teleportation only on the server side
-        if (entity.worldObj.isRemote == true)
+        if (entity.getEntityWorld().isRemote)
         {
             return false;
         }
@@ -93,12 +93,12 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.getEntityBoundingBox() != null && entity.worldObj.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty() == true)
+            if (entity.getEntityBoundingBox() != null && entity.getEntityWorld().getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty())
             {
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
                 // Sound and particles on the new, destination location.
-                addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
+                addTeleportSoundsAndParticles(entity.getEntityWorld(), x, y, z);
                 return true;
             }
         }
@@ -205,7 +205,7 @@ public class TeleportEntity
 
         adjustTargetPosition(target, entity);
 
-        if (target.hasRotation == true && entity != null)
+        if (target.hasRotation && entity != null)
         {
             if (entity instanceof EntityPlayerMP)
             {
@@ -222,9 +222,9 @@ public class TeleportEntity
 
     public static Entity teleportEntity(Entity entityIn, double x, double y, double z, int dimDst, boolean allowMounts, boolean allowRiders)
     {
-        if (entityIn == null || entityIn.worldObj == null || entityIn.worldObj.isRemote == true) { return null; }
-        if (allowMounts == false && entityIn.isRiding() == true) { return null; }
-        if (allowRiders == false && entityIn.isBeingRidden() == true) { return null; }
+        if (entityIn == null || entityIn.getEntityWorld() == null || entityIn.getEntityWorld().isRemote) { return null; }
+        if (allowMounts == false && entityIn.isRiding()) { return null; }
+        if (allowRiders == false && entityIn.isBeingRidden()) { return null; }
         if (canTeleportEntity(entityIn) == false) { return null; }
 
         UUID uuidOriginal = entityIn.getUniqueID();
@@ -242,7 +242,7 @@ public class TeleportEntity
         // Teleport all the entities in this 'stack', starting from the bottom most entity
         ridden = entity.isBeingRidden();
 
-        if (ridden == true)
+        if (ridden)
         {
             passengers = entity.getPassengers();
 
@@ -260,7 +260,7 @@ public class TeleportEntity
 
         teleported.fallDistance = 0.0f;
 
-        if (ridden == true)
+        if (ridden)
         {
             for (Entity passenger : passengers)
             {
@@ -273,7 +273,7 @@ public class TeleportEntity
             }
         }
 
-        if (isOriginal == true)
+        if (isOriginal)
         {
             teleported = EntityUtils.findEntityFromStackByUUID(teleported, uuidOriginal);
         }
@@ -283,7 +283,7 @@ public class TeleportEntity
 
     private static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean forceRecreate)
     {
-        if (entity == null || entity.isDead == true || canTeleportEntity(entity) == false || entity.worldObj.isRemote == true)
+        if (entity == null || entity.isDead || canTeleportEntity(entity) == false || entity.getEntityWorld().isRemote)
         {
             return null;
         }
@@ -292,16 +292,16 @@ public class TeleportEntity
         if (entity instanceof EntityLivingBase)
         {
             EnderTeleportEvent etpEvent = new EnderTeleportEvent((EntityLivingBase)entity, x, y, z, 0.0f);
-            if (MinecraftForge.EVENT_BUS.post(etpEvent) == true)
+            if (MinecraftForge.EVENT_BUS.post(etpEvent))
             {
                 return null;
             }
         }
 
         // Sound and particles on the original location
-        addTeleportSoundsAndParticles(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+        addTeleportSoundsAndParticles(entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ);
 
-        if (entity.worldObj.isRemote == false && entity.worldObj instanceof WorldServer)
+        if (entity.getEntityWorld().isRemote == false && entity.getEntityWorld() instanceof WorldServer)
         {
             WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
             if (worldServerDst == null)
@@ -326,7 +326,7 @@ public class TeleportEntity
                 ((EntityLiving)entity).getNavigator().clearPathEntity();
             }
 
-            if (entity.dimension != dimDst || (entity.worldObj instanceof WorldServer && entity.worldObj != worldServerDst))
+            if (entity.dimension != dimDst || (entity.getEntityWorld() instanceof WorldServer && entity.getEntityWorld() != worldServerDst))
             {
                 entity = transferEntityToDimension(entity, dimDst, x, y, z);
             }
@@ -344,7 +344,7 @@ public class TeleportEntity
         if (entity != null)
         {
             // Final position
-            addTeleportSoundsAndParticles(entity.worldObj, x, y, z);
+            addTeleportSoundsAndParticles(entity.getEntityWorld(), x, y, z);
         }
 
         return entity;
@@ -352,7 +352,7 @@ public class TeleportEntity
 
     /*private static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
     {
-        if (entitySrc.worldObj.isRemote == true)
+        if (entitySrc.worldObj.isRemote)
         {
             return null;
         }
@@ -394,7 +394,7 @@ public class TeleportEntity
 
     private static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
     {
-        if (entitySrc == null || entitySrc.isDead == true || entitySrc.dimension == dimDst || entitySrc.worldObj.isRemote == true)
+        if (entitySrc == null || entitySrc.isDead || entitySrc.dimension == dimDst || entitySrc.getEntityWorld().isRemote)
         {
             return null;
         }
@@ -432,11 +432,11 @@ public class TeleportEntity
         }
         else
         {
-            entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
+            entitySrc.getEntityWorld().removeEntity(entitySrc); // Note: this will also remove any entity mounts
         }
 
-        x = MathHelper.clamp_double(x, -30000000.0d, 30000000.0d);
-        z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
+        x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
+        z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
         entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
         worldServerDst.spawnEntityInWorld(entityDst);
         worldServerDst.updateEntityWithOptionalForce(entityDst, false);
@@ -453,14 +453,14 @@ public class TeleportEntity
 
     private static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
     {
-        if (player == null || player.isDead == true || player.dimension == dimDst || player.worldObj.isRemote == true)
+        if (player == null || player.isDead || player.dimension == dimDst || player.getEntityWorld().isRemote)
         {
             return null;
         }
 
         int dimSrc = player.dimension;
-        x = MathHelper.clamp_double(x, -30000000.0d, 30000000.0d);
-        z = MathHelper.clamp_double(z, -30000000.0d, 30000000.0d);
+        x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
+        z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
         player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
 
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -474,7 +474,8 @@ public class TeleportEntity
         }
 
         player.dimension = dimDst;
-        player.connection.sendPacket(new SPacketRespawn(player.dimension, player.worldObj.getDifficulty(), player.worldObj.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
+        player.connection.sendPacket(new SPacketRespawn(player.dimension, player.getEntityWorld().getDifficulty(),
+                player.getEntityWorld().getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
         player.mcServer.getPlayerList().updatePermissionLevel(player);
         //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
         worldServerSrc.removeEntity(player);

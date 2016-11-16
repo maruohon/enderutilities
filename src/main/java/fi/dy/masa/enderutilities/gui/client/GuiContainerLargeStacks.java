@@ -2,9 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -15,10 +13,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
-
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
@@ -40,22 +36,22 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         ItemStack itemstack = slotIn.getStack();
         boolean flag = false;
         boolean flag1 = slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick == false;
-        ItemStack itemstack1 = this.mc.thePlayer.inventory.getItemStack();
+        ItemStack itemstack1 = this.mc.player.inventory.getItemStack();
         String str = null;
 
-        if (slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick  == true && itemstack != null)
+        if (slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick  && itemstack != null)
         {
             itemstack = itemstack.copy();
             itemstack.stackSize /= 2;
         }
-        else if (this.dragSplitting == true && this.dragSplittingSlots.contains(slotIn) && itemstack1 != null)
+        else if (this.dragSplitting && this.dragSplittingSlots.contains(slotIn) && itemstack1 != null)
         {
             if (this.dragSplittingSlots.size() == 1)
             {
                 return;
             }
 
-            if (Container.canAddItemToSlot(slotIn, itemstack1, true) == true && this.inventorySlots.canDragIntoSlot(slotIn) == true)
+            if (Container.canAddItemToSlot(slotIn, itemstack1, true) && this.inventorySlots.canDragIntoSlot(slotIn))
             {
                 itemstack = itemstack1.copy();
                 flag = true;
@@ -99,7 +95,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
         if (flag1 == false)
         {
-            if (flag == true)
+            if (flag)
             {
                 drawRect(slotPosX, slotPosY, slotPosX + 16, slotPosY + 16, -2130706433);
             }
@@ -108,7 +104,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             this.itemRender.renderItemAndEffectIntoGUI(itemstack, slotPosX, slotPosY);
 
             // This slot belongs to a "large stacks" type inventory, render the stack size text scaled to 0.5x
-            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler)slotIn).getItemHandler()) == true)
+            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler)slotIn).getItemHandler()))
             {
                 this.renderLargeStackItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY);
             }

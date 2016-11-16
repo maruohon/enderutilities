@@ -54,7 +54,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (this.inGround)
         {
-            if (this.worldObj.getBlockState(new BlockPos(this.blockX, this.blockY, this.blockZ)).getBlock() == this.inBlock)
+            if (this.getEntityWorld().getBlockState(new BlockPos(this.blockX, this.blockY, this.blockZ)).getBlock() == this.inBlock)
             {
                 if (++this.ticksInGround >= 1200)
                 {
@@ -78,18 +78,19 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         Vec3d currentPos = new Vec3d(this.posX, this.posY, this.posZ);
         Vec3d nextPos = new Vec3d(this.posX + this.motionX, this.posY + this.motionY, this.posZ + this.motionZ);
-        RayTraceResult rayTraceImpact = this.worldObj.rayTraceBlocks(currentPos, nextPos);
+        RayTraceResult rayTraceImpact = this.getEntityWorld().rayTraceBlocks(currentPos, nextPos);
 
         if (rayTraceImpact != null)
         {
             nextPos = new Vec3d(rayTraceImpact.hitVec.xCoord, rayTraceImpact.hitVec.yCoord, rayTraceImpact.hitVec.zCoord);
         }
 
-        if (this.worldObj.isRemote == false)
+        if (this.getEntityWorld().isRemote == false)
         {
             EntityLivingBase thrower = this.getThrower();
             Entity entity = null;
-            List<Entity> list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+            List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this,
+                    this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
             double distance = 0.0d;
 
             for (int j = 0; j < list.size(); ++j)
@@ -98,7 +99,8 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
                 // This line fixes the elite pearl going through blocks:
                 // The entity collision with the riding player would override the block collision.
-                // We are ignoring any collisions with any of the entities in the "stack" the player is in, in case he is riding or being ridden by other entities.
+                // We are ignoring any collisions with any of the entities in the "stack" the player is in,
+                // in case he is riding or being ridden by other entities.
                 if (entityIter.canBeCollidedWith() && (thrower == null || EntityUtils.doesEntityStackContainEntity(entityIter, thrower) == false))
                 {
                     double s = 0.1d;
@@ -127,11 +129,13 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (rayTraceImpact != null)
         {
-            if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.PORTAL)
+            if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK &&
+                this.getEntityWorld().getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.PORTAL)
             {
                 this.setPortal(rayTraceImpact.getBlockPos());
             }
-            else if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK && this.worldObj.getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.WEB)
+            else if (rayTraceImpact.typeOfHit == RayTraceResult.Type.BLOCK &&
+                     this.getEntityWorld().getBlockState(rayTraceImpact.getBlockPos()).getBlock() == Blocks.WEB)
             {
                 this.setInWeb();
             }
@@ -144,7 +148,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
         this.posX += this.motionX;
         this.posY += this.motionY;
         this.posZ += this.motionZ;
-        float f1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        float f1 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
         this.rotationYaw = (float)(Math.atan2(this.motionX, this.motionZ) * 180.0D / Math.PI);
 
         for (this.rotationPitch = (float)(Math.atan2(this.motionY, (double)f1) * 180.0D / Math.PI); this.rotationPitch - this.prevRotationPitch < -180.0F; this.prevRotationPitch -= 360.0F)
@@ -176,12 +180,15 @@ public abstract class EntityThrowableEU extends EntityThrowable
             for (int i = 0; i < 4; ++i)
             {
                 float f4 = 0.25F;
-                this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX - this.motionX * (double)f4, this.posY - this.motionY * (double)f4, this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
+                this.getEntityWorld().spawnParticle(EnumParticleTypes.WATER_BUBBLE,
+                        this.posX - this.motionX * (double)f4,
+                        this.posY - this.motionY * (double)f4,
+                        this.posZ - this.motionZ * (double)f4, this.motionX, this.motionY, this.motionZ);
             }
 
             motionFactor = 0.8F;
         }
-        else if (this.isInWeb == true)
+        else if (this.isInWeb)
         {
             this.isInWeb = false;
             //p_70091_1_ *= 0.25D;
@@ -242,7 +249,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
     {
         if (this.throwerUUID != null)
         {
-            return this.worldObj.getPlayerEntityByUUID(this.throwerUUID);
+            return this.getEntityWorld().getPlayerEntityByUUID(this.throwerUUID);
         }
 
         return null;

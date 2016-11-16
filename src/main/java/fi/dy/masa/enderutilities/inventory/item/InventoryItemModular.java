@@ -22,14 +22,14 @@ public class InventoryItemModular extends InventoryItemPermissions
 
     public InventoryItemModular(ItemStack containerStack, int mainInvSize, boolean allowCustomStackSizes, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
     {
-        super(containerStack, mainInvSize, 64, allowCustomStackSizes, player.worldObj.isRemote, player);
+        super(containerStack, mainInvSize, 64, allowCustomStackSizes, player.getEntityWorld().isRemote, player);
 
         this.modularItemStack = containerStack;
         this.moduleType = moduleType;
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.hostInventory = null;
 
-        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.worldObj.isRemote, player);
+        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.getEntityWorld().isRemote, player);
         this.moduleInventory.readFromContainerItemStack();
 
         this.readFromContainerItemStack();

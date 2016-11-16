@@ -88,7 +88,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public void setActiveTargetId(int target)
     {
-        this.activeTargetId = (byte)MathHelper.clamp_int(target, 0, 7);
+        this.activeTargetId = (byte)MathHelper.clamp(target, 0, 7);
     }
 
     public int getActiveColor()
@@ -119,7 +119,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public int getColor(int target)
     {
-        target = MathHelper.clamp_int(target, 0, 8);
+        target = MathHelper.clamp(target, 0, 8);
         return this.colors[target];
     }
 

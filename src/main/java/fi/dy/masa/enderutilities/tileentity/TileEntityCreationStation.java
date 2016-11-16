@@ -273,7 +273,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     public void setSelectedModuleSlot(int index)
     {
-        this.selectedModule = MathHelper.clamp_int(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
+        this.selectedModule = MathHelper.clamp(index, 0, this.itemHandlerMemoryCards.getSlots() - 1);
     }
 
     public int getModeMask()
@@ -339,7 +339,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         int mask = (invId == 1) ? MODE_BIT_SHOW_RECIPE_RIGHT : MODE_BIT_SHOW_RECIPE_LEFT;
 
-        if (show == true)
+        if (show)
         {
             this.modeMask |= mask;
         }
@@ -355,7 +355,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     public ItemStack[] getRecipeItems(int invId)
     {
-        return this.recipeItems[MathHelper.clamp_int(invId, 0, 1)];
+        return this.recipeItems[MathHelper.clamp(invId, 0, 1)];
     }
 
     protected NBTTagCompound getRecipeTag(int invId, int recipeId, boolean create)
@@ -387,7 +387,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void storeRecipe(IItemHandler invCrafting, int invId, int recipeId)
     {
-        invId = MathHelper.clamp_int(invId, 0, 1);
+        invId = MathHelper.clamp(invId, 0, 1);
         NBTTagCompound tag = this.getRecipeTag(invId, recipeId, true);
         if (tag != null)
         {
@@ -440,7 +440,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     protected boolean addOneSetOfRecipeItemsIntoGrid(IItemHandler invCrafting, int invId, int recipeId, EntityPlayer player)
     {
-        invId = MathHelper.clamp_int(invId, 0, 1);
+        invId = MathHelper.clamp(invId, 0, 1);
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
@@ -454,7 +454,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void fillCraftingGrid(IItemHandler invCrafting, int invId, int recipeId, EntityPlayer player)
     {
-        invId = MathHelper.clamp_int(invId, 0, 1);
+        invId = MathHelper.clamp(invId, 0, 1);
         int largestStack = InventoryUtils.getLargestExistingStackSize(invCrafting);
         // If all stacks only have one item, then try to fill them all the way to maxStackSize
         if (largestStack == 1)
@@ -477,7 +477,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             // Next we find out how many items we have available for each item type on the crafting grid
             // and we cap the max stack size to that value, so the stacks will be balanced
             Iterator<Entry<ItemType, Integer>> iter = slotCounts.entrySet().iterator();
-            while (iter.hasNext() == true)
+            while (iter.hasNext())
             {
                 Entry<ItemType, Integer> entry = iter.next();
                 ItemType item = entry.getKey();
@@ -519,7 +519,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     public boolean canCraftItems(IItemHandler invCrafting, int invId)
     {
-        invId = MathHelper.clamp_int(invId, 0, 1);
+        invId = MathHelper.clamp(invId, 0, 1);
         int maskKeepOne = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_KEEPONE : MODE_BIT_LEFT_CRAFTING_KEEPONE;
         int maskAutoUse = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_AUTOUSE : MODE_BIT_LEFT_CRAFTING_AUTOUSE;
 
@@ -533,7 +533,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         // Auto-use-items feature enabled, create a snapshot of the current state of the crafting grid
         if ((this.modeMask & maskAutoUse) != 0)
         {
-            //if (invCrafting != null && InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1) == true)
+            //if (invCrafting != null && InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1))
             this.craftingGridTemplates[invId] = InventoryUtils.createInventorySnapshot(invCrafting);
         }
 
@@ -559,7 +559,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         // More than one item left in each slot
         //if (InventoryUtils.getMinNonEmptyStackSize(invCrafting) > 1 || this.craftingGridTemplates[invId] != null)
         if (InventoryUtils.getMinNonEmptyStackSize(invCrafting) > 1 ||
-            InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1, useOreDict) == true)
+            InventoryUtils.checkInventoryHasAllItems(this.itemInventory, invCrafting, 1, useOreDict))
         {
             return true;
         }
@@ -575,7 +575,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         this.recipeLoadClickCount = 0;
-        invId = MathHelper.clamp_int(invId, 0, 1);
+        invId = MathHelper.clamp(invId, 0, 1);
         int maskAutoUse = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_AUTOUSE : MODE_BIT_LEFT_CRAFTING_AUTOUSE;
 
         // Auto-use feature not enabled
@@ -630,22 +630,22 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote)
         {
             return;
         }
 
         Long last = this.clickTimes.get(player.getUniqueID());
-        if (last != null && this.worldObj.getTotalWorldTime() - last < 5)
+        if (last != null && this.getWorld().getTotalWorldTime() - last < 5)
         {
             // Double left clicked fast enough (< 5 ticks) - do the selected item moving action
             this.performGuiAction(player, GUI_ACTION_MOVE_ITEMS, this.actionMode);
-            player.worldObj.playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
             this.clickTimes.remove(player.getUniqueID());
         }
         else
         {
-            this.clickTimes.put(player.getUniqueID(), this.worldObj.getTotalWorldTime());
+            this.clickTimes.put(player.getUniqueID(), this.getWorld().getTotalWorldTime());
         }
     }
 
@@ -708,7 +708,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             // Already empty crafting grid, set the "show recipe" mode to disabled
-            if (InventoryUtils.isInventoryEmpty(inv) == true)
+            if (InventoryUtils.isInventoryEmpty(inv))
             {
                 this.setShowRecipe(invId, false);
                 this.clearLoadedRecipe(invId);
@@ -783,7 +783,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             /*IItemHandler inv = this.craftingInventories[invId];
-            if (InventoryUtils.isInventoryEmpty(inv) == true)
+            if (InventoryUtils.isInventoryEmpty(inv))
             {
                 this.setShowRecipe(invId, false);
             }
@@ -872,7 +872,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     private void updateSmeltingResult(int id)
     {
-        if (this.inputDirty[id] == true)
+        if (this.inputDirty[id])
         {
             ItemStack inputStack = this.furnaceInventory.getStackInSlot(id * 3);
             if (inputStack != null)
@@ -900,7 +900,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             return false;
         }
 
-        return TileEntityEnderFurnace.itemContainsFluidFuel(fuelStack) == true ||
+        return TileEntityEnderFurnace.itemContainsFluidFuel(fuelStack) ||
                TileEntityEnderFurnace.getItemBurnTime(fuelStack) > 0;
     }
 
@@ -984,7 +984,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      */
     protected void smeltItem(int id)
     {
-        if (this.canSmelt(id) == true)
+        if (this.canSmelt(id))
         {
             this.furnaceInventory.insertItem(id * 3 + 2, this.smeltingResultCache[id], false);
             this.furnaceInventory.extractItem(id * 3, 1, false);
@@ -1009,7 +1009,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         {
             return;
         }
-        else if (isFastMode == true)
+        else if (isFastMode)
         {
             cookTimeIncrement = COOKTIME_INC_FAST;
         }
@@ -1018,12 +1018,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         // The furnace is currently burning fuel
         if (this.burnTimeRemaining[id] > 0)
         {
-            int btUse = (isFastMode == true ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
+            int btUse = (isFastMode ? BURNTIME_USAGE_FAST : BURNTIME_USAGE_SLOW);
 
             // Not enough fuel burn time remaining for the elapsed tick
             if (btUse > this.burnTimeRemaining[id])
             {
-                if (hasFuel == true && canSmelt == true)
+                if (hasFuel && canSmelt)
                 {
                     this.burnTimeRemaining[id] += this.consumeFuelItem(id);
                     hasFuel = this.hasFuelAvailable(id);
@@ -1040,7 +1040,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             dirty = true;
         }
         // Furnace wasn't burning, but it now has fuel and smeltable items, start burning/smelting
-        else if (canSmelt == true && hasFuel == true)
+        else if (canSmelt && hasFuel)
         {
             this.burnTimeRemaining[id] += this.consumeFuelItem(id);
             hasFuel = this.hasFuelAvailable(id);
@@ -1048,7 +1048,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         // Valid items to smelt, room in output
-        if (canSmelt == true)
+        if (canSmelt)
         {
             this.cookTime[id] += cookTimeIncrement;
 
@@ -1059,7 +1059,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 canSmelt = this.canSmelt(id);
 
                 // We can smelt the next item and we "overcooked" the last one, carry over the extra progress
-                if (canSmelt == true && this.cookTime[id] > COOKTIME_DEFAULT)
+                if (canSmelt && this.cookTime[id] > COOKTIME_DEFAULT)
                 {
                     this.cookTime[id] -= COOKTIME_DEFAULT;
                 }
@@ -1070,7 +1070,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             // If the current fuel ran out and we still have items to cook, consume the next fuel item
-            if (this.burnTimeRemaining[id] == 0 && hasFuel == true && canSmelt == true)
+            if (this.burnTimeRemaining[id] == 0 && hasFuel && canSmelt)
             {
                 this.burnTimeRemaining[id] += this.consumeFuelItem(id);
             }
@@ -1084,7 +1084,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             dirty = true;
         }
 
-        if (dirty == true)
+        if (dirty)
         {
             this.markDirty();
         }
@@ -1093,7 +1093,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public void update()
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote)
         {
             return;
         }
@@ -1144,7 +1144,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 return FurnaceRecipes.instance().getSmeltingResult(stack) != null;
             }
 
-            return (slot == 1 || slot == 4) && TileEntityEnderFurnace.isItemFuel(stack) == true;
+            return (slot == 1 || slot == 4) && TileEntityEnderFurnace.isItemFuel(stack);
         }
 
         /*
