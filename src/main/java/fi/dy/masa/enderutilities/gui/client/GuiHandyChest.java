@@ -89,7 +89,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
 
         // Draw the hilight background for the selected module slot
         slot = this.inventorySlots.getSlot(this.invSize + this.tehc.getSelectedModule());
-        this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
+        this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
 
         int mode = this.tehc.getQuickMode();
         if (mode >= 0 && mode <= 5)
@@ -109,8 +109,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             for (int i = 0; i < this.invSize; i++)
             {
                 slot = this.inventorySlots.getSlot(i);
-                x = this.guiLeft + slot.xDisplayPosition - 1;
-                y = this.guiTop + slot.yDisplayPosition - 1;
+                x = this.guiLeft + slot.xPos - 1;
+                y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
         }
@@ -118,7 +118,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         else if (this.containerHC.getSelectedSlot() != -1)
         {
             slot = this.container.getSlot(this.containerHC.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
+            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
 
         int mask = this.tehc.getLockMask();
@@ -128,7 +128,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             if (this.tehc.getModuleInventory().getStackInSlot(i) == null)
             {
                 slot = this.inventorySlots.getSlot(this.invSize + i);
-                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition, this.guiTop + slot.yDisplayPosition, 240, 80, 16, 16);
+                this.drawTexturedModalRect(this.guiLeft + slot.xPos, this.guiTop + slot.yPos, 240, 80, 16, 16);
             }
 
             // This card has been locked in place

@@ -51,12 +51,12 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
     {
         super.initGui();
 
-        this.firstModuleSlotX  = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize).xDisplayPosition;
-        this.firstModuleSlotY  = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize).yDisplayPosition;
-        this.firstInvSlotX     = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4).xDisplayPosition;
-        this.firstInvSlotY     = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4).yDisplayPosition;
-        this.firstArmorSlotX   = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).xDisplayPosition;
-        this.firstArmorSlotY   = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).yDisplayPosition;
+        this.firstModuleSlotX  = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize).xPos;
+        this.firstModuleSlotY  = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize).yPos;
+        this.firstInvSlotX     = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4).xPos;
+        this.firstInvSlotY     = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4).yPos;
+        this.firstArmorSlotX   = this.guiLeft + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).xPos;
+        this.firstArmorSlotY   = this.guiTop  + this.containerInvSwapper.getSlot(this.invSize + 4 + 36).yPos;
 
         this.createButtons();
     }
@@ -82,7 +82,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
             for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.containerInvSwapper.getSlot(i);
-                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
+                this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 0, 18, 18);
             }
         }
 

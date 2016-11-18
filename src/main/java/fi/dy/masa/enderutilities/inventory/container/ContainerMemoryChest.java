@@ -29,7 +29,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
         this.templateStacksLast = new ArrayList<ItemStack>();
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, this.inventorySlots.get(this.inventorySlots.size() - 1).yDisplayPosition + 32);
+        this.addPlayerInventorySlots(8, this.inventorySlots.get(this.inventorySlots.size() - 1).yPos + 32);
     }
 
     @Override

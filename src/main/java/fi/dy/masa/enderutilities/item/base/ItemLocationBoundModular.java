@@ -39,11 +39,11 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 {
                     boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;
                     this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
-                    player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.itemboundtolocation"));
+                    player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.itemboundtolocation"));
                 }
                 else
                 {
-                    player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.itembindlocked"));
+                    player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.itembindlocked"));
                 }
             }
 

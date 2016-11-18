@@ -118,8 +118,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
-                x = this.guiLeft + slot.xDisplayPosition - 1;
-                y = this.guiTop + slot.yDisplayPosition - 1;
+                x = this.guiLeft + slot.xPos - 1;
+                y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
 
@@ -127,8 +127,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             for (int i = 31; i <= 39; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
-                x = this.guiLeft + slot.xDisplayPosition - 1;
-                y = this.guiTop + slot.yDisplayPosition - 1;
+                x = this.guiLeft + slot.xPos - 1;
+                y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
 
@@ -136,8 +136,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             for (int i = 41; i <= 49; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
-                x = this.guiLeft + slot.xDisplayPosition - 1;
-                y = this.guiTop + slot.yDisplayPosition - 1;
+                x = this.guiLeft + slot.xPos - 1;
+                y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
         }
@@ -145,7 +145,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         else if (this.containerCS.getSelectedSlot() != -1)
         {
             Slot slot = this.container.getSlot(this.containerCS.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
+            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
 
         // Draw the background icon over empty storage module slots
@@ -204,8 +204,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                     if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)
                     {
                         Slot slot = this.containerCS.getSlot(31 + invId * 10 + slotNum);
-                        x = this.guiLeft + slot.xDisplayPosition - 1;
-                        y = this.guiTop + slot.yDisplayPosition - 1;
+                        x = this.guiLeft + slot.xPos - 1;
+                        y = this.guiTop + slot.yPos - 1;
 
                         // Missing items, red background
                         if (gridStack == null)

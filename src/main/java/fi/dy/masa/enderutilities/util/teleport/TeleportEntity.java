@@ -438,7 +438,7 @@ public class TeleportEntity
         x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
         z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
         entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
-        worldServerDst.spawnEntityInWorld(entityDst);
+        worldServerDst.spawnEntity(entityDst);
         worldServerDst.updateEntityWithOptionalForce(entityDst, false);
         entityDst.setWorld(worldServerDst);
 
@@ -481,7 +481,7 @@ public class TeleportEntity
         worldServerSrc.removeEntity(player);
         player.isDead = false;
 
-        worldServerDst.spawnEntityInWorld(player);
+        worldServerDst.spawnEntity(player);
         worldServerDst.updateEntityWithOptionalForce(player, false);
         player.setWorld(worldServerDst);
         player.mcServer.getPlayerList().preparePlayer(player, worldServerSrc); // remove player from the source world

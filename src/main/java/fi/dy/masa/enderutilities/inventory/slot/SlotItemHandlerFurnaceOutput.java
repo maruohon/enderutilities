@@ -80,7 +80,7 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
             {
                 int k = EntityXPOrb.getXPSplit(i);
                 i -= k;
-                this.player.getEntityWorld().spawnEntityInWorld(new EntityXPOrb(this.player.getEntityWorld(), this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
+                this.player.getEntityWorld().spawnEntity(new EntityXPOrb(this.player.getEntityWorld(), this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
             }
         }
 

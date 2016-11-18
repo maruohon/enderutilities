@@ -168,7 +168,7 @@ public class EntityEnderArrow extends EntityArrow
         entityitem.motionZ = 0.01d * r.nextGaussian();
         entityitem.setDefaultPickupDelay();
 
-        this.getEntityWorld().spawnEntityInWorld(entityitem);
+        this.getEntityWorld().spawnEntity(entityitem);
     }
 
     /**

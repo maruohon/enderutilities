@@ -256,7 +256,7 @@ public class TemplateEnderUtilities
                     entity.setUniqueId(uuidOriginal);
                 }
 
-                world.spawnEntityInWorld(entity);
+                world.spawnEntity(entity);
             }
         }
     }

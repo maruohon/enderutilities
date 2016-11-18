@@ -35,8 +35,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
     {
         super.initGui();
 
-        this.firstInvSlotX = this.guiLeft + this.containerQS.getSlot(0).xDisplayPosition;
-        this.firstInvSlotY = this.guiTop  + this.containerQS.getSlot(0).yDisplayPosition;
+        this.firstInvSlotX = this.guiLeft + this.containerQS.getSlot(0).xPos;
+        this.firstInvSlotY = this.guiTop  + this.containerQS.getSlot(0).yPos;
 
         this.createButtons();
     }

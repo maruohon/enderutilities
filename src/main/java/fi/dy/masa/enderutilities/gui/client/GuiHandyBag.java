@@ -80,8 +80,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
 
     private void updatePositions()
     {
-        this.firstModuleSlotX  = this.guiLeft + this.containerHB.getSlot(0).xDisplayPosition + 5 * 18;
-        this.firstModuleSlotY  = this.guiTop  + this.containerHB.getSlot(0).yDisplayPosition - 33;
+        this.firstModuleSlotX  = this.guiLeft + this.containerHB.getSlot(0).xPos + 5 * 18;
+        this.firstModuleSlotY  = this.guiTop  + this.containerHB.getSlot(0).yPos - 33;
 
         this.createButtons();
 
@@ -147,14 +147,14 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
             for (int i = 0; i < this.invSize; i++)
             {
                 Slot slot = this.containerHB.getSlot(i);
-                this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 0, 18, 18);
+                this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 0, 18, 18);
             }
         }
         // Draw the colored background for the selected slot (for swapping), if any
         else if (this.containerHB.getSelectedSlot() != -1)
         {
             Slot slot = this.containerHB.getSlot(this.containerHB.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xDisplayPosition - 1, this.guiTop + slot.yDisplayPosition - 1, 102, 18, 18, 18);
+            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
@@ -235,8 +235,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
-        int x = this.guiLeft + this.containerHB.getSlot(0).xDisplayPosition + 2;
-        int y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition + 55;
+        int x = this.guiLeft + this.containerHB.getSlot(0).xPos + 2;
+        int y = this.guiTop + this.containerHB.getSlot(0).yPos + 55;
 
         // Add the quick move items buttons
         this.buttonList.add(new GuiButtonHoverText(BTN_ID_FIRST_MOVE_ITEMS + 0, x +   0, y + 0, 12, 12, 24,  0, this.guiTextureWidgets, 12, 0,
@@ -255,7 +255,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
                 12, 12, 24, i * 12, this.guiTextureWidgets, 12, 0, BUTTON_STRINGS[i]));
         }
 
-        y = this.guiTop + this.containerHB.getSlot(0).yDisplayPosition - 11;
+        y = this.guiTop + this.containerHB.getSlot(0).yPos - 11;
 
         // Locked mode toggle
         this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 0,  0, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[8]));

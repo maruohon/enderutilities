@@ -147,7 +147,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
         else
         {
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.notenoughendercharge"));
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.notenoughendercharge"));
         }
 
         return false;

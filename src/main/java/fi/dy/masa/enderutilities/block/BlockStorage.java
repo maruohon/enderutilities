@@ -144,7 +144,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
                             // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
                             if (((TileEntityMemoryChest) te).isUseableByPlayer(playerIn) == false)
                             {
-                                playerIn.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by",
+                                playerIn.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by",
                                         ((TileEntityMemoryChest) te).getOwnerName()));
                                 return false;
                             }

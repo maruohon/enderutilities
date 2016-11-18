@@ -902,7 +902,7 @@ public class UtilItemModular
         {
             // Remove the bind
             TargetData.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
-            player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
             return null;
         }
 

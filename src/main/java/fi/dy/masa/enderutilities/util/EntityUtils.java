@@ -819,7 +819,7 @@ public class EntityUtils
             world.createExplosion(null, x + 0.5d, y + 1.0d, z + 0.5d, 3.0f, true);
             EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
             entityendercrystal.setLocationAndAngles(x + 0.5d, (double)y + 1.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
-            world.spawnEntityInWorld(entityendercrystal);
+            world.spawnEntity(entityendercrystal);
 
             return true;
         }
@@ -829,7 +829,7 @@ public class EntityUtils
         {
             EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(world);
             entityendercrystal.setLocationAndAngles(x + 0.5d, y + 2.0d, z + 0.5d, world.rand.nextFloat() * 360.0f, 0.0f);
-            world.spawnEntityInWorld(entityendercrystal);
+            world.spawnEntity(entityendercrystal);
             return true;
         }
 
@@ -947,7 +947,7 @@ public class EntityUtils
             entityItem.motionY = worldIn.rand.nextGaussian() * motionScale + 0.3d;
             entityItem.motionZ = worldIn.rand.nextGaussian() * motionScale;
 
-            worldIn.spawnEntityInWorld(entityItem);
+            worldIn.spawnEntity(entityItem);
         }
     }
 

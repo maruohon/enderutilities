@@ -97,7 +97,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return this.storeEntity(stack, livingBase);
         }
 
-        player.addChatMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"));
+        player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"));
 
         return EnumActionResult.FAIL;
     }
@@ -168,7 +168,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 EntityUtils.applyMobPersistence((EntityLiving)entity);
             }
 
-            world.spawnEntityInWorld(entity);
+            world.spawnEntity(entity);
             tagList.removeTag(current);
         }
 

@@ -219,7 +219,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         entityitem.motionZ = 0.05d * this.getEntityWorld().rand.nextGaussian();
         entityitem.setDefaultPickupDelay();
 
-        this.getEntityWorld().spawnEntityInWorld(entityitem);
+        this.getEntityWorld().spawnEntity(entityitem);
     }
 
     @Override

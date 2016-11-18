@@ -223,7 +223,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         entityItem.motionX = entityItem.motionZ = 0.0d;
         entityItem.motionY = 0.15d;
 
-        if (targetWorld.spawnEntityInWorld(entityItem))
+        if (targetWorld.spawnEntity(entityItem))
         {
             Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
             return null;
@@ -390,7 +390,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
 
                 world.playSound(null, x, y, z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, fighter.getSoundCategory(), 1.0F, 1.0F);
 
-                world.spawnEntityInWorld(fighter);
+                world.spawnEntity(fighter);
                 fighter.setPrimaryTarget(targetEntity);
 
                 if (++count >= amount)
@@ -402,7 +402,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
     }
 
     @Override
-    public boolean isItemTool(ItemStack stack)
+    public boolean isEnchantable(ItemStack stack)
     {
         return true;
     }
@@ -454,9 +454,9 @@ public class ItemEnderSword extends ItemLocationBoundModular
                 dmg = 0.0d;
             }
 
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(),
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
                     new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", dmg, 0));
-            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(),
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(),
                     new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -2.3D, 0));
         }
 

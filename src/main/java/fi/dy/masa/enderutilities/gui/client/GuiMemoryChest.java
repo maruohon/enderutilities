@@ -89,8 +89,8 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
             Slot slot = this.inventorySlots.getSlot(i);
             if ((mask & bit) != 0)
             {
-                int x = this.guiLeft + slot.xDisplayPosition;
-                int y = this.guiTop + slot.yDisplayPosition;
+                int x = this.guiLeft + slot.xPos;
+                int y = this.guiTop + slot.yPos;
                 int v = 18;
 
                 // Empty locked slots are in a different color
@@ -122,8 +122,8 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
                     ItemStack stack = this.temc.getTemplateStack(i);
                     if (stack != null)
                     {
-                        int x = this.guiLeft + slot.xDisplayPosition;
-                        int y = this.guiTop + slot.yDisplayPosition;
+                        int x = this.guiLeft + slot.xPos;
+                        int y = this.guiTop + slot.yPos;
                         GlStateManager.enableLighting();
                         GlStateManager.enableDepth();
                         GlStateManager.enableBlend();

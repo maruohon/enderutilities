@@ -132,13 +132,13 @@ public class GuiPortalPanel extends GuiEnderUtilities
             if (i < 8 && active == i)
             {
                 //System.out.println("active: " + i);
-                this.drawTexturedModalRect(x + slot.xDisplayPosition - 1, y + slot.yDisplayPosition - 1,      102, 54, 18, 18);
-                this.drawTexturedModalRect(x + slot.xDisplayPosition - 1, y + slot.yDisplayPosition - 1 + 18, 102, 54, 18, 18);
+                this.drawTexturedModalRect(x + slot.xPos - 1, y + slot.yPos - 1,      102, 54, 18, 18);
+                this.drawTexturedModalRect(x + slot.xPos - 1, y + slot.yPos - 1 + 18, 102, 54, 18, 18);
             }
 
             if (slot.getHasStack() == false)
             {
-                this.drawTexturedModalRect(x + slot.xDisplayPosition, y + slot.yDisplayPosition, u, v, 16, 16);
+                this.drawTexturedModalRect(x + slot.xPos, y + slot.yPos, u, v, 16, 16);
             }
 
             if (i == 7)

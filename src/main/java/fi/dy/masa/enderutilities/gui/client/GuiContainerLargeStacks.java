@@ -31,8 +31,8 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
     @Override
     public void drawSlot(Slot slotIn)
     {
-        int slotPosX = slotIn.xDisplayPosition;
-        int slotPosY = slotIn.yDisplayPosition;
+        int slotPosX = slotIn.xPos;
+        int slotPosY = slotIn.yPos;
         ItemStack itemstack = slotIn.getStack();
         boolean flag = false;
         boolean flag1 = slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick == false;
