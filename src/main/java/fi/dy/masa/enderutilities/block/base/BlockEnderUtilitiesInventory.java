@@ -18,7 +18,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
+public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
 {
     public BlockEnderUtilitiesInventory(String name, float hardness, float resistance, int harvestLevel, Material material)
     {

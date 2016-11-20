@@ -36,6 +36,7 @@ public class TileEntityEnderUtilities extends TileEntity
     public void setFacing(EnumFacing facing)
     {
         this.facing = facing;
+        this.markDirty();
     }
 
     public EnumFacing getFacing()

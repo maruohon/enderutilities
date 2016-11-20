@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +18,7 @@ import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
+public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
     public BlockEnderUtilitiesTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -33,17 +34,10 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        TileEntityEnderUtilities te = this.createTileEntityInstance(world, state);
-
-        te.setFacing(state.getValue(FACING));
-
-        return te;
+        return this.createTileEntityInstance(world, state);
     }
 
-    protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
-    {
-        return new TileEntityEnderUtilities("foo");
-    }
+    protected abstract TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state);
 
     public boolean isTileEntityValid(TileEntity te)
     {
@@ -132,10 +126,21 @@ public class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
         TileEntity te = world.getTileEntity(pos);
+
         if (te instanceof TileEntityEnderUtilities)
         {
-            ((TileEntityEnderUtilities) te).setFacing(axis);
-            return true;
+            IBlockState state = world.getBlockState(pos).getActualState(world, pos);
+
+            for (IProperty<?> prop : state.getProperties().keySet())
+            {
+                if (prop == FACING)
+                {
+                    ((TileEntityEnderUtilities) te).setFacing(state.getValue(FACING).rotateAround(EnumFacing.Axis.Y));
+                    world.notifyBlockUpdate(pos, state, state, 3);
+
+                    return true;
+                }
+            }
         }
 
         return false;
