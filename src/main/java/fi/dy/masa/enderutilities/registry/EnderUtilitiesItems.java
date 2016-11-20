@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -16,6 +17,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.recipes.ShapedUpgradeOreRecipe;
 
@@ -130,6 +132,8 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeHandyBag == false && Configs.disableItemHandyBag == false)
         {
             GameRegistry.addRecipe(new ItemStack(handyBag, 1, 0), "RAR", "ACA", "LAL", 'R', rope, 'A', alloy1, 'C', Blocks.ENDER_CHEST, 'L', Items.LEATHER);
+
+            RecipeSorter.register(Reference.MOD_ID + ":shapedupgradeore", ShapedUpgradeOreRecipe.class, RecipeSorter.Category.SHAPED, "");
             GameRegistry.addRecipe(new ShapedUpgradeOreRecipe(new ItemStack(handyBag, 1, 1), handyBag, 0, "AAA", "CBC", "AAA", 'A', alloy2, 'B', new ItemStack(handyBag, 1, 0), 'C', Blocks.CHEST));
         }
         if (Configs.disableRecipeInventorySwapper == false && Configs.disableItemInventorySwapper == false)
