@@ -127,6 +127,9 @@ item.enderutilities.pickupmanager.name=Item Pickup Manager
 item.enderutilities.quickstacker.name=Quick Stacker
 item.enderutilities.portalscaler.name=Portal Scaler
 item.enderutilities.ruler.name=Ruler
+item.enderutilities.syringe_empty.name=Syringe (empty)
+item.enderutilities.syringe_paralyzer.name=Paralyzer Syringe
+item.enderutilities.syringe_stimulant.name=Stimulant Syringe
 
 
 ###################################################
@@ -183,6 +186,8 @@ item.enderutilities.pickupmanager.tooltips=- Controls which items can be picked 
 item.enderutilities.portalscaler.tooltips=- Will change the Nether Portal teleportation scale factor,|lf  if you right click with it while standing in a portal.|lf- To change the scaling factor:|lf  - First select the item in your hotbar|lf  - Look at the direction of the axis you want to change (x/y/z)|lf  - Then press and hold Alt + Shift and use the mouse wheel|lf  - Or press Alt + Shift (+ Ctrl) + Toggle mode|lf- Can also light up and shut down portals|lf  (right click a portal block/the obsidian frame|lf  while NOT standing in the portal)
 item.enderutilities.quickstacker.tooltips=- Quick stacks items from the player's|lf  inventory to nearby inventories|lf- Press the Toggle Mode button to activate|lf- Works also while not in hand|lf- Normally moves only matching items|lf- Sneak while activating to move non-matching items too|lf- Can also be sneak + right clicked on|lf  inventories to quick stack to that inventory
 item.enderutilities.ruler.tooltips=Measure distances and visualize positions|lf- Left/right click to set start/end position|lf- Sneak to target the block, not the empty space|lf- Shift + scroll: Cycle selected point|lf- Ctrl + scroll: Cycle selected Memory Card|lf- Alt + Toggle: Toggle render when unselected|lf- Ctrl + Alt + Toggle: Toggle distance mode|lf- Alt + Shift + Toggle: Toggle render all points|lf- Just Toggle: Toggle "render with all" for selected point
+item.enderutilities.syringe_paralyzer.tooltips=Paralyzes mobs (sets the NoAI flag)
+item.enderutilities.syringe_stimulant.tooltips=Un-paralyzes mobs (removes the NoAI flag)
 
 tile.enderutilities.creationstation.tooltips=- Combines two crafting tables, two furnaces and some modular storage|lf- Has recipe memory, quick fill crafting grids etc. functionality
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder|lf  as fuel in addition to the normal furnace fuels|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or portable tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest

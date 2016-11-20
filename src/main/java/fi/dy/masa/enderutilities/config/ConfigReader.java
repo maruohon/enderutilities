@@ -218,6 +218,7 @@ public class ConfigReader
         Configs.disableItemQuickStacker           = conf.get(category, "disableItemQuickStacker", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemPortalScaler           = conf.get(category, "disableItemPortalScaler", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableItemRuler                  = conf.get(category, "disableItemRuler", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableItemSyringe                = conf.get(category, "disableItemSyringe", false).setRequiresMcRestart(true).getBoolean();
 
         // Recipe disable
         category = "DisableRecipies";
@@ -267,6 +268,7 @@ public class ConfigReader
         Configs.disableRecipeQuickStacker         = conf.get(category, "disableRecipeQuickStacker", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipePortalScaler         = conf.get(category, "disableRecipePortalScaler", false).setRequiresMcRestart(true).getBoolean();
         Configs.disableRecipeRuler                = conf.get(category, "disableRecipeRuler", false).setRequiresMcRestart(true).getBoolean();
+        Configs.disableRecipeSyringe              = conf.get(category, "disableRecipeSyringe", false).setRequiresMcRestart(true).getBoolean();
 
         // Tools and weapons
         Configs.disableRecipeEnderSword           = conf.get(category, "disableRecipeEnderSword", false).setRequiresMcRestart(true).getBoolean();

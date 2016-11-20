@@ -1,0 +1,25 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_default"
+    },
+    "variants": {
+        "type": {
+            "empty": {
+                "textures": {
+                    "layer0": "enderutilities:items/syringe_empty"
+                }
+            },
+            "paralyzer": {
+                "textures": {
+                    "layer0": "enderutilities:items/syringe_paralyzer"
+                }
+            },
+            "stimulant": {
+                "textures": {
+                    "layer0": "enderutilities:items/syringe_stimulant"
+                }
+            }
+        }
+    }
+}

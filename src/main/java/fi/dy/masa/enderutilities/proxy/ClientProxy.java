@@ -241,6 +241,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.quickStacker);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.syringe);
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);

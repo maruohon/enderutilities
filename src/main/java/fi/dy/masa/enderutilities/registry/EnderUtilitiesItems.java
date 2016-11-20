@@ -44,6 +44,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities quickStacker = new ItemQuickStacker();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
     public static final ItemEnderUtilities ruler = new ItemRuler();
+    public static final ItemEnderUtilities syringe = new ItemSyringe();
 
     public static void init()
     {
@@ -69,6 +70,7 @@ public class EnderUtilitiesItems
         registerItem(quickStacker,          ReferenceNames.NAME_ITEM_QUICK_STACKER,             Configs.disableItemQuickStacker);
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
+        registerItem(syringe,               ReferenceNames.NAME_ITEM_SYRINGE,                   Configs.disableItemSyringe);
 
         ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
         ItemStack pearl = new ItemStack(Items.ENDER_PEARL);
@@ -165,6 +167,15 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeRuler == false && Configs.disableItemRuler == false)
         {
             GameRegistry.addRecipe(new ItemStack(ruler), "A  ", "AS ", "AAA", 'A', alloy0, 'S', ender_stick);
+        }
+        if (Configs.disableRecipeSyringe == false && Configs.disableItemSyringe == false)
+        {
+            // Empty syringe
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(syringe, 1, 0), "A  ", " G ", "  S", 'A', alloy1, 'G', "blockGlass", 'S', ender_stick));
+            // Paralyzer syringe
+            GameRegistry.addShapelessRecipe(new ItemStack(syringe, 1, 1), syringe, Items.FERMENTED_SPIDER_EYE, Blocks.RED_MUSHROOM, Blocks.BROWN_MUSHROOM);
+            // Stimulant syringe
+            GameRegistry.addShapelessRecipe(new ItemStack(syringe, 1, 2), syringe, Items.SUGAR, Items.SPECKLED_MELON, Items.CARROT);
         }
 
         // Tools and weapons
