@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -14,12 +15,15 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
     protected final int sourceMeta;
 
     /**
-     * The first occurence of the item <b>source</b> in the crafting grid will be used to copy over NBT data.
+     * The first occurence of the item <b>sourceItem</b> with metadata <b>sourceMeta</b>
+     * (or any metadata value if sourceMeta == OreDictionary.WILDCARD_VALUE)
+     * in the crafting grid will be used to copy over NBT data from the sourceItem to the crafting result.
      * @param result
-     * @param source
+     * @param sourceItem
+     * @param sourceMeta
      * @param recipe
      */
-    public ShapedUpgradeOreRecipe(Block result, Item sourceItem, int sourceMeta, Object[] recipe)
+    public ShapedUpgradeOreRecipe(Block result, Item sourceItem, int sourceMeta, Object... recipe)
     {
         super(result, recipe);
         this.sourceItem = sourceItem;
@@ -27,9 +31,12 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
     }
 
     /**
-     * The first occurence of the item <b>source</b> in the crafting grid will be used to copy over NBT data.
+     * The first occurence of the item <b>sourceItem</b> with metadata <b>sourceMeta</b>
+     * (or any metadata value if sourceMeta == OreDictionary.WILDCARD_VALUE)
+     * in the crafting grid will be used to copy over NBT data from the sourceItem to the crafting result.
      * @param result
-     * @param source
+     * @param sourceItem
+     * @param sourceMeta
      * @param recipe
      */
     public ShapedUpgradeOreRecipe(Item result, Item sourceItem, int sourceMeta, Object... recipe)
@@ -40,9 +47,12 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
     }
 
     /**
-     * The first occurence of the item <b>source</b> in the crafting grid will be used to copy over NBT data.
+     * The first occurence of the item <b>sourceItem</b> with metadata <b>sourceMeta</b>
+     * (or any metadata value if sourceMeta == OreDictionary.WILDCARD_VALUE)
+     * in the crafting grid will be used to copy over NBT data from the sourceItem to the crafting result.
      * @param result
-     * @param source
+     * @param sourceItem
+     * @param sourceMeta
      * @param recipe
      */
     public ShapedUpgradeOreRecipe(ItemStack result, Item sourceItem, int sourceMeta, Object... recipe)
@@ -67,7 +77,9 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
             {
                 if (result.hasTagCompound())
                 {
-                    result.getTagCompound().merge(tmp.getTagCompound().copy());
+                    NBTTagCompound tag = tmp.getTagCompound().copy();
+                    tag.merge(result.getTagCompound());
+                    result.setTagCompound(tag);
                 }
                 else
                 {
