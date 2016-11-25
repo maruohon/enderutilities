@@ -355,7 +355,6 @@ public class EntityEndermanFighter extends EntityMob
             return;
         }
 
-        amount = 1; // FIXME debug, remove!
         double r = 16.0d;
         double x = target.posX;
         double y = target.posY;

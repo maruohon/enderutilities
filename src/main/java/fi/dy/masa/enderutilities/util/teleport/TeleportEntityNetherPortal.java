@@ -182,7 +182,7 @@ public class TeleportEntityNetherPortal
                 if (world.isAirBlock(pos) == true
                     && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
-                    world.setBlockState(pos, Blocks.STONE.getDefaultState(), 3);
+                    world.setBlockState(pos, Blocks.OBSIDIAN.getDefaultState(), 3);
                     this.entityPos = pos.up();
                     return;
                 }
