@@ -21,6 +21,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
@@ -47,7 +48,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     @Override
     protected String[] generateUnlocalizedNames()
     {
-        return new String[] { this.blockName };
+        return new String[] { ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE };
     }
 
     @Override
