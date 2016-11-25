@@ -42,9 +42,9 @@ public class ItemBlockEnderUtilities extends ItemBlock
     }
 
     @Override
-    public int getMetadata(int damage)
+    public int getMetadata(int meta)
     {
-        return damage;
+        return meta;
     }
 
     @Override

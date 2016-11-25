@@ -14,7 +14,6 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,7 +24,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -144,7 +142,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
         // Summon fighters mode
         if (targetEntity != null && targetEntity.getEntityWorld().isRemote == false && SwordMode.fromStack(stack) == SwordMode.SUMMON)
         {
-            this.summonFighterEndermen(targetEntity.getEntityWorld(), targetEntity, 3);
+            EntityEndermanFighter.summonFighters(targetEntity.getEntityWorld(), targetEntity, 3);
         }
 
         return this.addToolDamage(stack, 1, targetEntity, attacker);
@@ -332,72 +330,6 @@ public class ItemEnderSword extends ItemLocationBoundModular
         if (drops.isEmpty())
         {
             event.setCanceled(true);
-        }
-    }
-
-    private void summonFighterEndermen(World world, EntityLivingBase targetEntity, int amount)
-    {
-        if (targetEntity instanceof EntityEndermanFighter)
-        {
-            return;
-        }
-
-        double r = 16.0d;
-        double x = targetEntity.posX;
-        double y = targetEntity.posY;
-        double z = targetEntity.posZ;
-        int numReTargeted = 0;
-
-        AxisAlignedBB bb = new AxisAlignedBB(x - r, y - r, z - r, x + r, y + r, z + r);
-        List<EntityEndermanFighter> list = world.getEntitiesWithinAABB(EntityEndermanFighter.class, bb);
-
-        for (EntityEndermanFighter fighter : list)
-        {
-            if (fighter.getAttackTarget() == null && fighter.hasCustomName() == false)
-            {
-                fighter.setPrimaryTarget(targetEntity);
-                numReTargeted++;
-            }
-        }
-
-        if (numReTargeted >= amount)
-        {
-            return;
-        }
-
-        int count = numReTargeted;
-        for (int i = 0; i < 64; ++i)
-        {
-            x = targetEntity.posX - 5.0d + world.rand.nextFloat() * 10.0d;
-            y = targetEntity.posY - 2.0d + world.rand.nextFloat() * 4.0d;
-            z = targetEntity.posZ - 5.0d + world.rand.nextFloat() * 10.0d;
-
-            EntityEndermanFighter fighter = new EntityEndermanFighter(world);
-            fighter.setPosition(x, targetEntity.posY, z);
-            IBlockState state = world.getBlockState(new BlockPos((int)x, (int)targetEntity.posY - 1, (int)z));
-
-            if (world.getCollisionBoxes(fighter, fighter.getEntityBoundingBox()).isEmpty()  &&
-                world.containsAnyLiquid(fighter.getEntityBoundingBox()) == false &&
-                state.getMaterial().blocksMovement())
-            {
-                for (int j = 0; j < 16; ++j)
-                {
-                    float vx = (world.rand.nextFloat() - 0.5F) * 0.2F;
-                    float vy = (world.rand.nextFloat() - 0.5F) * 0.2F;
-                    float vz = (world.rand.nextFloat() - 0.5F) * 0.2F;
-                    world.spawnParticle(EnumParticleTypes.PORTAL, x, y, z, vx, vy, vz);
-                }
-
-                world.playSound(null, x, y, z, SoundEvents.ENTITY_ENDERMEN_TELEPORT, fighter.getSoundCategory(), 1.0F, 1.0F);
-
-                world.spawnEntity(fighter);
-                fighter.setPrimaryTarget(targetEntity);
-
-                if (++count >= amount)
-                {
-                    break;
-                }
-            }
         }
     }
 
