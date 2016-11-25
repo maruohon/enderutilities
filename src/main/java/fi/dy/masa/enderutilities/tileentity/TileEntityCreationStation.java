@@ -892,54 +892,23 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * Checks if there is a valid fuel item in the fuel slot.
      * @return true if the fuel slot has an item that can be used as fuel
      */
-    protected boolean hasFuelAvailable(int id)
+    private boolean hasFuelAvailable(int id)
     {
-        ItemStack fuelStack = this.furnaceInventory.getStackInSlot(id * 3 + 1);
-        if (fuelStack == null)
-        {
-            return false;
-        }
-
-        return TileEntityEnderFurnace.itemContainsFluidFuel(fuelStack) ||
-               TileEntityEnderFurnace.getItemBurnTime(fuelStack) > 0;
+        return TileEntityEnderFurnace.consumeFuelItem(this.furnaceInventory, id * 3 + 1, true) > 0;
     }
 
     /**
      * Consumes one fuel item or one dose of fluid fuel. Sets the burnTimeFresh field to the amount of burn time gained.
      * @return returns the amount of furnace burn time that was gained from the fuel
      */
-    protected int consumeFuelItem(int id)
+    private int consumeFuelItem(int id)
     {
-        if (this.furnaceInventory.getStackInSlot(id * 3 + 1) == null)
-        {
-            return 0;
-        }
+        int fuelSlot = id * 3 + 1;
+        int burnTime = TileEntityEnderFurnace.consumeFuelItem(this.furnaceInventory, fuelSlot, false);
 
-        ItemStack fuelStack = this.furnaceInventory.extractItem(id * 3 + 1, 1, false);
-        int burnTime = TileEntityEnderFurnace.consumeFluidFuelDosage(fuelStack);
-
-        // IFluidContainerItem items with lava
         if (burnTime > 0)
         {
-            // Put the fuel/fluid container item back
-            this.furnaceInventory.insertItem(id * 3 + 1, fuelStack, false);
             this.burnTimeFresh[id] = burnTime;
-        }
-        // Regular solid fuels
-        else
-        {
-            burnTime = TileEntityEnderFurnace.getItemBurnTime(fuelStack);
-
-            if (burnTime > 0)
-            {
-                this.burnTimeFresh[id] = burnTime;
-                ItemStack containerStack = fuelStack.getItem().getContainerItem(fuelStack);
-
-                if (this.furnaceInventory.getStackInSlot(id * 3 + 1) == null && containerStack != null)
-                {
-                    this.furnaceInventory.insertItem(id * 3 + 1, containerStack, false);
-                }
-            }
         }
 
         return burnTime;
@@ -950,7 +919,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * for an equal item and free space or empty buffer. Does not check the fuel.
      * @return true if input and output item stacks allow the current item to be smelted
      */
-    protected boolean canSmelt(int id)
+    private boolean canSmelt(int id)
     {
         ItemStack inputStack = this.furnaceInventory.getStackInSlot(id * 3);
 
@@ -961,6 +930,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
         int amount = 0;
         ItemStack outputStack = this.furnaceInventory.getStackInSlot(id * 3 + 2);
+
         if (outputStack != null)
         {
             if (InventoryUtils.areItemStacksEqual(this.smeltingResultCache[id], outputStack) == false)
@@ -982,7 +952,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     /**
      * Turn one item from the furnace input slot into a smelted item in the furnace output buffer.
      */
-    protected void smeltItem(int id)
+    private void smeltItem(int id)
     {
         if (this.canSmelt(id))
         {
@@ -996,7 +966,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    protected void smeltingLogic(int id)
+    private void smeltingLogic(int id)
     {
         this.updateSmeltingResult(id);
 
