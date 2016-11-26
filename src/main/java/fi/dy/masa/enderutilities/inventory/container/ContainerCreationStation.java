@@ -204,8 +204,9 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
             IItemHandler inv = this.tecs.getItemInventory(player);
             MergeSlotRange range = new MergeSlotRange(inv);
+            ItemStack stackSlot = this.getSlot(slotNum).getStack();
 
-            if (InventoryUtils.matchingStackFoundInSlotRange(inv, range, this.getSlot(slotNum).getStack(), false, false))
+            if (stackSlot != null && InventoryUtils.matchingStackFoundInSlotRange(inv, range, stackSlot, false, false))
             {
                 ret = super.transferStackToSlotRange(player, slotNum, range, false);
             }

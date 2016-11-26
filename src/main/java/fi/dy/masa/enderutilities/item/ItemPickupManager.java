@@ -427,6 +427,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         {
             ItemStack stackIn = iter.next();
 
+            if (stackIn == null)
+            {
+                continue;
+            }
+
             //int i = 0;
             for (ItemStack manager : managers)
             {

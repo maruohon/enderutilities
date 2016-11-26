@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -386,6 +387,7 @@ public class EntityUtils
 
     private static Entity findEntityFromStackByUUID(Entity entityInStack, UUID uuid, boolean startFromBottom)
     {
+        // TODO useless check?
         if (entityInStack == null)
         {
             return null;
@@ -441,11 +443,6 @@ public class EntityUtils
      */
     public static Entity getTopEntity(Entity entity)
     {
-        if (entity == null)
-        {
-            return null;
-        }
-
         Entity ent;
         for (ent = entity; ent.isBeingRidden(); ent = ent.getPassengers().get(0))
         {
@@ -606,11 +603,6 @@ public class EntityUtils
      */
     public static boolean doesEntityStackHaveBlacklistedEntities(Entity entity)
     {
-        if (entity == null)
-        {
-            return false;
-        }
-
         return doesEntityStackHaveBlacklistedEntities(entity, true);
     }
 
@@ -845,11 +837,6 @@ public class EntityUtils
      */
     public static <T extends EntityAIBase> boolean addAITaskAfterTasks(EntityLiving living, EntityAIBase task, boolean replaceMatching, Class<T>[] afterTasks)
     {
-        if (living == null)
-        {
-            return false;
-        }
-
         int priority = -1;
         Iterator<EntityAITaskEntry> taskEntryIter = living.tasks.taskEntries.iterator();
 
@@ -909,13 +896,8 @@ public class EntityUtils
      * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
      * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
      */
-    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks)
+    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, @Nonnull ItemStack stack, int amountOverride, boolean dropFullStacks)
     {
-        if (stack == null)
-        {
-            return;
-        }
-
         double xr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
         double yr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
         double zr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();

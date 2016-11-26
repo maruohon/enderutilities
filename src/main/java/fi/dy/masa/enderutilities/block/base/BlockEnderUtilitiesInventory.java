@@ -29,13 +29,20 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
     public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilitiesInventory)
-        {
-            IItemHandler itemHandler = ((TileEntityEnderUtilitiesInventory)te).getBaseItemHandler();
 
-            for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
+        if (te instanceof TileEntityEnderUtilitiesInventory && ((TileEntityEnderUtilitiesInventory) te).getBaseItemHandler() != null)
+        {
+            IItemHandler itemHandler = ((TileEntityEnderUtilitiesInventory) te).getBaseItemHandler();
+            int numSlots = itemHandler.getSlots();
+
+            for (int i = 0; i < numSlots; i++)
             {
-                EntityUtils.dropItemStacksInWorld(worldIn, pos, itemHandler.getStackInSlot(i), -1, false);
+                ItemStack stack = itemHandler.getStackInSlot(i);
+
+                if (stack != null)
+                {
+                    EntityUtils.dropItemStacksInWorld(worldIn, pos, stack, -1, false);
+                }
             }
 
             worldIn.updateComparatorOutputLevel(pos, this);
