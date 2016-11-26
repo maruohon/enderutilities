@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -23,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -57,14 +57,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBound, IFluidContainerItem
 {
-    public static final int BUCKET_VOLUME = 1000;
     public static final double ENDER_CHARGE_COST = 0.2d; // charge cost per 1 mB of fluid transferred to/from a linked tank
-    public static final byte OPERATION_MODE_NORMAL = 0;
-    public static final byte OPERATION_MODE_FILL_BUCKET = 1;
-    public static final byte OPERATION_MODE_DRAIN_BUCKET = 2;
-    public static final byte OPERATION_MODE_BINDING = 3;
-    public static final byte LINK_MODE_DISABLED = 0;
-    public static final byte LINK_MODE_ENABLED = 1;
     public static final int ENDER_BUCKET_MAX_AMOUNT = 16000; // Can contain 16 buckets
 
     protected int capacity;
@@ -87,27 +80,28 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return EnumActionResult.PASS;
         }
 
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
             OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return EnumActionResult.FAIL;
         }
 
-        if (this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack)) == EnumActionResult.SUCCESS)
+        if (this.useBucketOnFluidBlock(world, player, stack) == EnumActionResult.SUCCESS)
         {
             return EnumActionResult.SUCCESS;
         }
 
         TileEntity te = world.getTileEntity(pos);
+
         if (te != null && te instanceof IFluidHandler)
         {
             // If we are in bind mode, bind the bucket to the targeted tank and then return
-            if (this.getBucketMode(stack) == OPERATION_MODE_BINDING)
+            if (BucketMode.fromStack(stack) == BucketMode.BIND)
             {
                 return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
             }
 
-            return this.useBucketOnTank(stack, player, world, pos, side, this.getBucketMode(stack));
+            return this.useBucketOnTank(world, pos, side, player, stack);
         }
 
         return EnumActionResult.PASS;
@@ -123,7 +117,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return EnumActionResult.SUCCESS;
         }
 
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
             OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return EnumActionResult.FAIL;
@@ -131,12 +125,12 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         // First try to use the bucket on a fluid block, if any.
         // If that fails (not targeting fluid), then we use it on a block (see below).
-        if (this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack)) == EnumActionResult.SUCCESS)
+        if (this.useBucketOnFluidBlock(world, player, stack) == EnumActionResult.SUCCESS)
         {
             return EnumActionResult.SUCCESS;
         }
 
-        return this.useBucketOnBlock(stack, player, world, pos, side, hitX, hitY, hitZ, this.getBucketMode(stack));
+        return this.useBucketOnBlock(world, pos, side, hitX, hitY, hitZ, player, stack);
     }
 
     @Override
@@ -145,13 +139,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         this.setCapacity(Configs.enderBucketCapacity);
 
         // Do nothing on the client side
-        if (world.isRemote == true || (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED &&
+        if (world.isRemote == true || (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
             OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
 
-        EnumActionResult result = this.useBucketOnFluidBlock(stack, world, player, this.getBucketMode(stack));
+        EnumActionResult result = this.useBucketOnFluidBlock(world, player, stack);
         return new ActionResult<ItemStack>(result, stack);
     }
 
@@ -159,7 +153,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public String getItemStackDisplayName(ItemStack stack)
     {
         FluidStack fluidStack = this.getFluidCached(stack);
-        String baseName = this.getBucketLinkMode(stack) == LINK_MODE_ENABLED ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
+        String baseName = LinkMode.fromStack(stack) == LinkMode.ENABLED ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
 
         if (fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() != null)
         {
@@ -198,20 +192,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             fluidName = I18n.format("enderutilities.tooltip.item.empty");
         }
 
-        byte mode = this.getBucketMode(stack);
-        byte linkMode = this.getBucketLinkMode(stack);
+        BucketMode mode = BucketMode.fromStack(stack);
+        LinkMode link = LinkMode.fromStack(stack);
 
         String amountStr = String.format("%s%s%s mB / %s%s%s mB", preNr, EUStringUtils.formatNumberWithKSeparators(amount), rst, preNr, EUStringUtils.formatNumberWithKSeparators(capacity), rst);
-        String modeStr;
-        if (mode == OPERATION_MODE_NORMAL) { modeStr = "enderutilities.tooltip.item.bucket.mode.normal"; }
-        else if (mode == OPERATION_MODE_FILL_BUCKET) { modeStr = "enderutilities.tooltip.item.bucket.mode.fill"; }
-        else if (mode == OPERATION_MODE_DRAIN_BUCKET) { modeStr = "enderutilities.tooltip.item.bucket.mode.drain"; }
-        else if (mode == OPERATION_MODE_BINDING) { modeStr = "enderutilities.tooltip.item.bucket.mode.bind"; }
-        else { modeStr = ""; }
 
         if (verbose == true)
         {
-            if (linkMode == LINK_MODE_ENABLED)
+            if (link == LinkMode.ENABLED)
             {
                 list.add(I18n.format("enderutilities.tooltip.item.cached.fluid") + ": " + fluidName);
                 list.add(I18n.format("enderutilities.tooltip.item.cached.amount") + ": " + amountStr);
@@ -224,7 +212,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
         else
         {
-            if (linkMode == LINK_MODE_ENABLED)
+            if (link == LinkMode.ENABLED)
             {
                 list.add(I18n.format("enderutilities.tooltip.item.cached.fluid.compact") + ": " + fluidName + " - " + amountStr);
             }
@@ -234,12 +222,18 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             }
         }
 
-        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + I18n.format(modeStr));
+        list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + I18n.format(mode.getUnlocalizedName()));
 
-        if (linkMode == LINK_MODE_ENABLED)
+        if (link == LinkMode.ENABLED)
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
         }
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+    {
+        return oldStack.equals(newStack) == false;
     }
 
     @SideOnly(Side.CLIENT)
@@ -249,134 +243,84 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
     }
 
-    public byte getBucketMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null && nbt.hasKey("Mode") == true)
-        {
-            byte mode = nbt.getByte("Mode");
-            if (mode >= OPERATION_MODE_NORMAL && mode <= OPERATION_MODE_BINDING)
-            {
-                return mode;
-            }
-        }
-
-        return OPERATION_MODE_NORMAL;
-    }
-
-    /**
-     *  Returns whether the bucket is currently set to link to a tank.
-     */
-    public byte getBucketLinkMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        if (nbt != null && nbt.hasKey("Linked") == true)
-        {
-            byte mode = nbt.getByte("Linked");
-            if (mode == LINK_MODE_DISABLED || mode == LINK_MODE_ENABLED)
-            {
-                return mode;
-            }
-        }
-
-        return LINK_MODE_DISABLED;
-    }
-
     /**
      * Checks if the player can edit the target block
      */
-    public boolean isTargetUsable(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side)
+    public boolean isTargetUsable(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
     {
-        if (world == null)
-        {
-            return false;
-        }
-
         // Spawn safe zone checks etc.
-        if (world.canMineBlockBody(player, pos) == false || player.canPlayerEdit(pos, side, stack) == false)
-        {
-            return false;
-        }
-
-        return true;
+        return world.canMineBlockBody(player, pos) && player.canPlayerEdit(pos, side, stack);
     }
 
-    public EnumActionResult useBucketOnTank(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, byte bucketMode)
+    public EnumActionResult useBucketOnTank(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
     {
-        if (this.isTargetUsable(stack, player, world, pos, side) == false)
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te == null || (te instanceof IFluidHandler) == false || this.isTargetUsable(world, pos, side, player, stack) == false)
         {
             return EnumActionResult.PASS;
         }
 
-        TileEntity te = world.getTileEntity(pos);
+        IFluidHandler iFluidHandler = (IFluidHandler)te;
+        FluidStack fluidStack;
+        String blockName = ForgeRegistries.BLOCKS.getKey(world.getBlockState(pos).getBlock()).toString();
 
-        // Is this a TileEntity that is also some sort of a fluid storage device?
-        if (te != null && te instanceof IFluidHandler)
+        // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
+        // work if we target a blue (= input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
+        // but the top side should ever only be blue aka. input.
+        if (blockName != null && blockName.equals("ThermalExpansion:Tank"))
         {
-            IFluidHandler iFluidHandler = (IFluidHandler)te;
-            FluidStack fluidStack;
-            String blockName = ForgeRegistries.BLOCKS.getKey(world.getBlockState(pos).getBlock()).toString();
+            side = EnumFacing.UP;
+        }
 
-            // We fake always targeting the top side of Thermal Expansion Portable Tanks, because they only
-            // work if we target a blue (= input) side. Only top and bottom sides are even possible, and bottom might be orange aka auto-output,
-            // but the top side should ever only be blue aka. input.
-            if (blockName != null && blockName.equals("ThermalExpansion:Tank"))
+        // Get the stored fluid, if any
+        FluidStack storedFluidStack = this.getFluidWorker(stack, player);
+        int storedFluidAmount = 0;
+
+        if (storedFluidStack != null)
+        {
+            storedFluidAmount = storedFluidStack.amount;
+        }
+
+        BucketMode mode = BucketMode.fromStack(stack);
+        // With tanks we pick up fluid when not sneaking
+        if (mode == BucketMode.FILL || (mode == BucketMode.NORMAL && player.isSneaking() == false))
+        {
+            fluidStack = iFluidHandler.drain(side, Fluid.BUCKET_VOLUME, false); // simulate
+
+            if (fluidStack != null)
             {
-                side = EnumFacing.UP;
-            }
+                int amount = Math.min(this.getCapacityAvailable(stack, fluidStack, player), Fluid.BUCKET_VOLUME);
 
-            // Get the stored fluid, if any
-            FluidStack storedFluidStack = this.getFluidWorker(stack, player);
-            int storedFluidAmount = 0;
-
-            if (storedFluidStack != null)
-            {
-                storedFluidAmount = storedFluidStack.amount;
-            }
-
-            // With tanks we pick up fluid when not sneaking
-            if (bucketMode == OPERATION_MODE_FILL_BUCKET || (bucketMode == OPERATION_MODE_NORMAL && player.isSneaking() == false))
-            {
-                fluidStack = iFluidHandler.drain(side, BUCKET_VOLUME, false); // simulate
-                int amount = this.getCapacityAvailable(stack, fluidStack, player);
-
-                // We can still store more fluid
-                if (amount > 0)
+                // If the bucket is currently empty, or the tank's fluid is the same we currently have
+                if (amount > 0 && (storedFluidAmount == 0 || fluidStack.isFluidEqual(storedFluidStack)))
                 {
-                    if (amount > BUCKET_VOLUME)
-                    {
-                        amount = BUCKET_VOLUME;
-                    }
+                    fluidStack = iFluidHandler.drain(side, amount, false);
 
-                    // If the bucket is currently empty, or the tank's fluid is the same we currently have
-                    if (fluidStack != null && (storedFluidAmount == 0 || fluidStack.isFluidEqual(storedFluidStack) == true))
+                    if (fluidStack != null && this.fillWorker(stack, fluidStack, false, player) == fluidStack.amount)
                     {
-                        fluidStack = iFluidHandler.drain(side, amount, false);
-                        if (fluidStack != null && this.fillWorker(stack, fluidStack, false, player) == fluidStack.amount)
-                        {
-                            fluidStack = iFluidHandler.drain(side, amount, true); // actually drain
-                            this.fillWorker(stack, fluidStack, true, player);
-                            return EnumActionResult.SUCCESS;
-                        }
+                        fluidStack = iFluidHandler.drain(side, amount, true); // actually drain
+                        this.fillWorker(stack, fluidStack, true, player);
+                        return EnumActionResult.SUCCESS;
                     }
                 }
             }
-            // Sneaking or in drain-only mode, try to drain fluid from the bucket to the tank
-            else
+        }
+        // Sneaking or in drain-only mode, try to drain fluid from the bucket to the tank
+        else
+        {
+            // Some fluid stored (we allow depositing less than a buckets worth of fluid into _tanks_)
+            if (storedFluidAmount > 0)
             {
-                // Some fluid stored (we allow depositing less than a buckets worth of fluid into _tanks_)
-                if (storedFluidAmount > 0)
-                {
-                    // simulate, we try to deposit up to one bucket per use
-                    fluidStack = this.drainWorker(stack, BUCKET_VOLUME, false, player);
+                // simulate, we try to deposit up to one bucket per use
+                fluidStack = this.drainWorker(stack, Fluid.BUCKET_VOLUME, false, player);
 
-                    // Check if we can deposit (at least some) the fluid we have stored
-                    if (fluidStack != null && iFluidHandler.fill(side, fluidStack, false) > 0) // simulate
-                    {
-                        int amount = iFluidHandler.fill(side, fluidStack, true);
-                        this.drainWorker(stack, amount, true, player); // actually drain fluid from the bucket (the amount that was filled into the tank)
-                        return EnumActionResult.SUCCESS;
-                    }
+                // Check if we can deposit (at least some) the fluid we have stored
+                if (fluidStack != null && iFluidHandler.fill(side, fluidStack, false) > 0) // simulate
+                {
+                    int amount = iFluidHandler.fill(side, fluidStack, true);
+                    this.drainWorker(stack, amount, true, player); // actually drain fluid from the bucket (the amount that was filled into the tank)
+                    return EnumActionResult.SUCCESS;
                 }
             }
         }
@@ -384,23 +328,22 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return EnumActionResult.PASS;
     }
 
-    public EnumActionResult useBucketOnBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
-            float hitX, float hitY, float hitZ, byte bucketMode)
+    public EnumActionResult useBucketOnBlock(World world, BlockPos pos, EnumFacing side,
+            float hitX, float hitY, float hitZ, EntityPlayer player, ItemStack stack)
     {
-        if (this.isTargetUsable(stack, player, world, pos, side) == false)
+        // Adjust the target block position to be the block touching the side of the block we targeted
+        pos = pos.offset(side);
+
+        if (this.isTargetUsable(world, pos, side, player, stack) == false)
         {
             return EnumActionResult.PASS;
         }
 
-        // Adjust the target block position to be the block touching the side of the block we targeted
-        pos = pos.offset(side);
-
-        IBlockState state = world.getBlockState(pos);
         // Check if there is a fluid block on the side of the targeted block
-        if (state.getMaterial().isLiquid() == true)
+        if (world.getBlockState(pos).getMaterial().isLiquid())
         {
             // Note: the side is technically wrong unless we ray trace it again, but it won't matter with fluid blocks... right?
-            return this.useBucketOnFluidBlock(stack, world, player, pos, side, bucketMode);
+            return this.useBucketOnFluidBlock(world, pos, side, player, stack);
         }
 
         // There was no fluid block where we are targeting
@@ -410,14 +353,14 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         int storedFluidAmount = fluidStack != null ? fluidStack.amount : 0;
 
         // target block is not fluid, try to place a fluid block in world in the adjusted block position
-        if (storedFluidAmount >= BUCKET_VOLUME && bucketMode != OPERATION_MODE_FILL_BUCKET)
+        if (storedFluidAmount >= Fluid.BUCKET_VOLUME && BucketMode.fromStack(stack) != BucketMode.FILL)
         {
-            fluidStack = this.drainWorker(stack, BUCKET_VOLUME, false, player);
+            fluidStack = this.drainWorker(stack, Fluid.BUCKET_VOLUME, false, player);
 
-            if (fluidStack != null && fluidStack.amount == BUCKET_VOLUME &&
+            if (fluidStack != null && fluidStack.amount == Fluid.BUCKET_VOLUME &&
                 this.tryPlaceFluidBlock(world, pos, fluidStack) == true)
             {
-                this.drainWorker(stack, BUCKET_VOLUME, true, player);
+                this.drainWorker(stack, Fluid.BUCKET_VOLUME, true, player);
                 return EnumActionResult.SUCCESS;
             }
         }
@@ -425,7 +368,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return EnumActionResult.PASS;
     }
 
-    public EnumActionResult useBucketOnFluidBlock(ItemStack stack, World world, EntityPlayer player, byte bucketMode)
+    public EnumActionResult useBucketOnFluidBlock(World world, EntityPlayer player, ItemStack stack)
     {
         // First find out what block we are targeting
         RayTraceResult rayTrace = this.rayTrace(world, player, true);
@@ -435,16 +378,16 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return EnumActionResult.PASS;
         }
 
-        return this.useBucketOnFluidBlock(stack, world, player, rayTrace.getBlockPos(), rayTrace.sideHit, bucketMode);
+        return this.useBucketOnFluidBlock(world, rayTrace.getBlockPos(), rayTrace.sideHit, player, stack);
     }
 
-    public EnumActionResult useBucketOnFluidBlock(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side, byte bucketMode)
+    public EnumActionResult useBucketOnFluidBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
     {
         IBlockState state = world.getBlockState(pos);
         Block targetBlock = state.getBlock();
 
         // Spawn safe zone checks etc.
-        if (this.isTargetUsable(stack, player, world, pos, side) == false || state.getMaterial().isLiquid() == false)
+        if (this.isTargetUsable(world, pos, side, player, stack) == false || state.getMaterial().isLiquid() == false)
         {
             return EnumActionResult.PASS;
         }
@@ -476,20 +419,20 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             Fluid fluid = FluidRegistry.lookupFluidForBlock(targetBlock);
             if (fluid != null)
             {
-                targetFluidStack = FluidRegistry.getFluidStack(fluid.getName(), BUCKET_VOLUME);
+                targetFluidStack = FluidRegistry.getFluidStack(fluid.getName(), Fluid.BUCKET_VOLUME);
             }
         }
 
-        // Not in drain-only mode && (Empty || (space && same fluid && (not sneaking || fill-only mode))) => trying to pick up fluid
-        if (bucketMode != OPERATION_MODE_DRAIN_BUCKET && (storedFluidAmount == 0 ||
-                (this.getCapacityAvailable(stack, targetFluidStack, player) >= BUCKET_VOLUME &&
-                    storedFluidStack.isFluidEqual(targetFluidStack) == true &&
-                    (player.isSneaking() == false || bucketMode == OPERATION_MODE_FILL_BUCKET))))
+        BucketMode mode = BucketMode.fromStack(stack);
+        // Not in drain-only mode && (empty || (space && same fluid && (not sneaking || fill-only mode))) => trying to pick up fluid
+        if (mode != BucketMode.DRAIN &&
+            (storedFluidAmount == 0 || (this.getCapacityAvailable(stack, targetFluidStack, player) >= Fluid.BUCKET_VOLUME &&
+                storedFluidStack.isFluidEqual(targetFluidStack) && (player.isSneaking() == false || mode == BucketMode.FILL))))
         {
             // Implements IFluidBlock
             if (iFluidBlock != null)
             {
-                if (iFluidBlock.canDrain(world, pos) == true)
+                if (iFluidBlock.canDrain(world, pos))
                 {
                     targetFluidStack = iFluidBlock.drain(world, pos, false); // simulate
 
@@ -512,10 +455,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             // Does not implement IFluidBlock
 
             // Check that the fluid block we are trying to pick up is a source block, and that we can store that amount
-            if (targetFluidStack != null && state.getValue(BlockLiquid.LEVEL).intValue() == 0 &&
+            if (targetFluidStack != null && state.getBlock().getMetaFromState(state) == 0 &&
                 this.fillWorker(stack, targetFluidStack, false, player) == targetFluidStack.amount)
             {
-                if (world.setBlockToAir(pos) == true)
+                if (world.setBlockToAir(pos))
                 {
                     this.fillWorker(stack, targetFluidStack, true, player);
 
@@ -528,18 +471,18 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // Fluid stored and not in fill-only mode, try to place fluid
-        if (storedFluidStack != null && storedFluidAmount >= BUCKET_VOLUME && bucketMode != OPERATION_MODE_FILL_BUCKET)
+        if (storedFluidStack != null && storedFluidAmount >= Fluid.BUCKET_VOLUME && mode != BucketMode.FILL)
         {
             // (fluid stored && different fluid) || (fluid stored && same fluid && sneaking) => trying to place fluid
             // The meta check is for ignoring flowing fluid blocks (ie. non-source blocks)
-            if (storedFluidStack.isFluidEqual(targetFluidStack) == false || player.isSneaking() == true ||
-                state.getValue(BlockLiquid.LEVEL).intValue() != 0)
+            if (player.isSneaking() || storedFluidStack.isFluidEqual(targetFluidStack) == false ||
+                    state.getBlock().getMetaFromState(state) != 0)
             {
-                FluidStack fluidStack = this.drainWorker(stack, BUCKET_VOLUME, false, player);
-                if (fluidStack != null && fluidStack.amount == BUCKET_VOLUME &&
+                FluidStack fluidStack = this.drainWorker(stack, Fluid.BUCKET_VOLUME, false, player);
+                if (fluidStack != null && fluidStack.amount == Fluid.BUCKET_VOLUME &&
                     this.tryPlaceFluidBlock(world, pos, storedFluidStack) == true)
                 {
-                    this.drainWorker(stack, BUCKET_VOLUME, true, player);
+                    this.drainWorker(stack, Fluid.BUCKET_VOLUME, true, player);
                     return EnumActionResult.SUCCESS;
                 }
             }
@@ -618,7 +561,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public int getCapacityCached(ItemStack stack, EntityPlayer player)
     {
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null)
@@ -641,7 +584,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         FluidStack fluidStack;
 
         // Linked to a tank
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             TargetData targetData = this.getLinkedTankTargetData(stack);
             IFluidHandler tank = this.getLinkedTank(stack);
@@ -750,7 +693,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     public void cacheCapacity(ItemStack stack)
     {
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null)
@@ -845,7 +788,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // The Bucket has been linked to a tank
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
             if (moduleStack != null && moduleStack.getTagCompound() != null)
@@ -876,7 +819,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     private int getCapacityWorker(ItemStack stack, EntityPlayer player)
     {
-        if (this.getBucketLinkMode(stack) == LINK_MODE_DISABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.DISABLED)
         {
             return this.capacity;
         }
@@ -949,7 +892,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         // The Bucket has been linked to a tank
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
@@ -989,7 +932,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
     private FluidStack drainWorker(ItemStack stack, int maxDrain, boolean doDrain, EntityPlayer player)
     {
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
@@ -1070,7 +1013,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             return 0;
         }
 
-        if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+        if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
             if (OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
@@ -1188,49 +1131,24 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return 0;
     }
 
-    /**
-     * Toggles the linked-to-tank mode ON/OFF.
-     */
-    private void changeLinkMode(ItemStack stack)
-    {
-        NBTUtils.toggleBoolean(stack, null, "Linked");
-    }
-
-    /**
-     * Cycles through the operation modes: Normal, Fill, Drain, Bind to tanks
-     */
-    private void changeOperationMode(ItemStack stack)
-    {
-        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, null, true);
-
-        // 0: Normal, 1: Pickup only, 2: Deposit only, 3: Bind to tanks
-        byte val = (byte)(nbt.getByte("Mode") + 1);
-        if (val > OPERATION_MODE_BINDING || (val == OPERATION_MODE_BINDING && this.getBucketLinkMode(stack) == LINK_MODE_DISABLED))
-        {
-            val = OPERATION_MODE_NORMAL;
-        }
-
-        nbt.setByte("Mode", val);
-    }
-
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
         if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
-            this.changeOperationMode(stack);
+            BucketMode.cycleMode(stack);
         }
         // Shift + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
-            this.changeLinkMode(stack);
+            LinkMode.cycleMode(stack);
         }
         // Ctrl + (Shift +) Toggle mode: Change the selected link crystal, if we are in tank mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
                  EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
         {
-            if (this.getBucketLinkMode(stack) == LINK_MODE_ENABLED)
+            if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
             {
                 super.doKeyBindingAction(player, stack, key);
             }
@@ -1238,6 +1156,64 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         else
         {
             super.doKeyBindingAction(player, stack, key);
+        }
+    }
+
+    public static enum LinkMode
+    {
+        DISABLED,
+        ENABLED;
+
+        public static LinkMode fromStack(ItemStack stack)
+        {
+            NBTTagCompound tag = stack.getTagCompound();
+            return (tag != null && tag.getBoolean("Linked")) ? ENABLED : DISABLED;
+        }
+
+        public static void cycleMode(ItemStack stack)
+        {
+            int mode = fromStack(stack).ordinal() + 1;
+            if (mode >= values().length)
+            {
+                mode = 0;
+            }
+            NBTUtils.getCompoundTag(stack, null, true).setByte("Linked", (byte) mode);
+        }
+    }
+
+    public static enum BucketMode
+    {
+        NORMAL ("enderutilities.tooltip.item.bucket.mode.normal"),
+        FILL ("enderutilities.tooltip.item.bucket.mode.fill"),
+        DRAIN ("enderutilities.tooltip.item.bucket.mode.drain"),
+        BIND ("enderutilities.tooltip.item.bucket.mode.bind");
+
+        private final String unlocName;
+
+        private BucketMode(String unlocName)
+        {
+            this.unlocName = unlocName;
+        }
+
+        public String getUnlocalizedName()
+        {
+            return this.unlocName;
+        }
+
+        public static BucketMode fromStack(ItemStack stack)
+        {
+            NBTTagCompound tag = stack.getTagCompound();
+            return tag == null ? NORMAL : values()[MathHelper.clamp(tag.getByte("Mode"), 0, values().length - 1)];
+        }
+
+        public static void cycleMode(ItemStack stack)
+        {
+            int mode = fromStack(stack).ordinal() + 1;
+            if (mode >= values().length || (mode == BIND.ordinal() && LinkMode.fromStack(stack) == LinkMode.DISABLED))
+            {
+                mode = 0;
+            }
+            NBTUtils.getCompoundTag(stack, null, true).setByte("Mode", (byte) mode);
         }
     }
 

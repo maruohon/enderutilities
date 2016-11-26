@@ -6,6 +6,13 @@ import java.util.List;
 import java.util.Map;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
+import org.apache.commons.lang3.tuple.Pair;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -22,16 +29,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.Pair;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.IModelCustomData;
@@ -46,6 +43,9 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import fi.dy.masa.enderutilities.item.ItemEnderBucket;
+import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
 public class ModelEnderBucket implements IModel, IModelCustomData
 {
@@ -246,10 +246,10 @@ public class ModelEnderBucket implements IModel, IModelCustomData
 
             BakedEnderBucket originalModel = (BakedEnderBucket) originalModelIn;
             ItemEnderBucket item = (ItemEnderBucket)stack.getItem();
-            String linked = item.getBucketLinkMode(stack) == ItemEnderBucket.LINK_MODE_ENABLED ? "true" : "false";
+            String linked = ItemEnderBucket.LinkMode.fromStack(stack) == ItemEnderBucket.LinkMode.ENABLED ? "true" : "false";
             int capacity = item.getCapacityCached(stack, null);
-            int modeInt = item.getBucketMode(stack);
-            String mode = "none";
+            ItemEnderBucket.BucketMode mode = ItemEnderBucket.BucketMode.fromStack(stack);
+            String modeStr = "none";
             int amount = 0;
 
             FluidStack fluidStack = item.getFluidCached(stack);
@@ -261,11 +261,11 @@ public class ModelEnderBucket implements IModel, IModelCustomData
                 fluid = fluidStack.getFluid();
             }
 
-            if (modeInt == ItemEnderBucket.OPERATION_MODE_DRAIN_BUCKET) mode = "drain";
-            else if (modeInt == ItemEnderBucket.OPERATION_MODE_FILL_BUCKET) mode = "fill";
-            else if (modeInt == ItemEnderBucket.OPERATION_MODE_BINDING) mode = "bind";
+            if (mode == ItemEnderBucket.BucketMode.DRAIN) { modeStr = "drain"; }
+            else if (mode == ItemEnderBucket.BucketMode.FILL) { modeStr = "fill"; }
+            else if (mode == ItemEnderBucket.BucketMode.BIND) { modeStr = "bind"; }
 
-            String key = linked + "_" + mode + "_" + fluid + "_" + amount + "_" + capacity;
+            String key = linked + "_" + modeStr + "_" + fluid + "_" + amount + "_" + capacity;
 
             if (originalModel.cache.containsKey(key) == false)
             {
@@ -275,7 +275,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
                     map.put("fluid", fluid.getName());
                 }
                 map.put("linked", linked);
-                map.put("mode", mode);
+                map.put("mode", modeStr);
                 map.put("amount", String.valueOf(amount));
                 map.put("capacity", String.valueOf(capacity));
 
