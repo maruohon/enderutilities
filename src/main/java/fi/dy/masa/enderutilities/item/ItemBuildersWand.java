@@ -71,10 +71,20 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.*;
+import fi.dy.masa.enderutilities.util.BlockInfo;
+import fi.dy.masa.enderutilities.util.BlockPosEU;
+import fi.dy.masa.enderutilities.util.BlockPosStateDist;
+import fi.dy.masa.enderutilities.util.BlockUtils;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.ReplaceMode;
+import fi.dy.masa.enderutilities.util.TemplateManagerEU;
 import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
+import fi.dy.masa.enderutilities.util.TemplateMetadata;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -182,7 +192,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (world.isRemote == false)
             {
-                if (mode == Mode.REPLACE_3D && player.isSneaking() && this.getBindModeEnabled(stack, mode))
+                if (mode == Mode.REPLACE_3D && player.isSneaking() && WandOption.BIND_MODE.isEnabled(stack, mode))
                 {
                     this.setSelectedFixedBlockType(stack, player, world, pos, true);
                 }
@@ -226,13 +236,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             Mode mode = Mode.getMode(stack);
             // Sneak + left click: Set the selected block type (in the appropriate modes)
-            if (player.isSneaking() && (mode.isAreaMode() == false || (mode == Mode.REPLACE_3D && this.getBindModeEnabled(stack, mode))))
+            if (player.isSneaking() && (mode.isAreaMode() == false ||
+                    (mode == Mode.REPLACE_3D && WandOption.BIND_MODE.isEnabled(stack, mode))))
             {
                 this.setSelectedFixedBlockType(stack, player, world, pos, false);
             }
             else if (mode == Mode.REPLACE)
             {
-                if (this.getReplaceModeIsArea(stack))
+                if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode))
                 {
                     this.setPosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START);
                 }
@@ -406,19 +417,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
 
             str = I18n.format("enderutilities.tooltip.item.move");
-            list.add(str + ": " + (this.getMovePosition(stack, mode) ? strYes : strNo) + rst);
+            list.add(str + ": " + (WandOption.MOVE_POSITION.isEnabled(stack, mode) ? strYes : strNo) + rst);
         }
 
         if (mode == Mode.EXTEND_CONTINUOUS)
         {
             str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
-            list.add(str + ": " + (this.getAllowDiagonals(stack, mode) ? strYes : strNo) + rst);
+            list.add(str + ": " + (WandOption.ALLOW_DIAGONALS.isEnabled(stack, mode) ? strYes : strNo) + rst);
         }
 
         if (mode.isAreaMode() == false)
         {
             str = I18n.format("enderutilities.tooltip.item.builderswand.renderghostblocks");
-            list.add(str + ": " + (this.getRenderGhostBlocks(stack, mode) ? strYes : strNo) + rst);
+            list.add(str + ": " + (WandOption.RENDER_GHOST.isEnabled(stack, mode) ? strYes : strNo) + rst);
         }
 
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
@@ -455,7 +466,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
 
-        if (mode == Mode.REPLACE && this.getReplaceModeIsArea(stack) == false)
+        if (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode) == false)
         {
             return null;
         }
@@ -579,7 +590,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        if (mode == Mode.REPLACE && this.getReplaceModeIsArea(stack) == false)
+        if (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode) == false)
         {
             return;
         }
@@ -694,7 +705,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
             BlockPosEU pos = this.getPosition(stack, POS_START);
-            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && mode != Mode.REPLACE && this.getMovePosition(stack, mode))
+            if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE &&
+                mode != Mode.REPLACE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
             {
                 this.setPosition(stack, pos.offset(pos.side, 1), POS_START);
             }
@@ -766,7 +778,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        boolean replace = this.getReplaceExisting(wandStack, Mode.getMode(wandStack));
+        boolean replace = WandOption.REPLACE_EXISTING.isEnabled(wandStack);
         boolean isAir = world.isAirBlock(pos);
 
         if (player.capabilities.isCreativeMode)
@@ -1246,8 +1258,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         List<BlockPosEU> branches = new ArrayList<BlockPosEU>();
         Set<BlockPosEU> visited = new HashSet<BlockPosEU>();
-        boolean continueThrough = mode != Mode.EXTEND_CONTINUOUS && this.getContinueThrough(stack, mode);
-        boolean diagonals = mode == Mode.EXTEND_CONTINUOUS && this.getAllowDiagonals(stack, mode);
+        boolean continueThrough = mode != Mode.EXTEND_CONTINUOUS && WandOption.CONTINUE_THROUGH.isEnabled(stack, mode);
+        boolean diagonals = mode == Mode.EXTEND_CONTINUOUS && WandOption.ALLOW_DIAGONALS.isEnabled(stack, mode);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(posStart.side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
@@ -1369,8 +1381,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         List<BlockPos> branches = new ArrayList<BlockPos>();
         Set<BlockPos> visited = new HashSet<BlockPos>();
-        boolean continueThrough = this.getContinueThrough(stack, Mode.CIRCLE);
-        boolean diagonals = this.getAllowDiagonals(stack, Mode.CIRCLE);
+        boolean continueThrough = WandOption.CONTINUE_THROUGH.isEnabled(stack, Mode.CIRCLE);
+        boolean diagonals = WandOption.ALLOW_DIAGONALS.isEnabled(stack, Mode.CIRCLE);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posCenter.offset(posCenter.side, -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
@@ -1430,7 +1442,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         List<BlockPosStateDist> positions = new ArrayList<BlockPosStateDist>();
         List<BlockPos> branches = new ArrayList<BlockPos>();
         Set<BlockPos> visited = new HashSet<BlockPos>();
-        boolean diagonals = this.getAllowDiagonals(stack, Mode.REPLACE);
+        boolean diagonals = WandOption.ALLOW_DIAGONALS.isEnabled(stack, Mode.REPLACE);
         BlockPos pos = posStart.toBlockPos();
         BlockInfo biTarget = BlockInfo.getBlockInfo(world, pos);
         BlockInfo biBound = this.getSelectedFixedBlockType(stack);
@@ -1617,7 +1629,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Mode mode = Mode.getMode(stack);
         Area area = new Area(this.getModeTag(stack, mode));
         int dim = world.provider.getDimension();
-        boolean continueThrough = this.getContinueThrough(stack, mode);
+        boolean continueThrough = WandOption.CONTINUE_THROUGH.isEnabled(stack, mode);
 
         switch(mode)
         {
@@ -1677,7 +1689,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 break;
 
             case REPLACE:
-                if (this.getReplaceModeIsArea(stack))
+                if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, Mode.REPLACE))
                 {
                     positions.addAll(this.getReplacePositions(stack, world, center, axisRight, axisUp));
                 }
@@ -1912,12 +1924,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (player.capabilities.isCreativeMode)
         {
-            template.setReplaceMode(this.getReplaceExisting(stack, Mode.PASTE) ? ReplaceMode.EVERYTHING : ReplaceMode.NOTHING);
+            template.setReplaceMode(WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.PASTE) ? ReplaceMode.EVERYTHING : ReplaceMode.NOTHING);
             template.addBlocksToWorld(world, posStartIn.toBlockPos());
         }
         else
         {
-            template.setReplaceMode(this.getReplaceExisting(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
+            template.setReplaceMode(WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
 
             UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
             TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), player.dimension,
@@ -1941,7 +1953,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        this.deleteArea(world, player, posStartIn.toBlockPos(), posEndIn.toBlockPos(), this.getAffectEntities(stack));
+        this.deleteArea(world, player, posStartIn.toBlockPos(), posEndIn.toBlockPos(),
+                WandOption.AFFECT_ENTITIES.isEnabled(stack, Mode.DELETE));
 
         return EnumActionResult.SUCCESS;
     }
@@ -2203,10 +2216,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        boolean takeEntities = player.capabilities.isCreativeMode && this.getAffectEntities(stack);
+        boolean takeEntities = player.capabilities.isCreativeMode && WandOption.AFFECT_ENTITIES.isEnabled(stack);
         PlacementSettings placement = new PlacementSettings();
         placement.setIgnoreEntities(takeEntities == false);
-        ReplaceMode replaceMode = this.getReplaceExisting(stack, Mode.STACK) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING;
+        ReplaceMode replaceMode = WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.STACK) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING;
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, replaceMode);
         template.takeBlocksFromWorld(world, pos1, pos2.subtract(pos1), takeEntities);
 
@@ -2404,94 +2417,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         tag.setByte("Rotation", (byte)facing.getIndex());
     }
 
-    private void toggleMovePosition(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("Move", ! tag.getBoolean("Move"));
-    }
-
-    public boolean getMovePosition(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("Move");
-    }
-
-    private void toggleAllowDiagonals(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("Diagonals", ! tag.getBoolean("Diagonals"));
-    }
-
-    public boolean getAllowDiagonals(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("Diagonals");
-    }
-
-    public boolean getRenderGhostBlocks(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("Ghost");
-    }
-
-    private void toggleRenderGhostBlocks(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("Ghost", ! tag.getBoolean("Ghost"));
-    }
-
-    private void toggleReplaceExisting(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("Replace", ! tag.getBoolean("Replace"));
-    }
-
-    public boolean getReplaceExisting(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("Replace");
-    }
-
-    private void toggleAffectEntities(ItemStack stack)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, Mode.DELETE);
-        tag.setBoolean("Entities", ! tag.getBoolean("Entities"));
-    }
-
-    public boolean getAffectEntities(ItemStack stack)
-    {
-        return this.getModeTag(stack, Mode.DELETE).getBoolean("Entities");
-    }
-
-    private void toggleContinueThrough(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("GoThrough", ! tag.getBoolean("GoThrough"));
-    }
-
-    public boolean getContinueThrough(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("GoThrough");
-    }
-
-    private void toggleReplaceModeIsArea(ItemStack stack)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, Mode.REPLACE);
-        tag.setBoolean("AreaMode", ! tag.getBoolean("AreaMode"));
-    }
-
-    public boolean getReplaceModeIsArea(ItemStack stack)
-    {
-        return this.getModeTag(stack, Mode.REPLACE).getBoolean("AreaMode");
-    }
-
-    private void toggleBindModeEnabled(ItemStack stack, Mode mode)
-    {
-        NBTTagCompound tag = this.getModeTag(stack, mode);
-        tag.setBoolean("BindMode", ! tag.getBoolean("BindMode"));
-    }
-
-    public boolean getBindModeEnabled(ItemStack stack, Mode mode)
-    {
-        return this.getModeTag(stack, mode).getBoolean("BindMode");
-    }
-
     private PlacementSettings getPasteModePlacement(ItemStack stack, EntityPlayer player)
     {
         EnumFacing facing = this.getTemplateFacing(stack);
@@ -2503,9 +2428,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         Rotation rotation = PositionUtils.getRotation(facing, areaFacing);
         PlacementSettings placement = new PlacementSettings();
+        boolean ignoreEntities = player.capabilities.isCreativeMode == false ||
+                WandOption.AFFECT_ENTITIES.isEnabled(stack, Mode.PASTE) == false;
         placement.setMirror(this.getMirror(stack));
         placement.setRotation(rotation);
-        placement.setIgnoreEntities(player.capabilities.isCreativeMode == false || this.getAffectEntities(stack) == false);
+        placement.setIgnoreEntities(ignoreEntities);
 
         return placement;
     }
@@ -2563,7 +2490,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.REPLACE_3D)
             {
-                this.toggleBindModeEnabled(stack, mode);
+                WandOption.BIND_MODE.toggle(stack, mode);
             }
             else if (mode.isAreaMode())
             {
@@ -2571,7 +2498,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
             else if (mode != Mode.WALLS || mode != Mode.CUBE)
             {
-                this.toggleMovePosition(stack, mode);
+                WandOption.MOVE_POSITION.toggle(stack, mode);
             }
         }
         // Ctrl + Toggle key: Cycle the mode
@@ -2595,19 +2522,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.STACK)
             {
-                this.toggleReplaceExisting(stack, mode);
+                WandOption.REPLACE_EXISTING.toggle(stack, mode);
             }
             else if (mode == Mode.DELETE)
             {
-                this.toggleAffectEntities(stack);
+                WandOption.AFFECT_ENTITIES.toggle(stack, mode);
             }
             else if (mode == Mode.EXTEND_CONTINUOUS || mode == Mode.REPLACE)
             {
-                this.toggleAllowDiagonals(stack, mode);
+                WandOption.ALLOW_DIAGONALS.toggle(stack, mode);
             }
             else if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
             {
-                this.toggleContinueThrough(stack, mode);
+                WandOption.CONTINUE_THROUGH.toggle(stack, mode);
             }
         }
         // Alt + Shift + Toggle key: Toggle ghost blocks
@@ -2615,11 +2542,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.PASTE || mode == Mode.STACK)
             {
-                this.toggleAffectEntities(stack);
+                WandOption.AFFECT_ENTITIES.toggle(stack, mode);
             }
             else if (mode.isAreaMode() == false)
             {
-                this.toggleRenderGhostBlocks(stack, mode);
+                WandOption.RENDER_GHOST.toggle(stack, mode);
             }
         }
         // Just Toggle key: Toggle the area flipped property
@@ -2627,7 +2554,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.REPLACE)
             {
-                this.toggleReplaceModeIsArea(stack);
+                WandOption.REPLACE_MODE_IS_AREA.toggle(stack, mode);
             }
             else if (mode.isAreaMode() && mode != Mode.COPY)
             {
@@ -2903,6 +2830,50 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             tag.setInteger("DimPos", this.getPacked(this.pos));
             tag.setInteger("DimNeg", this.getPacked(this.neg));
+        }
+    }
+
+    public static enum WandOption
+    {
+        AFFECT_ENTITIES,
+        ALLOW_DIAGONALS,
+        AREA_FLIPPED,
+        BIND_MODE,
+        CONTINUE_THROUGH,
+        MIRRORED,
+        MOVE_POSITION,
+        RENDER_GHOST,
+        REPLACE_EXISTING,
+        REPLACE_MODE_IS_AREA;
+
+        public boolean isEnabled(ItemStack stack)
+        {
+            return this.isEnabled(stack, Mode.getMode(stack));
+        }
+
+        public boolean isEnabled(ItemStack stack, Mode mode)
+        {
+            if (stack.getItem() instanceof ItemBuildersWand)
+            {
+                NBTTagCompound tag = ((ItemBuildersWand) stack.getItem()).getModeTag(stack, mode);
+                return (tag.getInteger("Modes") & (1 << this.ordinal())) != 0;
+            }
+
+            return false;
+        }
+
+        public void toggle(ItemStack stack)
+        {
+            this.toggle(stack, Mode.getMode(stack));
+        }
+
+        public void toggle(ItemStack stack, Mode mode)
+        {
+            if (stack.getItem() instanceof ItemBuildersWand)
+            {
+                NBTTagCompound tag = ((ItemBuildersWand) stack.getItem()).getModeTag(stack, mode);
+                tag.setInteger("Modes", (tag.getInteger("Modes") ^ (1 << this.ordinal())));
+            }
         }
     }
 

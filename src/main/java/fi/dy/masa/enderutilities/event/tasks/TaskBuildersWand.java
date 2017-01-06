@@ -9,6 +9,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.WandOption;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.BlockPosStateDist;
@@ -75,7 +76,7 @@ public class TaskBuildersWand implements IPlayerTask
                 BlockPosEU pos = wand.getPosition(stack, ItemBuildersWand.POS_START);
 
                 // Move the target position forward by one block after the area has been built
-                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && wand.getMovePosition(stack, mode))
+                if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
                 {
                     wand.setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
                 }

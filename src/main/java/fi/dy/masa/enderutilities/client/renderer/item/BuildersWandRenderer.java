@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Area3D;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.WandOption;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockInfo;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -119,7 +120,7 @@ public class BuildersWandRenderer
         GlStateManager.disableCull();
         GlStateManager.pushMatrix();
 
-        boolean renderGhostBlocks = wand.getRenderGhostBlocks(stack, mode);
+        boolean renderGhostBlocks = WandOption.RENDER_GHOST.isEnabled(stack, mode);
 
         if (renderGhostBlocks)
         {
@@ -405,7 +406,7 @@ public class BuildersWandRenderer
 
             str = I18n.format("enderutilities.tooltip.item.build.bindmode");
 
-            if (wand.getBindModeEnabled(stack, mode))
+            if (WandOption.BIND_MODE.isEnabled(stack, mode))
             {
                 lines.add(String.format("%s: %s%s%s", str, preGreen, strYes, rst));
             }
@@ -450,19 +451,19 @@ public class BuildersWandRenderer
             if (mode == Mode.DELETE)
             {
                 str = I18n.format("enderutilities.tooltip.item.entities");
-                str += ": " + (wand.getAffectEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
+                str += ": " + (WandOption.AFFECT_ENTITIES.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
 
                 lines.add(str);
             }
             else if (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.STACK)
             {
                 str = I18n.format("enderutilities.tooltip.item.replace");
-                str += ": " + (wand.getReplaceExisting(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
+                str += ": " + (WandOption.REPLACE_EXISTING.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
 
                 if (mode != Mode.MOVE_DST)
                 {
                     str += " - " + I18n.format("enderutilities.tooltip.item.entities");
-                    str += ": " + (wand.getAffectEntities(stack) ? preGreen + strYes : preRed + strNo) + rst;
+                    str += ": " + (WandOption.AFFECT_ENTITIES.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
                 }
 
                 lines.add(str);
@@ -490,18 +491,18 @@ public class BuildersWandRenderer
                     str += ": " + (wand.getAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
 
                     str += " - " + I18n.format("enderutilities.tooltip.item.move");
-                    lines.add(str + ": " + (wand.getMovePosition(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                    lines.add(str + ": " + (WandOption.MOVE_POSITION.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
 
                 if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
                 {
                     str = I18n.format("enderutilities.tooltip.item.continuethrough");
-                    lines.add(str + ": " + (wand.getContinueThrough(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                    lines.add(str + ": " + (WandOption.CONTINUE_THROUGH.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
-                else if (mode == Mode.EXTEND_CONTINUOUS || (mode == Mode.REPLACE && wand.getReplaceModeIsArea(stack)))
+                else if (mode == Mode.EXTEND_CONTINUOUS || (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode)))
                 {
                     str = I18n.format("enderutilities.tooltip.item.builderswand.allowdiagonals");
-                    lines.add(str + ": " + (wand.getAllowDiagonals(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                    lines.add(str + ": " + (WandOption.ALLOW_DIAGONALS.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
                 }
             }
         }
@@ -509,7 +510,7 @@ public class BuildersWandRenderer
         String modeName = mode.getDisplayName();
         if (mode == Mode.REPLACE)
         {
-            if (wand.getReplaceModeIsArea(stack))
+            if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode))
             {
                 modeName += " (" + I18n.format("enderutilities.tooltip.item.area") + ")";
             }

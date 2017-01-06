@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand.WandOption;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosBox;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -144,7 +145,7 @@ public class TaskMoveArea implements IPlayerTask
 
             posSrc = this.posSrcStart.add(posRelative);
             posDst = PositionUtils.getTransformedBlockPos(posRelative, this.mirror, this.rotation).add(this.posDstStart);
-            boolean replace = wand.getReplaceExisting(stack, Mode.MOVE_DST);
+            boolean replace = WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.MOVE_DST);
             boolean destinationOverlapsSource = this.boxSource.containsPosition(posDst);
 
             // If Replace is disabled and the destination is not air (and is not an overlapping source position),
