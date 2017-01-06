@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TemplateEnderUtilities
 {
+    public static ChiselsAndBitsHandler chiselsAndBitsHandler = new ChiselsAndBitsHandler();
     protected final List<TemplateEnderUtilities.TemplateBlockInfo> blocks = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
     protected final List<TemplateEnderUtilities.TemplateEntityInfo> entities = Lists.<TemplateEnderUtilities.TemplateEntityInfo>newArrayList();
     protected PlacementSettings placement = new PlacementSettings().setIgnoreEntities(true);
@@ -261,7 +262,7 @@ public class TemplateEnderUtilities
         }
     }
 
-    public void takeBlocksFromWorld(World worldIn, BlockPos posStart, BlockPos posEndRelative, boolean takeEntities)
+    public void takeBlocksFromWorld(World worldIn, BlockPos posStart, BlockPos posEndRelative, boolean takeEntities, boolean cbCrossWorld)
     {
         BlockPos endPos = posStart.add(posEndRelative);
         List<TemplateEnderUtilities.TemplateBlockInfo> list = Lists.<TemplateEnderUtilities.TemplateBlockInfo>newArrayList();
@@ -280,7 +281,15 @@ public class TemplateEnderUtilities
             if (te != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                te.writeToNBT(tag);
+
+                if (cbCrossWorld)
+                {
+                    tag = chiselsAndBitsHandler.writeChiselsAndBitsTileToNBT(tag, te);
+                }
+                else
+                {
+                    tag = te.writeToNBT(tag);
+                }
 
                 tag.removeTag("x");
                 tag.removeTag("y");
@@ -526,6 +535,19 @@ public class TemplateEnderUtilities
             this.pos = vecIn;
             this.blockPos = posIn;
             this.entityData = entityNBT;
+        }
+    }
+
+    public static class ChiselsAndBitsHandler
+    {
+        public boolean isChiselsAndBitsTile(TileEntity te)
+        {
+            return false;
+        }
+
+        public NBTTagCompound writeChiselsAndBitsTileToNBT(NBTTagCompound tag, TileEntity te)
+        {
+            return te.writeToNBT(tag);
         }
     }
 

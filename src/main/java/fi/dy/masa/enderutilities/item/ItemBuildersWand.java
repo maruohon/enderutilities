@@ -1856,7 +1856,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         ResourceLocation templateLocation = this.getTemplateResource(stack, player);
 
         boolean success = this.saveAreaToTemplate(world, posStart, endOffset, templateLocation,
-                this.getTemplateName(stack, Mode.COPY), player.getName());
+                this.getTemplateName(stack, Mode.COPY), player.getName(), WandOption.CHISELS_AND_BITS_CROSSWORLD.isEnabled(stack));
 
         if (success)
         {
@@ -1875,11 +1875,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
      * The positions must not be null!
      */
     private boolean saveAreaToTemplate(World world, BlockPos posStart, BlockPos endOffset,
-            ResourceLocation templateLocation, String templateName, String author)
+            ResourceLocation templateLocation, String templateName, String author, boolean cbCrossWorld)
     {
         TemplateManagerEU templateManager = this.getTemplateManager();
         TemplateEnderUtilities template = templateManager.getTemplate(templateLocation);
-        template.takeBlocksFromWorld(world, posStart, endOffset, true);
+        template.takeBlocksFromWorld(world, posStart, endOffset, true, cbCrossWorld);
         template.setAuthor(author);
 
         boolean success = templateManager.writeTemplate(templateLocation);
@@ -2076,7 +2076,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         String name = player.getName();
 
         ResourceLocation rl = new ResourceLocation(Reference.MOD_ID, "move_src_" + name + "_" + uuid.toString() + "_" + id);
-        boolean success = this.saveAreaToTemplate(world, posSrc1, posSrc2.subtract(posSrc1), rl, "Move source", name);
+        boolean success = this.saveAreaToTemplate(world, posSrc1, posSrc2.subtract(posSrc1), rl, "Move source", name, false);
 
         if (success == false)
         {
@@ -2084,7 +2084,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         rl = new ResourceLocation(Reference.MOD_ID, "move_dst_" + name + "_" + uuid.toString() + "_" + id);
-        success = this.saveAreaToTemplate(world, posDst1, posDst2.subtract(posDst1), rl, "Move destination", name);
+        success = this.saveAreaToTemplate(world, posDst1, posDst2.subtract(posDst1), rl, "Move destination", name, false);
 
         if (success == false)
         {
@@ -2116,7 +2116,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         placement.setReplacedBlock(Blocks.BARRIER); // meh
 
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, ReplaceMode.EVERYTHING);
-        template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true);
+        template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true, false);
         this.deleteArea(world, player, posSrc1, posSrc2, true);
         template.addBlocksToWorld(world, posDst1);
     }
@@ -2221,7 +2221,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         placement.setIgnoreEntities(takeEntities == false);
         ReplaceMode replaceMode = WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.STACK) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING;
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, replaceMode);
-        template.takeBlocksFromWorld(world, pos1, pos2.subtract(pos1), takeEntities);
+        template.takeBlocksFromWorld(world, pos1, pos2.subtract(pos1), takeEntities, false);
 
         if (player.capabilities.isCreativeMode)
         {
@@ -2516,6 +2516,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, EnumKey.keypressActionIsReversed(key));
+        }
+        // Ctrl + Alt + Shift + Toggle
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
+        {
+            if (mode == Mode.COPY)
+            {
+                WandOption.CHISELS_AND_BITS_CROSSWORLD.toggle(stack, mode);
+            }
         }
         // Ctrl + Alt + Toggle key: Toggle some mode-specific features
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL_ALT))
@@ -2839,6 +2847,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         ALLOW_DIAGONALS,
         AREA_FLIPPED,
         BIND_MODE,
+        CHISELS_AND_BITS_CROSSWORLD,
         CONTINUE_THROUGH,
         MIRRORED,
         MOVE_POSITION,

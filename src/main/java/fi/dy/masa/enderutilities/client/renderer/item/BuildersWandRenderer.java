@@ -429,21 +429,29 @@ public class BuildersWandRenderer
                 lines.add(String.format("%s: [%s%d/%d%s]", str, preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS, rst));
             }
 
-            str = I18n.format("enderutilities.tooltip.item.rotation");
-
-            EnumFacing facing = wand.getAreaFacing(stack, mode);
-            String strFacing = facing != null ? preGreen + facing.toString().toLowerCase() : preRed + "N/A";
-
-            if (wand.isMirrored(stack))
+            if (mode == Mode.COPY)
             {
-                String mirror = wand.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z";
-                str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
-                        I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
+                str = I18n.format("enderutilities.tooltip.item.build.chiselsandbits.crossworld");
+                String val = WandOption.CHISELS_AND_BITS_CROSSWORLD.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo;
+                str = String.format("%s: %s%s", str, val, rst);
             }
             else
             {
-                str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
-                        I18n.format("enderutilities.tooltip.item.mirror"), preRed, strNo, rst);
+                str = I18n.format("enderutilities.tooltip.item.rotation");
+                EnumFacing facing = wand.getAreaFacing(stack, mode);
+                String strFacing = facing != null ? preGreen + facing.toString().toLowerCase() : preRed + "N/A";
+
+                if (wand.isMirrored(stack))
+                {
+                    String mirror = wand.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z";
+                    str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
+                            I18n.format("enderutilities.tooltip.item.mirror"), preGreen, mirror, rst);
+                }
+                else
+                {
+                    str = String.format("%s: %s%s - %s: %s%s%s", str, strFacing, rst,
+                            I18n.format("enderutilities.tooltip.item.mirror"), preRed, strNo, rst);
+                }
             }
 
             lines.add(str);
