@@ -7,7 +7,6 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ConfigReader
@@ -54,7 +53,7 @@ public class ConfigReader
         prop.setComment("Can the Ender Bow be used in the 'TP Self' mode");
         Configs.enderBowAllowSelfTP = prop.getBoolean();
 
-        prop = conf.get(category, "enderBucketCapacity", ItemEnderBucket.ENDER_BUCKET_MAX_AMOUNT).setRequiresMcRestart(false);
+        prop = conf.get(category, "enderBucketCapacity", 16000).setRequiresMcRestart(false);
         prop.setComment("Maximum amount the Ender Bucket can hold, in millibuckets. Default: 16000 mB (= 16 buckets).");
         Configs.enderBucketCapacity = prop.getInt();
 

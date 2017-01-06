@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.UUID;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -220,16 +220,16 @@ public class OwnerData
      * Check if the given entity is allowed to access this item.
      * Returns true if there is no owner information stored yet, or if the privacy mode is set to Public, or if the given entity is the owner.
      */
-    public static boolean canAccessItem(ItemStack stack, @Nonnull Entity entity)
+    public static boolean canAccessItem(ItemStack stack, @Nullable Entity entity)
     {
-        return canAccessItem(stack, entity.getUniqueID());
+        return canAccessItem(stack, entity != null ? entity.getUniqueID() : null);
     }
 
     /**
      * Check if the given UUID is allowed to access this item.
      * Returns true if there is no owner information stored yet, or if the privacy mode is set to Public, or if the given UUID is the owner.
      */
-    public static boolean canAccessItem(ItemStack stack, UUID uuid)
+    public static boolean canAccessItem(ItemStack stack, @Nullable UUID uuid)
     {
         if (stack == null)
         {
@@ -245,7 +245,7 @@ public class OwnerData
         return data == null || data.isPublic || data.isOwner(uuid);
     }
 
-    public static boolean canAccessSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity)
+    public static boolean canAccessSelectedModule(ItemStack toolStack, ModuleType moduleType, @Nullable Entity entity)
     {
         return canAccessItem(UtilItemModular.getSelectedModuleStack(toolStack, moduleType), entity);
     }
