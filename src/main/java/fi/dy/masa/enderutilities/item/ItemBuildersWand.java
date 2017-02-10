@@ -2093,7 +2093,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (player.capabilities.isCreativeMode)
         {
-            this.moveAreaImmediate(world, player, posSrc1, posSrc2, posDst1, mirror, rotation);
+            this.moveAreaImmediate(world, player, posSrc1, posSrc2, posDst1, mirror, rotation, stack);
         }
         else
         {
@@ -2107,7 +2107,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     private void moveAreaImmediate(World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
-            Mirror mirror, Rotation rotation)
+            Mirror mirror, Rotation rotation, ItemStack stack)
     {
         PlacementSettings placement = new PlacementSettings();
         placement.setMirror(mirror);
@@ -2115,7 +2115,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         placement.setIgnoreEntities(false);
         placement.setReplacedBlock(Blocks.BARRIER); // meh
 
-        TemplateEnderUtilities template = new TemplateEnderUtilities(placement, ReplaceMode.EVERYTHING);
+        ReplaceMode replace = WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.MOVE_DST) ? ReplaceMode.EVERYTHING : ReplaceMode.NOTHING;
+        TemplateEnderUtilities template = new TemplateEnderUtilities(placement, replace);
         template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true, false);
         this.deleteArea(world, player, posSrc1, posSrc2, true);
         template.addBlocksToWorld(world, posDst1);
