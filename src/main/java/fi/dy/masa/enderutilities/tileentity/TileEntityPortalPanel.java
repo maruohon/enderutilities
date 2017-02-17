@@ -302,7 +302,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             if (portalFormer.togglePortalState(false))
             {
                 this.portalTargetId = this.activeTargetId;
-                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.BLOCKS, 0.5f, 1.0f);
             }
         }
         // Portal was active
@@ -312,12 +312,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             if (recreate)
             {
                 this.portalTargetId = this.activeTargetId;
-                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.MASTER, 0.5f, 1.0f);
+                world.playSound(null, posPanel, SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.BLOCKS, 0.5f, 1.0f);
             }
             // Portal was active and the target id hasn't changed, so it was shut down
             else
             {
-                world.playSound(null, posPanel, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.MASTER, 0.4f, 0.85f);
+                world.playSound(null, posPanel, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 0.4f, 0.85f);
             }
         }
     }

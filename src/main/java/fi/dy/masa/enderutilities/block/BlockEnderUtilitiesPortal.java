@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.effects.Effects;
+import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
@@ -149,31 +150,38 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-        if ((entityIn instanceof EntityPlayer) == false)
+        if (worldIn.isRemote == false)
         {
-            this.teleportEntity(worldIn, pos, state, entityIn);
+            if (entityIn instanceof EntityPlayer)
+            {
+                TickHandler.instance().addPlayerToTeleport((EntityPlayer) entityIn);
+            }
+            else
+            {
+                this.teleportEntity(worldIn, pos, state, entityIn);
+            }
         }
     }
 
     public void teleportEntity(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-        if (worldIn.isRemote)
+        if (worldIn.isRemote == false)
         {
-            return;
-        }
+            TileEntity te = worldIn.getTileEntity(pos);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-
-        if (te instanceof TileEntityPortal)
-        {
-            TargetData target = ((TileEntityPortal) te).getDestination();
-
-            if (target != null)
+            if (te instanceof TileEntityPortal &&
+                entityIn.getEntityBoundingBox().intersectsWith(state.getBoundingBox(worldIn, pos).offset(pos)))
             {
-                OwnerData owner = ((TileEntityPortal) te).getOwner();
-                if (owner == null || owner.canAccess(entityIn))
+                TargetData target = ((TileEntityPortal) te).getDestination();
+
+                if (target != null)
                 {
-                    TeleportEntity.teleportEntityUsingTarget(entityIn, target, true, true);
+                    OwnerData owner = ((TileEntityPortal) te).getOwner();
+
+                    if (owner == null || owner.canAccess(entityIn))
+                    {
+                        TeleportEntity.teleportEntityUsingTarget(entityIn, target, true, true);
+                    }
                 }
             }
         }

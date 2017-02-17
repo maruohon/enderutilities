@@ -1,14 +1,17 @@
 package fi.dy.masa.enderutilities.event;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
@@ -28,14 +31,24 @@ import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class TickHandler
 {
+    private static TickHandler instance;
     private Set<UUID> portalFlags = new HashSet<UUID>();
     private int serverTickCounter;
     private int playerTickCounter;
 
-    public void Tickhandler()
+    public TickHandler()
     {
-        this.serverTickCounter = 0;
-        this.playerTickCounter = 0;
+        instance = this;
+    }
+
+    public static TickHandler instance()
+    {
+        return instance;
+    }
+
+    public void addPlayerToTeleport(EntityPlayer player)
+    {
+        this.portalFlags.add(player.getUniqueID());
     }
 
     @SubscribeEvent
@@ -57,6 +70,7 @@ public class TickHandler
         // This is currently only used for debug tasks, so let's disable it normally
         //TaskScheduler.getInstance().runTasks();
 
+        this.teleportPlayers();
         ++this.playerTickCounter;
     }
 
@@ -67,29 +81,6 @@ public class TickHandler
 
         if (event.side == Side.CLIENT || player.getEntityWorld().isRemote)
         {
-            return;
-        }
-
-        if (event.phase == TickEvent.Phase.START)
-        {
-            World world = player.getEntityWorld();
-            BlockPos pos = player.getPosition();
-            IBlockState state = world.getBlockState(pos);
-            UUID uuid = player.getUniqueID();
-
-            if (state.getBlock() == EnderUtilitiesBlocks.blockPortal)
-            {
-                if (this.portalFlags.contains(uuid) == false)
-                {
-                    ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
-                    this.portalFlags.add(uuid);
-                }
-            }
-            else if (this.portalFlags.contains(uuid))
-            {
-                this.portalFlags.remove(uuid);
-            }
-
             return;
         }
 
@@ -135,5 +126,38 @@ public class TickHandler
         }
 
         PlayerTaskScheduler.getInstance().runTasks(player.getEntityWorld(), player);
+    }
+
+    private void teleportPlayers()
+    {
+        PlayerList list = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
+        Iterator<UUID> iter = this.portalFlags.iterator();
+
+        while (iter.hasNext())
+        {
+            EntityPlayer player = list.getPlayerByUUID(iter.next());
+
+            if (player != null)
+            {
+                World world = player.getEntityWorld();
+                BlockPos pos = player.getPosition();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    IBlockState state = world.getBlockState(pos);
+
+                    if (state.getBlock() == EnderUtilitiesBlocks.blockPortal &&
+                        player.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+                    {
+                        ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
+                        break;
+                    }
+
+                    pos = pos.up();
+                }
+            }
+
+            iter.remove();
+        }
     }
 }
