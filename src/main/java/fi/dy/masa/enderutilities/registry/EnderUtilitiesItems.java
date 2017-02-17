@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.registry;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
@@ -10,7 +9,24 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import fi.dy.masa.enderutilities.config.Configs;
-import fi.dy.masa.enderutilities.item.*;
+import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemEnderArrow;
+import fi.dy.masa.enderutilities.item.ItemEnderBag;
+import fi.dy.masa.enderutilities.item.ItemEnderBow;
+import fi.dy.masa.enderutilities.item.ItemEnderBucket;
+import fi.dy.masa.enderutilities.item.ItemEnderLasso;
+import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
+import fi.dy.masa.enderutilities.item.ItemEnderPorter;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.item.ItemIceMelter;
+import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
+import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
+import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.item.ItemPickupManager;
+import fi.dy.masa.enderutilities.item.ItemPortalScaler;
+import fi.dy.masa.enderutilities.item.ItemQuickStacker;
+import fi.dy.masa.enderutilities.item.ItemRuler;
+import fi.dy.masa.enderutilities.item.ItemSyringe;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -300,12 +316,16 @@ public class EnderUtilitiesItems
         }
     }
 
-    private static void registerItem(Item item, String registryName, boolean isDisabled)
+    private static void registerItem(ItemEnderUtilities item, String registryName, boolean isDisabled)
     {
         if (isDisabled == false)
         {
             item.setRegistryName(registryName);
             GameRegistry.register(item);
+        }
+        else
+        {
+            item.setEnabled(false);
         }
     }
 }

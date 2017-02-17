@@ -6,7 +6,6 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 
 public class ConfigReader
@@ -20,8 +19,6 @@ public class ConfigReader
 
     public static void loadConfigsAll(File configFile)
     {
-        EnderUtilities.logger.info("Loading configuration...");
-
         configurationFile = configFile;
         config = new Configuration(configFile, null, true);
         config.load();

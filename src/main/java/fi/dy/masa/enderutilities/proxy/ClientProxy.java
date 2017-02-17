@@ -74,22 +74,32 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerColorHandlers()
     {
-        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-            new IBlockColor()
-            {
-                @Override
-                public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+        if (EnderUtilitiesBlocks.blockElevator.isEnabled())
+        {
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                new IBlockColor()
                 {
-                    if (tintIndex == 1)
+                    @Override
+                    public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                     {
-                        return state.getValue(BlockElevator.COLOR).getMapColor().colorValue;
+                        return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
                     }
+                }, EnderUtilitiesBlocks.blockElevator);
 
-                    return 0xFFFFFF;
-                }
-            }, EnderUtilitiesBlocks.blockElevator);
+            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                new IItemColor()
+                {
+                    @Override
+                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                    {
+                        return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                    }
+                }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevator));
+        }
 
-        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+        if (EnderUtilitiesBlocks.blockPortal.isEnabled())
+        {
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
                 new IBlockColor()
                 {
                     @Override
@@ -104,12 +114,14 @@ public class ClientProxy extends CommonProxy
                                 return ((TileEntityPortal) te).getColor();
                             }
                         }
-
                         return 0xA010F0;
                     }
                 }, EnderUtilitiesBlocks.blockPortal);
+        }
 
-        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+        if (EnderUtilitiesBlocks.blockPortalPanel.isEnabled())
+        {
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
                 new IBlockColor()
                 {
                     @Override
@@ -124,25 +136,10 @@ public class ClientProxy extends CommonProxy
                                 return ((TileEntityPortalPanel) te).getColor(tintIndex);
                             }
                         }
-
                         return 0xFFFFFF;
                     }
                 }, EnderUtilitiesBlocks.blockPortalPanel);
-
-        Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                new IItemColor()
-                {
-                    @Override
-                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
-                    {
-                        if (tintIndex == 1)
-                        {
-                            return EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue;
-                        }
-
-                        return 0xFFFFFF;
-                    }
-                }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevator));
+        }
     }
 
     @Override
@@ -254,29 +251,38 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemModel(ItemEnderUtilities item, int meta)
     {
-        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+        if (item.isEnabled())
+        {
+            ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+        }
     }
 
     private void registerItemModelWithVariants(ItemEnderUtilities item)
     {
-        ResourceLocation[] variants = item.getItemVariants();
-        List<ItemStack> items = new ArrayList<ItemStack>();
-        item.getSubItems(item, item.getCreativeTab(), items);
-
-        int i = 0;
-        for (ItemStack stack : items)
+        if (item.isEnabled())
         {
-            ModelResourceLocation mrl = (variants[i] instanceof ModelResourceLocation) ?
-                                        (ModelResourceLocation)variants[i] : new ModelResourceLocation(variants[i], "inventory");
-            ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getMetadata(), mrl);
-            i++;
+            ResourceLocation[] variants = item.getItemVariants();
+            List<ItemStack> items = new ArrayList<ItemStack>();
+            item.getSubItems(item, item.getCreativeTab(), items);
+
+            int i = 0;
+            for (ItemStack stack : items)
+            {
+                ModelResourceLocation mrl = (variants[i] instanceof ModelResourceLocation) ?
+                                            (ModelResourceLocation)variants[i] : new ModelResourceLocation(variants[i], "inventory");
+                ModelLoader.setCustomModelResourceLocation(stack.getItem(), stack.getMetadata(), mrl);
+                i++;
+            }
         }
     }
 
     private void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
     {
-        ModelLoader.registerItemVariants(item, item.getItemVariants());
-        ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
+        if (item.isEnabled())
+        {
+            ModelLoader.registerItemVariants(item, item.getItemVariants());
+            ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
+        }
     }
 
     /*private void registerSmartItemModelWrapper(ItemEnderUtilities item)
@@ -288,7 +294,8 @@ public class ClientProxy extends CommonProxy
     private void registerItemBlockModels()
     {
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockElevator);
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator, (new StateMap.Builder()).ignore(BlockElevator.COLOR, BlockElevator.FACING).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,
+                (new StateMap.Builder()).ignore(BlockElevator.COLOR, BlockElevator.FACING).build());
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
@@ -301,35 +308,44 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
     {
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockIn), meta,
+        if (blockIn.isEnabled())
+        {
+            ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(blockIn), meta,
                 new ModelResourceLocation(blockIn.getRegistryName(), fullVariant));
+        }
     }
 
     private void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
     {
-        List<ItemStack> stacks = new ArrayList<ItemStack>();
-        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
-        String[] names = blockIn.getUnlocalizedNames();
-
-        for (ItemStack stack : stacks)
+        if (blockIn.isEnabled())
         {
-            Item item = stack.getItem();
-            int meta = stack.getMetadata();
-            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + names[meta] + variantPost);
-            ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
+            List<ItemStack> stacks = new ArrayList<ItemStack>();
+            blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+            String[] names = blockIn.getUnlocalizedNames();
+
+            for (ItemStack stack : stacks)
+            {
+                Item item = stack.getItem();
+                int meta = stack.getMetadata();
+                ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + names[meta] + variantPost);
+                ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
+            }
         }
     }
 
     private void registerAllItemBlockModels(BlockEnderUtilities blockIn)
     {
-        List<ItemStack> stacks = new ArrayList<ItemStack>();
-        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
-
-        for (ItemStack stack : stacks)
+        if (blockIn.isEnabled())
         {
-            Item item = stack.getItem();
-            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), "inventory");
-            ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
+            List<ItemStack> stacks = new ArrayList<ItemStack>();
+            blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+
+            for (ItemStack stack : stacks)
+            {
+                Item item = stack.getItem();
+                ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), "inventory");
+                ModelLoader.setCustomModelResourceLocation(item, stack.getMetadata(), mrl);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ public class BlockEnderUtilities extends Block
     protected String blockName;
     protected String[] unlocalizedNames;
     protected String[] tooltipNames;
+    protected boolean enabled = true;
 
     public BlockEnderUtilities(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -60,5 +61,16 @@ public class BlockEnderUtilities extends Block
     public String[] getTooltipNames()
     {
         return this.tooltipNames;
+    }
+
+    public boolean isEnabled()
+    {
+        return this.enabled;
+    }
+
+    public BlockEnderUtilities setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+        return this;
     }
 }

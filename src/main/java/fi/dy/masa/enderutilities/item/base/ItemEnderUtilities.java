@@ -20,7 +20,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderUtilities extends Item
 {
-    public String name;
+    protected String name;
+    protected boolean enabled = true;
 
     public ItemEnderUtilities()
     {
@@ -128,6 +129,17 @@ public class ItemEnderUtilities extends Item
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+    }
+
+    public boolean isEnabled()
+    {
+        return this.enabled;
+    }
+
+    public ItemEnderUtilities setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
+        return this;
     }
 
     @SideOnly(Side.CLIENT)

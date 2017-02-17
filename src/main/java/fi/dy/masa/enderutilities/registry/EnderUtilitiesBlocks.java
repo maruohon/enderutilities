@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.registry;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -23,14 +22,14 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
 {
-    public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,  400f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,  400f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_1      = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,  400f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_1      = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
-    public static final BlockEnderUtilities blockPortalFrame    = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.IRON);
-    public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f, 1000f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockPortalFrame    = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f,   60f, 1, Material.ROCK);
 
     public static void init()
     {
@@ -41,7 +40,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
         registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
         registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
-        registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel || Configs.disableBlockPortal, true, false);
+        registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel, true, false);
         registerBlock(blockStorage_0,       Configs.disableBlockStorage_0);
 
         ItemStack chest = new ItemStack(Blocks.CHEST);
@@ -149,17 +148,17 @@ public class EnderUtilitiesBlocks
         }
     }
 
-    private static void registerBlock(Block block, boolean isDisabled)
+    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled)
     {
         registerBlock(block, isDisabled, true);
     }
 
-    private static void registerBlock(Block block, boolean isDisabled, boolean createItemBlock)
+    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled, boolean createItemBlock)
     {
         registerBlock(block, isDisabled, createItemBlock, true);
     }
 
-    private static void registerBlock(Block block, boolean isDisabled, boolean createItemBlock, boolean hasSubtypes)
+    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled, boolean createItemBlock, boolean hasSubtypes)
     {
         if (isDisabled == false)
         {
@@ -169,6 +168,10 @@ public class EnderUtilitiesBlocks
             {
                 GameRegistry.register(new ItemBlockEnderUtilities(block).setHasSubtypes(hasSubtypes).setRegistryName(block.getRegistryName()));
             }
+        }
+        else
+        {
+            block.setEnabled(false);
         }
     }
 }
