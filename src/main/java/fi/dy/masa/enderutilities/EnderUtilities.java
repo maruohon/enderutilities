@@ -98,24 +98,32 @@ public class EnderUtilities
             {
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
-                EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
-                Block block = ForgeRegistries.BLOCKS.getValue(newLoc);
 
-                if (block != null)
+                if (newLoc.equals(oldLoc) == false)
                 {
-                    mapping.remap(block);
+                    EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
+                    Block block = ForgeRegistries.BLOCKS.getValue(newLoc);
+
+                    if (block != null)
+                    {
+                        mapping.remap(block);
+                    }
                 }
             }
             else if (mapping.type == GameRegistry.Type.ITEM)
             {
                 ResourceLocation oldLoc = mapping.resourceLocation;
                 ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
-                EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
-                Item item = ForgeRegistries.ITEMS.getValue(newLoc);
 
-                if (item != null)
+                if (newLoc.equals(oldLoc) == false)
                 {
-                    mapping.remap(item);
+                    EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
+                    Item item = ForgeRegistries.ITEMS.getValue(newLoc);
+
+                    if (item != null)
+                    {
+                        mapping.remap(item);
+                    }
                 }
             }
         }
