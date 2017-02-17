@@ -102,7 +102,11 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
-        if (this.nameField.textboxKeyTyped(typedChar, keyCode) == false)
+        if (keyCode == Keyboard.KEY_RETURN)
+        {
+            this.actionPerformed(this.buttonList.get(0));
+        }
+        else if (this.nameField.textboxKeyTyped(typedChar, keyCode) == false)
         {
             super.keyTyped(typedChar, keyCode);
         }
@@ -134,7 +138,6 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
         if (button.id == 1)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageSendString(Type.ITEM, this.nameField.getText()));
-
             this.mc.displayGuiScreen(null);
         }
     }
