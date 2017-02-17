@@ -59,28 +59,36 @@ public class ItemSyringe extends ItemEnderUtilities
         // Paralyzer - set NoAI
         if (stack.getMetadata() == 1 && (target instanceof EntityLiving) && ((EntityLiving) target).isAIDisabled() == false)
         {
-            ((EntityLiving) target).setNoAI(true);
-
-            if (playerIn.capabilities.isCreativeMode == false)
+            if (playerIn.getEntityWorld().isRemote == false)
             {
-                stack.setItemDamage(0);
+                ((EntityLiving) target).setNoAI(true);
+
+                if (playerIn.capabilities.isCreativeMode == false)
+                {
+                    stack.setItemDamage(0);
+                }
+
+                playerIn.getEntityWorld().playSound(null, playerIn.getPosition(), SoundEvents.ITEM_BUCKET_EMPTY_LAVA, SoundCategory.MASTER, 0.9f, 3.0f);
             }
 
-            playerIn.getEntityWorld().playSound(null, playerIn.getPosition(), SoundEvents.ITEM_BUCKET_EMPTY_LAVA, SoundCategory.MASTER, 0.9f, 3.0f);
             return true;
         }
 
         // Stimulant - disable NoAI
         if (stack.getMetadata() == 2 && (target instanceof EntityLiving) && ((EntityLiving) target).isAIDisabled())
         {
-            ((EntityLiving) target).setNoAI(false);
-
-            if (playerIn.capabilities.isCreativeMode == false)
+            if (playerIn.getEntityWorld().isRemote == false)
             {
-                stack.setItemDamage(0);
+                ((EntityLiving) target).setNoAI(false);
+
+                if (playerIn.capabilities.isCreativeMode == false)
+                {
+                    stack.setItemDamage(0);
+                }
+
+                playerIn.getEntityWorld().playSound(null, playerIn.getPosition(), SoundEvents.ITEM_BUCKET_EMPTY_LAVA, SoundCategory.MASTER, 0.9f, 3.0f);
             }
 
-            playerIn.getEntityWorld().playSound(null, playerIn.getPosition(), SoundEvents.ITEM_BUCKET_EMPTY_LAVA, SoundCategory.MASTER, 0.9f, 3.0f);
             return true;
         }
 
