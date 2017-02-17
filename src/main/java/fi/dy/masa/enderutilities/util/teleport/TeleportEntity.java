@@ -428,12 +428,10 @@ public class TeleportEntity
         // FIXME ugly special case to prevent the chest minecart etc from duping items
         if (entitySrc instanceof EntityMinecartContainer)
         {
-            entitySrc.isDead = true;
+            ((EntityMinecartContainer) entitySrc).setDropItemsWhenDead(false);
         }
-        else
-        {
-            entitySrc.getEntityWorld().removeEntity(entitySrc); // Note: this will also remove any entity mounts
-        }
+
+        entitySrc.getEntityWorld().removeEntity(entitySrc); // Note: this will also remove any entity mounts
 
         x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
         z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
