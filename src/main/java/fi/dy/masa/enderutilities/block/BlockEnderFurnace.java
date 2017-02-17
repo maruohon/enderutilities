@@ -34,7 +34,7 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(MODE, EnumMachineMode.OFF)
                 .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }

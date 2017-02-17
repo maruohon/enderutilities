@@ -38,7 +38,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(TYPE, BlockStorage.EnumStorageType.MEMORY_CHEST_0)
                 .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }

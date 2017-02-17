@@ -40,7 +40,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+        this.setDefaultState(this.getBlockState().getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
         this.setSoundType(SoundType.GLASS);
         this.setBlockUnbreakable();
     }

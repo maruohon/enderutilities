@@ -35,7 +35,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(COLOR, EnumDyeColor.WHITE)
                 .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }

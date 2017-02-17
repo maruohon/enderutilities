@@ -38,7 +38,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
                 .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }

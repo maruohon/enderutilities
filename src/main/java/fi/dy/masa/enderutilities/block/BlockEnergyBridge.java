@@ -32,7 +32,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(ACTIVE, false)
                 .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING)
                 .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR));
