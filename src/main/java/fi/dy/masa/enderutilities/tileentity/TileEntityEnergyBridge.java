@@ -123,10 +123,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     @Override
     public void update()
     {
-        // Master blocks (Transmitter or Receiver) re-validate the multiblock every 2 seconds
+        // Master blocks (Transmitter or Receiver) re-validate the multiblock every 5 seconds
 
         Type type = this.getType();
-        if (this.getWorld().isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 40)
+        if (this.getWorld().isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 100)
         {
             this.tryAssembleMultiBlock(this.getWorld(), this.getPos(), type);
             this.timer = 0;
@@ -136,15 +136,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     public void tryAssembleMultiBlock(World worldIn, BlockPos pos)
     {
         // The End has the transmitter, and in a slightly different position than the receivers are
-        /*if (worldIn.provider.getDimensionId() == 1)
-        {
-            this.tryAssembleMultiBlock(worldIn, pos, Type.TRANSMITTER);
-        }
-        else
-        {
-            this.tryAssembleMultiBlock(worldIn, pos, Type.RECEIVER);
-        }*/
-
         this.tryAssembleMultiBlock(worldIn, pos, this.getType());
     }
 
@@ -248,7 +239,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
                 double d = 1.0d;
                 List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
 
-                if (list.size() == 1)
+                if (list.size() >= 1)
                 {
                     isValid = true;
                 }
@@ -325,44 +316,50 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Receiver: check the column below the Receiver down to bedrock
         else
         {
-            for (int y = posMaster.getY() - 1; y >= 0; y--)
+            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posMaster.getX(), posMaster.getY() - 1, posMaster.getZ());
+
+            for ( ; pos.getY() >= 0; )
             {
-                BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
                 IBlockState state = worldIn.getBlockState(pos);
 
-                if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
+                if (state.getBlock().isAir(state, worldIn, pos) == false && state.getLightOpacity(worldIn, pos) > 3)
                 {
-                    if (state.getBlock() != Blocks.BEDROCK)
+                    if (state.getBlock() == Blocks.BEDROCK)
+                    {
+                        break;
+                    }
+                    else
                     {
                         return true;
                     }
-
-                    break;
                 }
+
+                pos.setY(pos.getY() - 1);
             }
         }
 
-        // Check the column above the master block up to world height or first bedrock block
-        for (int y = posMaster.getY() + 1; y <= worldIn.getActualHeight(); y++)
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posMaster.getX(), posMaster.getY() + 1, posMaster.getZ());
+        int top = world.getChunkFromChunkCoords(posMaster.getX() >> 4, posMaster.getZ() >> 4).getTopFilledSegment() + 15;
+
+        // Check the column above the master block up to the top of the world or the first bedrock block
+        for ( ; pos.getY() <= top; )
         {
-            BlockPos pos = new BlockPos(posMaster.getX(), y, posMaster.getZ());
             IBlockState state = worldIn.getBlockState(pos);
 
             if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
             {
-                if (state.getBlock() != Blocks.BEDROCK)
+                if (state.getBlock() == Blocks.BEDROCK)
+                {
+                    break;
+                }
+                else
                 {
                     return true;
                 }
-
-                break;
             }
-        }
 
-        /*if (world.canBlockSeeTheSky(posMaster.posX, posMaster.posY, posMaster.posZ) == false)
-        {
-            return true;
-        }*/
+            pos.setY(pos.getY() + 1);
+        }
 
         return false;
     }
@@ -469,7 +466,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         int posX = this.getPos().getX();
         int posY = this.getPos().getY();
         int posZ = this.getPos().getZ();
-        int y = posY;
+        int top = world.getChunkFromChunkCoords(posX >> 4, posZ >> 4).getTopFilledSegment() + 15;
 
         // Energy Bridge Transmitter
         if (Type.fromMeta(this.getBlockMetadata()) == Type.TRANSMITTER)
@@ -479,27 +476,37 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Energy Bridge Receiver
         else if (Type.fromMeta(this.getBlockMetadata()) == Type.RECEIVER)
         {
-            for (y = posY; y >= 0; y--)
+            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posX, posY, posZ);
+
+            for ( ; pos.getY() >= 0; )
             {
-                if (this.getWorld().getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
+                if (this.getWorld().getBlockState(pos).getBlock() == Blocks.BEDROCK)
                 {
                     break;
                 }
+
+                pos.setY(pos.getY() - 1);
             }
 
-            this.beamYMin = y + 1;
+            this.beamYMin = pos.getY() + 1;
         }
 
-        for (y = posY; y < this.getWorld().getHeight(); y++)
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posX, posY, posZ);
+        int y = 512;
+
+        for ( ; pos.getY() <= top; )
         {
-            if (this.getWorld().getBlockState(new BlockPos(posX, y, posZ)).getBlock() == Blocks.BEDROCK)
+            if (this.getWorld().getBlockState(pos).getBlock() == Blocks.BEDROCK)
             {
+                y = pos.getY();
                 break;
             }
+
+            pos.setY(pos.getY() + 1);
         }
 
         this.beamYMax = y;
-        this.renderBB = new AxisAlignedBB(posX - 4d, this.beamYMin - 4d, posZ - 4d, posX + 4d, this.beamYMax + 4d, posZ + 4d);
+        this.renderBB = new AxisAlignedBB(posX - 4d, -256d, posZ - 4d, posX + 4d, 512d, posZ + 4d);
     }
 
     @SideOnly(Side.CLIENT)

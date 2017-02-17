@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -44,13 +43,14 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         GlStateManager.translate(x, y, z);
 
         this.bindTexture(TEXTURE);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
+        GlStateManager.disableFog();
+        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497);
+        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497);
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.disableBlend();
         GlStateManager.depthMask(true);
-        GlStateManager.tryBlendFuncSeparate(770, 1, 1, 0);
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
         // Beam (inner part)
         vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -72,7 +72,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
 
         // Glow (outer part)
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.depthMask(false);
 
         v1 = -rot * flowSpeed * 3.0d;
@@ -99,9 +99,11 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         GlStateManager.enableLighting();
         GlStateManager.enableTexture2D();
         GlStateManager.depthMask(true);
+        GlStateManager.enableFog();
         GlStateManager.popMatrix();
     }
 
+    @Override
     public void renderTileEntityAt(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage)
     {
         if (teeb.getIsActive() == false)
@@ -152,12 +154,8 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
         }
     }
 
-    public void renderTileEntityAt(TileEntity te, double x, double y, double z, float f)
-    {
-        this.renderTileEntityAt((TileEntityEnergyBridge)te, x, y, z, f);
-    }
-
-    public boolean forceTileEntityRender()
+    @Override
+    public boolean isGlobalRenderer(TileEntityEnergyBridge te)
     {
         return true;
     }
