@@ -198,7 +198,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
                 else
                 {
-                    this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_END);
+                    this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side), POS_END);
                 }
             }
 
@@ -215,7 +215,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 pos = pos.offset(side);
             }
 
-            return this.useWand(stack, world, player, new BlockPosEU(pos, player.dimension, side));
+            return this.useWand(stack, world, player, new BlockPosEU(pos, world.provider.getDimension(), side));
         }
 
         return EnumActionResult.SUCCESS;
@@ -245,12 +245,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode))
                 {
-                    this.setPosition(stack, new BlockPosEU(pos, player.dimension, side), POS_START);
+                    this.setPosition(stack, new BlockPosEU(pos, world.provider.getDimension(), side), POS_START);
                 }
             }
             else
             {
-                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), player.dimension, side), POS_START);
+                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side), POS_START);
             }
         }
 
@@ -634,7 +634,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult useWand(ItemStack stack, World world, EntityPlayer player, BlockPosEU posTarget)
     {
-        if (player.dimension != posTarget.dimension)
+        if (world.provider.getDimension() != posTarget.dimension)
         {
             return EnumActionResult.FAIL;
         }
@@ -1831,7 +1831,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        if (posStartIn == null || posEndIn == null || posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension)
+        if (posStartIn == null || posEndIn == null)
         {
             return EnumActionResult.FAIL;
         }
@@ -1846,8 +1846,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        if (posStartIn.dimension != player.dimension || posEndIn.dimension != player.dimension ||
-            player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
+        int dim = world.provider.getDimension();
+
+        if (posStartIn.dimension != dim || posEndIn.dimension != dim || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -1905,7 +1906,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        if (posStartIn.dimension != player.dimension || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
+        int dim = world.provider.getDimension();
+
+        if (posStartIn.dimension != dim || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -1932,7 +1935,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             template.setReplaceMode(WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
 
             UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-            TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), player.dimension,
+            TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), dim,
                     player.getUniqueID(), wandUUID, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }

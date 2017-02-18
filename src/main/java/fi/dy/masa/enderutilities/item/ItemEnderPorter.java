@@ -21,6 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -46,8 +47,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     public String getUnlocalizedName(ItemStack stack)
     {
-        // damage 1: Ender Porter (Advanced)
-        if (stack.getMetadata() == 1)
+        if (this.isAdvancedPorter(stack))
         {
             return super.getUnlocalizedName() + "_advanced";
         }
@@ -55,37 +55,22 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return super.getUnlocalizedName();
     }
 
+    private boolean isAdvancedPorter(ItemStack stack)
+    {
+        // damage 1: Advanced Ender Porter
+        return stack.getMetadata() == 1;
+    }
+
     @Override
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
     {
-        if (player == null || player.getEntityWorld().isRemote || player.isSneaking() == false
-            || OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
+        if (player == null || player.getEntityWorld().isRemote || player.isSneaking() == false ||
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return false;
         }
 
-        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-
-        // The basic version can only teleport inside the same dimension
-        if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false
-            && (stack.getMetadata() == 1 || target.dimension == entity.dimension))
-        {
-            int cost = (target.dimension == entity.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
-            {
-                return false;
-            }
-
-            // If the target entity is a player, then they have to be sneaking too
-            if ((entity instanceof EntityPlayer) == false || ((EntityPlayer)entity).isSneaking())
-            {
-                UtilItemModular.useEnderCharge(stack, cost, false);
-                TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
-                return true;
-            }
-        }
-
-        return false;
+        return this.doTeleport(stack, entity, true);
     }
 
     @Override
@@ -109,12 +94,14 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         }
 
         TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        int playerDim = player.getEntityWorld().provider.getDimension();
 
         // The basic version can only teleport inside the same dimension
         if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(player) == false
-            && (stack.getMetadata() == 1 || target.dimension == player.dimension))
+            && (this.isAdvancedPorter(stack) || target.dimension == playerDim))
         {
-            int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+            int cost = (target.dimension == playerDim ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+
             if (UtilItemModular.useEnderCharge(stack, cost, true) == false)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -138,13 +125,14 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase livingBase, int itemInUseCount)
     {
         if ((livingBase instanceof EntityPlayer) == false ||
-            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, (EntityPlayer) livingBase) == false)
+            OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, livingBase) == false)
         {
             return;
         }
 
         EntityPlayer player = (EntityPlayer) livingBase;
         int useTime = USE_TIME;
+
         // Use a shorter delay in creative mode
         if (player.capabilities.isCreativeMode)
         {
@@ -153,20 +141,34 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
         if ((this.getMaxItemUseDuration(stack) - itemInUseCount) >= useTime)
         {
-            TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
-            if (target == null || (stack.getMetadata() == 0 && target.dimension != player.dimension))
-            {
-                return;
-            }
-
-            int cost = (target.dimension == player.dimension ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
-            if (UtilItemModular.useEnderCharge(stack, cost, false) == false)
-            {
-                return;
-            }
-
-            TeleportEntity.teleportEntityUsingModularItem(player, stack, true, true);
+            this.doTeleport(stack, player, false);
         }
+    }
+
+    private boolean doTeleport(ItemStack stack, Entity entity, boolean targetMustSneakIfPlayer)
+    {
+        TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+        int entityDim = entity.getEntityWorld().provider.getDimension();
+
+        // The basic version can only teleport inside the same dimension
+        if (target != null && EntityUtils.doesEntityStackHaveBlacklistedEntities(entity) == false &&
+            (this.isAdvancedPorter(stack) || target.dimension == entityDim))
+        {
+            int cost = (target.dimension == entityDim ? ENDER_CHARGE_COST_INTER_DIM_TP : ENDER_CHARGE_COST_CROSS_DIM_TP);
+
+            if (UtilItemModular.useEnderCharge(stack, cost, true))
+            {
+                // If the target entity is a player, then they have to be sneaking too
+                if (targetMustSneakIfPlayer == false || ((entity instanceof EntityPlayer) == false || entity.isSneaking()))
+                {
+                    UtilItemModular.useEnderCharge(stack, cost, false);
+                    TeleportEntity.teleportEntityUsingModularItem(entity, stack, true, true);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -224,7 +226,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("underutilities:usetime"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID + ":usetime"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -236,11 +238,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 else
                 {
                     ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == ItemEnderPorter.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
+                    return itemstack != null && itemstack.getItem() == ItemEnderPorter.this ?
+                            (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("underutilities:inuse"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID + ":inuse"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

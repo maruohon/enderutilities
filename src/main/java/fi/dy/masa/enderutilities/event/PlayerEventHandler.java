@@ -40,12 +40,12 @@ public class PlayerEventHandler
 
         if (stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
-            ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
+            ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
             event.setCanceled(true);
         }
         else if (stack.getItem() == EnderUtilitiesItems.ruler)
         {
-            ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, player.dimension, face);
+            ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
             event.setCanceled(true);
         }
     }

@@ -308,7 +308,7 @@ public class ItemEnderSword extends ItemLocationBoundModular
             PacketHandler.INSTANCE.sendToAllAround(
                 new MessageAddEffects(MessageAddEffects.EFFECT_ENDER_TOOLS, MessageAddEffects.PARTICLES | MessageAddEffects.SOUND,
                     entity.posX + 0.5d, entity.posY + 0.5d, entity.posZ + 0.5d, 8, 0.2f, 0.3f),
-                        new NetworkRegistry.TargetPoint(entity.dimension, entity.posX, entity.posY, entity.posZ, 24.0d));
+                        new NetworkRegistry.TargetPoint(entity.getEntityWorld().provider.getDimension(), entity.posX, entity.posY, entity.posZ, 24.0d));
         }
 
         // If we failed to handle the drops ourselves, then try to handle them via other means

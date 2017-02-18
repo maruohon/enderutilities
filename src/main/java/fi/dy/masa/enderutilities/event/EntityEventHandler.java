@@ -79,7 +79,7 @@ public class EntityEventHandler
                 }
             }
         }
-        else if (player.dimension == 1 && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
+        else if (player.getEntityWorld().provider.getDimension() == 1 && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
         {
             if (item instanceof IChargeable)
             {
@@ -102,21 +102,21 @@ public class EntityEventHandler
     {
         Entity entity = event.getEntity();
         int dim = event.getDimension();
+        int entityDim = entity.getEntityWorld().provider.getDimension();
 
         // Check that the entity is traveling between the overworld and the nether, and that it is a player
-        if ((dim != 0 && dim != -1) || (entity.dimension != 0 && entity.dimension != -1 ) || (entity instanceof EntityPlayer) == false)
+        if ((dim == 0 || dim == -1) && (entityDim == 0 || entityDim == -1 ) && (entity instanceof EntityPlayer))
         {
-            return;
-        }
+            // If the player is holding a Portal Scaler, then try to use that and cancel the regular
+            // teleport if the Portal Scaler teleportation succeeds
+            ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
 
-        // If the player is holding a Portal Scaler, then try to use that and cancel the regular
-        // teleport if the Portal Scaler teleportation succeeds
-        ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
-        if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
-        {
-            if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer)entity))
+            if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
             {
-                event.setCanceled(true);
+                if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer)entity))
+                {
+                    event.setCanceled(true);
+                }
             }
         }
     }

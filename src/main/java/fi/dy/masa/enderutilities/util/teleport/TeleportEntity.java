@@ -121,7 +121,7 @@ public class TeleportEntity
             pos.adjustPositionToTouchFace(entity, rayTraceResult.sideHit);
         }
 
-        Entity entNew = teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.dimension, allowMounts, allowRiders);
+        Entity entNew = teleportEntity(entity, pos.posX, pos.posY, pos.posZ, projectile.getEntityWorld().provider.getDimension(), allowMounts, allowRiders);
 
         if (entNew != null)
         {
@@ -326,7 +326,7 @@ public class TeleportEntity
                 ((EntityLiving)entity).getNavigator().clearPathEntity();
             }
 
-            if (entity.dimension != dimDst || (entity.getEntityWorld() instanceof WorldServer && entity.getEntityWorld() != worldServerDst))
+            if (entity.getEntityWorld().provider.getDimension() != dimDst || entity.getEntityWorld() != worldServerDst)
             {
                 entity = transferEntityToDimension(entity, dimDst, x, y, z);
             }

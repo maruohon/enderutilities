@@ -642,7 +642,7 @@ public class ItemEnderTool extends ItemLocationBoundModular
 
             // For cross-dimensional item teleport we require the third tier of active Ender Core
             if (OwnerData.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-                || (target.dimension != player.dimension &&
+                || (target.dimension != player.getEntityWorld().provider.getDimension() &&
                     this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
             {
                 return;

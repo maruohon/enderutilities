@@ -257,14 +257,16 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side, double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
+    public void setTarget(ItemStack stack, EntityPlayer player, BlockPos pos, EnumFacing side,
+            double hitX, double hitY, double hitZ, boolean doHitOffset, boolean storeRotation)
     {
         if (OwnerData.canAccessItem(stack, player) == false)
         {
             return;
         }
 
-        TargetData.writeTargetTagToItem(stack, pos, player.dimension, side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
+        TargetData.writeTargetTagToItem(stack, pos, player.getEntityWorld().provider.getDimension(),
+                side, player, hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
         OwnerData.addOwnerDataToItemOptional(stack, player, true);
     }
 }

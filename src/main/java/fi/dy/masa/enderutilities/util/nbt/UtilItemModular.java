@@ -793,7 +793,8 @@ public class UtilItemModular
             return;
         }
 
-        TargetData.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos, player.dimension, side, player,
+        TargetData.writeTargetTagToSelectedModule(containerStack, ModuleType.TYPE_LINKCRYSTAL, pos,
+                player.getEntityWorld().provider.getDimension(), side, player,
                 hitX, hitY, hitZ, doHitOffset, player.rotationYaw, player.rotationPitch, storeRotation);
 
         OwnerData.addOwnerDataToSelectedModuleOptional(containerStack, ModuleType.TYPE_LINKCRYSTAL, player, true);
@@ -877,7 +878,7 @@ public class UtilItemModular
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
         if (OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-            || (target.dimension != player.dimension &&
+            || (target.dimension != player.getEntityWorld().provider.getDimension() &&
                 iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
         {
             return null;
