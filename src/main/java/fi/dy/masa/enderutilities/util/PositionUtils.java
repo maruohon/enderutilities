@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -739,27 +739,40 @@ public class PositionUtils
     }
 
     /**
-     * Returns the player's position scaled by the given scale factors, and clamped to within the world border
-     * of the destination world, with the given margin to the border
+     * Returns the given position scaled by the given scale factors, and clamped to within the world border
+     * of the destination world, with the given margin to the border.
      */
-    public static Vec3d getScaledClampedPosition(EntityPlayer player, int destDimension, double scaleX, double scaleY, double scaleZ, int margin)
+    public static Vec3d getScaledClampedPosition(Vec3d pos, @Nullable World world, double scaleX, double scaleY, double scaleZ, int margin)
     {
-        // FIXME: for some reason the world border in the Nether always reads as 60M...
-        // So we are just getting the border size in the Overworld for now
-        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0);
-        int worldLimit = 29999984;
-        double posX = MathHelper.clamp(player.posX * scaleX, -worldLimit, worldLimit);
-        double posY = MathHelper.clamp(player.posY * scaleY, 0, world != null ? world.getActualHeight() - 1 : 255);
-        double posZ = MathHelper.clamp(player.posZ * scaleZ, -worldLimit, worldLimit);
+        // The world border in other dimensions than the Overworld gets always
+        // reset to the default 60M blocks when the dimensions loads.
+        // The client side WorldBorder is synced on world load, so the
+        // border _appears_ to be where the Overworld border is,
+        // but on the server side the border is actually at 60M blocks,
+        // unless the border has been changed using the commands,
+        // because the border change listener will then update the border
+        // size from the Overworld border to the other dimensions (see WorldServerMulti),
+        // however that change only persists as long as the dimension stays loaded.
+
+        // So we are just getting the border size from the Overworld for now...
+        world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0);
+
+        int worldLimit = 30000000 - margin;
+        // Note: getActualHeight() could be better (at least for the Nether), but it would return 128 for the End too...
+        int worldHeight = world != null ? world.getHeight() : 256;
+        double posX = MathHelper.clamp(pos.xCoord * scaleX, -worldLimit, worldLimit);
+        double posY = MathHelper.clamp(pos.yCoord * scaleY, 0, worldHeight);
+        double posZ = MathHelper.clamp(pos.zCoord * scaleZ, -worldLimit, worldLimit);
 
         if (world != null)
         {
             WorldBorder border = world.getWorldBorder();
             margin = Math.min(margin, (int)(border.getDiameter() / 2));
 
-            posX = MathHelper.clamp(player.posX * scaleX, border.minX() + margin, border.maxX() - margin);
-            posZ = MathHelper.clamp(player.posZ * scaleZ, border.minZ() + margin, border.maxZ() - margin);
-            //System.out.printf("border - size: %.4f posX: %.4f posY: %.4f posZ: %.4f\n", border.getDiameter(), posX, posY, posZ);
+            posX = MathHelper.clamp(pos.xCoord * scaleX, border.minX() + margin, border.maxX() - margin);
+            posZ = MathHelper.clamp(pos.zCoord * scaleZ, border.minZ() + margin, border.maxZ() - margin);
+            //System.out.printf("border size: %.2f posX: %.4f posY: %.4f posZ: %.4f\n", border.getDiameter(), posX, posY, posZ);
+            //System.out.printf("border: %s (%s)\n", border.getClass().getName(), border);
         }
 
         return new Vec3d(posX, posY, posZ);

@@ -16,11 +16,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -123,24 +125,27 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
     public boolean usePortalWithPortalScaler(ItemStack stack, World world, EntityPlayer player)
     {
-        if ((player.dimension != 0 && player.dimension != -1) || this.itemHasScaleFactor(stack) == false)
+        int dimSrc = player.getEntityWorld().provider.getDimension();
+
+        if ((dimSrc != 0 && dimSrc != -1) || this.itemHasScaleFactor(stack) == false)
         {
             return false;
         }
 
-        int dim = player.dimension == 0 ? -1 : 0;
-        BlockPos normalDest = this.getNormalDestinationPosition(player, dim);
-        BlockPos posDest = this.getDestinationPosition(stack, player, dim);
-        int cost = this.getTeleportCost(player, posDest, dim);
-        //System.out.printf("cost1: %d normal: %s new: %s\n", cost, normalDest, posDest);
+        int dimDst = dimSrc == 0 ? -1 : 0;
+        Vec3d normalDest = this.getNormalDestinationPosition(player, dimDst);
+        Vec3d posDest = this.getDestinationPosition(stack, player, dimDst);
+        int cost = this.getTeleportCostEstimate(player, posDest, dimDst);
+        System.out.printf("cost estimate: %d normal: %s new: %s\n", cost, normalDest, posDest);
 
         if (UtilItemModular.useEnderCharge(stack, cost, true))
         {
             TeleportEntityNetherPortal tp = new TeleportEntityNetherPortal();
-            Entity entity = tp.travelToDimension(player, dim, posDest, 32, false);
+            Entity entity = tp.travelToDimension(player, dimDst, new BlockPos(posDest), 32, false);
+
             if (entity != null)
             {
-                cost = this.getTeleportCost(normalDest.getX(), normalDest.getY(), normalDest.getZ(), (int)entity.posX, (int)entity.posY, (int)entity.posZ);
+                cost = this.getTeleportCost(normalDest, entity.getPositionVector());
                 UtilItemModular.useEnderCharge(stack, cost, false);
                 return true;
             }
@@ -153,7 +158,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         return false;
     }
 
-    public BlockPos getDestinationPosition(ItemStack stack, EntityPlayer player, int destDimension)
+    public Vec3d getDestinationPosition(ItemStack stack, EntityPlayer player, int destDimension)
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
         NBTTagCompound moduleNbt = cardStack.getTagCompound();
@@ -183,30 +188,32 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             dScaleZ = 1.0d / dScaleZ;
         }
 
-        return new BlockPos(PositionUtils.getScaledClampedPosition(player, destDimension, dScaleX, dScaleY, dScaleZ, 48));
+        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(destDimension);
+        return PositionUtils.getScaledClampedPosition(player.getPositionVector(), world, dScaleX, dScaleY, dScaleZ, 32);
     }
 
-    public BlockPos getNormalDestinationPosition(EntityPlayer player, int destDimension)
+    public Vec3d getNormalDestinationPosition(EntityPlayer player, int destDimension)
     {
         double scale = destDimension == DimensionType.OVERWORLD.getId() ? 8d : 1d / 8d;
-
-        return new BlockPos(PositionUtils.getScaledClampedPosition(player, destDimension, scale, 1d, scale, 48));
+        return PositionUtils.getScaledClampedPosition(player.getPositionVector(), null, scale, 1d, scale, 32);
     }
 
-    public int getTeleportCost(int x1, int y1, int z1, int x2, int y2, int z2)
+    /**
+     * Returns the cost of teleportation for the amount of distance between the given coordinates
+     */
+    public int getTeleportCost(Vec3d pos1, Vec3d pos2)
     {
-        long xDiff = x1 - x2;
-        long yDiff = y1 - y2;
-        long zDiff = z1 - z2;
+        double xDiff = pos1.xCoord - pos2.xCoord;
+        double yDiff = pos1.yCoord - pos2.yCoord;
+        double zDiff = pos1.zCoord - pos2.zCoord;
 
         return (int)(TELEPORTATION_EC_COST * Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff));
     }
 
-    public int getTeleportCost(EntityPlayer player, BlockPos dest, int destDim)
+    public int getTeleportCostEstimate(EntityPlayer player, Vec3d dest, int destDim)
     {
-        BlockPos normalDest = this.getNormalDestinationPosition(player, destDim);
-
-        return this.getTeleportCost(normalDest.getX(), normalDest.getY(), normalDest.getZ(), dest.getX(), dest.getY(), dest.getZ());
+        Vec3d normalDest = this.getNormalDestinationPosition(player, destDim);
+        return this.getTeleportCost(normalDest, dest);
     }
 
     @Override
