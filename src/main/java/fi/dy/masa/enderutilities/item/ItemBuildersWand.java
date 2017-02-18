@@ -1840,15 +1840,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPos endOffset = posEndIn.toBlockPos().subtract(posStart);
         //System.out.printf("posStart: %s posEnd: %s endOffset: %s\n", posStart, posEndIn.toBlockPos(), endOffset);
 
-        if (this.isAreaWithinSizeLimit(endOffset, player) == false)
+        if (this.isAreaWithinSizeLimit(endOffset, stack, player) == false)
         {
-            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(stack, player)));
             return EnumActionResult.FAIL;
         }
 
         int dim = world.provider.getDimension();
 
-        if (posStartIn.dimension != dim || posEndIn.dimension != dim || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
+        if (posEndIn.dimension != dim || posStartIn.isWithinDistance(player, 160) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -1906,9 +1906,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        int dim = world.provider.getDimension();
-
-        if (posStartIn.dimension != dim || player.getDistanceSq(posStartIn.toBlockPos()) > 160 * 160)
+        if (posStartIn.isWithinDistance(player, 160) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -1916,9 +1914,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         TemplateMetadata templateMeta = this.getTemplateMetadata(stack, player);
 
-        if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), player) == false)
+        if (this.isAreaWithinSizeLimit(templateMeta.getRelativeEndPosition(), stack, player) == false)
         {
-            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(player)));
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge", this.getMaxAreaDimension(stack, player)));
             return EnumActionResult.FAIL;
         }
 
@@ -1935,7 +1933,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             template.setReplaceMode(WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.PASTE) ? ReplaceMode.WITH_NON_AIR : ReplaceMode.NOTHING);
 
             UUID wandUUID = NBTUtils.getUUIDFromItemStack(stack, WRAPPER_TAG_NAME, true);
-            TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), dim,
+            TaskTemplatePlaceBlocks task = new TaskTemplatePlaceBlocks(template, posStartIn.toBlockPos(), world.provider.getDimension(),
                     player.getUniqueID(), wandUUID, Configs.buildersWandBlocksPerTick);
             PlayerTaskScheduler.getInstance().addTask(player, task, 1);
         }
@@ -1956,13 +1954,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        this.deleteArea(world, player, posStartIn.toBlockPos(), posEndIn.toBlockPos(),
+        this.deleteArea(stack, world, player, posStartIn.toBlockPos(), posEndIn.toBlockPos(),
                 WandOption.AFFECT_ENTITIES.isEnabled(stack, Mode.DELETE));
 
         return EnumActionResult.SUCCESS;
     }
 
-    private void deleteArea(World world, EntityPlayer player, BlockPos posStart, BlockPos posEnd, boolean removeEntities)
+    private void deleteArea(ItemStack stack, World world, EntityPlayer player, BlockPos posStart, BlockPos posEnd, boolean removeEntities)
     {
         if (posStart == null || posEnd == null)
         {
@@ -1972,9 +1970,10 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (player.getDistanceSq(posStart) > 160 * 160)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
+            return;
         }
 
-        if (this.isAreaWithinSizeLimit(posStart.subtract(posEnd), player) == false)
+        if (this.isAreaWithinSizeLimit(posStart.subtract(posEnd), stack, player) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolarge"));
             return;
@@ -2043,13 +2042,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return EnumActionResult.FAIL;
         }
 
-        int dim = world.provider.getDimension();
         BlockPos posDst1 = posDst1EU.toBlockPos();
         BlockPos posDst2 = posDst2EU.toBlockPos();
 
-        if (player.getDistanceSq(posDst1) > 128 * 128 || player.getDistanceSq(posDst2) > 128 * 128 ||
-            this.isAreaWithinSizeLimit(posDst2.subtract(posDst1), player) == false ||
-            posSrc1EU.dimension != dim || posSrc2EU.dimension != dim || posDst1EU.dimension != dim || posDst2EU.dimension != dim)
+        if (posSrc1EU.isWithinDistance(player, 160) == false ||
+            posSrc2EU.isWithinDistance(player, 160) == false ||
+            posDst1EU.isWithinDistance(player, 160) == false ||
+            posDst2EU.isWithinDistance(player, 160) == false ||
+            this.isAreaWithinSizeLimit(posDst2.subtract(posDst1), stack, player) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
             return EnumActionResult.FAIL;
@@ -2096,7 +2096,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (player.capabilities.isCreativeMode)
         {
-            this.moveAreaImmediate(world, player, posSrc1, posSrc2, posDst1, mirror, rotation, stack);
+            this.moveAreaImmediate(stack, world, player, posSrc1, posSrc2, posDst1, mirror, rotation);
         }
         else
         {
@@ -2109,8 +2109,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return EnumActionResult.SUCCESS;
     }
 
-    private void moveAreaImmediate(World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
-            Mirror mirror, Rotation rotation, ItemStack stack)
+    private void moveAreaImmediate(ItemStack stack, World world, EntityPlayer player, BlockPos posSrc1, BlockPos posSrc2, BlockPos posDst1,
+            Mirror mirror, Rotation rotation)
     {
         PlacementSettings placement = new PlacementSettings();
         placement.setMirror(mirror);
@@ -2121,7 +2121,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         ReplaceMode replace = WandOption.REPLACE_EXISTING.isEnabled(stack, Mode.MOVE_DST) ? ReplaceMode.EVERYTHING : ReplaceMode.NOTHING;
         TemplateEnderUtilities template = new TemplateEnderUtilities(placement, replace);
         template.takeBlocksFromWorld(world, posSrc1, posSrc2.subtract(posSrc1), true, false);
-        this.deleteArea(world, player, posSrc1, posSrc2, true);
+        this.deleteArea(stack, world, player, posSrc1, posSrc2, true);
         template.addBlocksToWorld(world, posDst1);
     }
 
@@ -2186,8 +2186,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         int sz = Math.abs(endPosRelative.getZ()) + 1;
         BlockPos posMin = PositionUtils.getMinCorner(pos1, pos2).add(-area.getXNeg() * sx, -area.getYNeg() * sy, -area.getZNeg() * sz);
         BlockPos posMax = PositionUtils.getMaxCorner(pos1, pos2).add( area.getXPos() * sx,  area.getYPos() * sy,  area.getZPos() * sz);
+        int max = 160;
 
-        if (player.getDistanceSq(posMin) > (160 * 160) || player.getDistanceSq(posMax) > (160 * 160))
+        if (player.getDistanceSq(posMin) > (max * max) || player.getDistanceSq(posMax) > (max * max))
         {
             return false;
         }
@@ -2273,14 +2274,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 .withProperty(BlockLeaves.DECAYABLE, true), 3);
     }
 
-    private int getMaxAreaDimension(EntityPlayer player)
+    private int getMaxAreaDimension(ItemStack stack, EntityPlayer player)
     {
-        return player.capabilities.isCreativeMode ? 128 : 64;
+        return player.capabilities.isCreativeMode ? 256 : 64;
     }
 
-    private boolean isAreaWithinSizeLimit(BlockPos size, EntityPlayer player)
+    private boolean isAreaWithinSizeLimit(BlockPos size, ItemStack stack, EntityPlayer player)
     {
-        int limit = this.getMaxAreaDimension(player);
+        int limit = this.getMaxAreaDimension(stack, player);
         return Math.abs(size.getX()) <= limit && Math.abs(size.getY()) <= limit && Math.abs(size.getZ()) <= limit;
     }
 

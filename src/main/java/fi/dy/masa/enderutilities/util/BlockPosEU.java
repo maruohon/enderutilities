@@ -1,9 +1,11 @@
 package fi.dy.masa.enderutilities.util;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.util.Constants;
 
 public class BlockPosEU
@@ -91,7 +93,21 @@ public class BlockPosEU
                                 this.dimension, this.face);
     }
 
-    public BlockPosEU clampCoords()
+    public boolean isWithinDistance(Entity entity, double maxDist)
+    {
+        return this.isWithinDistance(entity.getPositionVector(), entity.getEntityWorld().provider.getDimension(), maxDist);
+    }
+
+    public boolean isWithinDistance(Vec3d pos, int dimension, double maxDist)
+    {
+        double dx = pos.xCoord - this.posX;
+        double dy = pos.yCoord - this.posY;
+        double dz = pos.zCoord - this.posZ;
+
+        return this.dimension == dimension && (dx * dx + dy * dy + dz * dz) <= maxDist * maxDist;
+    }
+
+    public BlockPosEU clampCoordsToWorldBounds()
     {
         int x = MathHelper.clamp(this.posX, -30000000, 30000000);
         int y = MathHelper.clamp(this.posY, 0, 255);
