@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
@@ -296,7 +297,7 @@ public class EntityEnderArrow extends EntityArrow
                 // Valid shooter
                 if (this.getEntityWorld().isRemote == false && shooter != null)
                 {
-                    if (TeleportEntity.entityTeleportWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true))
+                    if (TeleportEntity.teleportEntityWithProjectile(shooter, this, rayTraceResult, this.teleportDamage, true, true))
                     {
                         this.playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
                     }
@@ -316,10 +317,11 @@ public class EntityEnderArrow extends EntityArrow
                     {
                         if (this.getEntityWorld().isRemote == false)
                         {
-                            this.tpTarget = TeleportEntity.adjustTargetPosition(this.tpTarget, rayTraceResult.entityHit);
                             if (this.tpTarget != null)
                             {
+                                this.tpTarget = PositionUtils.adjustTargetPosition(this.tpTarget, rayTraceResult.entityHit);
                                 Entity e = rayTraceResult.entityHit;
+
                                 if (this.tpTarget.hasRotation && entity != null)
                                 {
                                     entity.setPositionAndRotation(e.posX, e.posY, e.posZ, this.tpTarget.yaw, this.tpTarget.pitch);

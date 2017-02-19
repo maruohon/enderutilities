@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
+import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
@@ -7,19 +8,13 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityMinecartContainer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketEntityEffect;
-import net.minecraft.network.play.server.SPacketPlayerAbilities;
-import net.minecraft.network.play.server.SPacketRespawn;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.BossInfoServer;
+import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldServer;
@@ -36,12 +31,30 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.MethodHandleUtils;
+import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
 import fi.dy.masa.enderutilities.util.PositionHelper;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
 {
+    private static MethodHandle methodHandle_Entity_copyDataFromOld;
+
+    static
+    {
+        try
+        {
+            methodHandle_Entity_copyDataFromOld = MethodHandleUtils.getMethodHandleVirtual(
+                    Entity.class, new String[] { "func_180432_n", "copyDataFromOld" }, Entity.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            EnderUtilities.logger.error("CommandTeleportJED: Failed to get MethodHandle for Entity#copyDataFromOld()", e);
+        }
+    }
+
     public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
     {
         if (world.isRemote == false)
@@ -58,16 +71,9 @@ public class TeleportEntity
 
     public static boolean teleportEntityRandomly(Entity entity, double maxDist)
     {
-        if (entity == null || canTeleportEntity(entity) == false || entity.getEntityWorld().isRemote)
-        {
-            return false;
-        }
+        World world = entity.getEntityWorld();
 
-        // Sound and particles on the original location
-        addTeleportSoundsAndParticles(entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ);
-
-        // Do the actual teleportation only on the server side
-        if (entity.getEntityWorld().isRemote)
+        if (canTeleportEntity(entity) == false || world.isRemote)
         {
             return false;
         }
@@ -77,15 +83,14 @@ public class TeleportEntity
         double x = 0.0d;
         double y = 0.0d;
         double z = 0.0d;
-        //maxDist *= Math.random();
-        maxDist = maxDist - (Math.random() * maxDist / 2.0d);
+        maxDist = maxDist - (world.rand.nextFloat() * maxDist / 2.0d);
 
         // Try to find a free spot (non-colliding with blocks)
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 20; i++)
         {
-            deltaYaw = ((Math.random() * 360.0f) / 180.0d) * Math.PI;
+            deltaYaw = world.rand.nextFloat() * 2d * Math.PI;
             //deltaPitch = ((90.0d - (Math.random() * 180.0d)) / 180.0d) * Math.PI; // free range on the y-direction
-            deltaPitch = ((Math.random() * 90.0d) / 180.0d) * Math.PI; // only from the same level upwards
+            deltaPitch = world.rand.nextFloat() * 0.5d * Math.PI; // only from the same level upwards
             x = entity.posX;
             y = entity.posY;
             z = entity.posZ;
@@ -93,12 +98,15 @@ public class TeleportEntity
             z += Math.cos(deltaPitch) * Math.sin(deltaYaw) * maxDist;
             y += Math.sin(deltaPitch) * maxDist;
 
-            if (entity.getEntityBoundingBox() != null && entity.getEntityWorld().getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty())
+            if (entity.getEntityBoundingBox() != null && world.getCollisionBoxes(entity, entity.getEntityBoundingBox()).isEmpty())
             {
+                // Sound and particles on the original location
+                addTeleportSoundsAndParticles(world, entity.posX, entity.posY, entity.posZ);
+
                 entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
                 // Sound and particles on the new, destination location.
-                addTeleportSoundsAndParticles(entity.getEntityWorld(), x, y, z);
+                addTeleportSoundsAndParticles(world, x, y, z);
                 return true;
             }
         }
@@ -106,7 +114,7 @@ public class TeleportEntity
         return false;
     }
 
-    public static boolean entityTeleportWithProjectile(Entity entity, Entity projectile, RayTraceResult rayTraceResult, float teleportDamage, boolean allowMounts, boolean allowRiders)
+    public static boolean teleportEntityWithProjectile(Entity entity, Entity projectile, RayTraceResult rayTraceResult, float teleportDamage, boolean allowMounts, boolean allowRiders)
     {
         if (canTeleportEntity(entity) == false)
         {
@@ -129,6 +137,7 @@ public class TeleportEntity
             {
                 // Inflict fall damage to the bottom most entity
                 Entity bottom = EntityUtils.getBottomEntity(entNew);
+
                 if (bottom instanceof EntityLivingBase)
                 {
                     bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
@@ -142,52 +151,15 @@ public class TeleportEntity
         return false;
     }
 
-    public static TargetData adjustTargetPosition(TargetData target, Entity entity)
-    {
-        if (target == null || target.blockFace < 0)
-        {
-            return target;
-        }
-
-        float widthAdj = 0.5f;
-        float heightAdj = 1.0f;
-
-        if (entity != null)
-        {
-            widthAdj = entity.width / 2;
-            heightAdj = entity.height;
-        }
-
-        target.dPosX += target.facing.getFrontOffsetX() * widthAdj;
-        target.dPosZ += target.facing.getFrontOffsetZ() * widthAdj;
-
-        // Targeting the bottom face of a block, adjust the position lower
-        if (target.facing.equals(EnumFacing.DOWN))
-        {
-            target.dPosY -= heightAdj;
-        }
-
-        return target;
-    }
-
-    public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack)
-    {
-        return teleportEntityUsingModularItem(entity, stack, true, true);
-    }
-
     public static Entity teleportEntityUsingModularItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
         return teleportEntityUsingItem(entity, UtilItemModular.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL), allowMounts, allowRiders);
     }
 
-    public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack)
-    {
-        return teleportEntityUsingItem(entity, stack, true, true);
-    }
-
     public static Entity teleportEntityUsingItem(Entity entity, ItemStack stack, boolean allowMounts, boolean allowRiders)
     {
         TargetData target = TargetData.getTargetFromItem(stack);
+
         if (target != null)
         {
             return teleportEntityUsingTarget(entity, target, allowMounts, allowRiders);
@@ -203,18 +175,11 @@ public class TeleportEntity
             return null;
         }
 
-        adjustTargetPosition(target, entity);
+        PositionUtils.adjustTargetPosition(target, entity);
 
-        if (target.hasRotation && entity != null)
+        if (target.hasRotation)
         {
-            if (entity instanceof EntityPlayerMP)
-            {
-                ((EntityPlayerMP) entity).connection.setPlayerLocation(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
-            }
-            else
-            {
-                entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
-            }
+            entity.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, target.yaw, target.pitch);
         }
 
         return teleportEntity(entity, target.dPosX, target.dPosY, target.dPosZ, target.dimension, allowMounts, allowRiders);
@@ -253,6 +218,7 @@ public class TeleportEntity
         }
 
         Entity teleported = teleportEntity(entity, x, y, z, dimDst, reCreate);
+
         if (teleported == null)
         {
             return null;
@@ -283,7 +249,7 @@ public class TeleportEntity
 
     private static Entity teleportEntity(Entity entity, double x, double y, double z, int dimDst, boolean forceRecreate)
     {
-        if (entity == null || entity.isDead || canTeleportEntity(entity) == false || entity.getEntityWorld().isRemote)
+        if (entity == null || entity.isEntityAlive() == false || canTeleportEntity(entity) == false || entity.getEntityWorld().isRemote)
         {
             return null;
         }
@@ -291,8 +257,9 @@ public class TeleportEntity
         // Post the event and check if the teleport should be allowed
         if (entity instanceof EntityLivingBase)
         {
-            EnderTeleportEvent etpEvent = new EnderTeleportEvent((EntityLivingBase)entity, x, y, z, 0.0f);
-            if (MinecraftForge.EVENT_BUS.post(etpEvent))
+            EnderTeleportEvent event = new EnderTeleportEvent((EntityLivingBase) entity, x, y, z, 0.0f);
+
+            if (MinecraftForge.EVENT_BUS.post(event))
             {
                 return null;
             }
@@ -301,44 +268,19 @@ public class TeleportEntity
         // Sound and particles on the original location
         addTeleportSoundsAndParticles(entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ);
 
-        if (entity.getEntityWorld().isRemote == false && entity.getEntityWorld() instanceof WorldServer)
+        if (entity instanceof EntityLiving)
         {
-            WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimDst);
-            if (worldServerDst == null)
-            {
-                EnderUtilities.logger.warn("teleportEntity(): worldServerDst == null");
-                return null;
-            }
+            ((EntityLiving) entity).setMoveForward(0.0f);
+            ((EntityLiving) entity).getNavigator().clearPathEntity();
+        }
 
-            //System.out.println("Is loaded: " + worldServerDst.getChunkProvider().chunkExists((int)x >> 4, (int)z >> 4));
-
-            int chunkX = ((int)x) >> 4;
-            int chunkZ = ((int)z) >> 4;
-
-            if (worldServerDst.getChunkProvider().chunkExists(chunkX, chunkZ) == false)
-            {
-                worldServerDst.getChunkProvider().loadChunk(chunkX, chunkZ);
-            }
-
-            if (entity instanceof EntityLiving)
-            {
-                ((EntityLiving)entity).setMoveForward(0.0f);
-                ((EntityLiving)entity).getNavigator().clearPathEntity();
-            }
-
-            if (entity.getEntityWorld().provider.getDimension() != dimDst || entity.getEntityWorld() != worldServerDst)
-            {
-                entity = transferEntityToDimension(entity, dimDst, x, y, z);
-            }
-            else if (entity instanceof EntityPlayerMP)
-            {
-                ((EntityPlayerMP) entity).connection.setPlayerLocation(x, y, z, entity.rotationYaw, entity.rotationPitch);
-            }
-            else
-            {
-                //entity.setPositionAndUpdate(x, y, z);
-                entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
-            }
+        if (entity.getEntityWorld().provider.getDimension() != dimDst)
+        {
+            entity = teleportEntityToDimension(entity, x, y, z, dimDst);
+        }
+        else
+        {
+            entity = teleportEntityInsideSameDimension(entity, x, y, z);
         }
 
         if (entity != null)
@@ -350,176 +292,160 @@ public class TeleportEntity
         return entity;
     }
 
-    /*private static Entity reCreateEntity(Entity entitySrc, double x, double y, double z)
+    private static Entity teleportEntityInsideSameDimension(Entity entity, double x, double y, double z)
     {
-        if (entitySrc.worldObj.isRemote)
+        // Load the chunk first
+        entity.getEntityWorld().getChunkFromChunkCoords((int) Math.floor(x / 16D), (int) Math.floor(z / 16D));
+
+        entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+        entity.setPositionAndUpdate(x, y, z);
+        return entity;
+    }
+
+    private static Entity teleportEntityToDimension(Entity entity, double x, double y, double z, int dimDst)
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        WorldServer worldDst = server.worldServerForDimension(dimDst);
+
+        if (worldDst == null || net.minecraftforge.common.ForgeHooks.onTravelToDimension(entity, dimDst) == false)
         {
             return null;
         }
 
-        WorldServer worldServerDst = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(entitySrc.dimension);
-        if (worldServerDst == null)
+        // Load the chunk first
+        int chunkX = (int) Math.floor(x / 16D);
+        int chunkZ = (int) Math.floor(z / 16D);
+        ChunkLoading.getInstance().loadChunkForcedWithModTicket(dimDst, chunkX, chunkZ, 10);
+
+        if (entity instanceof EntityPlayerMP)
         {
-            EnderUtilities.logger.warn("reCreateEntity(): worldServerDst == null");
-            return null;
-        }
+            EntityPlayerMP player = (EntityPlayerMP) entity;
+            World worldOld = player.getEntityWorld();
+            DummyTeleporter teleporter = new DummyTeleporter(worldDst);
 
-        Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
-        if (entityDst == null)
-        {
-            return null;
-        }
+            player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
+            server.getPlayerList().transferPlayerToDimension(player, dimDst, teleporter);
 
-        entitySrc.worldObj.removeEntity(entitySrc); // Note: this will also remove any entity mounts
-        entitySrc.isDead = false;
+            // See PlayerList#transferEntityToWorld()
+            if (worldOld.provider.getDimension() == 1)
+            {
+                worldDst.spawnEntity(player);
+            }
 
-        //entityDst.copyDataFromOld(entitySrc);
-        EntityUtils.copyDataFromOld(entityDst, entitySrc);
+            // Teleporting FROM The End, remove the boss bar that would otherwise get stuck on
+            if (worldOld.provider instanceof WorldProviderEnd)
+            {
+                removeDragonBossBarHack(player, (WorldProviderEnd) worldOld.provider);
+            }
 
-        if (entityDst instanceof EntityLivingBase)
-        {
-            ((EntityLivingBase)entityDst).setPositionAndUpdate(x, y, z);
+            player.setPositionAndUpdate(x, y, z);
+            worldDst.updateEntityWithOptionalForce(player, false);
+            player.addExperience(0);
+            player.setPlayerHealthUpdated();
+            // TODO update food level?
         }
         else
         {
-            entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
+            WorldServer worldSrc = (WorldServer) entity.getEntityWorld();
+
+            // FIXME ugly special case to prevent the chest minecart etc from duping items
+            if (entity instanceof EntityMinecartContainer)
+            {
+                ((EntityMinecartContainer) entity).setDropItemsWhenDead(false);
+            }
+
+            worldSrc.removeEntity(entity);
+            entity.isDead = false;
+            worldSrc.updateEntityWithOptionalForce(entity, false);
+
+            Entity entityNew = EntityList.createEntityByName(EntityList.getEntityString(entity), worldDst);
+
+            if (entityNew != null)
+            {
+                copyDataFromOld(entityNew, entity);
+                entityNew.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
+
+                boolean flag = entityNew.forceSpawn;
+                entityNew.forceSpawn = true;
+                worldDst.spawnEntity(entityNew);
+                entityNew.forceSpawn = flag;
+
+                worldDst.updateEntityWithOptionalForce(entityNew, false);
+                entity.isDead = true;
+
+                worldSrc.resetUpdateEntityTick();
+                worldDst.resetUpdateEntityTick();
+            }
+
+            entity = entityNew;
         }
 
-        worldServerDst.spawnEntityInWorld(entityDst);
-        worldServerDst.resetUpdateEntityTick();
-        entitySrc.isDead = true;
-
-        return entityDst;
-    }*/
-
-    private static Entity transferEntityToDimension(Entity entitySrc, int dimDst, double x, double y, double z)
-    {
-        if (entitySrc == null || entitySrc.isDead || entitySrc.dimension == dimDst || entitySrc.getEntityWorld().isRemote)
-        {
-            return null;
-        }
-
-        if (entitySrc instanceof EntityPlayerMP)
-        {
-            return transferPlayerToDimension((EntityPlayerMP)entitySrc, dimDst, x, y, z);
-        }
-
-        ChunkLoading.getInstance().loadChunkForcedWithModTicket(dimDst, (int)x >> 4, (int)z >> 4, 10);
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        WorldServer worldServerSrc = server.worldServerForDimension(entitySrc.dimension);
-        WorldServer worldServerDst = server.worldServerForDimension(dimDst);
-
-        if (worldServerSrc == null || worldServerDst == null)
-        {
-            EnderUtilities.logger.warn("transferEntityToDimension(): worldServer[Src|Dst] == null");
-            return null;
-        }
-
-        entitySrc.dimension = dimDst;
-        Entity entityDst = EntityList.createEntityByName(EntityList.getEntityString(entitySrc), worldServerDst);
-        if (entityDst == null)
-        {
-            return null;
-        }
-
-        //entityDst.copyDataFromOld(entitySrc);
-        EntityUtils.copyDataFromOld(entityDst, entitySrc);
-
-        // FIXME ugly special case to prevent the chest minecart etc from duping items
-        if (entitySrc instanceof EntityMinecartContainer)
-        {
-            ((EntityMinecartContainer) entitySrc).setDropItemsWhenDead(false);
-        }
-
-        entitySrc.getEntityWorld().removeEntity(entitySrc); // Note: this will also remove any entity mounts
-
-        x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
-        z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
-        entityDst.setLocationAndAngles(x, y, z, entitySrc.rotationYaw, entitySrc.rotationPitch);
-        worldServerDst.spawnEntity(entityDst);
-        worldServerDst.updateEntityWithOptionalForce(entityDst, false);
-        entityDst.setWorld(worldServerDst);
-
-        // Debug: this actually kills the original entity, commenting it will make clones
-        entitySrc.isDead = true;
-
-        worldServerSrc.resetUpdateEntityTick();
-        worldServerDst.resetUpdateEntityTick();
-
-        return entityDst;
+        return entity;
     }
 
-    private static EntityPlayer transferPlayerToDimension(EntityPlayerMP player, int dimDst, double x, double y, double z)
+    private static void removeDragonBossBarHack(EntityPlayerMP player, WorldProviderEnd provider)
     {
-        if (player == null || player.isDead || player.dimension == dimDst || player.getEntityWorld().isRemote)
+        // Somewhat ugly way to clear the Boss Info stuff when teleporting FROM The End
+        DragonFightManager manager = provider.getDragonFightManager();
+
+        if (manager != null)
         {
-            return null;
-        }
-
-        int dimSrc = player.dimension;
-        x = MathHelper.clamp(x, -30000000.0d, 30000000.0d);
-        z = MathHelper.clamp(z, -30000000.0d, 30000000.0d);
-        player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
-
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        WorldServer worldServerSrc = server.worldServerForDimension(dimSrc);
-        WorldServer worldServerDst = server.worldServerForDimension(dimDst);
-
-        if (worldServerSrc == null || worldServerDst == null)
-        {
-            EnderUtilities.logger.warn("transferPlayerToDimension(): worldServer[Src|Dst] == null");
-            return null;
-        }
-
-        player.dimension = dimDst;
-        player.connection.sendPacket(new SPacketRespawn(player.dimension, player.getEntityWorld().getDifficulty(),
-                player.getEntityWorld().getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
-        player.mcServer.getPlayerList().updatePermissionLevel(player);
-        //worldServerSrc.removePlayerEntityDangerously(player); // this crashes
-        worldServerSrc.removeEntity(player);
-        player.isDead = false;
-
-        worldServerDst.spawnEntity(player);
-        worldServerDst.updateEntityWithOptionalForce(player, false);
-        player.setWorld(worldServerDst);
-        player.mcServer.getPlayerList().preparePlayer(player, worldServerSrc); // remove player from the source world
-        player.connection.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
-        player.interactionManager.setWorld(worldServerDst);
-        player.connection.sendPacket(new SPacketPlayerAbilities(player.capabilities));
-        player.mcServer.getPlayerList().updateTimeAndWeatherForPlayer(player, worldServerDst);
-        player.mcServer.getPlayerList().syncPlayerInventory(player);
-        player.addExperienceLevel(0);
-        player.setPlayerHealthUpdated();
-
-        // FIXME 1.9 - Somewhat ugly way to clear the Boss Info stuff when teleporting FROM The End
-        if (worldServerSrc.provider instanceof WorldProviderEnd)
-        {
-            DragonFightManager manager = ((WorldProviderEnd)worldServerSrc.provider).getDragonFightManager();
-
-            if (manager != null)
+            try
             {
-                try
+                BossInfoServer bossInfo = ReflectionHelper.getPrivateValue(DragonFightManager.class, manager, "field_186109_c", "bossInfo");
+
+                if (bossInfo != null)
                 {
-                    BossInfoServer bossInfo = ReflectionHelper.getPrivateValue(DragonFightManager.class, manager, "field_186109_c", "bossInfo");
-                    if (bossInfo != null)
-                    {
-                        bossInfo.removePlayer(player);
-                    }
-                }
-                catch (UnableToAccessFieldException e)
-                {
-                    EnderUtilities.logger.warn("TeleportEntity.transferPlayerToDimension: Failed to get DragonFightManager#bossInfo");
+                    bossInfo.removePlayer(player);
                 }
             }
+            catch (UnableToAccessFieldException e)
+            {
+                EnderUtilities.logger.warn("TP: Failed to get DragonFightManager#bossInfo");
+            }
         }
+    }
 
-        for (PotionEffect potioneffect : player.getActivePotionEffects())
+    private static void copyDataFromOld(Entity target, Entity old)
+    {
+        try
         {
-            player.connection.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
+            methodHandle_Entity_copyDataFromOld.invokeExact(target, old);
+        }
+        catch (Throwable e)
+        {
+            EnderUtilities.logger.error("Error while trying invoke Entity#copyDataFromOld()", e);
+        }
+    }
+
+    private static class DummyTeleporter extends Teleporter
+    {
+        public DummyTeleporter(WorldServer world)
+        {
+            super(world);
         }
 
-        FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, dimSrc, dimDst);
+        @Override
+        public boolean makePortal(Entity entityIn)
+        {
+            return true;
+        }
 
-        return player;
+        @Override
+        public boolean placeInExistingPortal(Entity entityIn, float rotationYaw)
+        {
+            return true;
+        }
+
+        @Override
+        public void removeStalePortalLocations(long worldTime)
+        {
+            // NO-OP
+        }
+
+        @Override
+        public void placeInPortal(Entity entityIn, float rotationYaw)
+        {
+        }
     }
 }

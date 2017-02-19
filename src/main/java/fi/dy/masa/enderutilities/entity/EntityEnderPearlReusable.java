@@ -150,7 +150,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
             if (this.getEntityWorld().isRemote == false)
             {
-                TeleportEntity.entityTeleportWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
+                TeleportEntity.teleportEntityWithProjectile(thrower, this, rayTraceResult, this.teleportDamage, true, true);
             }
         }
         // An Elite pearl lands, which is still being ridden by something (see above)
@@ -161,7 +161,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
             if (this.getEntityWorld().isRemote == false)
             {
-                TeleportEntity.entityTeleportWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
+                TeleportEntity.teleportEntityWithProjectile(entity, this, rayTraceResult, this.teleportDamage, true, true);
             }
         }
 

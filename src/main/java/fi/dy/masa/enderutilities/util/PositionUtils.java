@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class PositionUtils
 {
@@ -736,6 +737,26 @@ public class PositionUtils
         {
             positions.add(new BlockPos(minX, yLevel, z));
         }
+    }
+
+    public static TargetData adjustTargetPosition(TargetData target, Entity entity)
+    {
+        if (target.blockFace < 0)
+        {
+            return target;
+        }
+
+        float widthAdj = entity.width / 2;
+        target.dPosX += target.facing.getFrontOffsetX() * widthAdj;
+        target.dPosZ += target.facing.getFrontOffsetZ() * widthAdj;
+
+        // Targeting the bottom face of a block, adjust the position lower
+        if (target.facing == EnumFacing.DOWN)
+        {
+            target.dPosY -= entity.height;
+        }
+
+        return target;
     }
 
     /**

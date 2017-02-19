@@ -72,7 +72,7 @@ public class EntityEventHandler
                         EntityUtils.applyMobPersistence((EntityLiving)event.getTarget());
                     }
 
-                    if (isRemote || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack) != null)
+                    if (isRemote || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack, true, true) != null)
                     {
                         event.setCanceled(true);
                     }
