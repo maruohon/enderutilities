@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -252,37 +253,55 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
     }
 
-    public String getEntityName(ItemStack containerStack, int index)
+    @Nullable
+    private String getEntityName(ItemStack containerStack, int index, boolean useDisplayNameFormatting)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
+
         if (moduleStack == null)
         {
             return null;
         }
 
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
+
         if (tagList != null && tagList.tagCount() > index)
         {
-            NBTTagCompound tag = tagList.getCompoundTagAt(index);
-            if (tag != null)
-            {
-                String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
-                String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+            return this.getNameForEntityFromTag(tagList.getCompoundTagAt(index), useDisplayNameFormatting);
+        }
 
-                String name = tag.getString("CustomName");
-                if (tag.hasKey("id", Constants.NBT.TAG_STRING))
+        return null;
+    }
+
+    @Nullable
+    private String getNameForEntityFromTag(NBTTagCompound tag, boolean useDisplayNameFormatting)
+    {
+        if (tag != null)
+        {
+            String pre = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+            String rst = TextFormatting.RESET.toString() + (useDisplayNameFormatting ? TextFormatting.WHITE.toString() : TextFormatting.GRAY.toString());
+
+            String name = tag.getString("CustomName");
+
+            if (tag.hasKey("id", Constants.NBT.TAG_STRING))
+            {
+                String id = tag.getString("id");
+                String translated = I18n.format("entity." + id + ".name");
+
+                if (id.equals(translated) == false)
                 {
-                    String id = tag.getString("id");
-                    String translated = I18n.format("entity." + id + ".name");
-                    if (id.equals(translated) == false)
-                    {
-                        id = translated;
-                    }
-                    name = name.length() > 0 ? pre + name + rst + " (" + id + ")" : id;
+                    id = translated;
                 }
 
-                return name;
+                name = name.length() > 0 ? pre + name + rst + " (" + id + ")" : id;
+
+                if (tag.hasKey("Health"))
+                {
+                    name += String.format(" (%.1f HP)", tag.getFloat("Health"));
+                }
             }
+
+            return name;
         }
 
         return null;
@@ -347,10 +366,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             int index = this.getCurrentIndex(stack);
             int count = this.getStoredEntityCount(stack);
             str = str + " E: " + preGreen + (index + 1) + "/" + count + rst;
-            String entity = this.getEntityName(stack, index);
-            if (entity != null)
+            String entityName = this.getEntityName(stack, index, true);
+
+            if (entityName != null)
             {
-                str = str + " -> " + entity;
+                str = str + " -> " + entityName;
             }
         }
 
@@ -414,26 +434,15 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 }
 
                 int current = this.getCurrentIndex(stack);
+
                 for (int i = 0; i < tagList.tagCount(); i++)
                 {
                     NBTTagCompound tag = tagList.getCompoundTagAt(i);
+
                     if (tag != null)
                     {
-                        String pre = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
-                        String name = tag.getString("CustomName");
-
-                        if (tag.hasKey("id", Constants.NBT.TAG_STRING))
-                        {
-                            String id = tag.getString("id");
-                            String translated = I18n.format("entity." + id + ".name");
-                            if (id.equals(translated) == false)
-                            {
-                                id = translated;
-                            }
-                            name = name.length() > 0 ? pre + name + rst + " (" + id + ")" : id;
-                        }
-
-                        name = (i == current) ? "-> " + name : "   " + name;
+                        String name = this.getNameForEntityFromTag(tag, false);
+                        name = (i == current) ? "=> " + name : "   " + name;
                         list.add(name);
                     }
                 }
