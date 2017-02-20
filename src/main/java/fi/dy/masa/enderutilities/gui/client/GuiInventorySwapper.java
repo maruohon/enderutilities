@@ -65,7 +65,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 6, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 30, 139, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 58, 139, 0x404040);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
         {
             this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 102, 18, 18, 18);
             // Draw the selection border around the selected memory card module's selection button
-            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY - 13, 120, 0, 10, 10);
+            this.drawTexturedModalRect(this.firstModuleSlotX + 3 + index * 18, this.firstModuleSlotY + 18, 120, 0, 10, 10);
         }
 
         ItemStack stack = this.containerInvSwapper.getContainerItem();
@@ -111,7 +111,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
             ItemInventorySwapper swapper = (ItemInventorySwapper) stack.getItem();
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET_SELECTION);
-            this.drawTexturedModalRect(this.firstInvSlotX + 93 + sel * 18, this.firstInvSlotY - 29, 120, 0, 10, 10);
+            this.drawTexturedModalRect(this.firstInvSlotX + 111 + sel * 12, this.firstInvSlotY - 29, 120, 0, 10, 10);
 
             // Draw the colored background for the selected/enabled inventory slots
             final long mask = swapper.getEnabledSlotsMask(stack);
@@ -174,14 +174,14 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
         // Add the Memory Card selection buttons
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY - 12,
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19,
                     8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         // Add the preset selection buttons
         for (int i = 0; i < ItemInventorySwapper.NUM_PRESETS; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_PRESET + i, this.firstInvSlotX + 94 + i * 18, this.firstInvSlotY - 28,
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_PRESET + i, this.firstInvSlotX + 112 + i * 12, this.firstInvSlotY - 28,
                     8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
 
@@ -208,11 +208,11 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
                 14, 14, 60, 56, this.guiTextureWidgets, 14, 0));
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_LOCKED, this.firstModuleSlotX - 29, this.firstModuleSlotY - 12, 8, 8, 0, 0,
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_LOCKED, this.firstInvSlotX + 1, this.firstInvSlotY - 28, 8, 8, 0, 0,
                 this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.enabled"));
 
         // Cycle mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_CYCLE, this.firstModuleSlotX - 17, this.firstModuleSlotY - 12, 8, 8, 0, 40,
+        this.buttonList.add(new GuiButtonCallback(BTN_ID_CYCLE, this.firstInvSlotX + 13, this.firstInvSlotY - 28, 8, 8, 0, 40,
                 this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.cyclemode"));
     }
 
