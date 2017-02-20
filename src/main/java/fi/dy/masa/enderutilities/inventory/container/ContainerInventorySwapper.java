@@ -2,14 +2,13 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -42,32 +41,10 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         // Player armor slots
         posX = 8;
         posY = 57;
+
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
-
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 39 - i, posX, posY + i * 18)
-            {
-                public int getSlotStackLimit()
-                {
-                    return 1;
-                }
-
-                public boolean isItemValid(ItemStack stack)
-                {
-                    if (stack == null) return false;
-
-                    EntityEquipmentSlot slot = ContainerHandyBag.EQUIPMENT_SLOT_TYPES[slotNum];
-                    return stack.getItem().isValidArmor(stack, slot, ContainerInventorySwapper.this.player);
-                }
-
-                @SideOnly(Side.CLIENT)
-                @Override
-                public String getSlotTexture()
-                {
-                    return ItemArmor.EMPTY_SLOT_NAMES[ContainerHandyBag.EQUIPMENT_SLOT_TYPES[slotNum].getIndex()];
-                }
-            });
+            this.addSlotToContainer(new SlotItemHandlerArmor(this, this.playerInv, i, 39 - i, posX, posY + i * 18));
         }
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
@@ -103,30 +80,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
-
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 39 - i, posX + i * 18, posY)
-            {
-                public int getSlotStackLimit()
-                {
-                    return 1;
-                }
-
-                public boolean isItemValid(ItemStack stack)
-                {
-                    if (stack == null) return false;
-
-                    EntityEquipmentSlot slot = ContainerHandyBag.EQUIPMENT_SLOT_TYPES[slotNum];
-                    return stack.getItem().isValidArmor(stack, slot, ContainerInventorySwapper.this.player);
-                }
-
-                @SideOnly(Side.CLIENT)
-                @Override
-                public String getSlotTexture()
-                {
-                    return ItemArmor.EMPTY_SLOT_NAMES[ContainerHandyBag.EQUIPMENT_SLOT_TYPES[slotNum].getIndex()];
-                }
-            });
+            this.addSlotToContainer(new SlotItemHandlerArmor(this, this.inventory, i, 39 - i, posX + i * 18, posY));
         }
 
         // Inventory Swapper's Off Hand slot

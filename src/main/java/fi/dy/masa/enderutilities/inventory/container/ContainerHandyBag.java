@@ -4,17 +4,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
@@ -63,32 +61,10 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
 
         // Player armor slots
         posY = 15;
+
         for (int i = 0; i < 4; i++)
         {
-            final int slotNum = i;
-
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 39 - i, posX, posY + i * 18)
-            {
-                public int getSlotStackLimit()
-                {
-                    return 1;
-                }
-
-                public boolean isItemValid(ItemStack stack)
-                {
-                    if (stack == null) return false;
-
-                    EntityEquipmentSlot slot = EQUIPMENT_SLOT_TYPES[slotNum];
-                    return stack.getItem().isValidArmor(stack, slot, ContainerHandyBag.this.player);
-                }
-
-                @SideOnly(Side.CLIENT)
-                @Override
-                public String getSlotTexture()
-                {
-                    return ItemArmor.EMPTY_SLOT_NAMES[EQUIPMENT_SLOT_TYPES[slotNum].getIndex()];
-                }
-            });
+            this.addSlotToContainer(new SlotItemHandlerArmor(this, this.playerInv, i, 39 - i, posX, posY + i * 18));
         }
 
         this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
