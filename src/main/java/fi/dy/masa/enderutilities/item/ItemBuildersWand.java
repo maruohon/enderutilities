@@ -435,12 +435,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
     }
 
-    @Override
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
     private NBTTagCompound getModeTag(ItemStack stack, Mode mode)
     {
         NBTTagCompound configsTag = NBTUtils.getCompoundTag(stack, WRAPPER_TAG_NAME, TAG_NAME_CONFIGS, true);

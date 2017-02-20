@@ -43,7 +43,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
 
     public ItemEnderBow()
     {
-        super();
+        super("enderutilities.tooltips.itemlocationboundmodular");
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
         this.setNoRepair();

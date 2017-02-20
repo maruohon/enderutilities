@@ -37,7 +37,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
     public ItemEnderPorter()
     {
-        super();
+        super("enderutilities.tooltips.itemlocationboundmodular");
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);

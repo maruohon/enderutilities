@@ -13,7 +13,7 @@ public class ItemEnderLasso extends ItemLocationBoundModular
 
     public ItemEnderLasso()
     {
-        super();
+        super("enderutilities.tooltips.itemlocationboundmodular");
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_LASSO);

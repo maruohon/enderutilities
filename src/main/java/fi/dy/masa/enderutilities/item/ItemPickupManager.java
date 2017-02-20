@@ -158,13 +158,6 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
     public static NBTTagCompound getSelectedPresetTag(ItemStack stack, boolean create)
     {
         if (stack == null)

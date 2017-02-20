@@ -246,13 +246,6 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
     public void restockPlayerInventory(ItemStack stack, World world, EntityPlayer player)
     {
         RestockMode mode = RestockMode.fromStack(stack);

@@ -240,13 +240,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         return oldStack.equals(newStack) == false;
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        addTooltips(super.getUnlocalizedName(stack) + ".tooltips", list, verbose);
-    }
-
     /**
      * Checks if the player can edit the target block
      */

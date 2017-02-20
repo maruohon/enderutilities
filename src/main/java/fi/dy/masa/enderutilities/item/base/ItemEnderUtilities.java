@@ -21,6 +21,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class ItemEnderUtilities extends Item
 {
     protected String name;
+    protected String commonTooltip = null;
     protected boolean enabled = true;
 
     public ItemEnderUtilities()
@@ -28,6 +29,11 @@ public class ItemEnderUtilities extends Item
         super();
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
         this.addItemOverrides();
+    }
+
+    public ItemEnderUtilities(String commonTooltip)
+    {
+        this.commonTooltip = commonTooltip;
     }
 
     @Override
@@ -129,6 +135,11 @@ public class ItemEnderUtilities extends Item
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+
+        if (this.commonTooltip != null)
+        {
+            addTooltips(this.commonTooltip, list, verbose);
+        }
     }
 
     public boolean isEnabled()

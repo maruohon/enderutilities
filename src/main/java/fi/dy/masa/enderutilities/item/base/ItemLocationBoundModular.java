@@ -13,8 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
@@ -28,6 +26,16 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
+    public ItemLocationBoundModular()
+    {
+        super();
+    }
+
+    public ItemLocationBoundModular(String commonTooltip)
+    {
+        super(commonTooltip);
+    }
+
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
@@ -186,14 +194,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
             }
         }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
-    {
-        super.addTooltips(stack, list, verbose);
-        addTooltips("enderutilities.tooltips.itemlocationboundmodular", list, verbose);
     }
 
     @Override

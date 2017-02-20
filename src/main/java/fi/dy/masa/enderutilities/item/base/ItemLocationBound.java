@@ -29,6 +29,11 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         super();
     }
 
+    public ItemLocationBound(String commonTooltip)
+    {
+        super(commonTooltip);
+    }
+
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
