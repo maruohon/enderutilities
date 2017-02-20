@@ -3,17 +3,16 @@ package fi.dy.masa.enderutilities.network.message;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import io.netty.buffer.ByteBuf;
 
 public class MessageOpenGui implements IMessage
 {
@@ -86,10 +85,15 @@ public class MessageOpenGui implements IMessage
             {
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
                     ItemStack stack = ItemHandyBag.getOpenableBag(player);
+
                     if (stack != null)
                     {
-                        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimension);
-                        player.openGui(EnderUtilities.instance, message.guiId, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+                        // These two lines are to fix the UUID being missing the first time the GUI opens,
+                        // if the item is grabbed from the creative inventory or from JEI or from /give
+                        NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+                        player.openContainer.detectAndSendChanges();
+                        player.openGui(EnderUtilities.instance, message.guiId, player.getEntityWorld(),
+                                (int)player.posX, (int)player.posY, (int)player.posZ);
                     }
                     break;
                 default:

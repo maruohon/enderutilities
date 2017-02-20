@@ -84,22 +84,15 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         super.onUpdate(stack, world, entity, slot, isCurrent);
 
-        if (entity instanceof EntityPlayer)
+        if (world.isRemote == false && entity instanceof EntityPlayer)
         {
-            if (world.isRemote == false)
-            {
-                // These two lines are to fix the UUID being missing the first time the GUI opens,
-                // if the item is grabbed from the creative inventory or from JEI or from /give
-                NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
-                ((EntityPlayer) entity).openContainer.detectAndSendChanges();
-            }
-
             this.restockPlayerInventory(stack, world, (EntityPlayer) entity);
         }
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand,
+            EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking())
@@ -117,7 +110,13 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         if (world.isRemote == false)
         {
-            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+            // These two lines are to fix the UUID being missing the first time the GUI opens,
+            // if the item is grabbed from the creative inventory or from JEI or from /give
+            NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
+            player.openContainer.detectAndSendChanges();
+
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK, world,
+                    (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
