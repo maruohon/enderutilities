@@ -8,7 +8,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -61,17 +60,16 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-
         if (worldIn.isRemote == false)
         {
             TileEntity te = worldIn.getTileEntity(pos);
+
             if (te instanceof TileEntityEnergyBridge)
             {
-                ((TileEntityEnergyBridge)te).setType(state.getBlock().getMetaFromState(state));
-                ((TileEntityEnergyBridge)te).tryAssembleMultiBlock(worldIn, pos);
+                ((TileEntityEnergyBridge) te).setType(state.getValue(TYPE).getMeta());
+                ((TileEntityEnergyBridge) te).tryAssembleMultiBlock(worldIn, pos);
             }
         }
     }
@@ -134,14 +132,16 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
     public static enum EnumMachineType implements IStringSerializable
     {
-        RESONATOR (ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR),
-        RECEIVER (ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER),
-        TRANSMITTER (ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER);
+        RESONATOR   (0, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR),
+        RECEIVER    (1, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER),
+        TRANSMITTER (2, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER);
 
         private final String name;
+        private final int meta;
 
-        private EnumMachineType(String name)
+        private EnumMachineType(int meta, String name)
         {
+            this.meta = meta;
             this.name = name;
         }
 
@@ -157,7 +157,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
         public int getMeta()
         {
-            return this.ordinal();
+            return this.meta;
         }
 
         public static EnumMachineType fromMeta(int meta)
