@@ -83,7 +83,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         super.handleUpdateTag(tag);
     }
 
-    protected void setActiveState(boolean isActive)
+    private void setActiveState(boolean isActive)
     {
         this.isActive = isActive;
         IBlockState state = this.getWorld().getBlockState(this.getPos());
@@ -95,7 +95,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return this.isActive;
     }
 
-    protected void setPoweredState(boolean value)
+    private void setPoweredState(boolean value)
     {
         if (this.isPowered != value)
         {
@@ -139,7 +139,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         this.tryAssembleMultiBlock(worldIn, pos, this.getType());
     }
 
-    protected void tryAssembleMultiBlock(World worldIn, BlockPos pos, Type type)
+    private void tryAssembleMultiBlock(World worldIn, BlockPos pos, Type type)
     {
         List<BlockPos> positions = new ArrayList<BlockPos>();
 
@@ -168,7 +168,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
-    protected void activateMultiBlock(World worldIn, List<BlockPos> positions)
+    private void activateMultiBlock(World worldIn, List<BlockPos> positions)
     {
         for (int i = 0; i < 5; i++)
         {
@@ -176,7 +176,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
-    protected boolean getBlockPositions(World worldIn, BlockPos pos, Type type, List<BlockPos> positions)
+    private boolean getBlockPositions(World worldIn, BlockPos pos, Type type, List<BlockPos> positions)
     {
         positions.clear();
 
@@ -215,7 +215,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return true;
     }
 
-    protected boolean isStructureValid(World world, BlockPos pos, Type type, List<BlockPos> positions)
+    private boolean isStructureValid(World world, BlockPos pos, Type type, List<BlockPos> positions)
     {
         Block blockEb = EnderUtilitiesBlocks.blockEnergyBridge;
         Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
@@ -255,7 +255,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    protected boolean isObstructedQuadrant(World world, BlockPos basePos, EnumFacing facing, BlockPos ... positions)
+    private boolean isObstructedQuadrant(World world, BlockPos basePos, EnumFacing facing, BlockPos ... positions)
     {
         EnumFacing dirNext = facing.rotateY(); // the direction 90 degrees clock wise
 
@@ -274,7 +274,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    protected boolean isObstructed(World worldIn, Block blockEb, Type type, List<BlockPos> positions)
+    private boolean isObstructed(World worldIn, Block blockEb, Type type, List<BlockPos> positions)
     {
         if (positions.size() != 6)
         {
@@ -369,7 +369,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         this.disassembleMultiblock(worldIn, pos, this.getType());
     }
 
-    public void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
+    private void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
     {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te == null || (te instanceof TileEntityEnergyBridge) == false)
@@ -398,26 +398,23 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         this.disableMultiBlock(worldIn, type, positions);
     }
 
-    protected void disableMultiBlock(World worldIn, Type type, List<BlockPos> blockPositions)
+    private void disableMultiBlock(World worldIn, Type type, List<BlockPos> blockPositions)
     {
         if (blockPositions == null || blockPositions.size() != 6)
         {
             return;
         }
 
-        Block blockEb = EnderUtilitiesBlocks.blockEnergyBridge;
-        Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
-
-        this.setStateWithCheck(worldIn, blockPositions.get(0), blockEb, type, classTEEB, null, false);
-        this.setStateWithCheck(worldIn, blockPositions.get(1), blockEb, Type.RESONATOR, classTEEB, EnumFacing.SOUTH, false);
-        this.setStateWithCheck(worldIn, blockPositions.get(2), blockEb, Type.RESONATOR, classTEEB, EnumFacing.NORTH, false);
-        this.setStateWithCheck(worldIn, blockPositions.get(3), blockEb, Type.RESONATOR, classTEEB, EnumFacing.WEST, false);
-        this.setStateWithCheck(worldIn, blockPositions.get(4), blockEb, Type.RESONATOR, classTEEB, EnumFacing.EAST, false);
+        for (int i = 0; i < 5; i++)
+        {
+            BlockPos pos = blockPositions.get(i);
+            this.setState(worldIn, pos, false);
+        }
 
         EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0), worldIn.provider.getDimension());
     }
 
-    protected void setState(World worldIn, BlockPos pos, boolean state)
+    private void setState(World worldIn, BlockPos pos, boolean state)
     {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
@@ -426,16 +423,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
-    protected void setStateWithCheck(World worldIn, BlockPos pos, Block requiredBlock, Type type, Class <? extends TileEntity> TEClass,
-            EnumFacing requiredDirection, boolean state)
-    {
-        if (BlockUtils.blockMatches(worldIn, pos, requiredBlock, type.getMeta(), TEClass, requiredDirection))
-        {
-            ((TileEntityEnergyBridge)worldIn.getTileEntity(pos)).setActiveState(state);
-        }
-    }
-
-    protected void updatePoweredState(World worldIn, List<BlockPos> positions)
+    private void updatePoweredState(World worldIn, List<BlockPos> positions)
     {
         if (positions == null || positions.size() != 6)
         {
@@ -451,7 +439,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
-    protected void updatePoweredState(World world, BlockPos pos, boolean value)
+    private void updatePoweredState(World world, BlockPos pos, boolean value)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
@@ -461,7 +449,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     }
 
     @SideOnly(Side.CLIENT)
-    protected void getBeamEndPoints()
+    private void getBeamEndPoints()
     {
         int posX = this.getPos().getX();
         int posY = this.getPos().getY();
