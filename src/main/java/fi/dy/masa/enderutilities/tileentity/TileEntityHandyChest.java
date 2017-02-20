@@ -55,7 +55,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     protected int actionMode;
     protected int lockedModules;
     protected int invSize;
-    protected final Map<UUID, Long> clickTimes;
+    protected final Map<UUID, Long> clickTimes = new HashMap<UUID, Long>();
 
     public TileEntityHandyChest()
     {
@@ -63,7 +63,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(INV_ID_MEMORY_CARDS, 4, 1, false, "Items", this);
         this.itemHandlerMemoryCards = new ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
-        this.clickTimes = new HashMap<UUID, Long>();
     }
 
     private void initStorage(int invSize, boolean isRemote)

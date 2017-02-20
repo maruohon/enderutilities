@@ -62,9 +62,9 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         NBTTagCompound nbt = stack.getTagCompound();
 
         // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
-        if (nbt != null && nbt.hasKey("BlockEntityData", Constants.NBT.TAG_COMPOUND) == true)
+        if (nbt != null && nbt.hasKey("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
         {
-            teeu.readFromNBTCustom(nbt.getCompoundTag("BlockEntityData"));
+            teeu.readFromNBTCustom(nbt.getCompoundTag("BlockEntityTag"));
         }
         else
         {
@@ -75,11 +75,14 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 
             if (teeu instanceof TileEntityEnderUtilitiesInventory && stack.hasDisplayName())
             {
-                ((TileEntityEnderUtilitiesInventory)teeu).setInventoryName(stack.getDisplayName());
+                ((TileEntityEnderUtilitiesInventory) teeu).setInventoryName(stack.getDisplayName());
             }
         }
 
         teeu.setFacing(this.getPlacementFacing(worldIn, pos, state, placer, stack));
+
+        // This is to fix the modular inventories not loading properly when placed from a Ctrl + pick-blocked stack
+        teeu.onLoad();
     }
 
     @Override

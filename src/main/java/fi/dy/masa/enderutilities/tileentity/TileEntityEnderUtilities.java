@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.tileentity;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -56,9 +57,9 @@ public class TileEntityEnderUtilities extends TileEntity
         this.facing = rotationIn.rotate(this.facing);
     }
 
-    public void setOwner(EntityPlayer player)
+    public void setOwner(Entity entity)
     {
-        this.ownerData = player != null ? new OwnerData(player) : null;
+        this.ownerData = entity != null ? new OwnerData(entity) : null;
     }
 
     public void setIsPublic(boolean isPublic)
