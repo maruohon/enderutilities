@@ -217,7 +217,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         }
         else if (button.id >= 4 && button.id < 10)
         {
-            if (isShiftKeyDown() == true)
+            if (isShiftKeyDown())
             {
                 PacketHandler.INSTANCE.sendToServer(
                         new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
@@ -230,7 +230,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                         ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_MOVE_ITEMS, button.id - 4));
             }
         }
-        else if (button.id == BTN_ID_SORT_CHEST && button.id == BTN_ID_SORT_CHEST)
+        else if (button.id >= BTN_ID_SORT_CHEST && button.id <= BTN_ID_SORT_PLAYER)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tehc.getWorld().provider.getDimension(), this.tehc.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityHandyChest.GUI_ACTION_SORT_ITEMS, button.id - BTN_ID_SORT_CHEST));
