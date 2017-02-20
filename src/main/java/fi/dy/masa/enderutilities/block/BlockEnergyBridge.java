@@ -8,6 +8,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -60,8 +61,10 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+
         if (worldIn.isRemote == false)
         {
             TileEntity te = worldIn.getTileEntity(pos);
@@ -69,7 +72,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
             if (te instanceof TileEntityEnergyBridge)
             {
                 ((TileEntityEnergyBridge) te).setType(state.getValue(TYPE).getMeta());
-                ((TileEntityEnergyBridge) te).tryAssembleMultiBlock(worldIn, pos);
+                ((TileEntityEnergyBridge) te).tryAssembleMultiBlock();
             }
         }
     }
@@ -80,9 +83,10 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
         if (worldIn.isRemote == false)
         {
             TileEntity te = worldIn.getTileEntity(pos);
+
             if (te instanceof TileEntityEnergyBridge)
             {
-                ((TileEntityEnergyBridge)te).disassembleMultiblock(worldIn, pos);
+                ((TileEntityEnergyBridge) te).disassembleMultiblock();
             }
         }
 

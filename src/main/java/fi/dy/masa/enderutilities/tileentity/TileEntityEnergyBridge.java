@@ -1,8 +1,7 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
@@ -15,17 +14,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements ITickable
 {
+    private static final BlockInfo[] STRUCTURE_TRANSMITTER = new BlockInfo[5];
+    private static final BlockInfo[] STRUCTURE_RECEIVER = new BlockInfo[5];
     protected boolean isActive;
     protected boolean isPowered;
     protected int timer;
-    protected int blockType;
+    protected Type type = Type.RESONATOR;
 
     @SideOnly(Side.CLIENT)
     public int beamYMin;
@@ -33,6 +35,27 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     public int beamYMax;
     @SideOnly(Side.CLIENT)
     AxisAlignedBB renderBB;
+
+    static
+    {
+        IBlockState defaultState = EnderUtilitiesBlocks.blockEnergyBridge.getDefaultState();
+        IProperty<BlockEnergyBridge.EnumMachineType> type = BlockEnergyBridge.TYPE;
+        BlockEnergyBridge.EnumMachineType transmitter = BlockEnergyBridge.EnumMachineType.TRANSMITTER;
+        BlockEnergyBridge.EnumMachineType receiver = BlockEnergyBridge.EnumMachineType.RECEIVER;
+        BlockEnergyBridge.EnumMachineType resonator = BlockEnergyBridge.EnumMachineType.RESONATOR;
+
+        STRUCTURE_TRANSMITTER[0] = new BlockInfo(BlockPos.ORIGIN.up(3),    defaultState.withProperty(type, transmitter).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
+        STRUCTURE_TRANSMITTER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.SOUTH));
+        STRUCTURE_TRANSMITTER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
+        STRUCTURE_TRANSMITTER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.WEST));
+        STRUCTURE_TRANSMITTER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.EAST));
+
+        STRUCTURE_RECEIVER[0] = new BlockInfo(BlockPos.ORIGIN,          defaultState.withProperty(type, receiver).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
+        STRUCTURE_RECEIVER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.SOUTH));
+        STRUCTURE_RECEIVER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
+        STRUCTURE_RECEIVER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.WEST));
+        STRUCTURE_RECEIVER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.EAST));
+    }
 
     public TileEntityEnergyBridge()
     {
@@ -47,7 +70,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
         byte f = nbt.getByte("Flags");
         this.isActive = (f & 0x80) != 0;
-        this.blockType = f & 0x03;
+        this.isPowered = (f & 0x40) != 0;
+        this.type = Type.fromMeta(f & 0x03);
     }
 
     @Override
@@ -55,7 +79,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Flags", (byte)((this.isActive ? 0x80 : 0x00) | this.blockType));
+        nbt.setByte("Flags", (byte)((this.isActive ? 0x80 : 0x00) | (this.isPowered ? 0x40 : 0x00) | this.type.getMeta()));
 
         return nbt;
     }
@@ -65,7 +89,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         nbt = super.getUpdatePacketTag(nbt);
 
-        nbt.setByte("f", (byte)((this.isPowered ? 0x40 : 0x00) | (this.isActive ? 0x80 : 0x00) | this.blockType));
+        nbt.setByte("f", (byte)((this.isActive ? 0x80 : 0x00) | (this.isPowered ? 0x40 : 0x00) | this.type.getMeta()));
 
         return nbt;
     }
@@ -77,10 +101,23 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
         this.isActive = ((f & 0x80) != 0);
         this.isPowered = ((f & 0x40) != 0);
-        this.blockType = f & 0x03;
+        this.type = Type.fromMeta(f & 0x03);
         this.getBeamEndPoints();
 
         super.handleUpdateTag(tag);
+    }
+
+    @Override
+    public EnumFacing getFacing()
+    {
+        if (this.getType() == Type.RESONATOR)
+        {
+            return super.getFacing();
+        }
+        else
+        {
+            return EnumFacing.NORTH;
+        }
     }
 
     private void setActiveState(boolean isActive)
@@ -112,12 +149,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     public Type getType()
     {
-        return Type.fromMeta(this.blockType);
+        return this.type;
     }
 
     public void setType(int meta)
     {
-        this.blockType = meta;
+        this.type = Type.fromMeta(meta);
     }
 
     @Override
@@ -125,131 +162,105 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         // Master blocks (Transmitter or Receiver) re-validate the multiblock every 5 seconds
 
-        Type type = this.getType();
-        if (this.getWorld().isRemote == false && (type == Type.TRANSMITTER || type == Type.RECEIVER) && ++this.timer >= 100)
+        if (this.getWorld().isRemote == false && this.getType() != Type.RESONATOR && ++this.timer >= 100)
         {
-            this.tryAssembleMultiBlock(this.getWorld(), this.getPos(), type);
+            this.tryAssembleMultiBlock();
             this.timer = 0;
         }
     }
 
-    public void tryAssembleMultiBlock(World worldIn, BlockPos pos)
+    public void tryAssembleMultiBlock()
     {
-        // The End has the transmitter, and in a slightly different position than the receivers are
-        this.tryAssembleMultiBlock(worldIn, pos, this.getType());
-    }
+        World world = this.getWorld();
+        Type masterType = this.getMasterType();
+        BlockPos center = this.getCenterPos();
 
-    private void tryAssembleMultiBlock(World worldIn, BlockPos pos, Type type)
-    {
-        List<BlockPos> positions = new ArrayList<BlockPos>();
-
-        if (this.getBlockPositions(worldIn, pos, type, positions) == false || positions.size() != 6)
-        {
-            return;
-        }
-
-        Type masterType = worldIn.provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
-        boolean isValid = this.isStructureValid(worldIn, pos, masterType, positions);
+        boolean isValid = this.isStructureValid(world, center, masterType);
 
         if (isValid)
         {
             if (this.isActive == false)
             {
-                this.activateMultiBlock(worldIn, positions);
-                EnergyBridgeTracker.addBridgeLocation(positions.get(0), worldIn.provider.getDimension());
+                this.activateMultiBlock(world, center, masterType);
+                EnergyBridgeTracker.addBridgeLocation(this.getMasterPos(center), world.provider.getDimension());
             }
 
-            this.updatePoweredState(worldIn, positions);
+            this.updatePoweredState(world, center, masterType);
         }
         // This gets called from the periodic validation via update()
         else if (this.isActive)
         {
-            this.disassembleMultiblock(worldIn, pos, type);
+            this.disableMultiBlock(world, center, masterType);
         }
     }
 
-    private void activateMultiBlock(World worldIn, List<BlockPos> positions)
+    private BlockPos getCenterPos()
     {
-        for (int i = 0; i < 5; i++)
+        switch (this.getType())
         {
-            this.setState(worldIn, positions.get(i), true);
+            case TRANSMITTER: return this.getPos().down(3);
+            case RECEIVER: return this.getPos();
+            case RESONATOR: return this.getPos().offset(this.getFacing(), 3);
         }
+
+        return this.getPos();
     }
 
-    private boolean getBlockPositions(World worldIn, BlockPos pos, Type type, List<BlockPos> positions)
+    private Type getMasterType()
     {
-        positions.clear();
-
-        TileEntity te = worldIn.getTileEntity(pos);
-
-        if ((te instanceof TileEntityEnergyBridge) == false)
-        {
-            return false;
-        }
-
-        // position of the middle block in the y-plane of the resonators
-        BlockPos posResonatorBase = pos;
-        BlockPos posMaster = pos;
-        EnumFacing facing = ((TileEntityEnergyBridge)te).getFacing();
-
-        int yOffset = type == Type.TRANSMITTER ? 3 : 0;
-
-        // The given location is a resonator, not the master block; get the master block's location
-        if (type == Type.RESONATOR)
-        {
-            posMaster = posMaster.add(0, yOffset, 0).offset(facing, 3);
-            posResonatorBase = posResonatorBase.offset(facing, 3);
-        }
-        else
-        {
-            posResonatorBase = posResonatorBase.add(0, -yOffset, 0);
-        }
-
-        positions.add(posMaster);
-        positions.add(posResonatorBase.offset(EnumFacing.NORTH, 3));
-        positions.add(posResonatorBase.offset(EnumFacing.SOUTH, 3));
-        positions.add(posResonatorBase.offset(EnumFacing.EAST, 3));
-        positions.add(posResonatorBase.offset(EnumFacing.WEST, 3));
-        positions.add(posResonatorBase);
-
-        return true;
+        return this.getWorld().provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
     }
 
-    private boolean isStructureValid(World world, BlockPos pos, Type type, List<BlockPos> positions)
+    private BlockPos getMasterPos(BlockPos center)
     {
-        Block blockEb = EnderUtilitiesBlocks.blockEnergyBridge;
-        Class<TileEntityEnergyBridge> classTEEB = TileEntityEnergyBridge.class;
+        return this.getWorld().provider.getDimension() == 1 ? center.up(3) : center;
+    }
+
+    private BlockInfo[] getStructure(Type masterType)
+    {
+        return masterType == Type.TRANSMITTER ? STRUCTURE_TRANSMITTER : STRUCTURE_RECEIVER;
+    }
+
+    private boolean isStructureValid(World world, BlockPos center, Type masterType)
+    {
+        BlockInfo[] structure = this.getStructure(masterType);
         boolean isValid = false;
 
-        if (BlockUtils.blockMatches(world, positions.get(0), blockEb, type.getMeta(), classTEEB, null) &&
-            BlockUtils.blockMatches(world, positions.get(1), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.SOUTH) &&
-            BlockUtils.blockMatches(world, positions.get(2), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.NORTH) &&
-            BlockUtils.blockMatches(world, positions.get(3), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.WEST) &&
-            BlockUtils.blockMatches(world, positions.get(4), blockEb, Type.RESONATOR.getMeta(), classTEEB, EnumFacing.EAST))
+        for (BlockInfo info : structure)
         {
-            if (type != Type.TRANSMITTER)
+            BlockPos posTmp = center.add(info.getPos());
+            IBlockState state = world.getBlockState(posTmp);
+
+            if (state.getBlock() != EnderUtilitiesBlocks.blockEnergyBridge ||
+                state.getActualState(world, posTmp).withProperty(BlockEnergyBridge.ACTIVE, false) != info.getBlockState())
+            {
+                return false;
+            }
+        }
+
+        if (masterType == Type.TRANSMITTER)
+        {
+            double xd = center.getX();
+            double yd = center.getY();
+            double zd = center.getZ();
+            double d = 1.0d;
+            List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class,
+                    new AxisAlignedBB(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
+
+            if (list.size() >= 1)
             {
                 isValid = true;
             }
-            else
-            {
-                double xd = positions.get(5).getX();
-                double yd = positions.get(5).getY();
-                double zd = positions.get(5).getZ();
-                double d = 1.0d;
-                List<EntityEnderCrystal> list = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(xd - d, yd - d, zd - d, xd + d, yd + d, zd + d));
-
-                if (list.size() >= 1)
-                {
-                    isValid = true;
-                }
-            }
+        }
+        else
+        {
+            isValid = true;
         }
 
         // Our machine blocks are all in the right configuration, now just check that there are no other obstructing blocks in the area
         if (isValid)
         {
-            return this.isObstructed(world, blockEb, type, positions) == false;
+            return this.isObstructed(world, center, masterType) == false;
         }
 
         return false;
@@ -274,15 +285,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    private boolean isObstructed(World worldIn, Block blockEb, Type type, List<BlockPos> positions)
+    private boolean isObstructed(World world, BlockPos center, Type masterType)
     {
-        if (positions.size() != 6)
-        {
-            return true;
-        }
-
-        BlockPos posMaster = positions.get(0);
-        BlockPos posResonatorMiddle = positions.get(5);
+        BlockPos posMaster = this.getMasterPos(center);
 
         // Block positions in one quadrant of the area that needs to be clear for the resonators, relative to the middle block
         BlockPos positionsToCheck[] = new BlockPos[] {
@@ -295,156 +300,111 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
                                                         new BlockPos(3, 0, 1)
                                                     };
 
-        if (this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.EAST, positionsToCheck) ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.SOUTH, positionsToCheck) ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.WEST, positionsToCheck) ||
-            this.isObstructedQuadrant(worldIn, posResonatorMiddle, EnumFacing.NORTH, positionsToCheck))
+        if (this.isObstructedQuadrant(world, center, EnumFacing.EAST,  positionsToCheck) ||
+            this.isObstructedQuadrant(world, center, EnumFacing.SOUTH, positionsToCheck) ||
+            this.isObstructedQuadrant(world, center, EnumFacing.WEST,  positionsToCheck) ||
+            this.isObstructedQuadrant(world, center, EnumFacing.NORTH, positionsToCheck))
         {
             return true;
         }
 
         // Transmitter
-        if (type == Type.TRANSMITTER)
+        if (masterType == Type.TRANSMITTER)
         {
             // Check the two blocks below the transmitter
-            if (this.isObstructedQuadrant(worldIn, posMaster, EnumFacing.EAST,
-                    new BlockPos[] {new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)}))
+            if (this.isObstructedQuadrant(world, posMaster, EnumFacing.EAST, new BlockPos(0, -1, 0), new BlockPos(0, -2, 0)))
             {
                 return true;
             }
         }
         // Receiver: check the column below the Receiver down to bedrock
-        else
+        else if (this.isVerticalBeamObstructed(world, posMaster.getX(), posMaster.getZ(), posMaster.getY() - 1, 0))
         {
-            BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posMaster.getX(), posMaster.getY() - 1, posMaster.getZ());
-
-            for ( ; pos.getY() >= 0; )
-            {
-                IBlockState state = worldIn.getBlockState(pos);
-
-                if (state.getBlock().isAir(state, worldIn, pos) == false && state.getLightOpacity(worldIn, pos) > 3)
-                {
-                    if (state.getBlock() == Blocks.BEDROCK)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-
-                pos.setY(pos.getY() - 1);
-            }
+            return true;
         }
 
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(posMaster.getX(), posMaster.getY() + 1, posMaster.getZ());
         int top = world.getChunkFromChunkCoords(posMaster.getX() >> 4, posMaster.getZ() >> 4).getTopFilledSegment() + 15;
 
-        // Check the column above the master block up to the top of the world or the first bedrock block
-        for ( ; pos.getY() <= top; )
-        {
-            IBlockState state = worldIn.getBlockState(pos);
+        return this.isVerticalBeamObstructed(world, posMaster.getX(), posMaster.getZ(), posMaster.getY() + 1, top);
+    }
 
-            if (worldIn.isAirBlock(pos) == false && state.getLightOpacity(worldIn, pos) > 3)
+    private boolean isVerticalBeamObstructed(World world, int x, int z, int yStart, int yEnd)
+    {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, yStart, z);
+        int increment = yStart < yEnd ? 1 : -1;
+        yEnd += increment; // Nudge the end by one because we use != for checking it
+
+        // Check that there are no light obstructing blocks before hitting the first bedrock block
+        for ( ; pos.getY() != yEnd; )
+        {
+            IBlockState state = world.getBlockState(pos);
+
+            if (world.isAirBlock(pos) == false && state.getLightOpacity(world, pos) > 3)
             {
-                if (state.getBlock() == Blocks.BEDROCK)
-                {
-                    break;
-                }
-                else
-                {
-                    return true;
-                }
+                return state.getBlock() != Blocks.BEDROCK;
             }
 
-            pos.setY(pos.getY() + 1);
+            pos.setY(pos.getY() + increment);
         }
 
         return false;
     }
 
-    public void disassembleMultiblock(World worldIn, BlockPos pos)
+    public void disassembleMultiblock()
     {
-        this.disassembleMultiblock(worldIn, pos, this.getType());
+        this.disableMultiBlock(this.getWorld(), this.getCenterPos(), this.getMasterType());
     }
 
-    private void disassembleMultiblock(World worldIn, BlockPos pos, Type type)
+    private void activateMultiBlock(World world, BlockPos center, Type masterType)
+    {
+        this.setActiveStateForStructure(world, center, masterType, true);
+    }
+
+    private void disableMultiBlock(World world, BlockPos center, Type masterType)
+    {
+        this.setActiveStateForStructure(world, center, masterType, false);
+        EnergyBridgeTracker.removeBridgeLocation(this.getMasterPos(center), world.provider.getDimension());
+    }
+
+    private void setActiveStateForStructure(World world, BlockPos center, Type masterType, boolean active)
+    {
+        BlockInfo[] structure = this.getStructure(masterType);
+
+        for (BlockInfo info : structure)
+        {
+            this.setActiveState(world, center.add(info.getPos()), active);
+        }
+    }
+
+    private void setActiveState(World worldIn, BlockPos pos, boolean state)
     {
         TileEntity te = worldIn.getTileEntity(pos);
-        if (te == null || (te instanceof TileEntityEnergyBridge) == false)
-        {
-            return;
-        }
 
-        BlockPos posMaster = pos;
-
-        // The given location is a resonator, not the master block; get the master block's location
-        if (type == Type.RESONATOR)
-        {
-            EnumFacing dir = ((TileEntityEnergyBridge)te).getFacing();
-            type = this.getWorld().provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
-            int yOffset = type == Type.TRANSMITTER ? 3 : 0;
-            posMaster = pos.add(0, yOffset, 0).offset(dir, 3);
-        }
-
-        // Get the block position list from the master block
-        List<BlockPos> positions = new ArrayList<BlockPos>();
-        if (this.getBlockPositions(worldIn, posMaster, type, positions) == false)
-        {
-            return;
-        }
-
-        this.disableMultiBlock(worldIn, type, positions);
-    }
-
-    private void disableMultiBlock(World worldIn, Type type, List<BlockPos> blockPositions)
-    {
-        if (blockPositions == null || blockPositions.size() != 6)
-        {
-            return;
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            BlockPos pos = blockPositions.get(i);
-            this.setState(worldIn, pos, false);
-        }
-
-        EnergyBridgeTracker.removeBridgeLocation(blockPositions.get(0), worldIn.provider.getDimension());
-    }
-
-    private void setState(World worldIn, BlockPos pos, boolean state)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityEnergyBridge)
         {
-            ((TileEntityEnergyBridge)te).setActiveState(state);
+            ((TileEntityEnergyBridge) te).setActiveState(state);
         }
     }
 
-    private void updatePoweredState(World worldIn, List<BlockPos> positions)
+    private void updatePoweredState(World world, BlockPos center, Type masterType)
     {
-        if (positions == null || positions.size() != 6)
-        {
-            return;
-        }
-
-        int dim = worldIn.provider.getDimension();
+        BlockInfo[] structure = this.getStructure(masterType);
+        int dim = world.provider.getDimension();
         boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1));
 
-        for (int i = 0; i < 5; ++i)
+        for (BlockInfo info : structure)
         {
-            this.updatePoweredState(worldIn, positions.get(i), powered);
+            this.updatePoweredState(world, center.add(info.getPos()), powered);
         }
     }
 
     private void updatePoweredState(World world, BlockPos pos, boolean value)
     {
         TileEntity te = world.getTileEntity(pos);
+
         if (te instanceof TileEntityEnergyBridge)
         {
-            ((TileEntityEnergyBridge)te).setPoweredState(value);
+            ((TileEntityEnergyBridge) te).setPoweredState(value);
         }
     }
 
@@ -511,21 +471,49 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return this.renderBB != null ? this.renderBB : INFINITE_EXTENT_AABB;
     }
 
+    private static class BlockInfo
+    {
+        private final BlockPos pos;
+        private final IBlockState state;
+
+        public BlockInfo(BlockPos posRelative, IBlockState state)
+        {
+            this.pos = posRelative;
+            this.state = state;
+        }
+
+        public BlockPos getPos()
+        {
+            return this.pos;
+        }
+
+        public IBlockState getBlockState()
+        {
+            return this.state;
+        }
+    }
+
     public enum Type
     {
-        RESONATOR,
-        RECEIVER,
-        TRANSMITTER,
-        INVALID;
+        RESONATOR (0),
+        RECEIVER (1),
+        TRANSMITTER (2);
+
+        private final int meta;
+
+        private Type(int meta)
+        {
+            this.meta = meta;
+        }
 
         public static Type fromMeta(int meta)
         {
-            return meta < values().length ? values()[meta] : INVALID;
+            return meta < values().length ? values()[meta] : RESONATOR;
         }
 
         public int getMeta()
         {
-            return this.ordinal();
+            return this.meta;
         }
     }
 }

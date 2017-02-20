@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerInteractionManager;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -21,9 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
-import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
 public class BlockUtils
 {
@@ -106,39 +103,6 @@ public class BlockUtils
         }
 
         return stack;
-    }
-
-    /**
-     * Check if the block in the world matches the one asked for.
-     * Use OreDictionary.WILDCARD_VALUE for the requiredMeta to ignore block meta.
-     * Use null for the TEClass if the block doesn't have a TileEntity.
-     * If the block has a TE of type TileEntityEnderUtilities but the orientation doesn't matter,
-     * then give ForgeDirection.UNKNOWN as the requiredOrientation.
-     */
-    public static boolean blockMatches(World world, BlockPos pos, Block requiredBlock, int requiredMeta, Class <? extends TileEntity> TEClass, EnumFacing requiredOrientation)
-    {
-        IBlockState iBlockState = world.getBlockState(pos);
-        Block block = iBlockState.getBlock();
-        int meta = block.getMetaFromState(iBlockState);
-        TileEntity te = world.getTileEntity(pos);
-
-        if (block != requiredBlock || (meta != requiredMeta && requiredMeta != OreDictionary.WILDCARD_VALUE))
-        {
-            return false;
-        }
-
-        if (te == null && TEClass == null)
-        {
-            return true;
-        }
-
-        if (te != null && TEClass != null && TEClass.isAssignableFrom(te.getClass()) == true && (requiredOrientation == null
-            || (te instanceof TileEntityEnderUtilities && ((TileEntityEnderUtilities)te).getFacing() == requiredOrientation)))
-        {
-            return true;
-        }
-
-        return false;
     }
 
     /**
