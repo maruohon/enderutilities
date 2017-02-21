@@ -13,7 +13,6 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -134,17 +133,16 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block)
     {
-        if (worldIn.isRemote == true)
+        if (world.isRemote == false)
         {
-            return;
-        }
+            TileEntityEnderElevator te = getTileEntitySafely(world, pos, TileEntityEnderElevator.class);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderElevator)
-        {
-            ((TileEntityEnderElevator) te).onNeighborBlockChange(state, worldIn, pos, blockIn);
+            if (te != null)
+            {
+                te.onNeighborBlockChange(state, world, pos, block);
+            }
         }
     }
 

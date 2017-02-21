@@ -4,7 +4,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -26,13 +25,13 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntityEnderUtilitiesInventory te = getTileEntitySafely(world, pos, TileEntityEnderUtilitiesInventory.class);
 
-        if (te instanceof TileEntityEnderUtilitiesInventory && ((TileEntityEnderUtilitiesInventory) te).getBaseItemHandler() != null)
+        if (te != null && te.getBaseItemHandler() != null)
         {
-            IItemHandler itemHandler = ((TileEntityEnderUtilitiesInventory) te).getBaseItemHandler();
+            IItemHandler itemHandler = te.getBaseItemHandler();
             int numSlots = itemHandler.getSlots();
 
             for (int i = 0; i < numSlots; i++)
@@ -41,33 +40,29 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
 
                 if (stack != null)
                 {
-                    EntityUtils.dropItemStacksInWorld(worldIn, pos, stack, -1, false);
+                    EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, false);
                 }
             }
 
-            worldIn.updateComparatorOutputLevel(pos, this);
+            world.updateComparatorOutputLevel(pos, this);
         }
 
-        worldIn.removeTileEntity(pos);
+        world.removeTileEntity(pos);
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
+            ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote)
-        {
-            return true;
-        }
+        TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderUtilities == false)
+        if (te != null && this.isTileEntityValid(te))
         {
-            return false;
-        }
+            if (world.isRemote == false)
+            {
+                player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
+            }
 
-        if (this.isTileEntityValid(te))
-        {
-            playerIn.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, worldIn, pos.getX(), pos.getY(), pos.getZ());
             return true;
         }
 
@@ -81,16 +76,17 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
     }
 
     @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
+    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN) == false)
+        TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP))
         {
-            return 0;
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+
+            return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
         }
 
-        IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
-
-        return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
+        return 0;
     }
 }

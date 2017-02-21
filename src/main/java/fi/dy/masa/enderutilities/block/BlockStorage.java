@@ -113,66 +113,65 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
     {
-        if (worldIn.isRemote == true)
+        if (world.isRemote == false)
         {
-            return;
-        }
+            TileEntity te = getTileEntitySafely(world, pos, TileEntity.class);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof ITieredStorage)
-        {
-            ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getTier());
+            if (te instanceof ITieredStorage)
+            {
+                ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getTier());
+            }
         }
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote == false && playerIn.capabilities.isCreativeMode == false)
+        if (world.isRemote == false && player.capabilities.isCreativeMode == false)
         {
             switch (state.getValue(TYPE))
             {
                 case MEMORY_CHEST_0:
                 case MEMORY_CHEST_1:
                 case MEMORY_CHEST_2:
-                        TileEntity te = worldIn.getTileEntity(pos);
-                        if (te != null && te instanceof TileEntityMemoryChest)
+                    TileEntityMemoryChest te = getTileEntitySafely(world, pos, TileEntityMemoryChest.class);
+
+                    if (te != null && te instanceof TileEntityMemoryChest)
+                    {
+                        // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
+                        if (te.isUseableByPlayer(player) == false)
                         {
-                            // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
-                            if (((TileEntityMemoryChest) te).isUseableByPlayer(playerIn) == false)
-                            {
-                                playerIn.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by",
-                                        ((TileEntityMemoryChest) te).getOwnerName()));
-                                return false;
-                            }
+                            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by", te.getOwnerName()));
+                            return false;
                         }
+                    }
                     break;
                 default:
             }
         }
 
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @Override
     @Deprecated
     public float getBlockHardness(IBlockState state, World world, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(pos);
-
         switch (state.getValue(TYPE))
         {
             case HANDY_CHEST_0:
             case HANDY_CHEST_1:
             case HANDY_CHEST_2:
             case HANDY_CHEST_3:
-                if (te != null && te instanceof TileEntityHandyChest)
+                TileEntityHandyChest tehc = getTileEntitySafely(world, pos, TileEntityHandyChest.class);
+
+                if (tehc != null)
                 {
                     // If a Handy Chest has any locked memory card slots, then the chest itself shall be unbreakable
-                    if (((TileEntityHandyChest) te).getLockMask() != 0)
+                    if (tehc.getLockMask() != 0)
                     {
                         return -1f;
                     }
@@ -183,10 +182,12 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case MEMORY_CHEST_0:
             case MEMORY_CHEST_1:
             case MEMORY_CHEST_2:
-                if (te != null && te instanceof TileEntityMemoryChest)
+                TileEntityMemoryChest temc = getTileEntitySafely(world, pos, TileEntityMemoryChest.class);
+
+                if (temc != null)
                 {
                     // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
-                    if (((TileEntityMemoryChest) te).isPublic() == false)
+                    if (temc.isPublic() == false)
                     {
                         return -1f;
                     }
@@ -223,19 +224,21 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
     public static enum EnumStorageType implements IStringSerializable
     {
-        MEMORY_CHEST_0 (0, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
-        MEMORY_CHEST_1 (1, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
-        MEMORY_CHEST_2 (2, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
-        HANDY_CHEST_0 (0, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
-        HANDY_CHEST_1 (1, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
-        HANDY_CHEST_2 (2, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
-        HANDY_CHEST_3 (3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        MEMORY_CHEST_0 (0, 0, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        MEMORY_CHEST_1 (1, 1, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        MEMORY_CHEST_2 (2, 2, ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST),
+        HANDY_CHEST_0 (3, 0, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_1 (4, 1, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_2 (5, 2, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        HANDY_CHEST_3 (6, 3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
 
         private final int tier;
         private final String nameBase;
+        private final int meta;
 
-        private EnumStorageType(int tier, String nameBase)
+        private EnumStorageType(int meta, int tier, String nameBase)
         {
+            this.meta = meta;
             this.tier = tier;
             this.nameBase = nameBase;
         }
@@ -257,7 +260,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
         public int getMeta()
         {
-            return this.ordinal();
+            return this.meta;
         }
 
         public static EnumStorageType fromMeta(int meta)

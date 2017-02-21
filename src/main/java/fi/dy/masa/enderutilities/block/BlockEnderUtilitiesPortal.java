@@ -10,7 +10,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
@@ -163,24 +162,23 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
         }
     }
 
-    public void teleportEntity(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void teleportEntity(World world, BlockPos pos, IBlockState state, Entity entity)
     {
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            TileEntity te = worldIn.getTileEntity(pos);
+            TileEntityPortal te = getTileEntitySafely(world, pos, TileEntityPortal.class);
 
-            if (te instanceof TileEntityPortal &&
-                entityIn.getEntityBoundingBox().intersectsWith(state.getBoundingBox(worldIn, pos).offset(pos)))
+            if (te != null && entity.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
             {
-                TargetData target = ((TileEntityPortal) te).getDestination();
+                TargetData target = te.getDestination();
 
                 if (target != null)
                 {
-                    OwnerData owner = ((TileEntityPortal) te).getOwner();
+                    OwnerData owner = te.getOwner();
 
-                    if (owner == null || owner.canAccess(entityIn))
+                    if (owner == null || owner.canAccess(entity))
                     {
-                        TeleportEntity.teleportEntityUsingTarget(entityIn, target, true, true);
+                        TeleportEntity.teleportEntityUsingTarget(entity, target, true, true);
                     }
                 }
             }

@@ -11,7 +11,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -61,36 +60,36 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+        super.onBlockPlacedBy(world, pos, state, placer, stack);
 
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            TileEntity te = worldIn.getTileEntity(pos);
+            TileEntityEnergyBridge te = getTileEntitySafely(world, pos, TileEntityEnergyBridge.class);
 
-            if (te instanceof TileEntityEnergyBridge)
+            if (te != null)
             {
-                ((TileEntityEnergyBridge) te).setType(state.getValue(TYPE).getMeta());
-                ((TileEntityEnergyBridge) te).tryAssembleMultiBlock();
+                te.setType(state.getValue(TYPE).getMeta());
+                te.tryAssembleMultiBlock();
             }
         }
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            TileEntity te = worldIn.getTileEntity(pos);
+            TileEntityEnergyBridge te = getTileEntitySafely(world, pos, TileEntityEnergyBridge.class);
 
-            if (te instanceof TileEntityEnergyBridge)
+            if (te != null)
             {
-                ((TileEntityEnergyBridge) te).disassembleMultiblock();
+                te.disassembleMultiblock();
             }
         }
 
-        super.breakBlock(worldIn, pos, state);
+        super.breakBlock(world, pos, state);
     }
 
     @Override
@@ -106,14 +105,15 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        state = super.getActualState(state, worldIn, pos);
+        state = super.getActualState(state, world, pos);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnergyBridge)
+        TileEntityEnergyBridge te = getTileEntitySafely(world, pos, TileEntityEnergyBridge.class);
+
+        if (te != null)
         {
-            state = state.withProperty(ACTIVE, ((TileEntityEnergyBridge) te).getIsActive());
+            state = state.withProperty(ACTIVE, te.getIsActive());
         }
 
         return state;

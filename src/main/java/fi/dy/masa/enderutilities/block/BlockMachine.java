@@ -75,25 +75,30 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityCreationStation)
+        if (state.getValue(TYPE) == EnumMachineType.CREATION_STATION)
         {
-            // Drop the items from the furnace inventories
-            IItemHandler inv = ((TileEntityCreationStation)te).getFurnaceInventory();
+            TileEntityCreationStation te = getTileEntitySafely(world, pos, TileEntityCreationStation.class);
 
-            for (int i = 0; i < inv.getSlots(); i++)
+            if (te != null)
             {
-                ItemStack stack = inv.getStackInSlot(i);
-                if (stack != null)
+                // Drop the items from the furnace inventories
+                IItemHandler inv = te.getFurnaceInventory();
+
+                for (int i = 0; i < inv.getSlots(); i++)
                 {
-                    EntityUtils.dropItemStacksInWorld(worldIn, pos, stack, -1, true);
+                    ItemStack stack = inv.getStackInSlot(i);
+
+                    if (stack != null)
+                    {
+                        EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
+                    }
                 }
             }
         }
 
-        super.breakBlock(worldIn, pos, state);
+        super.breakBlock(world, pos, state);
     }
 
     @Override
@@ -143,16 +148,18 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
 
     public static enum EnumMachineType implements IStringSerializable
     {
-        ENDER_INFUSER(ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
-        TOOL_WORKSTATION(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
-        CREATION_STATION(ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION),
-        QUICK_STACKER(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        ENDER_INFUSER       (0, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
+        TOOL_WORKSTATION    (1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
+        CREATION_STATION    (2, ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION),
+        QUICK_STACKER       (3, ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
 
         private final String name;
+        private final int meta;
 
-        private EnumMachineType(String name)
+        private EnumMachineType(int meta, String name)
         {
             this.name = name;
+            this.meta = meta;
         }
 
         public String toString()
@@ -167,7 +174,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
 
         public int getMeta()
         {
-            return this.ordinal();
+            return this.meta;
         }
 
         public static EnumMachineType fromMeta(int meta)

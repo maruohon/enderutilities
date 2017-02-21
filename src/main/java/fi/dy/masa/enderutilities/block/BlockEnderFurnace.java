@@ -11,7 +11,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.SoundCategory;
@@ -60,16 +59,16 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     @Override
     public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityEnderFurnace)
+        TileEntityEnderFurnace te = getTileEntitySafely(world, pos, TileEntityEnderFurnace.class);
+
+        if (te != null)
         {
-            TileEntityEnderFurnace teef = (TileEntityEnderFurnace)te;
-            if (teef.isBurningLast == true)
+            if (te.isBurningLast)
             {
                 return 15;
             }
             // No-fuel mode
-            else if (teef.isCookingLast == true)
+            else if (te.isCookingLast)
             {
                 return 7;
             }
@@ -91,18 +90,17 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        state = super.getActualState(state, worldIn, pos);
+        state = super.getActualState(state, world, pos);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityEnderFurnace)
+        TileEntityEnderFurnace te = getTileEntitySafely(world, pos, TileEntityEnderFurnace.class);
+
+        if (te != null)
         {
-            TileEntityEnderFurnace teef = (TileEntityEnderFurnace) te;
-
-            EnumMachineMode mode = teef.isCookingLast == false ? EnumMachineMode.OFF :
-                (teef.isBurningLast == false ? EnumMachineMode.ON_NOFUEL : 
-                    teef.fastMode == true ? EnumMachineMode.ON_FAST : EnumMachineMode.ON_NORMAL);
+            EnumMachineMode mode = te.isCookingLast == false ? EnumMachineMode.OFF :
+                (te.isBurningLast == false ? EnumMachineMode.ON_NOFUEL : 
+                    te.fastMode ? EnumMachineMode.ON_FAST : EnumMachineMode.ON_NORMAL);
 
             state = state.withProperty(MODE, mode);
         }
@@ -111,18 +109,19 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te instanceof TileEntityEnderFurnace)
+        TileEntityEnderFurnace te = getTileEntitySafely(world, pos, TileEntityEnderFurnace.class);
+
+        if (te != null)
         {
-            if (((TileEntityEnderFurnace)te).isBurningLast == true)
+            if (te.isBurningLast)
             {
-                Effects.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
+                Effects.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
 
                 if (rand.nextDouble() < 0.1D)
                 {
-                    worldIn.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
+                    world.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
                             SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
                 }
             }

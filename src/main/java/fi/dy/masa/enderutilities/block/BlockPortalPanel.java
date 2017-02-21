@@ -11,7 +11,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
@@ -108,36 +107,37 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            int id = this.getTargetId(pos, state.getValue(FACING), playerIn);
+            int id = this.getTargetId(pos, state.getValue(FACING), player);
 
             if (id >= 0 && id <= 8)
             {
-                TileEntity te = worldIn.getTileEntity(pos);
-                if (te instanceof TileEntityPortalPanel)
+                TileEntityPortalPanel te = getTileEntitySafely(world, pos, TileEntityPortalPanel.class);
+
+                if (te != null)
                 {
                     if (id == 8)
                     {
-                        ((TileEntityPortalPanel) te).tryTogglePortal();
+                        te.tryTogglePortal();
                     }
                     else
                     {
-                        ((TileEntityPortalPanel) te).setActiveTargetId(id);
-                        worldIn.notifyBlockUpdate(pos, state, state, 3);
+                        te.setActiveTargetId(id);
+                        world.notifyBlockUpdate(pos, state, state, 3);
                     }
 
-                    worldIn.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.MASTER, 0.5f, 1.0f);
+                    world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.MASTER, 0.5f, 1.0f);
                 }
 
                 return true;
             }
         }
 
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @Override
