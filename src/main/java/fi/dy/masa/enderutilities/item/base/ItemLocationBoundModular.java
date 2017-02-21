@@ -39,7 +39,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player != null && player.isSneaking() == true)
+        if (player != null && player.isSneaking())
         {
             if (world.isRemote == false)
             {
@@ -87,7 +87,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
         {
-            if (moduleStack.hasDisplayName() == true)
+            if (moduleStack.hasDisplayName())
             {
                 // We need to get the name here directly, if we call ItemStack#getDisplayName(), it will recurse back to getItemStackDisplayName ;_;
                 NBTTagCompound tag = moduleStack.getTagCompound().getCompoundTag("display");
@@ -103,7 +103,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (this.shouldDisplayTargetName(stack) == true)
+        if (this.shouldDisplayTargetName(stack))
         {
             String preGreen = TextFormatting.GREEN.toString();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
@@ -132,7 +132,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         if (linkCrystalStack != null)
         {
             // Valid target set in the currently selected Link Crystal
-            if (TargetData.itemHasTargetTag(linkCrystalStack) == true)
+            if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
                 super.addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
@@ -141,12 +141,44 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 list.add(I18n.format("enderutilities.tooltip.item.notargetset"));
             }
 
-            if (verbose == true)
+            if (verbose)
             {
-                int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
-                int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+                int num = 0;
+                int sel = 0;
+
+                if (this.useAbsoluteModuleIndexing(linkCrystalStack))
+                {
+                    sel = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+                    num = this.getMaxModules(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
+                else
+                {
+                    sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_LINKCRYSTAL) + 1;
+                    num = this.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
+
                 String dName = (linkCrystalStack.hasDisplayName() ? preWhiteIta + linkCrystalStack.getDisplayName() + rst + " " : "");
-                list.add(I18n.format("enderutilities.tooltip.item.selectedlinkcrystal.short") + String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+                list.add(I18n.format("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+                        String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
+            }
+        }
+        else if (this.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL) > 0)
+        {
+            if (verbose)
+            {
+                int num = 0;
+
+                if (this.useAbsoluteModuleIndexing(linkCrystalStack))
+                {
+                    num = this.getMaxModules(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
+                else
+                {
+                    num = this.getInstalledModuleCount(stack, ModuleType.TYPE_LINKCRYSTAL);
+                }
+
+                list.add(I18n.format("enderutilities.tooltip.item.selectedlinkcrystal.short") +
+                        String.format(" (%s-%s / %s%d%s)", preBlue, rst, preBlue, num, rst));
             }
         }
         else
@@ -154,7 +186,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             list.add(I18n.format("enderutilities.tooltip.item.nolinkcrystals"));
         }
 
-        if (verbose == true)
+        if (verbose)
         {
             // Item supports Jailer modules, show if one is installed
             if (this.getMaxModules(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
@@ -226,7 +258,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public void changePrivacyMode(ItemStack containerStack, EntityPlayer player)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             UtilItemModular.changePrivacyModeOnSelectedModuleAbs(containerStack, player, ModuleType.TYPE_LINKCRYSTAL);
         }
@@ -317,7 +349,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             UtilItemModular.getSelectedModuleTierAbs(containerStack, moduleType);
         }
@@ -328,7 +360,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             return UtilItemModular.getSelectedModuleStackAbs(containerStack, moduleType);
         }
@@ -339,7 +371,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             UtilItemModular.setSelectedModuleStackAbs(containerStack, moduleType, moduleStack);
         }
@@ -350,7 +382,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             return UtilItemModular.changeSelectedModuleAbs(containerStack, moduleType, reverse);
         }
