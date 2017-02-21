@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.util.teleport;
 
-import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
@@ -31,8 +30,6 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EntityUtils;
-import fi.dy.masa.enderutilities.util.MethodHandleUtils;
-import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
 import fi.dy.masa.enderutilities.util.PositionHelper;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -40,21 +37,6 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
 {
-    private static MethodHandle methodHandle_Entity_copyDataFromOld;
-
-    static
-    {
-        try
-        {
-            methodHandle_Entity_copyDataFromOld = MethodHandleUtils.getMethodHandleVirtual(
-                    Entity.class, new String[] { "func_180432_n", "copyDataFromOld" }, Entity.class);
-        }
-        catch (UnableToFindMethodHandleException e)
-        {
-            EnderUtilities.logger.error("CommandTeleportJED: Failed to get MethodHandle for Entity#copyDataFromOld()", e);
-        }
-    }
-
     public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
     {
         if (world.isRemote == false)
@@ -362,7 +344,7 @@ public class TeleportEntity
 
             if (entityNew != null)
             {
-                copyDataFromOld(entityNew, entity);
+                EntityUtils.copyDataFromOld(entityNew, entity);
                 entityNew.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
 
                 boolean flag = entityNew.forceSpawn;
@@ -403,18 +385,6 @@ public class TeleportEntity
             {
                 EnderUtilities.logger.warn("TP: Failed to get DragonFightManager#bossInfo");
             }
-        }
-    }
-
-    private static void copyDataFromOld(Entity target, Entity old)
-    {
-        try
-        {
-            methodHandle_Entity_copyDataFromOld.invokeExact(target, old);
-        }
-        catch (Throwable e)
-        {
-            EnderUtilities.logger.error("Error while trying invoke Entity#copyDataFromOld()", e);
         }
     }
 

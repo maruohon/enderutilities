@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -18,12 +16,26 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
-import fi.dy.masa.enderutilities.EnderUtilities;
 
 public class BlockUtils
 {
+    /*
+    private static MethodHandle methodHandle_Block_createStackedBlock;
+
+    static
+    {
+        try
+        {
+            methodHandle_Block_createStackedBlock = MethodHandleUtils.getMethodHandleVirtual(
+                    Block.class, new String[] { "func_180643_i", "createStackedBlock" }, IBlockState.class);
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            EnderUtilities.logger.error("BlockUtils: Failed to get a MethodHandle for Block#createStackedBlock()", e);
+        }
+    }
+    */
+
     /**
      * Breaks the block as a player, and thus drops the item(s) from it
      */
@@ -31,6 +43,7 @@ public class BlockUtils
     {
         PlayerInteractionManager manager = playerMP.interactionManager;
         int exp = ForgeHooks.onBlockBreakEvent(world, manager.getGameType(), playerMP, pos);
+
         if (exp != -1)
         {
             IBlockState stateExisting = world.getBlockState(pos);
@@ -71,6 +84,7 @@ public class BlockUtils
         return state.getBlock().getPickBlock(state, trace, world, pos, player);
     }
 
+    /*
     public static ItemStack getStackedItemFromBlock(World world, BlockPos pos)
     {
         return getStackedItemFromBlock(world.getBlockState(pos));
@@ -83,27 +97,16 @@ public class BlockUtils
 
         try
         {
-            Method method = ReflectionHelper.findMethod(Block.class, block, new String[] { "func_180643_i", "createStackedBlock" }, IBlockState.class);
-            stack = (ItemStack) method.invoke(block, state);
+            stack = (ItemStack) methodHandle_Block_createStackedBlock.invokeExact(block, state);
         }
-        catch (UnableToFindMethodException e)
+        catch (Throwable t)
         {
-            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (UnableToFindMethodException)", block.getClass().getSimpleName());
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (InvocationTargetException)", block.getClass().getSimpleName());
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            EnderUtilities.logger.error("Error while trying reflect Block#createStackBlock() from {} (IllegalAccessException)", block.getClass().getSimpleName());
-            e.printStackTrace();
+            EnderUtilities.logger.warn("Error while trying invoke Block#createStackBlock() from {} via a MethodHandle", block.getClass().getName(), t);
         }
 
         return stack;
     }
+    */
 
     /**
      * Check if the block in the given ItemStack stack can be placed in the given position.

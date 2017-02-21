@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,15 +30,31 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.registry.BlackLists;
+import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
 
 public class EntityUtils
 {
     //public static final byte YAW_TO_DIRECTION[] = {3, 4, 2, 5};
+    private static MethodHandle methodHandle_Entity_copyDataFromOld;
+    private static MethodHandle methodHandle_EntityLiving_canDespawn;
+
+    static
+    {
+        try
+        {
+            methodHandle_Entity_copyDataFromOld = MethodHandleUtils.getMethodHandleVirtual(
+                    Entity.class, new String[] { "func_180432_n", "copyDataFromOld" }, Entity.class);
+            methodHandle_EntityLiving_canDespawn = MethodHandleUtils.getMethodHandleVirtual(
+                    EntityLiving.class, new String[] { "func_70692_ba", "canDespawn" });
+        }
+        catch (UnableToFindMethodHandleException e)
+        {
+            EnderUtilities.logger.error("EntityUtils: Failed to get a MethodHandle for Entity#copyDataFromOld() or for EntityLiving#canDespawn()", e);
+        }
+    }
 
     public static RayTraceResult getRayTraceFromPlayer(World world, EntityPlayer player, boolean useLiquids)
     {
@@ -688,27 +703,15 @@ public class EntityUtils
         return null;
     }
 
-    public static void copyDataFromOld(Entity target, Entity old)
+    public static void copyDataFromOld(Entity newEntity, Entity oldEntity)
     {
-        Method method = ReflectionHelper.findMethod(Entity.class, target, new String[] {"func_180432_n", "copyDataFromOld", "a"}, Entity.class);
         try
         {
-            method.invoke(target, old);
+            methodHandle_Entity_copyDataFromOld.invokeExact(newEntity, oldEntity);
         }
-        catch (UnableToFindMethodException e)
+        catch (Throwable e)
         {
-            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (UnableToFindMethodException)");
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (InvocationTargetException)");
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            EnderUtilities.logger.error("Error while trying reflect Entity.copyDataFromOld() (IllegalAccessException)");
-            e.printStackTrace();
+            EnderUtilities.logger.error("Error while trying invoke Entity#copyDataFromOld()", e);
         }
     }
 
@@ -728,29 +731,13 @@ public class EntityUtils
 
             if (canDespawn == false)
             {
-                Method method = ReflectionHelper.findMethod(EntityLiving.class, living, new String[] {"func_70692_ba", "canDespawn", "C"});
                 try
                 {
-                    Object o = method.invoke(living);
-                    if (o instanceof Boolean)
-                    {
-                        canDespawn = ((Boolean)o).booleanValue();
-                    }
+                    canDespawn = ((Boolean) methodHandle_EntityLiving_canDespawn.invokeExact(living)).booleanValue();
                 }
-                catch (UnableToFindMethodException e)
+                catch (Throwable t)
                 {
-                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (UnableToFindMethodException)");
-                    e.printStackTrace();
-                }
-                catch (InvocationTargetException e)
-                {
-                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (InvocationTargetException)");
-                    e.printStackTrace();
-                }
-                catch (IllegalAccessException e)
-                {
-                    EnderUtilities.logger.error("Error while trying reflect EntityLiving.canDespawn() (IllegalAccessException)");
-                    e.printStackTrace();
+                    EnderUtilities.logger.warn("Error while trying to invoke EntityLiving.canDespawn() on entity '{}' via a MethodHandle", living, t);
                 }
             }
 
@@ -759,7 +746,6 @@ public class EntityUtils
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
                 living.getEntityWorld().playSound(null, living.getPosition(), Sounds.jailer, SoundCategory.MASTER, 0.8f, 1.2f);
-                //living.playSound(Sounds.jailer, 0.8f, 1.2f);
 
                 return true;
             }
