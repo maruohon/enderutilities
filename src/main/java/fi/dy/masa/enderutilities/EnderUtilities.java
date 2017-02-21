@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -26,7 +25,6 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
-import fi.dy.masa.enderutilities.registry.Registry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 
@@ -49,7 +47,8 @@ public class EnderUtilities
     {
         instance = this;
         logger = event.getModLog();
-        ConfigReader.loadConfigsAll(event.getSuggestedConfigurationFile());
+        ConfigReader.loadConfigsFromFile(event.getSuggestedConfigurationFile());
+        ModRegistry.checkLoadedMods();
 
         EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
         EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
@@ -72,17 +71,10 @@ public class EnderUtilities
     }
 
     @EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-        Registry.registerEnderbagLists();
-        Registry.registerTeleportBlacklist();
-        ModRegistry.checkLoadedMods();
-    }
-
-    @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
         //EnderUtilities.logger.info("Clearing chunk loading timeouts");
+        ConfigReader.reLoadAllConfigs(true);
         ChunkLoading.getInstance().init();
         EnergyBridgeTracker.readFromDisk();
     }

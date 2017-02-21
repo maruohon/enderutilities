@@ -10,6 +10,14 @@ public class Configs
 
     // Generic
     public static int configFileVersion;
+    public static int enderBucketCapacity;
+    public static int harvestLevelEnderAlloyAdvanced;
+    public static int portalFrameCheckLimit;
+    public static int portalLoopCheckLimit;
+    public static int portalAreaCheckLimit;
+    public static boolean useEnderCharge;
+
+    // Builder's Wand
     public static boolean buildersWandEnableCopyMode;
     public static boolean buildersWandEnablePasteMode;
     public static boolean buildersWandEnableMoveMode;
@@ -22,12 +30,6 @@ public class Configs
     public static int buildersWandReplaceBlocksPerTick;
     public static float buildersWandGhostBlockAlpha;
     public static float buildersWandMaxBlockHardness;
-    public static int enderBucketCapacity;
-    public static int harvestLevelEnderAlloyAdvanced;
-    public static int portalFrameCheckLimit;
-    public static int portalLoopCheckLimit;
-    public static int portalAreaCheckLimit;
-    public static boolean useEnderCharge;
 
     // Teleport control
     public static boolean enderBowAllowPlayers;
@@ -35,7 +37,7 @@ public class Configs
     public static boolean enderLassoAllowPlayers;
 
     // Black lists and white lists
-    public static String enderBagListType;
+    public static boolean enderBagListTypeIsWhitelist;
     public static String[] enderBagBlacklist;
     public static String[] enderBagWhitelist;
     public static String[] teleportBlacklist;

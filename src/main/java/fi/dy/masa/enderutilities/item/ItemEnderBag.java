@@ -20,7 +20,10 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import fi.dy.masa.enderutilities.config.Configs;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -30,14 +33,10 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.registry.Registry;
+import fi.dy.masa.enderutilities.registry.BlackLists;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoadingItem, IKeyBound
 {
@@ -227,8 +226,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         }
 
         // Player's location doesn't matter with Ender Chests
-        if (targetData.blockName.equals("minecraft:ender_chest") == true
-            || isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == true)
+        if (targetData.blockName.equals("minecraft:ender_chest") || BlackLists.isBlockAllowedForEnderBag(targetData.blockName))
         {
             return false;
         }
@@ -253,35 +251,6 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
              world.getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
         {
             return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isTargetBlockWhitelisted(String name, int meta)
-    {
-        List<String> list;
-
-        // FIXME add metadata handling
-        // Black list
-        if (Configs.enderBagListType.equalsIgnoreCase("blacklist") == true)
-        {
-            list = Registry.getEnderbagBlacklist();
-            if (list.contains(name) == true)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        // White list
-        else
-        {
-            list = Registry.getEnderbagWhitelist();
-            if (list.contains(name) == true)
-            {
-                return true;
-            }
         }
 
         return false;

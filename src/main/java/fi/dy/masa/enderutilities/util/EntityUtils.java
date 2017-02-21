@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
-import fi.dy.masa.enderutilities.registry.Registry;
+import fi.dy.masa.enderutilities.registry.BlackLists;
 
 public class EntityUtils
 {
@@ -608,8 +608,7 @@ public class EntityUtils
 
     private static boolean doesEntityStackHaveBlacklistedEntities(Entity entity, boolean startFromBottom)
     {
-        List<String> blacklist = Registry.getTeleportBlacklist();
-        if (blacklist.contains(entity.getClass().getSimpleName()))
+        if (BlackLists.isEntityBlacklistedForTeleport(entity))
         {
             return true;
         }
@@ -625,7 +624,7 @@ public class EntityUtils
 
             for (Entity passenger : passengers)
             {
-                if (blacklist.contains(passenger.getClass().getSimpleName()) ||
+                if (BlackLists.isEntityBlacklistedForTeleport(passenger) ||
                     doesEntityStackHaveBlacklistedEntities(passenger, false))
                 {
                     return true;
