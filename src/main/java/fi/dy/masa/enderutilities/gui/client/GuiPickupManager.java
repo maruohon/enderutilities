@@ -8,6 +8,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.inventory.container.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
@@ -33,7 +35,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     {
         super(container, 176, 256, "gui.container.pickupmanager");
 
-        this.infoArea = new InfoArea(153, 87, 17, 17, "enderutilities.gui.label.pickupmanager.info");
+        this.infoArea = new InfoArea(153, 87, 17, 17, "enderutilities.gui.infoarea.pickupmanager");
         this.containerPickupManager = container;
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;
@@ -60,10 +62,10 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager", new Object[0]), 8, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.transportfilters", new Object[0]), 8, 19, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.inventoryfilters", new Object[0]), 81, 112, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.filterpresets", new Object[0]) + ":", 8, 163, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager"), 8, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.transportfilters"), 8, 19, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.inventoryfilters"), 81, 112, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.filterpresets") + ":", 8, 163, 0x404040);
     }
 
     @Override
@@ -153,7 +155,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.transportitemsslot", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.transportitemsslot"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         else
@@ -162,15 +164,16 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         }
     }
 
-    protected void addConditionalButton(int id, int x, int y, int w, int h, ItemStack stack, String tag, int u1, int v1, int u2, int v2, String s1, String s2)
+    protected void addConditionalButton(int id, int x, int y, int w, int h, ItemStack stack, String tag,
+            int u1, int v1, int u2, int v2, String s1, String s2)
     {
         if (ItemPickupManager.getSettingValue(stack, tag) == 0)
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s1));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTextureWidgets, w, 0, s1));
         }
         else
         {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + s2));
+            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTextureWidgets, w, 0, s2));
         }
     }
 
@@ -199,31 +202,39 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         // Add the transport filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  9, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
+        this.addConditionalButton(id++, x +  9, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED,
+                60, 98, 60, 28, "enderutilities.gui.label.filtergroup.disabled", "enderutilities.gui.label.filtergroup.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 27, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE, 60, 70, 60, 84, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 27, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE,
+                60, 70, 60, 84, "enderutilities.gui.label.blacklist", "enderutilities.gui.label.whitelist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 45, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META, 60, 112, 60, 126, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 45, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META,
+                60, 112, 60, 126, "enderutilities.gui.label.meta.match", "enderutilities.gui.label.meta.ignore");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 63, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 63, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT,
+                60, 154, 60, 140, "enderutilities.gui.label.nbt.ignore", "enderutilities.gui.label.nbt.match");
 
 
         // Add the inventory filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  9, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED, 60, 98, 60, 28, "filtergroup.disabled", "filtergroup.enabled");
+        this.addConditionalButton(id++, x +  9, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED,
+                60, 98, 60, 28, "enderutilities.gui.label.filtergroup.disabled", "enderutilities.gui.label.filtergroup.enabled");
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 27, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE, 60, 70, 60, 84, "blacklist", "whitelist");
+        this.addConditionalButton(id++, x + 27, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE,
+                60, 70, 60, 84, "enderutilities.gui.label.blacklist", "enderutilities.gui.label.whitelist");
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 45, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_META, 60, 112, 60, 126, "meta.match", "meta.ignore");
+        this.addConditionalButton(id++, x + 45, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_META,
+                60, 112, 60, 126, "enderutilities.gui.label.meta.match", "enderutilities.gui.label.meta.ignore");
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 63, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_NBT, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 63, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_NBT,
+                60, 154, 60, 140, "enderutilities.gui.label.nbt.ignore", "enderutilities.gui.label.nbt.match");
     }
 
     @Override

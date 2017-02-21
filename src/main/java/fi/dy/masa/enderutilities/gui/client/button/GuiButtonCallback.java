@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.gui.client;
+package fi.dy.masa.enderutilities.gui.client.button;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -16,11 +16,6 @@ public class GuiButtonCallback extends GuiButtonHoverText
         this.callback = callback;
     }
 
-    public void setCallback(IButtonCallback callback)
-    {
-        this.callback = callback;
-    }
-
     @Override
     protected int getU()
     {
@@ -31,5 +26,11 @@ public class GuiButtonCallback extends GuiButtonHoverText
     protected int getV()
     {
         return this.callback.getButtonV(this.id, this.v);
+    }
+
+    @Override
+    protected boolean isEnabled()
+    {
+        return this.callback.isButtonEnabled(this.id);
     }
 }

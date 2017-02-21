@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStacker;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -26,7 +27,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
     {
         super(container, 192, 126, "gui.container.quickstacker");
 
-        this.infoArea = new InfoArea(6, 6, 17, 17, "enderutilities.gui.label.quickstacker.info");
+        this.infoArea = new InfoArea(6, 6, 17, 17, "enderutilities.gui.infoarea.quickstacker");
         this.containerQS = container;
     }
 
@@ -44,8 +45,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker", new Object[0]), 28, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 60, 135, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker"), 28, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 60, 135, 0x404040);
     }
 
     @Override

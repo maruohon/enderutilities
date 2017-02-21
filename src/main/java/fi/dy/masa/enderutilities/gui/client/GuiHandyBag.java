@@ -14,6 +14,11 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -25,7 +30,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallback
+public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonStateCallback
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE = 0;
     public static final int BTN_ID_FIRST_MOVE_ITEMS    = 4;
@@ -41,11 +46,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
             "enderutilities.gui.label.moveallitems",
-            "enderutilities.gui.label.sortitems",
-            "enderutilities.gui.label.blockquickactions",
-            "enderutilities.tooltip.item.bag.enabled",
-            "enderutilities.tooltip.item.pickupmode",
-            "enderutilities.tooltip.item.restockmode"
+            "enderutilities.gui.label.sortitems"
     };
 
     private final ContainerHandyBag containerHB;
@@ -61,7 +62,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
     private boolean hasActivePotionEffects;
     private int[] lastPos = new int[2];
     private boolean baublesLoaded;
-    public static final ResourceLocation baublesButton = new ResourceLocation(ModRegistry.MODID_BAUBLES.toLowerCase(), "textures/gui/expanded_inventory.png");
+    public static final ResourceLocation RESOURCES_BAUBLES_BUTTON
+            = new ResourceLocation(ModRegistry.MODID_BAUBLES.toLowerCase(), "textures/gui/expanded_inventory.png");
 
     public GuiHandyBag(ContainerHandyBag container)
     {
@@ -185,26 +187,17 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
             }
         }
 
-        // Draw the hilight border for active Block-Quick-Actions buttons
-        ItemStack stack = null;
-        int selected = this.invModular.getSelectedModuleIndex();
-        if (selected >= 0)
-        {
-            stack = this.invModular.getModuleInventory().getStackInSlot(selected);
-        }
-
-        if (stack != null)
+        if (this.containerHB.getBagTier() == 1)
         {
             int x = (this.width - this.xSize) / 2;
             int y = (this.height - this.ySize) / 2;
-            long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
             int[] xPos = new int[] { 112 - 1, 21 - 1, 227 - 1 };
-            long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
 
             for (int i = 0; i < 3; i++)
             {
-                if ((lockMask & masks[i]) == masks[i])
+                if (this.isSectionLocked(i))
                 {
+                    // Draw the hilight border for active Block-Quick-Actions buttons
                     this.drawTexturedModalRect(x + xPos[i], y + 90, 120, 24, 10, 10);
                 }
             }
@@ -258,18 +251,30 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
         y = this.guiTop + this.containerHB.getSlot(0).yPos - 11;
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 0,  0, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 8, 0,
+                this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 48, "enderutilities.gui.label.bag.disabled"),
+                ButtonState.createTranslate(0,  0, "enderutilities.gui.label.bag.enabled")));
         // Pickup mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[9]));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 8, 0,
+                this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 40, "enderutilities.gui.label.pickupmode.disabled"),
+                ButtonState.createTranslate(0, 56, "enderutilities.gui.label.pickupmode.matching"),
+                ButtonState.createTranslate(0, 64, "enderutilities.gui.label.pickupmode.all")));
         // Restock mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, this, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 8, 0,
+                this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 40, "enderutilities.gui.label.restockmode.disabled"),
+                ButtonState.createTranslate(0, 80, "enderutilities.gui.label.restockmode.hotbar"),
+                ButtonState.createTranslate(0, 72, "enderutilities.gui.label.restockmode.all")));
 
         if (this.bagTier == 0)
         {
             // Add the sort button
             this.buttonList.add(new GuiButtonHoverText(10, x + 74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
-            this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24,
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
         }
         else
         {
@@ -278,18 +283,26 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
             this.buttonList.add(new GuiButtonHoverText(10, x +  74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             this.buttonList.add(new GuiButtonHoverText(12, x + 165, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
-            this.buttonList.add(new GuiButtonHoverText(13, x +  74, y + 70, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(13, x +  74, y + 70, 8, 8, 0, 24,
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
 
             // Add the section locking buttons
-            this.buttonList.add(new GuiButtonHoverText(15, x -  29, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-            this.buttonList.add(new GuiButtonHoverText(14, x +  62, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-            this.buttonList.add(new GuiButtonHoverText(16, x + 177, y +  0, 8, 8, 0, 40, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+            this.buttonList.add(new GuiButtonStateCallback(15, x -  29, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
+            this.buttonList.add(new GuiButtonStateCallback(14, x +  62, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
+            this.buttonList.add(new GuiButtonStateCallback(16, x + 177, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
         }
 
         if (this.baublesLoaded)
         {
             // The texture comes from the Baubles expanded inventory texture
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_BAUBLES, this.guiLeft + 68 + this.offsetXTier, this.guiTop + 15, 10, 10, 190, 48, baublesButton, 10, 0));
+            this.buttonList.add(new GuiButtonIcon(BTN_ID_BAUBLES, this.guiLeft + 68 + this.offsetXTier, this.guiTop + 15,
+                    10, 10, 190, 48, RESOURCES_BAUBLES_BUTTON, 10, 0));
         }
     }
 
@@ -397,19 +410,12 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
 
                 potion.renderInventoryEffect(i, j, potioneffect, mc);
                 if (!potion.shouldRenderInvText(potioneffect)) { j += l; continue; }
-                String s1 = I18n.format(potion.getName(), new Object[0]);
+                String s1 = I18n.format(potion.getName());
+                int amp = potioneffect.getAmplifier();
 
-                if (potioneffect.getAmplifier() == 1)
+                if (amp >= 1 && amp <= 3)
                 {
-                    s1 = s1 + " " + I18n.format("enchantment.level.2", new Object[0]);
-                }
-                else if (potioneffect.getAmplifier() == 2)
-                {
-                    s1 = s1 + " " + I18n.format("enchantment.level.3", new Object[0]);
-                }
-                else if (potioneffect.getAmplifier() == 3)
-                {
-                    s1 = s1 + " " + I18n.format("enchantment.level.4", new Object[0]);
+                    s1 = s1 + " " + I18n.format("enchantment.level." + (amp + 1));
                 }
 
                 this.fontRendererObj.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
@@ -421,42 +427,70 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonCallb
     }
 
     @Override
-    public int getButtonU(int callbackId, int defaultU)
+    public int getButtonStateIndex(int callbackId)
     {
-        return defaultU;
+        ItemStack stack = this.containerHB.getContainerItem();
+
+        if (stack != null)
+        {
+            // Locked mode
+            if (callbackId == BTN_ID_FIRST_MODES)
+            {
+                return NBTUtils.getBoolean(stack, "HandyBag", "DisableOpen") ? 0 : 1;
+            }
+            // Pickup mode
+            else if (callbackId == BTN_ID_FIRST_MODES + 1)
+            {
+                PickupMode mode = ItemHandyBag.PickupMode.fromStack(stack);
+                if (mode == PickupMode.ALL) { return 2; }
+                else if (mode == PickupMode.MATCHING) { return 1; }
+                return 0; // blocked/none
+            }
+            // Restock mode
+            else if (callbackId == BTN_ID_FIRST_MODES + 2)
+            {
+                RestockMode mode = ItemHandyBag.RestockMode.fromStack(stack);
+                if (mode == RestockMode.ALL) { return 2; }
+                else if (mode == RestockMode.HOTBAR) { return 1; }
+                return 0; // blocked/none
+            }
+            // Block quick actions
+            else if (callbackId >= 14 && callbackId <= 16)
+            {
+                return this.isSectionLocked(callbackId - 14) ? 1 : 0;
+            }
+        }
+
+        return 0;
     }
 
     @Override
-    public int getButtonV(int callbackId, int defaultV)
+    public boolean isButtonEnabled(int callbackId)
     {
-        ItemStack stack = this.containerHB.getContainerItem();
-        if (stack == null)
+        return true;
+    }
+
+    private boolean isSectionLocked(int section)
+    {
+        ItemStack stack = null;
+        int selected = this.invModular.getSelectedModuleIndex();
+
+        if (selected >= 0 && section >= 0 && section <= 2)
         {
-            return defaultV;
+            stack = this.invModular.getModuleInventory().getStackInSlot(selected);
+
+            if (stack != null)
+            {
+                long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+                long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+
+                if ((lockMask & masks[section]) == masks[section])
+                {
+                    return true;
+                }
+            }
         }
 
-        // Locked mode
-        if (callbackId == BTN_ID_FIRST_MODES)
-        {
-            return NBTUtils.getBoolean(stack, "HandyBag", "DisableOpen") ? 48 : 0;
-        }
-        // Pickup mode
-        else if (callbackId == BTN_ID_FIRST_MODES + 1)
-        {
-            PickupMode mode = ItemHandyBag.PickupMode.fromStack(stack);
-            if (mode == PickupMode.ALL) { return 64; }
-            else if (mode == PickupMode.MATCHING) { return 56; }
-            return 40; // blocked/none
-        }
-        // Restock mode
-        else if (callbackId == BTN_ID_FIRST_MODES + 2)
-        {
-            RestockMode mode = ItemHandyBag.RestockMode.fromStack(stack);
-            if (mode == RestockMode.ALL) { return 72; }
-            else if (mode == RestockMode.HOTBAR) { return 80; }
-            return 40; // blocked/none
-        }
-
-        return defaultV;
+        return false;
     }
 }

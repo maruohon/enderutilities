@@ -10,13 +10,16 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
-public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
+public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCallback
 {
     public static final int BTN_ID_TOGGLE_LOCK = 1;
 
@@ -28,7 +31,7 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
     {
         super(container, 176, 176, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
 
-        this.infoArea = new InfoArea(151, 5, 17, 17, "enderutilities.gui.label.memorychest.info");
+        this.infoArea = new InfoArea(151, 5, 17, 17, "enderutilities.gui.infoarea.memorychest");
         this.temc = te;
         this.inventory = this.container.inventory;
         this.chestTier = te.getStorageTier();
@@ -67,8 +70,8 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
             default:
         }
 
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.memorychest", new Object[0]), 8, 15, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, y, 0x404025);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.memorychest"), 8, 15, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, y, 0x404025);
     }
 
     @Override
@@ -150,11 +153,14 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        String str = I18n.format("enderutilities.gui.label.publicprivate") + " (" +
+        String strPublic = I18n.format("enderutilities.gui.label.public") + " (" +
+                I18n.format("enderutilities.tooltip.item.owner") + ": " + this.temc.getOwnerName() + ")";
+        String strPrivate = I18n.format("enderutilities.gui.label.private") + " (" +
                 I18n.format("enderutilities.tooltip.item.owner") + ": " + this.temc.getOwnerName() + ")";
 
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_TOGGLE_LOCK, x + 138, y + 15, 8, 8, 0, 0,
-                this.guiTextureWidgets, 8, 0, this, str));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_TOGGLE_LOCK, x + 138, y + 15, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.create(0, 0, strPublic),
+                ButtonState.create(0, 48, strPrivate)));
     }
 
     @Override
@@ -168,20 +174,20 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonCallback
     }
 
     @Override
-    public int getButtonU(int callbackId, int defaultU)
-    {
-        return defaultU;
-    }
-
-    @Override
-    public int getButtonV(int callbackId, int defaultV)
+    public int getButtonStateIndex(int callbackId)
     {
         // Locked mode
         if (callbackId == BTN_ID_TOGGLE_LOCK)
         {
-            return this.temc.isPublic() ? 0 : 48;
+            return this.temc.isPublic() ? 0 : 1;
         }
 
-        return defaultV;
+        return 0;
+    }
+
+    @Override
+    public boolean isButtonEnabled(int callbackId)
+    {
+        return true;
     }
 }

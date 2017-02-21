@@ -6,6 +6,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerInventorySwapper;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
@@ -15,7 +19,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCallback
+public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonStateCallback
 {
     public static final int BTN_ID_FIRST_SELECT_MODULE  = 0;
     public static final int BTN_ID_FIRST_SELECT_PRESET  = 4;
@@ -39,7 +43,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
     {
         super(container, 199, 249, "gui.container.inventoryswapper");
 
-        this.infoArea = new InfoArea(7, 36, 17, 17, "enderutilities.gui.label.inventoryswapper.info");
+        this.infoArea = new InfoArea(7, 36, 17, 17, "enderutilities.gui.infoarea.inventoryswapper");
         this.containerInvSwapper = container;
         this.inventory = container.inventoryItemModular;
         this.invSize = this.inventory.getSlots();
@@ -64,8 +68,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper", new Object[0]), 6, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets", new Object[0]) + ":", 58, 139, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper"), 6, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 58, 139, 0x404040);
     }
 
     @Override
@@ -208,12 +212,16 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
                 14, 14, 60, 56, this.guiTextureWidgets, 14, 0));
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_LOCKED, this.firstInvSlotX + 1, this.firstInvSlotY - 28, 8, 8, 0, 0,
-                this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.enabled"));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_LOCKED, this.firstInvSlotX + 1, this.firstInvSlotY - 28, 8, 8, 8, 0,
+                this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0,  0, "enderutilities.gui.label.item.enabled"),
+                ButtonState.createTranslate(0, 48, "enderutilities.gui.label.item.disabled")));
 
         // Cycle mode toggle
-        this.buttonList.add(new GuiButtonCallback(BTN_ID_CYCLE, this.firstInvSlotX + 13, this.firstInvSlotY - 28, 8, 8, 0, 40,
-                this.guiTextureWidgets, 8, 0, this, "enderutilities.tooltip.item.cyclemode"));
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_CYCLE, this.firstInvSlotX + 13, this.firstInvSlotY - 28, 8, 8, 8, 0,
+                this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 40, "enderutilities.gui.label.cyclemode.disabled"),
+                ButtonState.createTranslate(0, 88, "enderutilities.gui.label.cyclemode.enabled")));
     }
 
     @Override
@@ -254,31 +262,30 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonCal
     }
 
     @Override
-    public int getButtonU(int callbackId, int defaultU)
+    public int getButtonStateIndex(int callbackId)
     {
-        return defaultU;
+        ItemStack stack = this.containerInvSwapper.getContainerItem();
+
+        if (stack != null)
+        {
+            // Locked mode
+            if (callbackId == BTN_ID_LOCKED)
+            {
+                return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_LOCKED) ? 1 : 0;
+            }
+            // Cycle mode
+            else if (callbackId == BTN_ID_CYCLE)
+            {
+                return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_CYCLE_MODE) ? 1 : 0;
+            }
+        }
+
+        return 0;
     }
 
     @Override
-    public int getButtonV(int callbackId, int defaultV)
+    public boolean isButtonEnabled(int callbackId)
     {
-        ItemStack stack = this.containerInvSwapper.getContainerItem();
-        if (stack == null)
-        {
-            return defaultV;
-        }
-
-        // Locked mode
-        if (callbackId == BTN_ID_LOCKED)
-        {
-            return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_LOCKED) ? 48 : 0;
-        }
-        // Cycle mode
-        else if (callbackId == BTN_ID_CYCLE)
-        {
-            return NBTUtils.getBoolean(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_CYCLE_MODE) ? 88 : 40;
-        }
-
-        return defaultV;
+        return true;
     }
 }

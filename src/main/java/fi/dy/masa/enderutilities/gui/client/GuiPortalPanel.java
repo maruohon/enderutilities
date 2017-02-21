@@ -9,7 +9,9 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageSendString;
@@ -27,6 +29,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
     {
         super(container, 176, 251, "gui.container." + te.getTEName());
         this.tepp = te;
+        this.infoArea = new InfoArea(151, 5, 17, 17, "enderutilities.gui.infoarea.portalpanel");
     }
 
     @Override
@@ -94,10 +97,10 @@ public class GuiPortalPanel extends GuiEnderUtilities
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.tepp.hasCustomName() ? this.tepp.getName() : I18n.format(this.tepp.getName(), new Object[0]);
+        String s = this.tepp.hasCustomName() ? this.tepp.getName() : I18n.format(this.tepp.getName());
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.settargetname", new Object[0]), 8, 118, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 156, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.settargetname"), 8, 118, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 156, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
@@ -152,12 +155,15 @@ public class GuiPortalPanel extends GuiEnderUtilities
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
+        super.drawTooltips(mouseX, mouseY);
+
         Slot slot = this.getSlotUnderMouse();
+
         // Hovering over an empty dye slot
         if (slot != null && slot.getHasStack() == false && slot.slotNumber >= 8 && slot.slotNumber <= 15)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.dyeslot", new Object[0]));
+            ItemEnderUtilities.addTooltips("enderutilities.gui.label.portalpanel.dyeslot", list, false);
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }

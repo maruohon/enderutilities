@@ -1,10 +1,9 @@
-package fi.dy.masa.enderutilities.gui.client;
+package fi.dy.masa.enderutilities.gui.client.button;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -42,16 +41,28 @@ public class GuiButtonIcon extends GuiButton
         return this.v;
     }
 
+    protected boolean isEnabled()
+    {
+        return true;
+    }
+
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY)
     {
         if (this.visible)
         {
-            mc.getTextureManager().bindTexture(this.texture);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            this.enabled = this.isEnabled();
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
+                    mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
             int state = this.getHoverState(this.hovered);
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, this.getU() + state * this.hoverOffsetU, this.getV() + state * this.hoverOffsetV, this.width, this.height);
+
+            mc.getTextureManager().bindTexture(this.texture);
+
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            this.drawTexturedModalRect(this.xPosition, this.yPosition,
+                    this.getU() + state * this.hoverOffsetU,
+                    this.getV() + state * this.hoverOffsetV, this.width, this.height);
+
             this.mouseDragged(mc, mouseX, mouseY);
         }
     }

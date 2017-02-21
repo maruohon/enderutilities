@@ -4,6 +4,8 @@ import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyChest;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -69,7 +71,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int y = this.chestTier == 3 ? 3 : 6;
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handychest", new Object[0]), 8, y, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handychest"), 8, y, 0x404040);
     }
 
     @Override
@@ -169,7 +171,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonHoverText(10, x + 228, y + yOff, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
 
             // Add the sort button for the player inventory
-            this.buttonList.add(new GuiButtonHoverText(11, x + 120, y + yOff + 4, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(11, x + 120, y + yOff + 4, 8, 8, 0, 24,
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
         }
         else
         {
@@ -193,7 +196,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             this.buttonList.add(new GuiButtonHoverText(BTN_ID_SORT_CHEST, x + 9, y + 30, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
 
             // Add the sort button for the player inventory
-            this.buttonList.add(new GuiButtonHoverText(BTN_ID_SORT_PLAYER, x + 84, y + yOff + 4, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_SORT_PLAYER, x + 84, y + yOff + 4, 8, 8, 0, 24,
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
         }
     }
 

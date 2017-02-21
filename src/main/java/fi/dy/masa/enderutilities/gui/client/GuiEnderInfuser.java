@@ -23,9 +23,9 @@ public class GuiEnderInfuser extends GuiEnderUtilities
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.teei.hasCustomName() ? this.teei.getName() : I18n.format(this.teei.getName(), new Object[0]);
+        String s = this.teei.hasCustomName() ? this.teei.getName() : I18n.format(this.teei.getName());
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 84, 0x404025);
+        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 84, 0x404025);
     }
 
     @Override
@@ -96,14 +96,14 @@ public class GuiEnderInfuser extends GuiEnderUtilities
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.enderinfuser.input", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.enderinfuser.input"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         // Hovering over an empty capacitor input slot
         else if (slot != null && slot == this.inventorySlots.getSlot(1) && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }

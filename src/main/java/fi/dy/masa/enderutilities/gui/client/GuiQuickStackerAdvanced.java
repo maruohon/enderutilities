@@ -5,6 +5,10 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -13,7 +17,7 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 
-public class GuiQuickStackerAdvanced extends GuiEnderUtilities
+public class GuiQuickStackerAdvanced extends GuiEnderUtilities implements IButtonStateCallback
 {
     private final TileEntityQuickStackerAdvanced teqsa;
 
@@ -21,7 +25,7 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
     {
         super(container, 192, 256, "gui.container.quickstacker.advanced");
 
-        this.infoArea = new InfoArea(4, 16, 17, 17, "enderutilities.gui.label.quickstackeradvanced.info");
+        this.infoArea = new InfoArea(4, 16, 17, 17, "enderutilities.gui.infoarea.quickstackeradvanced");
         this.teqsa = te;
     }
 
@@ -33,16 +37,9 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        this.createButtons(); // Re-create the buttons to reflect the current state
-        super.drawScreen(mouseX, mouseY, gameTicks);
-    }
-
-    @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        String str = I18n.format("enderutilities.container.quickstacker.advanced", new Object[0]);
+        String str = I18n.format("enderutilities.container.quickstacker.advanced");
         this.fontRendererObj.drawString(str, this.xSize / 2 - this.fontRendererObj.getStringWidth(str) / 2, 5, 0x404040);
     }
 
@@ -169,40 +166,9 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         }
     }
 
-    private int getButtonVariant(int buttonId)
+    protected void addConditionalButton(int id, int x, int y, int w, int h, ButtonState... states)
     {
-        switch (buttonId)
-        {
-            case 22:
-                return this.teqsa.isAreaMode() ? 1 : 0;
-            case 23:
-                return this.teqsa.getSelectedFilterSettings().isEnabled() ? 1 : 0;
-            case 24:
-                return this.teqsa.getSelectedFilterSettings().isBlacklist() ? 1 : 0;
-            case 25:
-                return this.teqsa.getSelectedFilterSettings().getMatchMeta() ? 1 : 0;
-            case 26:
-                return this.teqsa.getSelectedFilterSettings().getMatchNBT() ? 1 : 0;
-        }
-
-        return 0;
-    }
-
-    protected void addConditionalButton(int id, int x, int y, int w, int h, int u1, int v1, int u2, int v2, String s1, String s2)
-    {
-        int variant = this.getButtonVariant(id);
-        int u = variant == 1 ? u2 : u1;
-        int v = variant == 1 ? v2 : v1;
-        String str = variant == 1 ? s2 : s1;
-
-        GuiButton button = new GuiButtonHoverText(id, x, y, w, h, u, v, this.guiTextureWidgets, w, 0, "enderutilities.gui.label." + str);
-        // Disable the filter mode buttons if there is no Memory Card present
-        if (id >= 23 && id <= 26)
-        {
-            button.enabled = this.teqsa.isInventoryAccessible(this.player);
-        }
-
-        this.buttonList.add(button);
+        this.buttonList.add(new GuiButtonStateCallback(id, x, y, w, h, w, 0, this.guiTextureWidgets, this, states));
     }
 
     protected void createButtons()
@@ -240,19 +206,29 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
         }
 
         // Add the Link Crystals vs. Area toggle button
-        this.addConditionalButton(id++, x + 6, y + 36, 14, 14, 60, 28, 60, 168, "use.linkcrystaltargets", "use.areablock");
+        this.addConditionalButton(id++, x + 6, y + 36, 14, 14,
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.use.linkcrystaltargets"),
+                ButtonState.createTranslate(60, 168, "enderutilities.gui.label.use.areablock"));
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x + 24, y + 66, 14, 14, 60, 98, 60, 28, "filters.disabled", "filters.enabled");
+        this.addConditionalButton(id++, x + 24, y + 66, 14, 14,
+                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.filters.disabled"),
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.filters.enabled"));
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 42, y + 66, 14, 14, 60, 84, 60, 70, "whitelist", "blacklist");
+        this.addConditionalButton(id++, x + 42, y + 66, 14, 14,
+                ButtonState.createTranslate(60, 84, "enderutilities.gui.label.whitelist"),
+                ButtonState.createTranslate(60, 70, "enderutilities.gui.label.blacklist"));
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 60, y + 66, 14, 14, 60, 126, 60, 112, "meta.ignore", "meta.match");
+        this.addConditionalButton(id++, x + 60, y + 66, 14, 14,
+                ButtonState.createTranslate(60, 126, "enderutilities.gui.label.meta.ignore"),
+                ButtonState.createTranslate(60, 112, "enderutilities.gui.label.meta.match"));
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 78, y + 66, 14, 14, 60, 154, 60, 140, "nbt.ignore", "nbt.match");
+        this.addConditionalButton(id++, x + 78, y + 66, 14, 14,
+                ButtonState.createTranslate(60, 154, "enderutilities.gui.label.nbt.ignore"),
+                ButtonState.createTranslate(60, 140, "enderutilities.gui.label.nbt.match"));
     }
 
     @Override
@@ -299,10 +275,37 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities
             valid = false;
         }
 
-        if (valid == true)
+        if (valid)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos,
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
         }
+    }
+
+    @Override
+    public int getButtonStateIndex(int callbackId)
+    {
+        switch (callbackId)
+        {
+            case 22: return this.teqsa.isAreaMode() ? 1 : 0;
+            case 23: return this.teqsa.getSelectedFilterSettings().isEnabled() ? 1 : 0;
+            case 24: return this.teqsa.getSelectedFilterSettings().isBlacklist() ? 1 : 0;
+            case 25: return this.teqsa.getSelectedFilterSettings().getMatchMeta() ? 1 : 0;
+            case 26: return this.teqsa.getSelectedFilterSettings().getMatchNBT() ? 1 : 0;
+        }
+
+        return 0;
+    }
+
+    @Override
+    public boolean isButtonEnabled(int callbackId)
+    {
+        // Disable the filter mode buttons if there is no Memory Card present
+        if (callbackId >= 23 && callbackId <= 26)
+        {
+            return this.teqsa.isInventoryAccessible(this.player);
+        }
+
+        return true;
     }
 }

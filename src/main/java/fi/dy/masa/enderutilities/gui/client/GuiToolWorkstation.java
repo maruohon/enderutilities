@@ -106,11 +106,11 @@ public class GuiToolWorkstation extends GuiEnderUtilities
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName(), new Object[0]);
+        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage", new Object[0]), 8, 56, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.renameitems", new Object[0]), 8, 86, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory", new Object[0]), 8, 125, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage"), 8, 56, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.renameitems"), 8, 86, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 125, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
@@ -185,14 +185,14 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_TOOL && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
         else if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_RENAME && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename", new Object[0]));
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.useemptynametoreset", new Object[0]));
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename"));
+            list.add(I18n.format("enderutilities.gui.label.toolworkstation.useemptynametoreset"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
     }

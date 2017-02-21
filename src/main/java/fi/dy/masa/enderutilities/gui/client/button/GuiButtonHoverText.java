@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.gui.client;
+package fi.dy.masa.enderutilities.gui.client.button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class GuiButtonHoverText extends GuiButtonIcon
             ResourceLocation texture, int hoverOffsetU, int hoverOffsetV, String ... hoverStrings)
     {
         super(id, x, y, w, h, u, v, texture, hoverOffsetU, hoverOffsetV);
-        this.hoverStrings = new ArrayList<String>(2);
+        this.hoverStrings = new ArrayList<String>();
 
         for (String text : hoverStrings)
         {

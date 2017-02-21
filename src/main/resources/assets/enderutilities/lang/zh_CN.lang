@@ -196,11 +196,15 @@ tile.enderutilities.toolworkstation.tooltips=- 用来对模块化工具中的模
 # GUI and item labels/tooltips etc:
 ###################################
 
+enderutilities.gui.infoarea.inventoryswapper=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行交易操作|lf- 中键切换到单个格子
+enderutilities.gui.infoarea.quickstacker=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行快速整理|lf- 中键切换到单个格子|lf- 默认情况下仅移动出现在|lf  目标物品栏中的物品|lf- 使用模式键来启动|lf- 潜行状态下移动所有蓝色格子中的物品|lf- Can also be sneak + right clicked on|lf  inventories to quick stack matching items to|lf  that inventory
+enderutilities.gui.infoarea.quickstackeradvanced=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
+
 enderutilities.gui.label.blacklist=黑名单
 enderutilities.gui.label.blockquickactions=禁用快捷操作
 enderutilities.gui.label.builderswand.template=模板名称
 enderutilities.gui.label.clearcraftinggrid=清空表格
-enderutilities.gui.label.dyeslot=染色
+enderutilities.gui.label.portalpanel.dyeslot=染色
 enderutilities.gui.label.enderinfuser.input=末影珍珠或末影之眼
 enderutilities.gui.label.enderinfuser.chargeableinput=可充能的物品
 enderutilities.gui.label.fillstacks=填满所有物品组
@@ -210,7 +214,6 @@ enderutilities.gui.label.filterpresets=预设过滤设置
 enderutilities.gui.label.filters.disabled=无视过滤设置
 enderutilities.gui.label.filters.enabled=采用过滤设置
 enderutilities.gui.label.holdshifttoincludehotbar=(按住Shift应用到快捷栏)
-enderutilities.gui.label.inventoryswapper.info=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行交易操作|lf- 中键切换到单个格子
 enderutilities.gui.label.toolworkstation.itemtorename=改名物品
 enderutilities.gui.label.leaveonefilledstack=保留一组各种类物品
 enderutilities.gui.label.leaveoneitemongrid=保留单个物品
@@ -227,14 +230,11 @@ enderutilities.gui.label.nbt.match=匹配NBT值
 enderutilities.gui.label.outputbuffer=缓存
 enderutilities.gui.label.outputtoenderchest=启用/禁用对末影箱子的输出
 enderutilities.gui.label.slotpresets=Slot presets
-enderutilities.gui.label.quickstacker.info=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行快速整理|lf- 中键切换到单个格子|lf- 默认情况下仅移动出现在|lf  目标物品栏中的物品|lf- 使用模式键来启动|lf- 潜行状态下移动所有蓝色格子中的物品|lf- Can also be sneak + right clicked on|lf  inventories to quick stack matching items to|lf  that inventory
-enderutilities.gui.label.quickstackeradvanced.info=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 enderutilities.gui.label.quickstack=快速整理
 enderutilities.gui.label.renameitems=重命名物品
 enderutilities.gui.label.setname=设置名称
 enderutilities.gui.label.settargetname=设置目标名称
 enderutilities.gui.label.sortitems=排序物品
-enderutilities.gui.label.slowfasttoggle=切换慢速/快速模式
 enderutilities.gui.label.toolworkstation.tool=改造工具或物品
 enderutilities.gui.label.toolworkstation.useemptynametoreset=保存为空白可恢复到默认名称
 enderutilities.gui.label.transportitemsslot=把物品远程传送至容器中
@@ -242,7 +242,6 @@ enderutilities.gui.label.use.areablock=使用方块周围区域
 enderutilities.gui.label.use.areaplayer=使用玩家周围区域
 enderutilities.gui.label.use.linkcrystaltargets=使用连接水晶上的目标
 enderutilities.gui.label.useitemsfrominventory=使用物品栏中的物品
-enderutilities.gui.label.useoredictionary=使用矿物辞典
 enderutilities.gui.label.whitelist=白名单
 
 enderutilities.tooltip.dimension=维度

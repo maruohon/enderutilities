@@ -9,6 +9,11 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -16,7 +21,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class GuiCreationStation extends GuiContainerLargeStacks implements IButtonCallback
+public class GuiCreationStation extends GuiContainerLargeStacks implements IButtonStateCallback
 {
     public static final int[] ACTION_BUTTON_POSX = new int[] { 41, 59, 77, 149, 167, 185 };
     public static final int[] CRAFTING_BUTTON_POSX = new int[] { 44, 57, 70, 186, 173, 160 };
@@ -26,13 +31,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             "enderutilities.gui.label.leaveonefilledstack",
             "enderutilities.gui.label.fillstacks",
             "enderutilities.gui.label.movematchingitems",
-            "enderutilities.gui.label.moveallitems",
-            "enderutilities.gui.label.slowfasttoggle",
-            "enderutilities.gui.label.clearcraftinggrid",
-            "enderutilities.gui.label.useoredictionary",
-            "enderutilities.gui.label.leaveoneitemongrid",
-            "enderutilities.gui.label.useitemsfrominventory",
-            "enderutilities.gui.label.sortitems"
+            "enderutilities.gui.label.moveallitems"
     };
 
     private final TileEntityCreationStation tecs;
@@ -43,7 +42,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     {
         super(container, 240, 256, "gui.container.creationstation");
 
-        this.infoArea = new InfoArea(7, 89, 17, 17, "enderutilities.gui.label.creationstation.info");
+        this.infoArea = new InfoArea(7, 89, 17, 17, "enderutilities.gui.infoarea.creationstation");
         this.tecs = te;
         this.containerCS = container;
         this.invSize = container.inventory.getSlots();
@@ -62,7 +61,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.creationstation", new Object[0]), 80, 6, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.creationstation"), 80, 6, 0x404040);
     }
 
     @Override
@@ -162,14 +161,14 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         boolean isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0;
 
         // Draw the burn progress flame
-        int vOff = (isFast == true ? 34 : 20);
+        int vOff = (isFast ? 34 : 20);
         int h = (this.containerCS.fuelProgress & 0x7F) * 13 / 100;
         this.drawTexturedModalRect(this.guiLeft + 9, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, 14, h + 1);
 
         // Draw the smelting progress arrow
         if ((this.containerCS.smeltProgress & 0xFF) > 0)
         {
-            vOff = isFast == true ? 10 : 0;
+            vOff = isFast ? 10 : 0;
             int w = (this.containerCS.smeltProgress & 0xFF) * 11 / 100;
             this.drawTexturedModalRect(this.guiLeft + 27, this.guiTop + 11, 134, vOff, w, 10);
         }
@@ -179,14 +178,14 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0;
 
         // Draw the burn progress flame
-        vOff = (isFast == true ? 34 : 20);
+        vOff = (isFast ? 34 : 20);
         h = ((this.containerCS.fuelProgress >> 8) & 0x7F) * 13 / 100;
         this.drawTexturedModalRect(this.guiLeft + 217, this.guiTop + 30 + 12 - h, 134, vOff + 13 - h, 14, h + 1);
 
         // Draw the smelting progress arrow
         if ((this.containerCS.smeltProgress >> 8) > 0)
         {
-            vOff = isFast == true ? 10 : 0;
+            vOff = isFast ? 10 : 0;
             int w = ((this.containerCS.smeltProgress >> 8) & 0x7F) * 11 / 100;
             this.drawTexturedModalRect(this.guiLeft + 203 + 10 - w, this.guiTop + 11, 144 + 10 - w, vOff, w, 10);
         }
@@ -194,7 +193,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         // Draw the red or purple background under non-matching crafting grid slots
         for (int invId = 0; invId < 2; invId++)
         {
-            if (this.tecs.getShowRecipe(invId) == true)
+            if (this.tecs.getShowRecipe(invId))
             {
                 for (int slotNum = 0; slotNum < 9; slotNum++)
                 {
@@ -280,28 +279,48 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
 
         // Crafting grid clear buttons
-        this.buttonList.add(new GuiButtonHoverText(10, x +  84, y + 89, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
-        this.buttonList.add(new GuiButtonHoverText(11, x + 148, y + 89, 8, 8, 0,  8, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[7]));
+        this.buttonList.add(new GuiButtonHoverText(10, x +  84, y + 89, 8, 8, 0,  8,
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.clearcraftinggrid"));
+        this.buttonList.add(new GuiButtonHoverText(11, x + 148, y + 89, 8, 8, 0,  8,
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.clearcraftinggrid"));
 
         // Add other left side crafting grid buttons
-        this.buttonList.add(new GuiButtonHoverText(12, x + 45, y + 89, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
-        this.buttonList.add(new GuiButtonHoverText(13, x + 58, y + 89, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
-        this.buttonList.add(new GuiButtonHoverText(14, x + 71, y + 89, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
+        this.buttonList.add(new GuiButtonStateCallback(12, x + 45, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 32, "enderutilities.gui.label.useoredictionary.disabled"),
+                ButtonState.createTranslate(0, 32, "enderutilities.gui.label.useoredictionary.enabled")));
+        this.buttonList.add(new GuiButtonStateCallback(13, x + 58, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 24, "enderutilities.gui.label.leaveoneitemongrid.disabled"),
+                ButtonState.createTranslate(0, 24, "enderutilities.gui.label.leaveoneitemongrid.enabled")));
+        this.buttonList.add(new GuiButtonStateCallback(14, x + 71, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 16, "enderutilities.gui.label.useitemsfrominventory.disabled"),
+                ButtonState.createTranslate(0, 16, "enderutilities.gui.label.useitemsfrominventory.enabled")));
 
         // Add other right side crafting grid buttons
-        this.buttonList.add(new GuiButtonHoverText(15, x + 161, y + 89, 8, 8, 0, 16, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[10]));
-        this.buttonList.add(new GuiButtonHoverText(16, x + 174, y + 89, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[9]));
-        this.buttonList.add(new GuiButtonHoverText(17, x + 187, y + 89, 8, 8, 0, 32, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[8]));
+        this.buttonList.add(new GuiButtonStateCallback(15, x + 161, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 16, "enderutilities.gui.label.useitemsfrominventory.disabled"),
+                ButtonState.createTranslate(0, 16, "enderutilities.gui.label.useitemsfrominventory.enabled")));
+        this.buttonList.add(new GuiButtonStateCallback(16, x + 174, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 24, "enderutilities.gui.label.leaveoneitemongrid.disabled"),
+                ButtonState.createTranslate(0, 24, "enderutilities.gui.label.leaveoneitemongrid.enabled")));
+        this.buttonList.add(new GuiButtonStateCallback(17, x + 187, y + 89, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0, 32, "enderutilities.gui.label.useoredictionary.disabled"),
+                ButtonState.createTranslate(0, 32, "enderutilities.gui.label.useoredictionary.enabled")));
 
         // Add the sort button for the station inventory
-        this.buttonList.add(new GuiButtonHoverText(30, x + 116, y + 90, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[11]));
+        this.buttonList.add(new GuiButtonHoverText(30, x + 116, y + 90, 8, 8, 0, 24,
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems"));
 
         // Add the sort button for the player inventory
-        this.buttonList.add(new GuiButtonHoverText(31, x + 116, y + 162, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[11]));
+        this.buttonList.add(new GuiButtonHoverText(31, x + 116, y + 162, 8, 8, 0, 24,
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
 
         // Add the left and right side furnace mode buttons
-        this.buttonList.add(new GuiButtonCallback(18, x +   9, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0, this, BUTTON_STRINGS[6]));
-        this.buttonList.add(new GuiButtonCallback(19, x + 217, y + 71, 14, 14, 60, 0, this.guiTextureWidgets, 14, 0, this, BUTTON_STRINGS[6]));
+        this.buttonList.add(new GuiButtonStateCallback(18, x +   9, y + 71, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60,  0, "enderutilities.gui.label.furnace.slow"),
+                ButtonState.createTranslate(60, 14, "enderutilities.gui.label.furnace.fast")));
+        this.buttonList.add(new GuiButtonStateCallback(19, x + 217, y + 71, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60,  0, "enderutilities.gui.label.furnace.slow"),
+                ButtonState.createTranslate(60, 14, "enderutilities.gui.label.furnace.fast")));
 
         // Add the recipe recall buttons
         for (int i = 0; i < 5; i++)
@@ -312,20 +331,26 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     }
 
     @Override
-    public int getButtonU(int callbackId, int defaultU)
+    public int getButtonStateIndex(int callbackId)
     {
-        return defaultU;
+        switch (callbackId)
+        {
+            case 12: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_OREDICT) != 0 ? 1 : 0;
+            case 13: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
+            case 14: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
+            case 15: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
+            case 16: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
+            case 17: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_OREDICT) != 0 ? 1 : 0;
+            case 18: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 1 : 0;
+            case 19: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 1 : 0;
+        }
+        return 0;
     }
 
     @Override
-    public int getButtonV(int callbackId, int defaultV)
+    public boolean isButtonEnabled(int callbackId)
     {
-        if (callbackId == 19)
-        {
-            return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 14 : 0;
-        }
-
-        return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 14 : 0;
+        return true;
     }
 
     @Override
@@ -344,7 +369,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         }
         else if (button.id >= 4 && button.id <= 9)
         {
-            if (isShiftKeyDown() == true || mouseButton != 0)
+            if (isShiftKeyDown() || mouseButton != 0)
             {
                 action = TileEntityCreationStation.GUI_ACTION_SET_QUICK_ACTION;
             }
@@ -373,7 +398,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             // Left click: Load recipe or load items from recipe into crafting grid, or if sneaking, store the recipe
             if (mouseButton == 0)
             {
-                if (isShiftKeyDown() == true)
+                if (isShiftKeyDown())
                 {
                     action = TileEntityCreationStation.GUI_ACTION_RECIPE_STORE;
                 }
@@ -408,7 +433,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             valid = false;
         }
 
-        if (valid == true)
+        if (valid)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tecs.getWorld().provider.getDimension(),
                     this.tecs.getPos(), ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, action, element));
