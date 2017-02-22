@@ -60,7 +60,6 @@ public class PortalFormer
         this.frameCheckLimit = Configs.portalFrameCheckLimit;
         this.frameLoopCheckLimit = Configs.portalLoopCheckLimit;
         this.portalAreaCheckLimit = Configs.portalAreaCheckLimit;
-        this.portalsFound = 0;
     }
 
     /*public List<BlockPos> getVisited() { return this.visited; }
@@ -421,6 +420,13 @@ public class PortalFormer
                 if (block.isAir(state, this.world, pos) || block == this.blockPortal)
                 {
                     this.checkForCorner(pos, false);
+
+                    // This is to fix single block portals not getting found via the checkForCorner() method.
+                    // The actual portal block count will be skewed, but it isn't used for anything other than a "> 0" check anyway.
+                    if (block == this.blockPortal)
+                    {
+                        this.portalsFound++;
+                    }
                 }
                 else if (block == this.blockFrame)
                 {
