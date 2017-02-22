@@ -15,6 +15,7 @@ public class Configs
     public static int portalFrameCheckLimit;
     public static int portalLoopCheckLimit;
     public static int portalAreaCheckLimit;
+    public static boolean handyBagEnableItemUpdate;
     public static boolean useEnderCharge;
 
     // Builder's Wand

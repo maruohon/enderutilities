@@ -191,11 +191,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         {
             int x = (this.width - this.xSize) / 2;
             int y = (this.height - this.ySize) / 2;
-            int[] xPos = new int[] { 112 - 1, 21 - 1, 227 - 1 };
+            int[] xPos = new int[] { 115 - 1, 21 - 1, 227 - 1 };
 
             for (int i = 0; i < 3; i++)
             {
-                if (this.isSectionLocked(i))
+                if (this.isMaskActiveForSection(i, "LockMask"))
                 {
                     // Draw the hilight border for active Block-Quick-Actions buttons
                     this.drawTexturedModalRect(x + xPos[i], y + 90, 120, 24, 10, 10);
@@ -251,18 +251,18 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         y = this.guiTop + this.containerHB.getSlot(0).yPos - 11;
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 0, x + 17, y, 8, 8, 8, 0,
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 0, x - 1, y, 8, 8, 8, 0,
                 this.guiTextureWidgets, this,
                 ButtonState.createTranslate(0, 48, "enderutilities.gui.label.bag.disabled"),
                 ButtonState.createTranslate(0,  0, "enderutilities.gui.label.bag.enabled")));
         // Pickup mode toggle
-        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 1, x + 41, y, 8, 8, 8, 0,
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 1, x + 23, y, 8, 8, 8, 0,
                 this.guiTextureWidgets, this,
                 ButtonState.createTranslate(0, 40, "enderutilities.gui.label.pickupmode.disabled"),
                 ButtonState.createTranslate(0, 56, "enderutilities.gui.label.pickupmode.matching"),
                 ButtonState.createTranslate(0, 64, "enderutilities.gui.label.pickupmode.all")));
         // Restock mode toggle
-        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 2, x + 29, y, 8, 8, 8, 0,
+        this.buttonList.add(new GuiButtonStateCallback(BTN_ID_FIRST_MODES + 2, x + 11, y, 8, 8, 8, 0,
                 this.guiTextureWidgets, this,
                 ButtonState.createTranslate(0, 40, "enderutilities.gui.label.restockmode.disabled"),
                 ButtonState.createTranslate(0, 80, "enderutilities.gui.label.restockmode.hotbar"),
@@ -275,12 +275,15 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             // Sort player inventory
             this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24,
                     this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
+            this.buttonList.add(new GuiButtonStateCallback(20, x + 35, y + 0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.updateitems.disabled"),
+                    ButtonState.createTranslate(0, 88, "enderutilities.gui.label.updateitems.enabled")));
         }
         else
         {
             // Add the sort buttons
             this.buttonList.add(new GuiButtonHoverText(11, x -  17, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
-            this.buttonList.add(new GuiButtonHoverText(10, x +  74, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
+            this.buttonList.add(new GuiButtonHoverText(10, x +  53, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             this.buttonList.add(new GuiButtonHoverText(12, x + 165, y +  0, 8, 8, 0, 24, this.guiTextureWidgets, 8, 0, BUTTON_STRINGS[6]));
             // Sort player inventory
             this.buttonList.add(new GuiButtonHoverText(13, x +  74, y + 70, 8, 8, 0, 24,
@@ -290,19 +293,30 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             this.buttonList.add(new GuiButtonStateCallback(15, x -  29, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
                     ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
-            this.buttonList.add(new GuiButtonStateCallback(14, x +  62, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+            this.buttonList.add(new GuiButtonStateCallback(14, x +  65, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
                     ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
             this.buttonList.add(new GuiButtonStateCallback(16, x + 177, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(0,  0, "enderutilities.gui.label.blockquickactions.disabled"),
                     ButtonState.createTranslate(0, 40, "enderutilities.gui.label.blockquickactions.enabled")));
+
+            // Add the update-items-in-section buttons
+            this.buttonList.add(new GuiButtonStateCallback(21, x -  41, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.updateitems.disabled"),
+                    ButtonState.createTranslate(0, 88, "enderutilities.gui.label.updateitems.enabled")));
+            this.buttonList.add(new GuiButtonStateCallback(20, x +  77, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.updateitems.disabled"),
+                    ButtonState.createTranslate(0, 88, "enderutilities.gui.label.updateitems.enabled")));
+            this.buttonList.add(new GuiButtonStateCallback(22, x + 189, y +  0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(0, 40, "enderutilities.gui.label.updateitems.disabled"),
+                    ButtonState.createTranslate(0, 88, "enderutilities.gui.label.updateitems.enabled")));
         }
 
         if (this.baublesLoaded)
         {
             // The texture comes from the Baubles expanded inventory texture
-            this.buttonList.add(new GuiButtonIcon(BTN_ID_BAUBLES, this.guiLeft + 68 + this.offsetXTier, this.guiTop + 15,
-                    10, 10, 190, 48, RESOURCES_BAUBLES_BUTTON, 10, 0));
+            this.buttonList.add(new GuiButtonHoverText(BTN_ID_BAUBLES, this.guiLeft + 68 + this.offsetXTier, this.guiTop + 15,
+                    10, 10, 190, 48, RESOURCES_BAUBLES_BUTTON, 10, 0, "Baubles"));
         }
     }
 
@@ -341,6 +355,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_MODES, button.id - BTN_ID_FIRST_MODES));
+        }
+        else if (button.id >= 20 && button.id <= 22)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_UPDATE, button.id - 20));
         }
         else if (button.id == 100 && this.baublesLoaded)
         {
@@ -457,7 +476,12 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             // Block quick actions
             else if (callbackId >= 14 && callbackId <= 16)
             {
-                return this.isSectionLocked(callbackId - 14) ? 1 : 0;
+                return this.isMaskActiveForSection(callbackId - 14, "LockMask") ? 1 : 0;
+            }
+            // Update items
+            else if (callbackId >= 20 && callbackId <= 22)
+            {
+                return this.isMaskActiveForSection(callbackId - 20, "UpdateMask") ? 1 : 0;
             }
         }
 
@@ -470,7 +494,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         return true;
     }
 
-    private boolean isSectionLocked(int section)
+    private boolean isMaskActiveForSection(int section, String tagName)
     {
         ItemStack stack = null;
         int selected = this.invModular.getSelectedModuleIndex();
@@ -482,7 +506,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             if (stack != null)
             {
                 long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
-                long lockMask = NBTUtils.getLong(stack, "HandyBag", "LockMask");
+                long lockMask = NBTUtils.getLong(stack, "HandyBag", tagName);
 
                 if ((lockMask & masks[section]) == masks[section])
                 {

@@ -35,6 +35,7 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import net.minecraftforge.items.wrapper.RangedWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
@@ -67,7 +68,8 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_MOVE_ITEMS    = 1;
     public static final int GUI_ACTION_SORT_ITEMS    = 2;
     public static final int GUI_ACTION_TOGGLE_BLOCK  = 3;
-    public static final int GUI_ACTION_TOGGLE_MODES  = 4;
+    public static final int GUI_ACTION_TOGGLE_UPDATE = 4;
+    public static final int GUI_ACTION_TOGGLE_MODES  = 5;
     public static final int GUI_ACTION_OPEN_BAUBLES  = 100;
 
     public ItemHandyBag()
@@ -84,9 +86,17 @@ public class ItemHandyBag extends ItemInventoryModular
     {
         super.onUpdate(stack, world, entity, slot, isCurrent);
 
-        if (world.isRemote == false && entity instanceof EntityPlayer)
+        if (world.isRemote == false)
         {
-            this.restockPlayerInventory(stack, world, (EntityPlayer) entity);
+            if (entity instanceof EntityPlayer)
+            {
+                this.restockPlayerInventory(stack, world, (EntityPlayer) entity);
+            }
+
+            if (Configs.handyBagEnableItemUpdate)
+            {
+                this.updateItems(stack, world, entity, slot);
+            }
         }
     }
 
@@ -245,32 +255,109 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public void restockPlayerInventory(ItemStack stack, World world, EntityPlayer player)
+    private static InventoryItemModular getInventoryForBag(ItemStack bagStack, EntityPlayer player)
+    {
+        InventoryItemModular bagInv = null;
+
+        // If this bag is currently open, then use that inventory instead of creating a new one,
+        // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+        if (player.openContainer instanceof ContainerHandyBag &&
+            ((ContainerHandyBag) player.openContainer).inventoryItemModular.getModularItemStack() == bagStack)
+        {
+            bagInv = ((ContainerHandyBag) player.openContainer).inventoryItemModular;
+        }
+        else
+        {
+            bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        }
+
+        if (bagInv.isAccessibleBy(player) == false)
+        {
+            return null;
+        }
+
+        return bagInv;
+    }
+
+    private void updateItems(ItemStack bagStack, World world, Entity entity, int slotNum)
+    {
+        if (entity instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer) entity;
+            InventoryItemModular bagInv = getInventoryForBag(bagStack, player);
+
+            if (bagInv != null && player.inventory.getStackInSlot(slotNum) == bagStack)
+            {
+                int slot = bagInv.getSelectedModuleIndex();
+
+                if (slot >= 0)
+                {
+                    ItemStack cardStack = bagInv.getModuleInventory().getStackInSlot(slot);
+
+                    if (cardStack != null)
+                    {
+                        long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+                        long mask = NBTUtils.getLong(cardStack, "HandyBag", "UpdateMask");
+                        int sections = bagStack.getMetadata() == 1 ? 3 : 1;
+                        int invSize = bagInv.getSlots();
+                        ItemStack stackInPlayerInv = player.inventory.getStackInSlot(slotNum);
+
+                        try
+                        {
+                            for (int i = 0; i < sections; i++)
+                            {
+                                if ((mask & masks[i]) != 0)
+                                {
+                                    SlotRange range = getSlotRangeForSection(i);
+
+                                    for (int s = range.first; s < range.lastExc && s < invSize; s++)
+                                    {
+                                        if ((mask & (1L << s)) != 0)
+                                        {
+                                            ItemStack stackTmp = bagInv.getStackInSlot(s);
+
+                                            if (stackTmp != null)
+                                            {
+                                                ItemStack stackOrig = stackTmp.copy();
+                                                // Temporarily move the item-being-updated into the bag's slot in the player's inventory
+                                                player.inventory.setInventorySlotContents(slotNum, stackTmp);
+                                                stackTmp.updateAnimation(world, entity, slotNum, false);
+
+                                                // The stack changed while being updated, write it back to the bag's inventory
+                                                if (ItemStack.areItemStacksEqual(stackTmp, stackOrig) == false)
+                                                {
+                                                    bagInv.setStackInSlot(s, stackTmp.stackSize > 0 ? stackTmp : null);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Throwable t)
+                        {
+                            EnderUtilities.logger.warn("Exception while updating items inside a Handy Bag!", t);
+                        }
+
+                        // Restore the Handy Bag into the original slot it was in
+                        player.inventory.setInventorySlotContents(slotNum, stackInPlayerInv);
+                    }
+                }
+            }
+        }
+    }
+
+    private void restockPlayerInventory(ItemStack stack, World world, EntityPlayer player)
     {
         RestockMode mode = RestockMode.fromStack(stack);
 
         // If Restock mode is enabled, then we will fill the stacks in the player's inventory from the bag
         if (world.isRemote == false && mode != RestockMode.DISABLED)
         {
-            InventoryItemModular bagInv;
+            InventoryItemModular bagInv = getInventoryForBag(stack, player);
 
-            // Only re-stock stacks when the player doesn't have a GUI open
-            //if (player.openContainer == player.inventoryContainer)
+            if (bagInv != null)
             {
-                if (player.openContainer instanceof ContainerHandyBag)
-                {
-                    bagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
-                }
-                else
-                {
-                    bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-                }
-
-                if (bagInv.isAccessibleBy(player) == false)
-                {
-                    return;
-                }
-
                 IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
                 IItemHandlerModifiable playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
@@ -286,7 +373,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public EnumActionResult tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
+    private EnumActionResult tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == false)
@@ -337,11 +424,10 @@ public class ItemHandyBag extends ItemInventoryModular
         return EnumActionResult.PASS;
     }
 
-    public static ItemStack handleItems(ItemStack itemsIn, ItemStack bagStack, EntityPlayer player)
+    private static ItemStack handleItems(ItemStack itemsIn, ItemStack bagStack, EntityPlayer player)
     {
         PickupMode pickupMode = PickupMode.fromStack(bagStack);
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        InventoryItemModular bagInv = null;
 
         // First try to fill all existing stacks in the player's inventory
         if (pickupMode != PickupMode.NONE)
@@ -354,26 +440,19 @@ public class ItemHandyBag extends ItemInventoryModular
             return null;
         }
 
-        // If this bag is currently open, then use that inventory instead of creating a new one,
-        // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
-        if (player.openContainer instanceof ContainerHandyBag &&
-            ((ContainerHandyBag)player.openContainer).inventoryItemModular.getModularItemStack() == bagStack)
-        {
-            bagInv = ((ContainerHandyBag)player.openContainer).inventoryItemModular;
-        }
-        else
-        {
-            bagInv = new InventoryItemModular(bagStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        }
+        InventoryItemModular bagInv = getInventoryForBag(bagStack, player);
 
-        IItemHandler wrappedBagInv = getWrappedEnabledInv(bagStack, bagInv);
-
-        // If there is no space left in existing stacks in the player's inventory
-        // then add the items to the bag, if one of the pickup modes is enabled.
-        if (pickupMode == PickupMode.ALL ||
-            (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(wrappedBagInv, itemsIn) != -1))
+        if (bagInv != null)
         {
-            itemsIn = InventoryUtils.tryInsertItemStackToInventory(wrappedBagInv, itemsIn);
+            IItemHandler wrappedBagInv = getWrappedEnabledInv(bagStack, bagInv);
+
+            // If there is no space left in existing stacks in the player's inventory
+            // then add the items to the bag, if one of the pickup modes is enabled.
+            if (pickupMode == PickupMode.ALL ||
+                (pickupMode == PickupMode.MATCHING && InventoryUtils.getSlotOfFirstMatchingItemStack(wrappedBagInv, itemsIn) != -1))
+            {
+                itemsIn = InventoryUtils.tryInsertItemStackToInventory(wrappedBagInv, itemsIn);
+            }
         }
 
         return itemsIn;
@@ -512,7 +591,7 @@ public class ItemHandyBag extends ItemInventoryModular
         return ret;
     }
 
-    public static boolean bagIsOpenable(ItemStack stack)
+    private static boolean bagIsOpenable(ItemStack stack)
     {
         // Can open a fresh bag with no data
         if (stack.getTagCompound() == null)
@@ -563,6 +642,7 @@ public class ItemHandyBag extends ItemInventoryModular
             ContainerHandyBag container = (ContainerHandyBag)player.openContainer;
             InventoryItemModular inv = container.inventoryItemModular;
             ItemStack stack = inv.getModularItemStack();
+
             if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
             {
                 int max = ((ItemHandyBag)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
@@ -639,21 +719,11 @@ public class ItemHandyBag extends ItemInventoryModular
                 }
                 else if (action == GUI_ACTION_TOGGLE_BLOCK && element >= 0 && element <= 2)
                 {
-                    int slot = inv.getSelectedModuleIndex();
-
-                    if (slot >= 0)
-                    {
-                        ItemStack cardStack = inv.getModuleInventory().getStackInSlot(slot);
-
-                        if (cardStack != null)
-                        {
-                            long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
-                            long lockMask = NBTUtils.getLong(cardStack, "HandyBag", "LockMask");
-                            lockMask ^= masks[element];
-                            NBTUtils.setLong(cardStack, "HandyBag", "LockMask", lockMask);
-                            UtilItemModular.setSelectedModuleStackAbs(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
-                        }
-                    }
+                    setSlotMask(inv, stack, element, "LockMask");
+                }
+                else if (action == GUI_ACTION_TOGGLE_UPDATE && element >= 0 && element <= 2)
+                {
+                    setSlotMask(inv, stack, element, "UpdateMask");
                 }
                 else if (action == GUI_ACTION_TOGGLE_MODES && element >= 0 && element <= 2)
                 {
@@ -693,7 +763,26 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    public static SlotRange getSlotRangeForSection(int section)
+    private static void setSlotMask(InventoryItemModular inv, ItemStack bagStack, int bagSection, String tagName)
+    {
+        int slot = inv.getSelectedModuleIndex();
+
+        if (slot >= 0)
+        {
+            ItemStack cardStack = inv.getModuleInventory().getStackInSlot(slot);
+
+            if (cardStack != null)
+            {
+                long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
+                long mask = NBTUtils.getLong(cardStack, "HandyBag", tagName);
+                mask ^= masks[bagSection];
+                NBTUtils.setLong(cardStack, "HandyBag", tagName, mask);
+                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
+            }
+        }
+    }
+
+    private static SlotRange getSlotRangeForSection(int section)
     {
         if (section == 0)
         {
@@ -707,7 +796,7 @@ public class ItemHandyBag extends ItemInventoryModular
         return new SlotRange(41, 14);
     }
 
-    public static IItemHandler getWrappedEnabledInv(ItemStack stack, IItemHandlerModifiable baseInv)
+    private static IItemHandler getWrappedEnabledInv(ItemStack stack, IItemHandlerModifiable baseInv)
     {
         // For the basic version of the bag, there is no locking/sections, so just return the base inventory
         if (stack.getMetadata() != 1)

@@ -102,13 +102,21 @@ public class ConfigReader
         prop.setComment("Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)");
         Configs.enderLassoAllowPlayers = prop.getBoolean();
 
+        prop = getProp("handyBagEnableItemUpdate", false);
+        prop.setComment("Master config to enable calling the stored items' update method in the Handy Bag.\n" +
+                        "WARNING: Due to how complex the bag's inventory stuff is (due to the bag storing Memory Cards,\n" +
+                        "which then store the items, using this functionality\n" +
+                        "might cause lots of NBT data changes in the bag and also considerable network bandwidth usage\n" +
+                        "when updating the bag's NBT to the clients. So USE WITH CAUTION!");
+        Configs.handyBagEnableItemUpdate = prop.getBoolean();
+
         prop = getProp(currentCategory, "harvestLevelEnderAlloyAdvanced", 3, true);
         prop.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
         Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
 
-        prop = getProp("useEnderCharge", true);
-        prop.setComment("Do items require Ender Charge to operate? (stored in Ender Capacitors)");
-        Configs.useEnderCharge = prop.getBoolean(true);
+        prop = getProp("portalAreaCheckLimit", 10000);
+        prop.setComment("How many blocks to check at most when checking that one portal area is valid");
+        Configs.portalAreaCheckLimit = prop.getInt();
 
         prop = getProp("portalFrameCheckLimit", 2000);
         prop.setComment("How many Portal Frame blocks to check at most");
@@ -118,9 +126,9 @@ public class ConfigReader
         prop.setComment("How many blocks to check at most when checking portal enclosing loops");
         Configs.portalLoopCheckLimit = prop.getInt();
 
-        prop = getProp("portalAreaCheckLimit", 10000);
-        prop.setComment("How many blocks to check at most when checking that one portal area is valid");
-        Configs.portalAreaCheckLimit = prop.getInt();
+        prop = getProp("useEnderCharge", true);
+        prop.setComment("Do items require Ender Charge to operate? (stored in Ender Capacitors)");
+        Configs.useEnderCharge = prop.getBoolean();
 
         currentCategory = CATEGORY_BUILDERSWAND;
         conf.addCustomCategoryComment(currentCategory, "Configs for the Wand of the Lazy Builder");
