@@ -40,13 +40,13 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
 
         this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
-                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+                .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING });
+        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING_H });
     }
 
     @Override

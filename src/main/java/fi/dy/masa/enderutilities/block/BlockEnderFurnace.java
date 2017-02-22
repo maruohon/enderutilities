@@ -35,13 +35,13 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
 
         this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(MODE, EnumMachineMode.OFF)
-                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+                .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, MODE });
+        return new BlockStateContainer(this, new IProperty[] { FACING_H, MODE });
     }
 
     @Override

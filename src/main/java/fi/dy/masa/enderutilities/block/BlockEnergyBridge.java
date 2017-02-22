@@ -33,14 +33,14 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
         this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(ACTIVE, false)
-                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING)
+                .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING)
                 .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { ACTIVE, FACING, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { ACTIVE, FACING_H, TYPE });
     }
 
     @Override

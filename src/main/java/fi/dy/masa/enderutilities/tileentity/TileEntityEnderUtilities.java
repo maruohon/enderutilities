@@ -54,7 +54,7 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public void rotate(Rotation rotationIn)
     {
-        this.facing = rotationIn.rotate(this.facing);
+        this.setFacing(rotationIn.rotate(this.getFacing()));
     }
 
     public void setOwner(Entity entity)

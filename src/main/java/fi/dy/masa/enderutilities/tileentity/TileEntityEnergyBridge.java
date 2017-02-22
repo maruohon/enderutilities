@@ -44,17 +44,17 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         BlockEnergyBridge.EnumMachineType receiver = BlockEnergyBridge.EnumMachineType.RECEIVER;
         BlockEnergyBridge.EnumMachineType resonator = BlockEnergyBridge.EnumMachineType.RESONATOR;
 
-        STRUCTURE_TRANSMITTER[0] = new BlockInfo(BlockPos.ORIGIN.up(3),    defaultState.withProperty(type, transmitter).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
-        STRUCTURE_TRANSMITTER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.SOUTH));
-        STRUCTURE_TRANSMITTER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
-        STRUCTURE_TRANSMITTER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.WEST));
-        STRUCTURE_TRANSMITTER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.EAST));
+        STRUCTURE_TRANSMITTER[0] = new BlockInfo(BlockPos.ORIGIN.up(3),    defaultState.withProperty(type, transmitter).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.NORTH));
+        STRUCTURE_TRANSMITTER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.SOUTH));
+        STRUCTURE_TRANSMITTER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.NORTH));
+        STRUCTURE_TRANSMITTER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.WEST));
+        STRUCTURE_TRANSMITTER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.EAST));
 
-        STRUCTURE_RECEIVER[0] = new BlockInfo(BlockPos.ORIGIN,          defaultState.withProperty(type, receiver).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
-        STRUCTURE_RECEIVER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.SOUTH));
-        STRUCTURE_RECEIVER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.NORTH));
-        STRUCTURE_RECEIVER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.WEST));
-        STRUCTURE_RECEIVER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING, EnumFacing.EAST));
+        STRUCTURE_RECEIVER[0] = new BlockInfo(BlockPos.ORIGIN,          defaultState.withProperty(type, receiver).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.NORTH));
+        STRUCTURE_RECEIVER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.SOUTH));
+        STRUCTURE_RECEIVER[2] = new BlockInfo(BlockPos.ORIGIN.south(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.NORTH));
+        STRUCTURE_RECEIVER[3] = new BlockInfo(BlockPos.ORIGIN.east(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.WEST));
+        STRUCTURE_RECEIVER[4] = new BlockInfo(BlockPos.ORIGIN.west(3),  defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.EAST));
     }
 
     public TileEntityEnergyBridge()

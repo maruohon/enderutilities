@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import fi.dy.masa.enderutilities.block.BlockPortalPanel;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiPortalPanel;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
@@ -270,24 +270,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    @Override
-    public ContainerEnderUtilities getContainer(EntityPlayer player)
-    {
-        return new ContainerPortalPanel(player, this);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public GuiEnderUtilities getGui(EntityPlayer player)
-    {
-        return new GuiPortalPanel(this.getContainer(player), this);
-    }
-
     public void tryTogglePortal()
     {
         World world = this.getWorld();
         BlockPos posPanel = this.getPos();
-        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(BlockPortalPanel.FACING).getOpposite());
+        BlockEnderUtilities blockPanel = EnderUtilitiesBlocks.blockPortalPanel;
+        BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(blockPanel.propFacing).getOpposite());
 
         PortalFormer portalFormer = new PortalFormer(world, posFrame,
                 EnderUtilitiesBlocks.blockPortalFrame, EnderUtilitiesBlocks.blockPortal);
@@ -320,5 +308,18 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 world.playSound(null, posPanel, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 0.4f, 0.85f);
             }
         }
+    }
+
+    @Override
+    public ContainerEnderUtilities getContainer(EntityPlayer player)
+    {
+        return new ContainerPortalPanel(player, this);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public GuiEnderUtilities getGui(EntityPlayer player)
+    {
+        return new GuiPortalPanel(this.getContainer(player), this);
     }
 }

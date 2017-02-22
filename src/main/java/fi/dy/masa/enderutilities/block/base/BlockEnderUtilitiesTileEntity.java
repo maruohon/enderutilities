@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.block.base;
 
 import javax.annotation.Nullable;
+import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -109,27 +109,30 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 
         if (te != null)
         {
-            state = state.withProperty(FACING, te.getFacing());
+            EnumFacing facing = te.getFacing();
+
+            // Check that we don't try to set a vertical facing to a horizontal-only property
+            if (this.propFacing == FACING || facing.getAxis() != EnumFacing.Axis.Y)
+            {
+                state = state.withProperty(this.propFacing, te.getFacing());
+            }
         }
 
         return state;
     }
 
     @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rotation)
     {
-        return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+        return state.withProperty(this.propFacing, rotation.rotate(state.getValue(this.propFacing)));
     }
 
     @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirror)
     {
-        return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+        return state.withRotation(mirror.toRotation(state.getValue(this.propFacing)));
     }
 
-    /**
-     * Rotates the block so that that front is the given EnumFacing axis.
-     */
     @Override
     public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
@@ -137,18 +140,10 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 
         if (te != null)
         {
+            te.rotate(Rotation.CLOCKWISE_90);
             IBlockState state = world.getBlockState(pos).getActualState(world, pos);
-
-            for (IProperty<?> prop : state.getProperties().keySet())
-            {
-                if (prop == FACING)
-                {
-                    te.setFacing(state.getValue(FACING).rotateAround(EnumFacing.Axis.Y));
-                    world.notifyBlockUpdate(pos, state, state, 3);
-
-                    return true;
-                }
-            }
+            world.notifyBlockUpdate(pos, state, state, 3);
+            return true;
         }
 
         return false;

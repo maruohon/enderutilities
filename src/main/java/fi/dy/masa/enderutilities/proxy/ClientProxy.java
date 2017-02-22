@@ -295,7 +295,7 @@ public class ClientProxy extends CommonProxy
     {
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockElevator);
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,
-                (new StateMap.Builder()).ignore(BlockElevator.COLOR, BlockElevator.FACING).build());
+                (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");

@@ -61,6 +61,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
+        this.propFacing = FACING;
         this.setDefaultState(this.getBlockState().getBaseState().withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
     }
 

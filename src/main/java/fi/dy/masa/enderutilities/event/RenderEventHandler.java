@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.event;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -14,7 +15,6 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -28,7 +28,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
-import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -129,16 +129,16 @@ public class RenderEventHandler
 
         if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
         {
-            TileEntity te = this.mc.world.getTileEntity(pos);
+            TileEntityPortalPanel te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(this.mc.world, pos, TileEntityPortalPanel.class);
 
-            if (te instanceof TileEntityPortalPanel)
+            if (te != null)
             {
-                String name = ((TileEntityPortalPanel) te).getPanelDisplayName();
-                EnumFacing facing = state.getValue(BlockPortalPanel.FACING);
+                String name = te.getPanelDisplayName();
+                EnumFacing facing = state.getValue(EnderUtilitiesBlocks.blockPortalPanel.propFacing);
 
                 if (StringUtils.isBlank(name) == false && name.length() > 0)
                 {
-                    GlStateManager.alphaFunc(516, 0.1F);
+                    GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
                     this.renderPortalPanelText(name, this.mc.player, pos, facing, partialTicks);
                 }
             }
@@ -244,7 +244,7 @@ public class RenderEventHandler
 
     protected void renderPortalPanelHilight(RenderGlobal context, IBlockState state, BlockPos pos, float partialTicks)
     {
-        EnumFacing facing = state.getValue(BlockEnderUtilities.FACING);
+        EnumFacing facing = state.getValue(EnderUtilitiesBlocks.blockPortalPanel.propFacing);
 
         if (pos.equals(this.portalPanelPosLast) == false || facing != this.panelFacingLast)
         {

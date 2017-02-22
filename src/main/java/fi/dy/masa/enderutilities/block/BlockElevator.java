@@ -17,10 +17,10 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -35,14 +35,13 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(COLOR, EnumDyeColor.WHITE)
-                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+                .withProperty(COLOR, EnumDyeColor.WHITE));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { COLOR, FACING });
+        return new BlockStateContainer(this, new IProperty[] { COLOR });
     }
 
     @Override
@@ -90,18 +89,12 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         return state.getValue(COLOR).getMetadata();
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public BlockRenderLayer getBlockLayer()
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        return BlockRenderLayer.CUTOUT;
+        // Don't try to set the facing as the elevator doesn't have one, which is what the super would do
+        return state;
     }
-
-    /*@Override
-    public boolean isOpaqueCube(IBlockState state)
-    {
-        return true;
-    }*/
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
@@ -153,5 +146,12 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         {
             list.add(new ItemStack(item, 1, color.getMetadata()));
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public BlockRenderLayer getBlockLayer()
+    {
+        return BlockRenderLayer.CUTOUT;
     }
 }

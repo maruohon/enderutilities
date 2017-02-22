@@ -1,22 +1,29 @@
 package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 
 public class BlockEnderUtilities extends Block
 {
     public static final EnumFacing DEFAULT_FACING = EnumFacing.NORTH;
-    public static final PropertyDirection FACING = BlockPropertiesEU.FACING;
+    public static final PropertyDirection FACING = BlockDirectional.FACING;
+    public static final PropertyDirection FACING_H = BlockHorizontal.FACING;
 
     protected String blockName;
     protected String[] unlocalizedNames;
     protected String[] tooltipNames;
     protected boolean enabled = true;
+    public PropertyDirection propFacing = FACING_H;
 
     public BlockEnderUtilities(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -72,5 +79,13 @@ public class BlockEnderUtilities extends Block
     {
         this.enabled = enabled;
         return this;
+    }
+
+    @Override
+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
+    {
+        IBlockState state = world.getBlockState(pos).withRotation(Rotation.CLOCKWISE_90);
+        world.setBlockState(pos, state, 3);
+        return true;
     }
 }

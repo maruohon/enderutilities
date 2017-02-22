@@ -10,7 +10,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
@@ -90,7 +90,7 @@ public class PortalFormer
     {
         this.analyzePortal();
 
-        if (this.getPortalState() == true)
+        if (this.getPortalState())
         {
             this.destroyPortals();
 
@@ -175,7 +175,7 @@ public class PortalFormer
         {
             BlockPos pos = iter.next();
 
-            if (this.checkForCorner(pos, true) == true)
+            if (this.checkForCorner(pos, true))
             {
                 // TODO: Check all axes, if multiple are valid for this corner position
                 EnumFacing.Axis axis = this.getPortalAxisFromCorner(pos);
@@ -270,11 +270,12 @@ public class PortalFormer
                 }
             }
 
-            if (valid == true && counter < this.portalAreaCheckLimit)
+            if (valid && counter < this.portalAreaCheckLimit)
             {
                 EnumFacing facing = this.portalAxis == EnumFacing.Axis.X ? EnumFacing.EAST :
                                     this.portalAxis == EnumFacing.Axis.Z ? EnumFacing.NORTH : EnumFacing.UP;
-                IBlockState state = EnderUtilitiesBlocks.blockPortal.getDefaultState().withProperty(BlockEnderUtilitiesPortal.FACING, facing);
+                BlockEnderUtilities block = EnderUtilitiesBlocks.blockPortal;
+                IBlockState state = block.getDefaultState().withProperty(block.propFacing, facing);
 
                 for (BlockPos posPortal : this.visited)
                 {
