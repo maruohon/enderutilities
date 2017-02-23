@@ -263,6 +263,37 @@ public class ContainerCreationStation extends ContainerLargeStacks
     }
 
     @Override
+    protected void rightClickSlot(int slotNum, EntityPlayer player)
+    {
+        // Not a crafting output slot
+        if (slotNum != 40 && slotNum != 50)
+        {
+            super.rightClickSlot(slotNum, player);
+            return;
+        }
+
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        ItemStack stackSlot = slot != null ? slot.getStack() : null;
+
+        if (stackSlot != null)
+        {
+            ItemStack stackOrig = stackSlot.copy();
+            int num = stackOrig.getMaxStackSize() / stackOrig.stackSize;
+
+            while (num-- > 0)
+            {
+                super.rightClickSlot(slotNum, player);
+
+                // Ran out of some of the ingredients, so the crafting result changed, stop here
+                if (InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         if (this.tecs.isInventoryAccessible(player) == false)
