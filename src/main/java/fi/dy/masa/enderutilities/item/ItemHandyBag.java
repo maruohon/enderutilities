@@ -70,6 +70,8 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_TOGGLE_BLOCK  = 3;
     public static final int GUI_ACTION_TOGGLE_UPDATE = 4;
     public static final int GUI_ACTION_TOGGLE_MODES  = 5;
+    public static final int GUI_ACTION_TOGGLE_SHIFTCLICK            = 6;
+    public static final int GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP  = 7;
     public static final int GUI_ACTION_OPEN_BAUBLES  = 100;
 
     public ItemHandyBag()
@@ -725,20 +727,31 @@ public class ItemHandyBag extends ItemInventoryModular
                 {
                     setSlotMask(inv, stack, element, "UpdateMask");
                 }
-                else if (action == GUI_ACTION_TOGGLE_MODES && element >= 0 && element <= 2)
+                else if (action == GUI_ACTION_TOGGLE_MODES && (element & 0x03) >= 0 && (element & 0x03) <= 2)
                 {
-                    switch (element)
+                    switch (element & 0x03)
                     {
                         case 0:
                             NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
                             break;
                         case 1:
-                            PickupMode.cycleMode(stack, false);
+                            PickupMode.cycleMode(stack, (element & 0x8000) != 0);
                             break;
                         case 2:
-                            RestockMode.cycleMode(stack, false);
+                            RestockMode.cycleMode(stack, (element & 0x8000) != 0);
                             break;
                         default:
+                    }
+                }
+                else if (action == GUI_ACTION_TOGGLE_SHIFTCLICK)
+                {
+                    ShiftMode.cycleMode(stack, element != 0);
+                }
+                else if (action == GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP)
+                {
+                    if (ShiftMode.fromStack(stack) == ShiftMode.DOUBLE_TAP)
+                    {
+                        ShiftMode.toggleDoubleTapEffectiveMode(stack);
                     }
                 }
                 else if (action == GUI_ACTION_OPEN_BAUBLES && ModRegistry.isModLoadedBaubles())
@@ -1044,6 +1057,89 @@ public class ItemHandyBag extends ItemInventoryModular
             }
 
             NBTUtils.setByte(stack, "HandyBag", "RestockMode", (byte) id);
+        }
+    }
+
+    public enum ShiftMode
+    {
+        TO_BAG      ("enderutilities.gui.label.handybag.shiftclick.tobag"),
+        INV_HOTBAR  ("enderutilities.gui.label.handybag.shiftclick.invhotbar"),
+        DOUBLE_TAP  ("enderutilities.gui.label.handybag.shiftclick.doubletapshift");
+
+        private final String unlocName;
+
+        private ShiftMode (String unlocName)
+        {
+            this.unlocName = unlocName;
+        }
+
+        public String getUnlocName()
+        {
+            return this.unlocName;
+        }
+
+        public String getDisplayName()
+        {
+            return I18n.format(this.getUnlocName());
+        }
+
+        public static ShiftMode fromId(int id)
+        {
+            return (id >= 0 && id < values().length) ? values()[id] : TO_BAG;
+        }
+
+        public static ShiftMode fromStack(ItemStack stack)
+        {
+            return fromId(NBTUtils.getByte(stack, "HandyBag", "ShiftMode") & 0x03);
+        }
+
+        public static void cycleMode(ItemStack stack, boolean reverse)
+        {
+            // The topmost bit indicates the current "double-tapped-mode"
+            // So when the main mode is "double-tap-to-toggle", then the topmost bit indicates
+            // whether the currently active mode is to-bag or between-inventory-and-hotbar
+            int rawMode = NBTUtils.getByte(stack, "HandyBag", "ShiftMode");
+            int id = (rawMode & 0x03) + (reverse ? -1 : 1);
+
+            if (id < 0)
+            {
+                id = values().length - 1;
+            }
+            else if (id >= values().length)
+            {
+                id = 0;
+            }
+
+            rawMode = (rawMode & 0x80) + id;
+            NBTUtils.setByte(stack, "HandyBag", "ShiftMode", (byte) rawMode);
+        }
+
+        public static void toggleDoubleTapEffectiveMode(ItemStack stack)
+        {
+            // The topmost bit indicates the current "double-tapped-mode"
+            // So when the main mode is "double-tap-to-toggle", then the topmost bit indicates
+            // whether the currently active mode is to-bag or between-inventory-and-hotbar
+            byte rawMode = (byte) (NBTUtils.getByte(stack, "HandyBag", "ShiftMode") ^ 0x80);
+            NBTUtils.setByte(stack, "HandyBag", "ShiftMode", rawMode);
+        }
+
+        /**
+         * Returns either TO_BAG or INV_HOTBAR, taking into account
+         * a possible active DOUBLE_TAP mode's current "double-tap-status".
+         */
+        public static ShiftMode getEffectiveMode(ItemStack stack)
+        {
+            int rawMode = NBTUtils.getByte(stack, "HandyBag", "ShiftMode");
+            ShiftMode mode = fromId(rawMode & 0x03);
+
+            if (mode == ShiftMode.DOUBLE_TAP)
+            {
+                return (rawMode & 0x80) != 0 ? ShiftMode.INV_HOTBAR : ShiftMode.TO_BAG;
+            }
+            else
+            {
+                return mode;
+            }
         }
     }
 }

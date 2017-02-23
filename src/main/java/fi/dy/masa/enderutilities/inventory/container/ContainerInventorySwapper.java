@@ -146,7 +146,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         // Middle click
         if (clickType == ClickType.CLONE && dragType == 2 && stack != null &&
-            (this.playerMainSlots.contains(slotNum) || this.playerArmorSlots.contains(slotNum) || this.playerOffhandSlots.contains(slotNum)))
+            (this.playerMainSlotsIncHotbar.contains(slotNum) || this.playerArmorSlots.contains(slotNum) || this.playerOffhandSlots.contains(slotNum)))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
             if (invSlotNum == -1)

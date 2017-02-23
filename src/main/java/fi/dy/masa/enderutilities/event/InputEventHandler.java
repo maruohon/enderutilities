@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,30 +15,38 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
+import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiScreenBuilderWandTemplate;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
-    public static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
+    private static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
+    private static final TIntObjectHashMap<Long> KEY_PRESS_TIMES = new TIntObjectHashMap<Long>(16);
     private final Minecraft mc;
     /** Has the active mouse scroll modifier mask, if any */
     private static int scrollingMask = 0;
     /** Has the currently active/pressed mask of supported modifier keys */
     private static int modifierMask = 0;
+    public static int doubleTapLimit = 500;
 
     public InputEventHandler()
     {
@@ -150,6 +159,25 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
+    public void onKeyInputEventGui(GuiScreenEvent.KeyboardInputEvent.Pre event)
+    {
+        if (event.getGui() instanceof GuiEnderUtilities)
+        {
+            int eventKey = Keyboard.getEventKey();
+
+            // One of our supported modifier keys was pressed
+            if (KEY_CODE_MAPPINGS.containsKey(eventKey) && Keyboard.getEventKeyState() && this.checkForDoubleTap(eventKey))
+            {
+                if (event.getGui() instanceof GuiHandyBag)
+                {
+                    PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                        ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP, 0));
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
     public void onMouseEvent(MouseEvent event)
     {
         int dWheel = event.getDwheel();
@@ -183,6 +211,22 @@ public class InputEventHandler
                 }
             }
         }
+    }
+
+    private boolean checkForDoubleTap(int key)
+    {
+        boolean ret = KEY_PRESS_TIMES.containsKey(key) && (System.currentTimeMillis() - KEY_PRESS_TIMES.get(key)) <= doubleTapLimit;
+
+        if (ret == false)
+        {
+            KEY_PRESS_TIMES.put(key, System.currentTimeMillis());
+        }
+        else
+        {
+            KEY_PRESS_TIMES.remove(key);
+        }
+
+        return ret;
     }
 
     private boolean buildersWandClientSideHandling()

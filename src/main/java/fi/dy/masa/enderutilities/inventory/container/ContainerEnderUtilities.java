@@ -28,6 +28,8 @@ public class ContainerEnderUtilities extends Container
     public final IItemHandler inventory;
     protected MergeSlotRange customInventorySlots;
     protected MergeSlotRange playerMainSlots;
+    protected MergeSlotRange playerHotbarSlots;
+    protected MergeSlotRange playerMainSlotsIncHotbar;
     protected MergeSlotRange playerOffhandSlots;
     protected MergeSlotRange playerArmorSlots;
     protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
@@ -42,7 +44,9 @@ public class ContainerEnderUtilities extends Container
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
         this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
+        this.playerMainSlotsIncHotbar = new MergeSlotRange(0, 0);
         this.playerMainSlots = new MergeSlotRange(0, 0);
+        this.playerHotbarSlots = new MergeSlotRange(0, 0);
         this.playerOffhandSlots = new MergeSlotRange(0, 0);
         this.playerArmorSlots = new MergeSlotRange(0, 0);
     }
@@ -76,13 +80,17 @@ public class ContainerEnderUtilities extends Container
             }
         }
 
+        this.playerMainSlots = new MergeSlotRange(playerInvStart, 27);
+        int playerHotbarStart = this.inventorySlots.size();
+
         // Player inventory hotbar
         for (int i = 0; i < 9; i++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, i, posX + i * 18, posY + 58));
         }
 
-        this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
+        this.playerMainSlotsIncHotbar = new MergeSlotRange(playerInvStart, 36);
+        this.playerHotbarSlots = new MergeSlotRange(playerHotbarStart, 9);
     }
 
     protected void addOffhandSlot(int posX, int posY)
@@ -107,7 +115,7 @@ public class ContainerEnderUtilities extends Container
 
     public SlotRange getPlayerMainInventorySlotRange()
     {
-        return this.playerMainSlots;
+        return this.playerMainSlotsIncHotbar;
     }
 
     public SlotRange getCustomInventorySlotRange()
@@ -189,26 +197,31 @@ public class ContainerEnderUtilities extends Container
         // From player armor or offhand slots to the player main inventory
         if (this.playerArmorSlots.contains(slotNum) || this.playerOffhandSlots.contains(slotNum))
         {
-            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
+            return this.transferStackToSlotRange(player, slotNum, this.playerMainSlotsIncHotbar, false);
         }
-        // From player main inventory to armor slot or the "external" inventory
-        else if (this.playerMainSlots.contains(slotNum))
+        // From player main inventory to armor slots or the "external" inventory
+        else if (this.playerMainSlotsIncHotbar.contains(slotNum))
         {
-            if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false))
-            {
-                return true;
-            }
-
-            if (this.transferStackToPrioritySlots(player, slotNum, false))
-            {
-                return true;
-            }
-
-            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false);
+            return this.transferStackFromPlayerMainInventory(player, slotNum);
         }
 
         // From external inventory to player inventory
-        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, true);
+        return this.transferStackToSlotRange(player, slotNum, this.playerMainSlotsIncHotbar, true);
+    }
+
+    protected boolean transferStackFromPlayerMainInventory(EntityPlayer player, int slotNum)
+    {
+        if (this.transferStackToSlotRange(player, slotNum, this.playerArmorSlots, false))
+        {
+            return true;
+        }
+
+        if (this.transferStackToPrioritySlots(player, slotNum, false))
+        {
+            return true;
+        }
+
+        return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false);
     }
 
     protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)

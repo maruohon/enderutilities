@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
+import fi.dy.masa.enderutilities.item.ItemHandyBag.ShiftMode;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
@@ -222,6 +223,26 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                 break;
             }
         }
+    }
+
+    @Override
+    protected boolean transferStackFromPlayerMainInventory(EntityPlayer player, int slotNum)
+    {
+        ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
+
+        if (modularStack != null && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.INV_HOTBAR)
+        {
+            if (this.playerHotbarSlots.contains(slotNum))
+            {
+                return this.transferStackToSlotRange(player, slotNum, this.playerMainSlots, false);
+            }
+            else if (this.playerMainSlots.contains(slotNum))
+            {
+                return this.transferStackToSlotRange(player, slotNum, this.playerHotbarSlots, false);
+            }
+        }
+
+        return super.transferStackFromPlayerMainInventory(player, slotNum);
     }
 
     @Override

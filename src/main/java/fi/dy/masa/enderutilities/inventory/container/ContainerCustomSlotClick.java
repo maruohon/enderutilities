@@ -361,8 +361,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             return;
         }
 
-        this.transferStackFromSlot(player, slotNum);
-        slot.onPickupFromSlot(player, stackSlot);
+        if (this.transferStackFromSlot(player, slotNum))
+        {
+            slot.onPickupFromSlot(player, stackSlot);
+        }
     }
 
     protected void pressDropKey(int slotNum, EntityPlayer player, boolean wholeStack)

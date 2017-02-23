@@ -14,6 +14,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
@@ -24,6 +25,7 @@ import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemHandyBag.PickupMode;
 import fi.dy.masa.enderutilities.item.ItemHandyBag.RestockMode;
+import fi.dy.masa.enderutilities.item.ItemHandyBag.ShiftMode;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -203,6 +205,15 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             }
         }
 
+        // Draw the shift-click double-tap mode's effective mode indication, if applicable
+        ItemStack modularStack = this.containerHB.inventoryItemModular.getModularItemStack();
+
+        if (modularStack != null && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.TO_BAG)
+        {
+            int x = this.guiLeft + this.offsetXTier + 64;
+            this.drawTexturedModalRect(x, this.guiTop + 157, 154, 0, 12, 12);
+        }
+
         int xOff = this.guiLeft + 51 + this.offsetXTier;
         // Draw the player model
         GuiInventory.drawEntityOnScreen(xOff, this.guiTop + 82, 30, xOff - this.oldMouseX, this.guiTop + 25 - this.oldMouseY, this.mc.player);
@@ -267,6 +278,10 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
                 ButtonState.createTranslate(0, 40, "enderutilities.gui.label.restockmode.disabled"),
                 ButtonState.createTranslate(0, 80, "enderutilities.gui.label.restockmode.hotbar"),
                 ButtonState.createTranslate(0, 72, "enderutilities.gui.label.restockmode.all")));
+        this.buttonList.add(new GuiButtonStateCallback(23, x + 35, y + 0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(0,  16, ShiftMode.TO_BAG.getUnlocName()),
+                ButtonState.createTranslate(0,  96, ShiftMode.INV_HOTBAR.getUnlocName()),
+                ButtonState.createTranslate(0, 104, ShiftMode.DOUBLE_TAP.getUnlocName())));
 
         if (this.bagTier == 0)
         {
@@ -275,7 +290,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             // Sort player inventory
             this.buttonList.add(new GuiButtonHoverText(13, x + 74, y + 70, 8, 8, 0, 24,
                     this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sortitems.player"));
-            this.buttonList.add(new GuiButtonStateCallback(20, x + 35, y + 0, 8, 8, 8, 0, this.guiTextureWidgets, this,
+            this.buttonList.add(new GuiButtonStateCallback(20, x + 62, y + 0, 8, 8, 8, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(0, 40, "enderutilities.gui.label.updateitems.disabled"),
                     ButtonState.createTranslate(0, 88, "enderutilities.gui.label.updateitems.enabled")));
         }
@@ -321,7 +336,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
     {
         super.actionPerformed(button);
 
@@ -353,13 +368,25 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         }
         else if (button.id >= BTN_ID_FIRST_MODES && button.id < (BTN_ID_FIRST_MODES + 3))
         {
+            int data = button.id - BTN_ID_FIRST_MODES;
+
+            if (mouseButton == 1)
+            {
+                data |= 0x8000;
+            }
+
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_MODES, button.id - BTN_ID_FIRST_MODES));
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_MODES, data));
         }
         else if (button.id >= 20 && button.id <= 22)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_UPDATE, button.id - 20));
+        }
+        else if (button.id == 23)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_SHIFTCLICK, mouseButton));
         }
         else if (button.id == 100 && this.baublesLoaded)
         {
@@ -482,6 +509,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             else if (callbackId >= 20 && callbackId <= 22)
             {
                 return this.isMaskActiveForSection(callbackId - 20, "UpdateMask") ? 1 : 0;
+            }
+            // Shift-click behaviour
+            else if (callbackId == 23)
+            {
+                return MathHelper.clamp(NBTUtils.getByte(stack, "HandyBag", "ShiftMode") & 0x3, 0, 2);
             }
         }
 

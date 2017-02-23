@@ -36,11 +36,11 @@ public class HotKeys
 
     public enum EnumKey
     {
-        TOGGLE      (0x00000001),
-        SCROLL      (0x00001000),
-        SNEAK       (0x01000000),
-        JUMP        (0x02000000),
-        CUSTOM_1    (0x10000000);
+        TOGGLE      (KEYBIND_ID_TOGGLE_MODE),
+        SCROLL      (KEYCODE_SCROLL),
+        SNEAK       (KEYCODE_SNEAK),
+        JUMP        (KEYCODE_JUMP),
+        CUSTOM_1    (KEYCODE_CUSTOM_1);
 
         private final int keyCode;
 

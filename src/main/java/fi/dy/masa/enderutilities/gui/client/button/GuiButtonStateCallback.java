@@ -2,10 +2,10 @@ package fi.dy.masa.enderutilities.gui.client.button;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonStateCallback extends GuiButtonHoverText
@@ -58,12 +58,23 @@ public class GuiButtonStateCallback extends GuiButtonHoverText
         private final int v;
         private final List<String> hoverText;
 
-        private ButtonState(int u, int v, String hoverTextKey, boolean translate)
+        private ButtonState(int u, int v, boolean translate, String... hoverStrings)
         {
             this.u = u;
             this.v = v;
             this.hoverText = new ArrayList<String>();
-            this.hoverText.add(translate ? I18n.format(hoverTextKey) : hoverTextKey);
+
+            for (String key : hoverStrings)
+            {
+                if (translate)
+                {
+                    ItemEnderUtilities.addTooltips(key, this.hoverText, false);
+                }
+                else
+                {
+                    this.hoverText.add(key);
+                }
+            }
         }
 
         public int getU()
@@ -81,14 +92,14 @@ public class GuiButtonStateCallback extends GuiButtonHoverText
             return this.hoverText;
         }
 
-        public static ButtonState create(int u, int v, String hoverText)
+        public static ButtonState create(int u, int v, String... hoverStrings)
         {
-            return new ButtonState(u, v, hoverText, false);
+            return new ButtonState(u, v, false, hoverStrings);
         }
 
-        public static ButtonState createTranslate(int u, int v, String hoverText)
+        public static ButtonState createTranslate(int u, int v, String... hoverStrings)
         {
-            return new ButtonState(u, v, hoverText, true);
+            return new ButtonState(u, v, true, hoverStrings);
         }
     }
 }
