@@ -199,9 +199,10 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
 
             // This fixes the otherwise one behind lagging count on the hotbar... wtf?!
             player.sendContainerToPlayer(player.openContainer);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public void dropAsItem()
