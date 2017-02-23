@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class EnderUtilitiesBlocks
@@ -162,11 +163,12 @@ public class EnderUtilitiesBlocks
     {
         if (isDisabled == false)
         {
+            block.setRegistryName(Reference.MOD_ID + ":" + block.getBlockName());
             GameRegistry.register(block);
 
             if (createItemBlock)
             {
-                GameRegistry.register(new ItemBlockEnderUtilities(block).setHasSubtypes(hasSubtypes).setRegistryName(block.getRegistryName()));
+                GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(Reference.MOD_ID, block.getBlockName()).setHasSubtypes(hasSubtypes));
             }
         }
         else

@@ -320,7 +320,7 @@ public class EnderUtilitiesItems
     {
         if (isDisabled == false)
         {
-            item.setRegistryName(registryName);
+            item.setRegistryName(Reference.MOD_ID + ":" + registryName);
             GameRegistry.register(item);
         }
         else

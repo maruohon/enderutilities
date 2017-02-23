@@ -28,7 +28,6 @@ public class BlockEnderUtilities extends Block
     public BlockEnderUtilities(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(material);
-        this.setRegistryName(name);
         this.setHardness(hardness);
         this.setResistance(resistance);
         this.setHarvestLevel("pickaxe", harvestLevel);
@@ -37,6 +36,11 @@ public class BlockEnderUtilities extends Block
         this.blockName = name;
         this.unlocalizedNames = this.generateUnlocalizedNames();
         this.tooltipNames = this.generateTooltipNames();
+    }
+
+    public String getBlockName()
+    {
+        return this.blockName;
     }
 
     @Override
