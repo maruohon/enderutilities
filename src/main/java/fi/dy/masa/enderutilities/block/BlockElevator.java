@@ -1,16 +1,13 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
@@ -139,6 +136,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         }
     }
 
+    /*
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
@@ -147,6 +145,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
             list.add(new ItemStack(item, 1, color.getMetadata()));
         }
     }
+    */
 
     @SideOnly(Side.CLIENT)
     @Override

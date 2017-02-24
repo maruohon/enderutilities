@@ -293,7 +293,11 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockElevator);
+        for (int i = 0; i < 16; i++)
+        {
+            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevator, i, "inventory");
+        }
+
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,
                 (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
@@ -333,6 +337,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
+    /*
     private void registerAllItemBlockModels(BlockEnderUtilities blockIn)
     {
         if (blockIn.isEnabled())
@@ -348,4 +353,5 @@ public class ClientProxy extends CommonProxy
             }
         }
     }
+    */
 }

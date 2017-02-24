@@ -3,10 +3,10 @@ package fi.dy.masa.enderutilities.registry;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
@@ -20,6 +20,7 @@ import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 
 public class EnderUtilitiesBlocks
 {
@@ -67,11 +68,14 @@ public class EnderUtilitiesBlocks
         // Register block recipes
         if (Configs.disableRecipeEnderElevator == false && Configs.disableBlockEnderElevator == false)
         {
-            for (EnumDyeColor color : EnumDyeColor.values())
-            {
-                int meta = color.getMetadata();
-                GameRegistry.addRecipe(new ItemStack(blockElevator, 2, meta), "WLW", "APA", "ARA", 'W', new ItemStack(Blocks.WOOL, 1, meta), 'A', alloy0, 'L', Blocks.STONE_PRESSURE_PLATE, 'P', Blocks.STICKY_PISTON, 'R', Items.REDSTONE);
-            }
+            RecipeSorter.register(Reference.MOD_ID + ":shapedmetadataore", ShapedMetadataOreRecipe.class, RecipeSorter.Category.SHAPED, "");
+            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevator, 2), Blocks.WOOL, 0,
+                    "WLW", "APA", "ARA",
+                    'W', Blocks.WOOL,
+                    'A', alloy0,
+                    'L', Blocks.STONE_PRESSURE_PLATE,
+                    'P', Blocks.STICKY_PISTON,
+                    'R', Items.REDSTONE));
         }
 
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
