@@ -207,7 +207,8 @@ public class EntityEndermanFighter extends EntityMob
         }
     }
 
-    public @Nullable EntityLivingBase getAssignedTarget()
+    @Nullable
+    public EntityLivingBase getAssignedTarget()
     {
         if (this.assignedTarget == null)
         {
@@ -225,7 +226,8 @@ public class EntityEndermanFighter extends EntityMob
         return this.assignedTarget;
     }
 
-    public @Nullable EntityLivingBase getRevengeTarget()
+    @Nullable
+    public EntityLivingBase getRevengeTarget()
     {
         if (this.revengeTarget == null)
         {
@@ -253,7 +255,8 @@ public class EntityEndermanFighter extends EntityMob
         return this.isBeingControlled;
     }
 
-    private @Nullable Entity getEntityFromUUID(UUID uuid)
+    @Nullable
+    private Entity getEntityFromUUID(UUID uuid)
     {
         if (this.getEntityWorld() instanceof WorldServer)
         {
@@ -263,7 +266,8 @@ public class EntityEndermanFighter extends EntityMob
         return null;
     }
 
-    protected @Nullable EntityPlayer findPlayerToAttack()
+    @Nullable
+    protected EntityPlayer findPlayerToAttack()
     {
         //if (this.timer == 0)
         {
@@ -278,7 +282,8 @@ public class EntityEndermanFighter extends EntityMob
         return null;
     }
 
-    protected @Nullable EntityPlayer getClosestVulnerablePlayer(double x, double y, double z, double distance)
+    @Nullable
+    protected EntityPlayer getClosestVulnerablePlayer(double x, double y, double z, double distance)
     {
         double closest = -1.0d;
         EntityPlayer player = null;
@@ -594,9 +599,6 @@ public class EntityEndermanFighter extends EntityMob
             nbt.setLong("RTUUIDM", this.revengeTargetUUID.getMostSignificantBits());
             nbt.setLong("RTUUIDL", this.revengeTargetUUID.getLeastSignificantBits());
         }
-
-        nbt.setBoolean("Raging", this.isRaging());
-        nbt.setBoolean("Screaming", this.isScreaming());
     }
 
     @Override
@@ -613,9 +615,6 @@ public class EntityEndermanFighter extends EntityMob
         {
             this.revengeTargetUUID = new UUID(nbt.getLong("RTUUIDM"), nbt.getLong("RTUUIDL"));
         }
-
-        this.setRaging(nbt.getBoolean("Raging"));
-        this.setScreaming(nbt.getBoolean("Screaming"));
     }
 
     private abstract class AIAttackTarget extends EntityAITarget
