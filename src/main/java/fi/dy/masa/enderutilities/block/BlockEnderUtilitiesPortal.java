@@ -9,10 +9,12 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -26,6 +28,7 @@ import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -187,22 +190,66 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
+    public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
+    {
+        // NO-OP to not call updateTick() from here
+    }
+
+    @Override
+    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    {
+        if (worldIn.isRemote == false && this.checkCanStayAndScheduleBreaking(worldIn, pos, state) == false)
+        {
+            worldIn.playSound(null, pos, SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.BLOCKS, 0.2f, 0.8f);
+            worldIn.setBlockToAir(pos);
+        }
+    }
+
+    @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
     {
-        EnumFacing facing = state.getValue(FACING);
-
-        for (EnumFacing side : EnumFacing.values())
+        if (worldIn.isRemote == false && this.checkCanStayAndScheduleBreaking(worldIn, pos, state) == false)
         {
-            if (side.getAxis() != facing.getAxis())
+            worldIn.scheduleBlockUpdate(pos, this, 0, 0);
+        }
+    }
+
+    /**
+     * Returns false if the block can't stay and should be broken,
+     * and also schedules the checks for all the adjacent blocks.
+     */
+    private boolean checkCanStayAndScheduleBreaking(World world, BlockPos pos, IBlockState state)
+    {
+        if (world.isRemote == false)
+        {
+            EnumFacing facing = state.getValue(FACING);
+            BlockPos[] positions = PositionUtils.getAdjacentPositions(pos, facing, false);
+            boolean canStay = true;
+
+            for (BlockPos posTmp : positions)
             {
-                Block block = worldIn.getBlockState(pos.offset(side)).getBlock();
+                Block block = world.getBlockState(posTmp).getBlock();
 
                 if (block != this && block != EnderUtilitiesBlocks.blockPortalFrame)
                 {
-                    worldIn.setBlockToAir(pos);
+                    for (BlockPos posTmp2 : positions)
+                    {
+                        block = world.getBlockState(posTmp2).getBlock();
+
+                        if (block == this)
+                        {
+                            world.scheduleBlockUpdate(posTmp2, block, 0, 0);
+                        }
+                    }
+
+                    canStay = false;
                     break;
                 }
             }
+
+            return canStay;
         }
+
+        return true;
     }
 }
