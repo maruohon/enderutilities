@@ -106,6 +106,12 @@ public class EntityEndermanFighter extends EntityMob
         return 2.55f;
     }
 
+    @Override
+    protected boolean canDropLoot()
+    {
+        return false;
+    }
+
     public void playEndermanSound()
     {
         if (this.ticksExisted >= this.lastCreepySound + 400)
