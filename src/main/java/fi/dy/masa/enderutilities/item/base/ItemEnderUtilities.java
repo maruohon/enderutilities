@@ -31,11 +31,6 @@ public class ItemEnderUtilities extends Item
         this.addItemOverrides();
     }
 
-    public ItemEnderUtilities(String commonTooltip)
-    {
-        this.commonTooltip = commonTooltip;
-    }
-
     @Override
     public Item setUnlocalizedName(String name)
     {

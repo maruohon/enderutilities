@@ -38,11 +38,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
     public ItemEnderPorter()
     {
-        super("enderutilities.tooltips.itemlocationboundmodular");
+        super();
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_PORTER);
+        this.commonTooltip = "enderutilities.tooltips.itemlocationboundmodular";
     }
 
     @Override

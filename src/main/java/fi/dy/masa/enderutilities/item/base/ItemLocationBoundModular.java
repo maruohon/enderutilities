@@ -31,11 +31,6 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         super();
     }
 
-    public ItemLocationBoundModular(String commonTooltip)
-    {
-        super(commonTooltip);
-    }
-
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
