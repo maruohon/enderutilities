@@ -8,7 +8,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -41,16 +40,16 @@ public class ItemEnderUtilities extends Item
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
-        return slotChanged || oldStack.getItem() != newStack.getItem() || oldStack.getMetadata() != newStack.getMetadata();
+        return slotChanged || ItemStack.areItemStacksEqual(oldStack, newStack) == false;
     }
 
     public String getBaseItemDisplayName(ItemStack stack)
     {
         // If the item has been renamed, show that name
-        if (stack.hasDisplayName() == true)
+        if (stack.hasDisplayName())
         {
-            NBTTagCompound tag = stack.getTagCompound().getCompoundTag("display");
-            return TextFormatting.ITALIC.toString() + tag.getString("Name") + TextFormatting.RESET.toString();
+            String name = stack.getTagCompound().getCompoundTag("display").getString("Name");
+            return TextFormatting.ITALIC.toString() + name + TextFormatting.RESET.toString();
         }
 
         return super.getItemStackDisplayName(stack);

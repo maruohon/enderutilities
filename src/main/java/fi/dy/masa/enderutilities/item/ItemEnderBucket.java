@@ -234,12 +234,6 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
     }
 
-    @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
-        return oldStack.equals(newStack) == false;
-    }
-
     /**
      * Checks if the player can edit the target block
      */
