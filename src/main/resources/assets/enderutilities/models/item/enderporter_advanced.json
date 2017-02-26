@@ -6,43 +6,43 @@
     "overrides": [
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.1
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.1
             },
             "model": "enderutilities:item/enderporter_advanced_stage_1"
         },
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.2
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.2
             },
             "model": "enderutilities:item/enderporter_advanced_stage_2"
         },
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.3
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.3
             },
             "model": "enderutilities:item/enderporter_advanced_stage_3"
         },
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.4
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.4
             },
             "model": "enderutilities:item/enderporter_advanced_stage_4"
         },
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.5
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.5
             },
             "model": "enderutilities:item/enderporter_advanced_stage_5"
         },
         {
             "predicate": {
-            	"underutilities:inuse": 1,
-                "underutilities:usetime": 0.6
+                "enderutilities:inuse": 1,
+                "enderutilities:usetime": 0.6
             },
             "model": "enderutilities:item/enderporter_advanced_stage_6"
         }

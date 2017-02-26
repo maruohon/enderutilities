@@ -23,6 +23,7 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -226,7 +227,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID + ":usetime"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "usetime"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -238,12 +239,12 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 else
                 {
                     ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == ItemEnderPorter.this ?
+                    return itemstack != null && itemstack.getItem() == EnderUtilitiesItems.enderPorter ?
                             (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID + ":inuse"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "inuse"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

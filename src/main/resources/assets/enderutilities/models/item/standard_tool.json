@@ -1,16 +1,16 @@
 {
     "parent": "minecraft:builtin/generated",
     "display": {
-    	"ground": {
-    	    "rotation": [ 0, 0, 0 ],
-    	    "translation": [ 0, 2, 0 ],
-    	    "scale": [ 0.5, 0.5, 0.5 ]
-    	},
-    	"head": {
-    	    "rotation": [ 0, 180, 0 ],
-    	    "translation": [ 0, 13, 7 ],
-    	    "scale": [ 1, 1, 1 ]
-    	},
+        "ground": {
+            "rotation": [ 0, 0, 0 ],
+            "translation": [ 0, 2, 0 ],
+            "scale": [ 0.5, 0.5, 0.5 ]
+        },
+        "head": {
+            "rotation": [ 0, 180, 0 ],
+            "translation": [ 0, 13, 7 ],
+            "scale": [ 1, 1, 1 ]
+        },
         "thirdperson_righthand": {
             "rotation": [ 0, -90, 55 ],
             "translation": [ 0, 4.0, 0.5 ],

@@ -2995,7 +2995,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("underutilities:usetime"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "usetime"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -3006,12 +3006,18 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
                 else
                 {
-                    ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == ItemBuildersWand.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 50.0F : 0.0F;
+                    stack = entityIn.getActiveItemStack();
+
+                    if (stack != null)
+                    {
+                        return (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 50.0F;
+                    }
+
+                    return 0f;
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("underutilities:inuse"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "inuse"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

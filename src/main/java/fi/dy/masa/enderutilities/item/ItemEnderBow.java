@@ -8,7 +8,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -16,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -27,6 +25,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -213,19 +212,19 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        String rst = "" + TextFormatting.RESET + TextFormatting.GRAY;
+        String preDGreen = TextFormatting.DARK_GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         // TP self to impact point
-        if (nbt != null && nbt.hasKey("Mode", Constants.NBT.TAG_BYTE) && nbt.getByte("Mode") == BOW_MODE_TP_SELF)
+        if (this.getBowMode(stack) == BOW_MODE_TP_SELF)
         {
-            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.format("enderutilities.tooltip.item.tpself") + rst);
+            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + I18n.format("enderutilities.tooltip.item.tpself") + rst);
         }
         // TP the target entity
         else
         {
             super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
-            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + TextFormatting.DARK_GREEN + I18n.format("enderutilities.tooltip.item.tptarget") + rst);
+            list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + I18n.format("enderutilities.tooltip.item.tptarget") + rst);
         }
     }
 
@@ -302,23 +301,29 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("underutilities:pull"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "pull"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 if (entityIn == null)
                 {
-                    return 0.0F;
+                    return 0F;
                 }
                 else
                 {
-                    ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == ItemEnderBow.this ? (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F : 0.0F;
+                    stack = entityIn.getActiveItemStack();
+
+                    if (stack != null)
+                    {
+                        return (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F;
+                    }
+
+                    return 0F;
                 }
             }
         });
-        this.addPropertyOverride(new ResourceLocation("underutilities:pulling"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "pulling"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
@@ -326,20 +331,20 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound
                 return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
             }
         });
-        this.addPropertyOverride(new ResourceLocation("underutilities:broken"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "broken"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemEnderBow.this.isBroken(stack) == true ? 1.0F : 0.0F;
+                return stack != null && ItemEnderBow.this.isBroken(stack) ? 1.0F : 0.0F;
             }
         });
-        this.addPropertyOverride(new ResourceLocation("underutilities:mode"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "mode"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemEnderBow.this.getBowMode(stack) == 1 ? 1.0F : 0.0F;
+                return stack != null && ItemEnderBow.this.getBowMode(stack) == BOW_MODE_TP_SELF ? 1.0F : 0.0F;
             }
         });
     }

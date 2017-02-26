@@ -28,7 +28,7 @@
     "overrides": [
         {
             "predicate": {
-                "underutilities:linked": 1
+                "enderutilities:linked": 1
             },
             "model": "enderutilities:item/mobharness_linked"
         }

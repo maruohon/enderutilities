@@ -27,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIBlockRiderIdleTasks;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -264,7 +265,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     @Override
     protected void addItemOverrides()
     {
-        this.addPropertyOverride(new ResourceLocation("underutilities:linked"), new IItemPropertyGetter()
+        this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "linked"), new IItemPropertyGetter()
         {
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)

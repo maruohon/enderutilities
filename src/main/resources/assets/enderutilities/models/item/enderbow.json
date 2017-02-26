@@ -4,87 +4,87 @@
         "layer0": "enderutilities:items/enderbow_mode_0_standby"
     },
     "display": {
-    	"thirdperson_righthand": {
-    	    "rotation": [ -80, 260, -40 ],
-    	    "translation": [ -1, -2, 2.5 ],
-    	    "scale": [ 0.9, 0.9, 0.9 ]
-    	},
-    	"thirdperson_lefthand": {
-    	    "rotation": [ -80, -280, 40 ],
-    	    "translation": [ -1, -2, 2.5 ],
-    	    "scale": [ 0.9, 0.9, 0.9 ]
-    	},
-    	"firstperson_righthand": {
-    	    "rotation": [ 0, -90, 25 ],
-    	    "translation": [ 1.13, 3.2, 1.13],
-    	    "scale": [ 0.68, 0.68, 0.68 ]
-    	},
-    	"firstperson_lefthand": {
-    	    "rotation": [ 0, 90, -25 ],
-    	    "translation": [ 1.13, 3.2, 1.13],
-    	    "scale": [ 0.68, 0.68, 0.68 ]
-    	}
+        "thirdperson_righthand": {
+            "rotation": [ -80, 260, -40 ],
+            "translation": [ -1, -2, 2.5 ],
+            "scale": [ 0.9, 0.9, 0.9 ]
+        },
+        "thirdperson_lefthand": {
+            "rotation": [ -80, -280, 40 ],
+            "translation": [ -1, -2, 2.5 ],
+            "scale": [ 0.9, 0.9, 0.9 ]
+        },
+        "firstperson_righthand": {
+            "rotation": [ 0, -90, 25 ],
+            "translation": [ 1.13, 3.2, 1.13],
+            "scale": [ 0.68, 0.68, 0.68 ]
+        },
+        "firstperson_lefthand": {
+            "rotation": [ 0, 90, -25 ],
+            "translation": [ 1.13, 3.2, 1.13],
+            "scale": [ 0.68, 0.68, 0.68 ]
+        }
     },
     "overrides": [
         {
             "predicate": {
-                "underutilities:mode": 1
+                "enderutilities:mode": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_standby"
         },
         {
             "predicate": {
-                "underutilities:broken": 1
+                "enderutilities:broken": 1
             },
             "model": "enderutilities:item/enderbow_mode_0_broken"
         },
         {
             "predicate": {
-            	"underutilities:mode": 1,
-                "underutilities:broken": 1
+                "enderutilities:mode": 1,
+                "enderutilities:broken": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_broken"
         },
         {
             "predicate": {
-                "underutilities:pulling": 1
+                "enderutilities:pulling": 1
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_0"
         },
         {
             "predicate": {
-                "underutilities:pulling": 1,
-                "underutilities:pull": 0.65
+                "enderutilities:pulling": 1,
+                "enderutilities:pull": 0.65
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_1"
         },
         {
             "predicate": {
-                "underutilities:pulling": 1,
-                "underutilities:pull": 0.9
+                "enderutilities:pulling": 1,
+                "enderutilities:pull": 0.9
             },
             "model": "enderutilities:item/enderbow_mode_0_pulling_2"
         },
         {
             "predicate": {
-            	"underutilities:mode": 1,
-                "underutilities:pulling": 1
+                "enderutilities:mode": 1,
+                "enderutilities:pulling": 1
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_0"
         },
         {
             "predicate": {
-            	"underutilities:mode": 1,
-                "underutilities:pulling": 1,
-                "underutilities:pull": 0.65
+                "enderutilities:mode": 1,
+                "enderutilities:pulling": 1,
+                "enderutilities:pull": 0.65
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_1"
         },
         {
             "predicate": {
-            	"underutilities:mode": 1,
-                "underutilities:pulling": 1,
-                "underutilities:pull": 0.9
+                "enderutilities:mode": 1,
+                "enderutilities:pulling": 1,
+                "enderutilities:pull": 0.9
             },
             "model": "enderutilities:item/enderbow_mode_1_pulling_2"
         }
