@@ -3,46 +3,117 @@ package fi.dy.masa.enderutilities.tileentity;
 import org.apache.commons.lang3.StringUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerToolWorkstation;
+import fi.dy.masa.enderutilities.inventory.item.InventoryItemCallback;
 import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
+public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder
 {
-    private ItemHandlerWrapperSelective itemHandlerToolWorkstation;
-    public static final int INV_SLOT_TOOL = 0;
-    public static final int INV_SLOT_MODULES_START = 1;
-    public static final int INV_SLOT_RENAME = 10;
+    private final ItemStackHandlerTileEntity itemHandlerToolSlot;
+    private final ItemStackHandlerTileEntity itemHandlerRenameSlot;
+    private final IItemHandler itemHandlerWrapperToolSlot;
+    private final IItemHandler itemHandlerWrapperModuleStorage;
+    private InventoryItemCallback itemHandlerWrapperInstalledModules;
 
     public TileEntityToolWorkstation()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(11, this);
-        // itemHandlerExternal is left as null, because this block should not expose it's inventory ie. connect to other blocks
-        this.itemHandlerToolWorkstation = new ItemHandlerWrapperToolWorkstation(this.getBaseItemHandler());
+
+        this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, 9, this);
+        this.itemHandlerToolSlot    = new ItemStackHandlerTileEntity(1, 1,  1, false, "ToolItems", this);
+        this.itemHandlerRenameSlot  = new ItemStackHandlerTileEntity(2, 1, 64, false, "RenameItems", this);
+
+        this.itemHandlerWrapperToolSlot = new ItemHandlerWrapperToolSlot(this.itemHandlerToolSlot);
+        this.itemHandlerWrapperModuleStorage    = new ItemHandlerWrapperModuleStorage(this.itemHandlerBase);
+        // itemHandlerExternal is left as null, because this block should not expose it's inventory externally
+    }
+
+    private void initStorage(boolean isRemote)
+    {
+        this.itemHandlerWrapperInstalledModules = new ItemHandlerWrapperInstalledModules(this.itemHandlerToolSlot, 10, isRemote, this);
+        this.itemHandlerWrapperInstalledModules.setContainerItemStack(this.getContainerStack());
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+
+        this.initStorage(this.getWorld().isRemote);
     }
 
     @Override
     public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return this.itemHandlerToolWorkstation;
+        return this.itemHandlerWrapperModuleStorage;
+    }
+
+    public IItemHandler getToolSlotInventory()
+    {
+        return this.itemHandlerWrapperToolSlot;
+    }
+
+    public IItemHandler getRenameSlotInventory()
+    {
+        return this.itemHandlerRenameSlot;
+    }
+
+    public IItemHandler getInstalledModulesInventory()
+    {
+        return this.itemHandlerWrapperInstalledModules;
+    }
+
+    @Override
+    public ItemStack getContainerStack()
+    {
+        return this.itemHandlerToolSlot.getStackInSlot(0);
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        // Tool inventory/slot
+        if (inventoryId == 1)
+        {
+            this.itemHandlerWrapperInstalledModules.setContainerItemStack(this.getContainerStack());
+        }
+    }
+
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
+        super.readItemsFromNBT(nbt);
+
+        this.itemHandlerToolSlot.deserializeNBT(nbt);
+        this.itemHandlerRenameSlot.deserializeNBT(nbt);
+    }
+
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        super.writeItemsToNBT(nbt);
+
+        nbt.merge(this.itemHandlerToolSlot.serializeNBT());
+        nbt.merge(this.itemHandlerRenameSlot.serializeNBT());
     }
 
     public void renameItem(String name)
     {
-        ItemStack stack = this.getBaseItemHandler().getStackInSlot(INV_SLOT_RENAME);
+        ItemStack stack = this.itemHandlerRenameSlot.getStackInSlot(0);
 
         if (stack != null)
         {
@@ -59,7 +130,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
     public String getItemName()
     {
-        ItemStack stack = this.getBaseItemHandler().getStackInSlot(INV_SLOT_RENAME);
+        ItemStack stack = this.itemHandlerRenameSlot.getStackInSlot(0);
 
         if (stack != null)
         {
@@ -69,9 +140,9 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         return "";
     }
 
-    private class ItemHandlerWrapperToolWorkstation extends ItemHandlerWrapperSelectiveModifiable
+    private class ItemHandlerWrapperToolSlot extends ItemHandlerWrapperSelectiveModifiable
     {
-        public ItemHandlerWrapperToolWorkstation(IItemHandlerModifiable baseHandler)
+        public ItemHandlerWrapperToolSlot(IItemHandlerModifiable baseHandler)
         {
             super(baseHandler);
         }
@@ -79,21 +150,82 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            return stack == null || stack.getItem() instanceof IModular;
+        }
+    }
+
+    private class ItemHandlerWrapperInstalledModules extends InventoryItemCallback
+    {
+        private final TileEntityToolWorkstation te;
+
+        public ItemHandlerWrapperInstalledModules(IItemHandlerModifiable baseHandler, int invSize, boolean isRemote, TileEntityToolWorkstation te)
+        {
+            super(null, invSize, 1, false, isRemote, null, te, "Items");
+            this.te = te;
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (super.isItemValidForSlot(slot, stack) == false || stack == null)
             {
-                return true;
+                return false;
             }
 
-            if (slot == INV_SLOT_TOOL)
+            if (stack.getItem() instanceof IModule)
             {
-                return stack.getItem() instanceof IModular;
-            }
-            else if (slot == INV_SLOT_RENAME)
-            {
-                return true;
+                ModuleType type = ((IModule) stack.getItem()).getModuleType(stack);
+                return type != ModuleType.TYPE_INVALID && type == this.getModuleTypeForSlot(slot, this.te.getContainerStack());
             }
 
-            return (stack.getItem() instanceof IModule) && (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false);
+            return false;
+        }
+
+        /**
+         * Finds the ModuleType of the given slot.
+         */
+        private ModuleType getModuleTypeForSlot(int slot, ItemStack toolStack)
+        {
+            if (toolStack != null && (toolStack.getItem() instanceof IModular))
+            {
+                IModular iModular = (IModular) toolStack.getItem();
+                int modules = 0;
+
+                for (ModuleType moduleType : ModuleType.values())
+                {
+                    if (moduleType.equals(ModuleType.TYPE_INVALID))
+                    {
+                        continue;
+                    }
+
+                    int maxOfType = iModular.getMaxModules(toolStack, moduleType);
+
+                    if (slot < modules + maxOfType)
+                    {
+                        return moduleType;
+                    }
+
+                    modules += maxOfType;
+                }
+            }
+
+            return ModuleType.TYPE_INVALID;
+        }
+    }
+
+    private class ItemHandlerWrapperModuleStorage extends ItemHandlerWrapperSelectiveModifiable
+    {
+        public ItemHandlerWrapperModuleStorage(IItemHandlerModifiable baseHandler)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            return stack == null ||
+                    ((stack.getItem() instanceof IModule) &&
+                      (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false));
         }
     }
 

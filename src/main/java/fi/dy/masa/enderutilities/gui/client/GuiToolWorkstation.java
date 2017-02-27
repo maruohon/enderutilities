@@ -22,6 +22,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 public class GuiToolWorkstation extends GuiEnderUtilities
 {
     private final TileEntityToolWorkstation te;
+    private final ContainerToolWorkstation containerTW;
     protected GuiTextField nameField;
     protected String nameLast = "";
 
@@ -29,6 +30,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
     {
         super(container, 176, 217, "gui.container." + te.getTEName());
         this.te = te;
+        this.containerTW = container;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        ItemStack toolStack = this.inventorySlots.getSlot(ContainerToolWorkstation.CONT_SLOT_TOOL).getStack();
+        ItemStack toolStack = this.containerTW.getContainerItem();
         // No tool in the tool slot, draw the dark background
         if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
         {
@@ -143,9 +145,10 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         }
 
         // Module slots
-        for (int i = 0, slotNum = ContainerToolWorkstation.CONT_SLOT_MODULES_START, dx = 79, dy = 18; i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
+        for (int i = 0, slotNum = ContainerToolWorkstation.CONT_SLOT_MODULES_START, dx = 79, dy = 18;
+             i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
         {
-            Slot slot = this.inventorySlots.getSlot(slotNum++);
+            Slot slot = this.containerTW.getSlot(slotNum++);
 
             // Draw the module type background to empty, enabled module slots
             if (slot instanceof SlotItemHandlerModule && slot.getHasStack() == false)
@@ -182,13 +185,13 @@ public class GuiToolWorkstation extends GuiEnderUtilities
     {
         Slot slot = this.getSlotUnderMouse();
         // Hovering over the tool slot
-        if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_TOOL && slot.getHasStack() == false)
+        if (slot != null && slot.slotNumber == this.containerTW.getSlotTool() && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
         }
-        else if (slot != null && slot.slotNumber == ContainerToolWorkstation.CONT_SLOT_RENAME && slot.getHasStack() == false)
+        else if (slot != null && slot.slotNumber == this.containerTW.getSlotRename() && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename"));

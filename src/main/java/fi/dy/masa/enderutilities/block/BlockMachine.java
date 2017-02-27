@@ -16,7 +16,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.effects.Effects;
@@ -27,7 +26,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
-import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class BlockMachine extends BlockEnderUtilitiesInventory
 {
@@ -77,24 +76,27 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        if (state.getValue(TYPE) == EnumMachineType.CREATION_STATION)
+        EnumMachineType machine = state.getValue(TYPE);
+
+        if (machine == EnumMachineType.CREATION_STATION)
         {
             TileEntityCreationStation te = getTileEntitySafely(world, pos, TileEntityCreationStation.class);
 
             if (te != null)
             {
                 // Drop the items from the furnace inventories
-                IItemHandler inv = te.getFurnaceInventory();
+                InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getFurnaceInventory());
+            }
+        }
+        else if (machine == EnumMachineType.TOOL_WORKSTATION)
+        {
+            TileEntityToolWorkstation te = getTileEntitySafely(world, pos, TileEntityToolWorkstation.class);
 
-                for (int i = 0; i < inv.getSlots(); i++)
-                {
-                    ItemStack stack = inv.getStackInSlot(i);
-
-                    if (stack != null)
-                    {
-                        EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
-                    }
-                }
+            if (te != null)
+            {
+                // Drop the items from the tool slot and the rename slot
+                InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getToolSlotInventory());
+                InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getRenameSlotInventory());
             }
         }
 

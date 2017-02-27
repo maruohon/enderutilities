@@ -14,6 +14,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -83,6 +85,27 @@ public class InventoryUtils
         }
 
         return 0;
+    }
+
+    /**
+     * Drops all the ItemStacks from the given inventory into the world as EntityItems
+     * @param world
+     * @param pos
+     * @param inv
+     */
+    public static void dropInventoryContentsInWorld(World world, BlockPos pos, IItemHandler inv)
+    {
+        int invSize = inv.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (stack != null)
+            {
+                EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
+            }
+        }
     }
 
     /**

@@ -95,13 +95,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
-    {
-        // This will read the Memory Cards themselves into the Memory Card inventory
-        super.readItemsFromNBT(nbt);
-    }
-
-    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("ChestTier", (byte)this.chestTier);
@@ -196,7 +189,6 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     public void inventoryChanged(int inventoryId, int slot)
     {
         this.itemInventory.setContainerItemStack(this.getContainerStack());
-        this.markDirty();
     }
 
     @Override
@@ -289,6 +281,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         {
             this.setSelectedModule(element);
             this.inventoryChanged(0, element);
+            this.markDirty();
         }
         else if (action == GUI_ACTION_LOCK_MODULE && element >= 0 && element < 4)
         {

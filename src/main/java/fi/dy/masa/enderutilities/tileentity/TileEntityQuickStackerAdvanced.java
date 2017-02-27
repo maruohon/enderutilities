@@ -180,7 +180,6 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     public void inventoryChanged(int inventoryId, int slot)
     {
         this.readFilterSettingsFromModule(this.getContainerStack());
-        this.markDirty();
     }
 
     public boolean isAreaMode()

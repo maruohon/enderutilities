@@ -227,8 +227,6 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        super.inventoryChanged(inventoryId, slot);
-
         IBlockState state = this.getWorld().getBlockState(this.getPos());
         this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 2);
     }

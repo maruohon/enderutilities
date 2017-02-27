@@ -14,7 +14,6 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTileEntity
@@ -31,19 +30,7 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
 
         if (te != null && te.getBaseItemHandler() != null)
         {
-            IItemHandler itemHandler = te.getBaseItemHandler();
-            int numSlots = itemHandler.getSlots();
-
-            for (int i = 0; i < numSlots; i++)
-            {
-                ItemStack stack = itemHandler.getStackInSlot(i);
-
-                if (stack != null)
-                {
-                    EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, false);
-                }
-            }
-
+            InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getBaseItemHandler());
             world.updateComparatorOutputLevel(pos, this);
         }
 
