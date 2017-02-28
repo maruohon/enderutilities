@@ -19,6 +19,13 @@ import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityEnderUtilities extends TileEntity
 {
+    /**
+     * The current "data version" the TileEntities are saved as.
+     * This is only used by select TEs that need to do some compatibility conversion
+     * of some of their data at some point. So increment this whenever a new release
+     * is made that needs such conversions.
+     */
+    public static final int DATA_VERSION = 6600;
     protected String tileEntityName;
     protected EnumFacing facing;
     protected OwnerData ownerData;

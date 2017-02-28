@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder
@@ -40,6 +41,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerWrapperToolSlot = new ItemHandlerWrapperToolSlot(this.itemHandlerToolSlot);
         this.itemHandlerWrapperModuleStorage    = new ItemHandlerWrapperModuleStorage(this.itemHandlerBase);
         // itemHandlerExternal is left as null, because this block should not expose it's inventory externally
+        this.initStorage(false);
     }
 
     private void initStorage(boolean isRemote)
@@ -100,6 +102,16 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
         this.itemHandlerToolSlot.deserializeNBT(nbt);
         this.itemHandlerRenameSlot.deserializeNBT(nbt);
+
+        this.compatibilityReadItemsFromPre_0_6_6_Format(nbt);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        nbt.setInteger("DataVersion", DATA_VERSION);
+        return nbt;
     }
 
     @Override
@@ -109,6 +121,36 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
         nbt.merge(this.itemHandlerToolSlot.serializeNBT());
         nbt.merge(this.itemHandlerRenameSlot.serializeNBT());
+    }
+
+    private void compatibilityReadItemsFromPre_0_6_6_Format(NBTTagCompound nbt)
+    {
+        // Compatibility code for reading the two last slots from the old style combined 11-slot inventory
+        if (nbt.getInteger("DataVersion") < 6600)
+        {
+            ItemStack stacks[] = new ItemStack[11];
+            NBTUtils.readStoredItemsFromTag(nbt, stacks, "Items");
+
+            if (this.itemHandlerToolSlot.getStackInSlot(0) == null && stacks[0] != null)
+            {
+                this.itemHandlerToolSlot.setStackInSlot(0, stacks[0]);
+            }
+
+            for (int slot = 0; slot < 8; slot++)
+            {
+                this.itemHandlerBase.setStackInSlot(slot, this.itemHandlerBase.getStackInSlot(slot + 1));
+            }
+
+            if (stacks[9] != null)
+            {
+                this.itemHandlerBase.setStackInSlot(8, stacks[9]);
+            }
+
+            if (this.itemHandlerRenameSlot.getStackInSlot(0) == null && stacks[10] != null)
+            {
+                this.itemHandlerRenameSlot.setStackInSlot(0, stacks[10]);
+            }
+        }
     }
 
     public void renameItem(String name)
