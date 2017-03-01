@@ -78,7 +78,7 @@ public class TaskBuildersWand implements IPlayerTask
                 // Move the target position forward by one block after the area has been built
                 if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
                 {
-                    wand.setPosition(stack, pos.offset(pos.side, 1), ItemBuildersWand.POS_START);
+                    wand.setPosition(pos.offset(pos.side, 1), ItemBuildersWand.POS_START, stack, player);
                 }
 
                 world.playSound(null, player.getPosition(), SoundEvents.BLOCK_NOTE_PLING, SoundCategory.BLOCKS, 0.4f, 1.0f);

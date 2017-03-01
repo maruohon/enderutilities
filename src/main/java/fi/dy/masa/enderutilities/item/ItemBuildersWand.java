@@ -198,7 +198,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
                 else
                 {
-                    this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side), POS_END);
+                    BlockPosEU posEU = new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side);
+                    this.setPosition(posEU, POS_END, stack, player);
                 }
             }
 
@@ -245,12 +246,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode))
                 {
-                    this.setPosition(stack, new BlockPosEU(pos, world.provider.getDimension(), side), POS_START);
+                    this.setPosition(new BlockPosEU(pos, world.provider.getDimension(), side), POS_START, stack, player);
                 }
             }
             else
             {
-                this.setPosition(stack, new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side), POS_START);
+                BlockPosEU posEU = new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side);
+                this.setPosition(posEU, POS_START, stack, player);
             }
         }
 
@@ -561,37 +563,46 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return BlockPosEU.readFromTag(this.getCornerPositionTag(stack, mode, isStart));
     }
 
-    private void setPerTemplateAreaCorner(ItemStack stack, Mode mode, boolean isStart, BlockPosEU pos)
+    private void setPerTemplateAreaCorner(BlockPosEU pos, Mode mode, boolean isStart, ItemStack stack, EntityPlayer player)
     {
         BlockPosEU oldPos = this.getPerTemplateAreaCorner(stack, mode, isStart);
 
         if (oldPos != null && oldPos.equals(pos))
         {
             this.removeCornerPositionTag(stack, mode, isStart);
-        }
-        else
-        {
-            pos.writeToTag(this.getCornerPositionTag(stack, mode, isStart));
-        }
-    }
-
-    public void setPosition(ItemStack stack, BlockPosEU pos, boolean isStart)
-    {
-        Mode mode = Mode.getMode(stack);
-
-        if (isStart == false && (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.REPLACE))
-        {
             return;
         }
 
-        if (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode) == false)
+        if (PositionUtils.isPositionValid(pos) &&
+                (isStart == false || PositionUtils.isPositionValid(this.getTransformedEndPosition(stack, mode, pos))))
+        {
+            pos.writeToTag(this.getCornerPositionTag(stack, mode, isStart));
+        }
+        else
+        {
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.positionoutsideworld"));
+        }
+    }
+
+    public void setPosition(BlockPosEU pos, boolean isStart, ItemStack stack, EntityPlayer player)
+    {
+        Mode mode = Mode.getMode(stack);
+
+        if (PositionUtils.isPositionValid(pos) == false)
+        {
+            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.positionoutsideworld"));
+            return;
+        }
+
+        if ((isStart == false && (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.REPLACE)) ||
+            (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode) == false))
         {
             return;
         }
 
         if (mode.isAreaMode())
         {
-            this.setPerTemplateAreaCorner(stack, mode, isStart, pos);
+            this.setPerTemplateAreaCorner(pos, mode, isStart, stack, player);
             this.setMirror(stack, mode, Mirror.NONE);
 
             // Update the base rotation to the current area when changing corners
@@ -702,7 +713,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE &&
                 mode != Mode.REPLACE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
             {
-                this.setPosition(stack, pos.offset(pos.side, 1), POS_START);
+                this.setPosition(pos.offset(pos.side, 1), POS_START, stack, player);
             }
         }
         else
@@ -1211,8 +1222,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         area.writeToNBT(modeTag);
     }
 
-    private void moveEndPosition(ItemStack stack, EnumFacing direction, boolean reverse)
+    private void moveEndPosition(ItemStack stack, EntityPlayer player, boolean reverse)
     {
+        EnumFacing direction = EntityUtils.getClosestLookingDirection(player);
         Mode mode = Mode.getMode(stack);
         BlockPosEU posStart = mode == Mode.CUBE || mode == Mode.WALLS ?
                 this.getPosition(stack, mode, POS_START) : this.getPerTemplateAreaCorner(stack, mode, POS_START);
@@ -1229,11 +1241,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             if (mode == Mode.WALLS || mode == Mode.CUBE)
             {
-                this.setPosition(stack, posEnd, false);
+                this.setPosition(posEnd, false, stack, player);
             }
             else
             {
-                this.setPerTemplateAreaCorner(stack, mode, false, posEnd);
+                this.setPerTemplateAreaCorner(posEnd, mode, false, stack, player);
                 this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
                 this.setMirror(stack, mode, Mirror.NONE);
             }
@@ -2476,7 +2488,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 if (mode.hasTwoPlacableCorners())
                 {
-                    this.moveEndPosition(stack, EntityUtils.getClosestLookingDirection(player), EnumKey.keypressActionIsReversed(key));
+                    this.moveEndPosition(stack, player, EnumKey.keypressActionIsReversed(key));
                 }
                 else
                 {

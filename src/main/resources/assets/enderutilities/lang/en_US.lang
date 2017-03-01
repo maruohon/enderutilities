@@ -437,6 +437,7 @@ enderutilities.chat.message.killedentitieswithcount=Killed %d entities
 enderutilities.chat.message.memorycard.full=Memory Card is full
 enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
 enderutilities.chat.message.notenoughendercharge=Not enough Ender Charge
+enderutilities.chat.message.positionoutsideworld=The position or area would be outside world limits
 enderutilities.chat.message.private.owned.by=Set to Private, owned by %s
 
 ##################

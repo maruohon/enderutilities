@@ -19,6 +19,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
@@ -172,6 +173,12 @@ public class PositionUtils
         return pos.posX >= posMin.getX() && pos.posX <= posMax.getX() &&
                pos.posY >= posMin.getY() && pos.posY <= posMax.getY() &&
                pos.posZ >= posMin.getZ() && pos.posZ <= posMax.getZ();
+    }
+
+    public static boolean isPositionValid(BlockPosEU pos)
+    {
+        World world = DimensionManager.getWorld(pos.dimension);
+        return world != null && pos.posY >= 0 && pos.posY < world.getHeight() && world.getWorldBorder().contains(pos.toBlockPos());
     }
 
     public static BlockPos getPositionInfrontOfEntity(Entity entity)
