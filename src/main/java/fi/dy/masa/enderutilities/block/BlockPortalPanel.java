@@ -113,7 +113,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     {
         if (world.isRemote == false)
         {
-            int id = this.getTargetId(pos, state.getValue(FACING), player);
+            int id = getPointedElementId(pos, state.getValue(FACING), player);
 
             if (id >= 0 && id <= 8)
             {
@@ -202,7 +202,12 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
         return false;
     }
 
-    private int getTargetId(BlockPos pos, EnumFacing side, Entity entity)
+    /**
+     * Returns the "id" of the pointed element of the Portal Panel the player is currently looking at.
+     * The target selection buttons are ids 0..7, the middle button is 8 and the base of the panel is 9.
+     * Invalid hits/misses return -1.
+     */
+    public static int getPointedElementId(BlockPos pos, EnumFacing side, Entity entity)
     {
         List<AxisAlignedBB> panelBoxes = new ArrayList<AxisAlignedBB>();
 

@@ -78,18 +78,6 @@ public class RenderEventHandler
         }
     }
 
-    private void renderItemExtras(World world, EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
-    {
-        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.buildersWand);
-
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
-        {
-            this.buildersWandRenderer.renderSelectedArea(world, usingPlayer, stack, clientPlayer, partialTicks);
-        }
-
-        this.rulerRenderer.renderAllPositionPairs(usingPlayer, clientPlayer, partialTicks);
-    }
-
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent.Post event)
     {
@@ -123,6 +111,18 @@ public class RenderEventHandler
         }
     }
 
+    private void renderItemExtras(World world, EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
+    {
+        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.buildersWand);
+
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+        {
+            this.buildersWandRenderer.renderSelectedArea(world, usingPlayer, stack, clientPlayer, partialTicks);
+        }
+
+        this.rulerRenderer.renderAllPositionPairs(usingPlayer, clientPlayer, partialTicks);
+    }
+
     private void renderPortalPanelText(BlockPos pos, float partialTicks)
     {
         IBlockState state = this.mc.world.getBlockState(pos);
@@ -133,12 +133,21 @@ public class RenderEventHandler
 
             if (te != null)
             {
-                String name = te.getPanelDisplayName();
                 EnumFacing facing = state.getValue(EnderUtilitiesBlocks.blockPortalPanel.propFacing);
+                int elementId = BlockPortalPanel.getPointedElementId(pos, facing, this.mc.player);
+                String name;
+
+                if (elementId >= 0 && elementId <= 7)
+                {
+                    name = te.getTargetDisplayName(elementId);
+                }
+                else
+                {
+                    name = te.getPanelDisplayName();
+                }
 
                 if (StringUtils.isBlank(name) == false && name.length() > 0)
                 {
-                    GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
                     this.renderPortalPanelText(name, this.mc.player, pos, facing, partialTicks);
                 }
             }
@@ -203,6 +212,7 @@ public class RenderEventHandler
         boolean flag = false; // sneaking
         FontRenderer fontrenderer = this.mc.fontRendererObj;
 
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);

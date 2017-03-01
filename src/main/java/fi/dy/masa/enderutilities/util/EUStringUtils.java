@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.util;
 
 public class EUStringUtils
 {
+    public static final String EMPTY = "";
+
     /**
      * Formats the number in value into a floored, postfixed form for display.
      * Supported formats are: 0..1000, 1.0k..9.9k, 10k..999k, 1M..nM

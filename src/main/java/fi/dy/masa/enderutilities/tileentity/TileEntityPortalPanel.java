@@ -12,6 +12,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -29,6 +30,7 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.PortalFormer;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -38,7 +40,8 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     private final ItemHandlerWrapper inventoryWrapper;
     private byte activeTargetId;
     private byte portalTargetId;
-    private String displayName = "";
+    private String displayName = EUStringUtils.EMPTY;
+    private String[] targetDisplayNames = new String[9];
     private int[] colors = new int[9];
 
     public TileEntityPortalPanel()
@@ -125,24 +128,45 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     private String getActiveName()
     {
-        if (this.activeTargetId >= 0 && this.activeTargetId < 8)
-        {
-            ItemStack stack = this.itemHandlerBase.getStackInSlot(this.activeTargetId);
+        return this.getTargetName(this.activeTargetId);
+    }
 
-            if (stack != null && stack.hasDisplayName())
+    private String getTargetName(int targetId)
+    {
+        if (targetId >= 0 && targetId <= 7)
+        {
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(targetId);
+
+            if (stack != null)
             {
                 return stack.getDisplayName();
             }
         }
 
-        return "";
+        return EUStringUtils.EMPTY;
+    }
+
+    public String getPanelDisplayName()
+    {
+        return this.displayName;
+    }
+
+    public String getTargetDisplayName(int targetId)
+    {
+        if (targetId >= 0 && targetId <= 7)
+        {
+            String name = this.targetDisplayNames[targetId];
+            return name != null ? name : EUStringUtils.EMPTY;
+        }
+
+        return EUStringUtils.EMPTY;
     }
 
     public void setTargetName(String name)
     {
         if (this.activeTargetId >= 0 && this.activeTargetId < 8)
         {
-            ItemStack stack = this.itemHandlerBase.extractItem(this.activeTargetId, 64, false);
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(this.activeTargetId);
 
             if (stack != null)
             {
@@ -155,14 +179,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     stack.setStackDisplayName(name);
                 }
 
-                this.itemHandlerBase.insertItem(this.activeTargetId, stack, false);
+                this.itemHandlerBase.setStackInSlot(this.activeTargetId, stack);
             }
         }
-    }
-
-    public String getPanelDisplayName()
-    {
-        return this.displayName;
     }
 
     @Override
@@ -202,6 +221,11 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             nbt.setInteger("c" + i, this.getColorFromItems(i));
         }
 
+        for (int i = 0; i < 8; i++)
+        {
+            nbt.setString("n" + i, this.getTargetName(i));
+        }
+
         return nbt;
     }
 
@@ -218,6 +242,14 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
             if (this.colors[i] == 0)
             {
                 this.colors[i] = 0xFFFFFF;
+            }
+        }
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (tag.hasKey("n" + i, Constants.NBT.TAG_STRING))
+            {
+                this.targetDisplayNames[i] = tag.getString("n" + i);
             }
         }
 
