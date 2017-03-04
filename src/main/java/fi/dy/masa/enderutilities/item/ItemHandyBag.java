@@ -37,6 +37,7 @@ import net.minecraftforge.items.wrapper.RangedWrapper;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
+import fi.dy.masa.enderutilities.inventory.PlayerMainInvWrapperNoSync;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -109,7 +110,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking())
         {
-            this.tryMoveItems(stack, world, player, pos, side);
+            this.tryMoveItems(world, pos, side, stack, player);
 
             return EnumActionResult.SUCCESS;
         }
@@ -281,68 +282,80 @@ public class ItemHandyBag extends ItemInventoryModular
         return bagInv;
     }
 
-    private void updateItems(ItemStack bagStack, World world, Entity entity, int slotNum)
+    private void updateItems(ItemStack bagStack, World world, Entity entity, int bagSlot)
     {
         if (entity instanceof EntityPlayer)
         {
             EntityPlayer player = (EntityPlayer) entity;
             InventoryItemModular bagInv = getInventoryForBag(bagStack, player);
 
-            if (bagInv != null && player.inventory.getStackInSlot(slotNum) == bagStack)
+            if (bagInv != null && player.inventory.getStackInSlot(bagSlot) == bagStack)
             {
-                int slot = bagInv.getSelectedModuleIndex();
+                int moduleSlot = bagInv.getSelectedModuleIndex();
 
-                if (slot >= 0)
+                if (moduleSlot >= 0)
                 {
-                    ItemStack cardStack = bagInv.getModuleInventory().getStackInSlot(slot);
+                    ItemStack cardStack = bagInv.getModuleInventory().getStackInSlot(moduleSlot);
 
                     if (cardStack != null)
                     {
+                        // Try to find an empty slot in the player's inventory, for temporarily moving the updated item to
+                        int tmpSlot = InventoryUtils.getFirstEmptySlot(new PlayerMainInvWrapperNoSync(player.inventory));
                         long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
                         long mask = NBTUtils.getLong(cardStack, "HandyBag", "UpdateMask");
-                        int sections = bagStack.getMetadata() == 1 ? 3 : 1;
+                        int numSections = bagStack.getMetadata() == 1 ? 3 : 1;
                         int invSize = bagInv.getSlots();
-                        ItemStack stackInPlayerInv = player.inventory.getStackInSlot(slotNum);
 
-                        try
+                        // If there were no empty slots, then we use the bag's slot instead... risky!
+                        if (tmpSlot == -1)
                         {
-                            for (int i = 0; i < sections; i++)
+                            tmpSlot = bagSlot;
+                        }
+
+                        ItemStack stackInTmpSlot = player.inventory.getStackInSlot(tmpSlot);
+                        boolean isCurrentItem = tmpSlot == player.inventory.currentItem;
+
+                        for (int section = 0; section < numSections; section++)
+                        {
+                            if ((mask & masks[section]) != 0)
                             {
-                                if ((mask & masks[i]) != 0)
+                                SlotRange range = getSlotRangeForSection(section);
+
+                                for (int slot = range.first; slot < range.lastExc && slot < invSize; slot++)
                                 {
-                                    SlotRange range = getSlotRangeForSection(i);
-
-                                    for (int s = range.first; s < range.lastExc && s < invSize; s++)
+                                    if ((mask & (1L << slot)) != 0)
                                     {
-                                        if ((mask & (1L << s)) != 0)
+                                        ItemStack stackTmp = bagInv.getStackInSlot(slot);
+
+                                        if (stackTmp != null)
                                         {
-                                            ItemStack stackTmp = bagInv.getStackInSlot(s);
+                                            ItemStack stackOrig = stackTmp.copy();
+                                            // Temporarily move the item-being-updated into the temporary slot in the player's inventory
+                                            player.inventory.setInventorySlotContents(tmpSlot, stackTmp);
 
-                                            if (stackTmp != null)
+                                            try
                                             {
-                                                ItemStack stackOrig = stackTmp.copy();
-                                                // Temporarily move the item-being-updated into the bag's slot in the player's inventory
-                                                player.inventory.setInventorySlotContents(slotNum, stackTmp);
-                                                stackTmp.updateAnimation(world, entity, slotNum, false);
+                                                stackTmp.updateAnimation(world, entity, tmpSlot, isCurrentItem);
+                                            }
+                                            catch (Throwable t)
+                                            {
+                                                EnderUtilities.logger.warn("Exception while updating items inside a Handy Bag!", t);
+                                            }
 
-                                                // The stack changed while being updated, write it back to the bag's inventory
-                                                if (ItemStack.areItemStacksEqual(stackTmp, stackOrig) == false)
-                                                {
-                                                    bagInv.setStackInSlot(s, stackTmp.stackSize > 0 ? stackTmp : null);
-                                                }
+                                            // The stack changed while being updated, write it back to the bag's inventory
+                                            if (ItemStack.areItemStacksEqual(stackTmp, stackOrig) == false)
+                                            {
+                                                bagInv.setStackInSlot(slot, stackTmp.stackSize > 0 ? stackTmp : null);
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                        catch (Throwable t)
-                        {
-                            EnderUtilities.logger.warn("Exception while updating items inside a Handy Bag!", t);
-                        }
+
 
                         // Restore the Handy Bag into the original slot it was in
-                        player.inventory.setInventorySlotContents(slotNum, stackInPlayerInv);
+                        player.inventory.setInventorySlotContents(tmpSlot, stackInTmpSlot);
                     }
                 }
             }
@@ -375,7 +388,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
     }
 
-    private EnumActionResult tryMoveItems(ItemStack stack, World world, EntityPlayer player, BlockPos pos, EnumFacing side)
+    private EnumActionResult tryMoveItems(World world, BlockPos pos, EnumFacing side, ItemStack stack, EntityPlayer player)
     {
         TileEntity te = world.getTileEntity(pos);
         if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == false)
@@ -384,8 +397,9 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-        InventoryItemModular bagInv = new InventoryItemModular(stack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (inv == null || bagInv.isAccessibleBy(player) == false)
+        InventoryItemModular bagInv = getInventoryForBag(stack, player);
+
+        if (inv == null || bagInv == null)
         {
             return EnumActionResult.PASS;
         }
