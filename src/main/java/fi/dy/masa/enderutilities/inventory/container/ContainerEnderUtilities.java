@@ -3,8 +3,10 @@ package fi.dy.masa.enderutilities.inventory.container;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,11 +20,14 @@ import fi.dy.masa.enderutilities.inventory.PlayerInvWrapperNoSync;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
     public final EntityPlayer player;
+    protected final boolean isClient;
     protected final InventoryPlayer inventoryPlayer;
     protected final IItemHandlerModifiable playerInv;
     public final IItemHandler inventory;
@@ -38,6 +43,7 @@ public class ContainerEnderUtilities extends Container
     public ContainerEnderUtilities(EntityPlayer player, IItemHandler inventory)
     {
         this.player = player;
+        this.isClient = player.getEntityWorld().isRemote;
         this.inventoryPlayer = player.inventory;
         this.playerInv = new PlayerInvWrapperNoSync(player.inventory);
         this.inventory = inventory;
@@ -168,6 +174,35 @@ public class ContainerEnderUtilities extends Container
         else
         {
             this.putStackInSlot(slotId, stack);
+        }
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        if (this.isClient == false)
+        {
+            for (int slot = 0; slot < this.inventorySlots.size(); slot++)
+            {
+                ItemStack currentStack = this.inventorySlots.get(slot).getStack();
+                ItemStack prevStack = this.inventoryItemStacks.get(slot);
+
+                if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+                {
+                    prevStack = ItemStack.copyItemStack(currentStack);
+                    this.inventoryItemStacks.set(slot, prevStack);
+
+                    for (int i = 0; i < this.listeners.size(); i++)
+                    {
+                        IContainerListener listener = this.listeners.get(i);
+
+                        if (listener instanceof EntityPlayerMP)
+                        {
+                            PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP) listener);
+                        }
+                    }
+                }
+            }
         }
     }
 

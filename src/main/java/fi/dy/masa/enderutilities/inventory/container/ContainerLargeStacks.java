@@ -58,38 +58,8 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
         for (int slot = 0; slot < this.inventorySlots.size(); slot++)
         {
             ItemStack stack = this.inventorySlots.get(slot).getStack();
+            this.inventoryItemStacks.set(slot, stack);
             PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, stack), player);
-        }
-    }
-
-    @Override
-    public void detectAndSendChanges()
-    {
-        if (this.player.getEntityWorld().isRemote)
-        {
-            return;
-        }
-
-        for (int slot = 0; slot < this.inventorySlots.size(); slot++)
-        {
-            ItemStack currentStack = this.inventorySlots.get(slot).getStack();
-            ItemStack prevStack = this.inventoryItemStacks.get(slot);
-
-            if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
-            {
-                prevStack = ItemStack.copyItemStack(currentStack);
-                this.inventoryItemStacks.set(slot, prevStack);
-
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    IContainerListener listener = this.listeners.get(i);
-
-                    if (listener instanceof EntityPlayerMP)
-                    {
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP) listener);
-                    }
-                }
-            }
         }
     }
 }

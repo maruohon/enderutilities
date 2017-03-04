@@ -145,6 +145,19 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     }
 
     @Override
+    public void syncStackInSlot(int slotId, ItemStack stack)
+    {
+        super.syncStackInSlot(slotId, stack);
+
+        if (slotId == this.slotTool)
+        {
+            // This just fixes a minor de-sync with the module slot types,
+            // if another player changes the item in the tool slot
+            this.setModuleSlotTypes();
+        }
+    }
+
+    @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
