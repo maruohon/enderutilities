@@ -405,12 +405,21 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         IItemHandler wrappedBagInv = getWrappedEnabledInv(stack, bagInv);
+        RestockMode restockMode = RestockMode.fromStack(stack);
 
-        if (RestockMode.fromStack(stack) != RestockMode.DISABLED)
+        if (restockMode == RestockMode.HOTBAR || restockMode == RestockMode.ALL)
         {
             if (world.isRemote == false)
             {
-                InventoryUtils.tryMoveAllItems(wrappedBagInv, inv);
+                if (restockMode == RestockMode.HOTBAR)
+                {
+                    InventoryUtils.tryMoveMatchingItems(wrappedBagInv, inv);
+                }
+                else
+                {
+                    InventoryUtils.tryMoveAllItems(wrappedBagInv, inv);
+                }
+
                 player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
             }
 
@@ -418,6 +427,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         PickupMode pickupMode = PickupMode.fromStack(stack);
+
         if (pickupMode == PickupMode.MATCHING || pickupMode == PickupMode.ALL)
         {
             if (world.isRemote == false)
