@@ -58,7 +58,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
         for (int slot = 0; slot < this.inventorySlots.size(); slot++)
         {
             ItemStack stack = this.inventorySlots.get(slot).getStack();
-            this.inventoryItemStacks.set(slot, stack);
+            this.inventoryItemStacks.set(slot, ItemStack.copyItemStack(stack));
             PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, stack), player);
         }
     }
