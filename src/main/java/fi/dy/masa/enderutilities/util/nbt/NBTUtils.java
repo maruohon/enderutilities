@@ -170,6 +170,29 @@ public class NBTUtils
         }
     }
 
+    /**
+     * Returns a copy of the compound tag <b>tag</b>, but excludes a top-level member called <b>exclude</b>.
+     * If the resulting tag has no other keys, then null is returned instead of an empty compound.
+     * @param tag
+     * @param exclude
+     * @return
+     */
+    @Nullable
+    public static NBTTagCompound copyCompoundExcludingTag(@Nonnull NBTTagCompound tag, String exclude)
+    {
+        NBTTagCompound newTag = new NBTTagCompound();
+
+        for (String key : tag.getKeySet())
+        {
+            if (key.equals(exclude) == false)
+            {
+                newTag.setTag(key, tag.getTag(key).copy());
+            }
+        }
+
+        return newTag.hasNoTags() ? null : newTag;
+    }
+
     @Nonnull
     public static String getOrCreateString(@Nonnull ItemStack stack, @Nullable String containerTagName,
             @Nonnull String tagName, @Nonnull String value)
