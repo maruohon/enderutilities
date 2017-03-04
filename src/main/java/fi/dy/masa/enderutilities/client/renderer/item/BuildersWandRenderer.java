@@ -393,16 +393,14 @@ public class BuildersWandRenderer
 
         if (mode == Mode.REPLACE_3D)
         {
-            int index1 = index;
+            str = I18n.format("enderutilities.tooltip.item.build.replacement");
+            lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
+                    rst, this.getBlockTypeName(wand, stack, index), rst));
 
             str = I18n.format("enderutilities.tooltip.item.build.target");
             index = wand.getSelectionIndex(stack, true);
             lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index + 1), ItemBuildersWand.MAX_BLOCKS,
                     rst, this.getBlockTypeName(wand, stack, index, true), rst));
-
-            str = I18n.format("enderutilities.tooltip.item.build.replacement");
-            lines.add(str + String.format(" [%s%d/%d%s]: %s%s", preGreen, (index1 + 1), ItemBuildersWand.MAX_BLOCKS,
-                    rst, this.getBlockTypeName(wand, stack, index1), rst));
 
             str = I18n.format("enderutilities.tooltip.item.build.bindmode");
 

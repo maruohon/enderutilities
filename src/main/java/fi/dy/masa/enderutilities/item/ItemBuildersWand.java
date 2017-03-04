@@ -573,9 +573,19 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        if (PositionUtils.isPositionValid(pos) &&
-                (isStart == false || PositionUtils.isPositionValid(this.getTransformedEndPosition(stack, mode, pos))))
+        if (PositionUtils.isPositionValid(pos))
         {
+            if (isStart)
+            {
+                BlockPosEU endPos = this.getTransformedEndPosition(stack, mode, pos);
+
+                if (endPos != null && PositionUtils.isPositionValid(endPos) == false)
+                {
+                    player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.positionoutsideworld"));
+                    return;
+                }
+            }
+
             pos.writeToTag(this.getCornerPositionTag(stack, mode, isStart));
         }
         else
