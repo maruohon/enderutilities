@@ -1,8 +1,8 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.10.2-latest": "0.6.5",
-        "1.10.2-recommended": "0.6.5",
+        "1.10.2-latest": "0.6.6",
+        "1.10.2-recommended": "0.6.6",
         "1.9.4-latest": "0.6.5",
         "1.9.4-recommended": "0.6.5",
         "1.9-latest": "0.6.1",
@@ -11,6 +11,7 @@
         "1.8.9-recommended": "0.5.6"
     },
     "1.10.2": {
+        "0.6.6": "Countless small improvements and bug fixes\nAdded some new modes to the Wand of the Lazy Builder\nAdded Paralyzer and Stimulant Syringes",
         "0.6.5": "Ported the 0.6.5 release from MC 1.9.4 to 1.10.2"
     },
     "1.9.4": {
