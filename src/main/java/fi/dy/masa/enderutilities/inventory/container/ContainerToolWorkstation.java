@@ -149,11 +149,12 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         super.syncStackInSlot(slotId, stack);
 
-        if (slotId == this.slotTool)
+        if (slotId == this.slotTool && this.getContainerItem() != this.toolStackLast)
         {
             // This just fixes a minor de-sync with the module slot types,
             // if another player changes the item in the tool slot
             this.setModuleSlotTypes();
+            this.toolStackLast = this.getContainerItem();
         }
     }
 
