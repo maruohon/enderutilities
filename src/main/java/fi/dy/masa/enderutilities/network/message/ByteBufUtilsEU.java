@@ -27,9 +27,9 @@ public class ByteBufUtilsEU
         buf.writeInt(stack.stackSize);
 
         NBTTagCompound tag = null;
-        if (stack.getItem().isDamageable() == true || stack.getItem().getShareTag() == true)
+        if (stack.getItem().isDamageable() || stack.getItem().getShareTag())
         {
-            tag = stack.getTagCompound();
+            tag = stack.getItem().getNBTShareTag(stack);
         }
 
         writeNBTTagCompoundToBuffer(buf, tag);
