@@ -818,10 +818,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (requireItems)
         {
-            targetStack = getAndConsumeBuildItem(wandStack, world, pos, newState, player, false);
+            // Simulate getting the item to build with
+            targetStack = getAndConsumeBuildItem(wandStack, world, pos, newState, player, true);
         }
 
-        if (targetStack != null || requireItems == false)
+        if (requireItems == false || targetStack != null)
         {
             // Break the existing block
             if (replace && isAir == false && player instanceof EntityPlayerMP)
@@ -848,6 +849,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             // and in that case we always want to place the block.
             if (requireItems == false || BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew, targetStack))
             {
+                if (requireItems)
+                {
+                    // Actually consume the build item
+                    getAndConsumeBuildItem(wandStack, world, pos, newState, player, false);
+                }
+
                 BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
 
                 if (player.capabilities.isCreativeMode == false)
