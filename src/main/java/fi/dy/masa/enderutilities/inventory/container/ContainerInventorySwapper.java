@@ -5,30 +5,41 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerBaubles;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
+import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ContainerInventorySwapper extends ContainerCustomSlotClick implements IContainerItem
 {
+    private static BaublesInvProviderBase baublesProvider = new BaublesInvProviderBase();
     public final InventoryItemModular inventoryItemModular;
     private ItemStack modularStackLast;
+    private MergeSlotRange moduleSlots = new MergeSlotRange(0, 0);;
+    private MergeSlotRange playerBaublesSlots = new MergeSlotRange(0, 0);;
+    private MergeSlotRange swapperBaublesSlots = new MergeSlotRange(0, 0);;
+    private final boolean baublesLoaded;
+    private final int xOffset;
 
     public ContainerInventorySwapper(EntityPlayer player, ItemStack containerStack)
     {
         super(player, new InventoryItemModular(containerStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular)this.inventory;
         this.inventoryItemModular.setHostInventory(this.playerInv);
+        this.baublesLoaded = ModRegistry.isModLoadedBaubles();
+        this.xOffset = this.baublesLoaded ? 20 : 0;
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(31, 167);
-        this.addOffhandSlot(8, 129);
+        this.addPlayerInventorySlots(31 + this.xOffset, 167);
+        this.addOffhandSlot(8 + this.xOffset, 129);
     }
 
     @Override
@@ -36,25 +47,38 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     {
         super.addPlayerInventorySlots(posX, posY);
 
-        int playerArmorStart = this.inventorySlots.size();
-
         // Player armor slots
-        posX = 8;
+        posX = 8 + this.xOffset;
         posY = 57;
+
+        this.playerArmorSlots = new MergeSlotRange(this.inventorySlots.size(), 4);
 
         for (int i = 0; i < 4; i++)
         {
             this.addSlotToContainer(new SlotItemHandlerArmor(this, this.playerInv, i, 39 - i, posX, posY + i * 18));
         }
 
-        this.playerArmorSlots = new MergeSlotRange(playerArmorStart, 4);
+        if (this.baublesLoaded)
+        {
+            this.playerBaublesSlots = new MergeSlotRange(this.inventorySlots.size(), 7);
+
+            // Add the Baubles slots as a priority slot range for shift+click merging
+            this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 7);
+            IItemHandler inv = baublesProvider.getBaublesInventory(this.player);
+            posX = 8;
+
+            for (int i = 0; i < 7; i++)
+            {
+                this.addSlotToContainer(new SlotItemHandlerBaubles(this, inv, i, posX, posY + i * 18));
+            }
+        }
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
         int customInvStart = this.inventorySlots.size();
-        int posX = 31;
+        int posX = 31 + this.xOffset;
         int posY = 57;
 
         // Inventory Swapper's player inventory
@@ -93,8 +117,20 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             }
         });
 
+        if (this.baublesLoaded)
+        {
+            posX = 218;
+            posY = 57;
+            this.swapperBaublesSlots = new MergeSlotRange(this.inventorySlots.size(), 7);
+
+            for (int i = 0; i < 7; i++)
+            {
+                this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 41 + i, posX, posY + i * 18));
+            }
+        }
+
         // The Storage Module slots
-        posX = 121;
+        posX = 121 + this.xOffset;
         posY = 15;
         int moduleSlots = this.inventoryItemModular.getModuleInventory().getSlots();
 
@@ -105,8 +141,24 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         // Add Memory Card slots as a priority slot range for shift+click merging
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size() - moduleSlots, moduleSlots);
+        this.moduleSlots = new MergeSlotRange(this.inventorySlots.size() - moduleSlots, moduleSlots);
 
         this.customInventorySlots = new MergeSlotRange(customInvStart, this.inventorySlots.size() - customInvStart);
+    }
+
+    public MergeSlotRange getModuleSlots()
+    {
+        return this.moduleSlots;
+    }
+
+    public MergeSlotRange getPlayerBaublesSlots()
+    {
+        return this.playerBaublesSlots;
+    }
+
+    public MergeSlotRange getSwapperBaublesSlots()
+    {
+        return this.swapperBaublesSlots;
     }
 
     @Override
@@ -146,9 +198,18 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
         // Middle click
         if (clickType == ClickType.CLONE && dragType == 2 && stack != null &&
-            (this.playerMainSlotsIncHotbar.contains(slotNum) || this.playerArmorSlots.contains(slotNum) || this.playerOffhandSlots.contains(slotNum)))
+            (this.playerMainSlotsIncHotbar.contains(slotNum) ||
+             this.playerArmorSlots.contains(slotNum) ||
+             this.playerOffhandSlots.contains(slotNum) ||
+             this.playerBaublesSlots.contains(slotNum)))
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
+
+            if (this.playerBaublesSlots.contains(slotNum))
+            {
+                invSlotNum += 41;
+            }
+
             if (invSlotNum == -1)
             {
                 return null;
@@ -166,5 +227,23 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         this.detectAndSendChanges();
 
         return stack;
+    }
+
+    public static void setBaublesInvProvider(BaublesInvProviderBase baublesProviderIn)
+    {
+        baublesProvider = baublesProviderIn;
+    }
+
+    public static BaublesInvProviderBase getBaublesInvProvider()
+    {
+        return baublesProvider;
+    }
+
+    public static class BaublesInvProviderBase
+    {
+        public IItemHandler getBaublesInventory(EntityPlayer player)
+        {
+            return null;
+        }
     }
 }

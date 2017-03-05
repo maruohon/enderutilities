@@ -17,8 +17,8 @@ public class GuiEnderUtilities extends GuiContainer
 {
     protected final ContainerEnderUtilities container;
     protected final EntityPlayer player;
-    protected final ResourceLocation guiTexture;
     protected final ResourceLocation guiTextureWidgets;
+    protected ResourceLocation guiTexture;
     protected int backgroundU;
     protected int backgroundV;
     protected InfoArea infoArea;

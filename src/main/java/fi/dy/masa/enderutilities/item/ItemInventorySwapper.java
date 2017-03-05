@@ -37,6 +37,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -214,7 +215,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     @Override
     public int getSizeInventory(ItemStack containerStack)
     {
-        return 41;
+        return ModRegistry.isModLoadedBaubles() ? 48 : 41;
     }
 
     public boolean isEnabled(ItemStack stack)
@@ -308,24 +309,24 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             return;
         }
 
-        InventoryItemModular inv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        if (inv.isAccessibleBy(player) == false)
+        InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        if (swapperInv.isAccessibleBy(player) == false)
         {
             return;
         }
 
-        final long mask = getEnabledSlotsMask(swapperStack);
+        final long mask = this.getEnabledSlotsMask(swapperStack);
         final int invMax = player.inventory.getInventoryStackLimit();
         final int invSize = player.inventory.getSizeInventory();
         final int mainInvSize = player.inventory.mainInventory.length;
-
         long bit = 0x1;
+
         for (int slot = 0; slot < invSize; slot++)
         {
             // Don't swap the swapper itself, and only swap slots that have been enabled
             if (slot != swapperSlot && (mask & bit) != 0)
             {
-                ItemStack tmpStack = inv.getStackInSlot(slot);
+                ItemStack tmpStack = swapperInv.getStackInSlot(slot);
 
                 // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
                 if (tmpStack == null || (tmpStack.stackSize <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
@@ -353,19 +354,72 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
                         if (pos >= 0 && pos == (slot - mainInvSize))
                         {
-                            inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                            swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
                             player.inventory.setInventorySlotContents(slot, tmpStack);
                         }
                     }
                     // Main inventory and Off Hand slot
                     else
                     {
-                        inv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                        swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
                         player.inventory.setInventorySlotContents(slot, tmpStack);
                     }
                 }
             }
             bit <<= 1;
+        }
+
+        if (ModRegistry.isModLoadedBaubles())
+        {
+            IItemHandler baublesInv = ContainerInventorySwapper.getBaublesInvProvider().getBaublesInventory(player);
+
+            for (int slot = 0; baublesInv != null && slot < 7; slot++)
+            {
+                int slotInSwapper = 41 + slot;
+
+                // Don't swap the swapper itself, and only swap slots that have been enabled
+                if (slot != swapperSlot && (mask & bit) != 0)
+                {
+                    ItemStack swapperStackInSlot = swapperInv.getStackInSlot(slotInSwapper);
+
+                    // Check if the stack from the swapper can fit and is valid to be put into the baubles slot
+                    if (swapperStackInSlot == null || swapperStackInSlot.stackSize <= 1)
+                    {
+                        ItemStack baublesStackInSlot = baublesInv.getStackInSlot(slot);
+
+                        // Existing baubles item
+                        if (baublesStackInSlot != null)
+                        {
+                            baublesStackInSlot = baublesInv.extractItem(slot, baublesStackInSlot.stackSize, false);
+
+                            // Successfully extracted the existing item
+                            if (baublesStackInSlot != null)
+                            {
+                                // The item in the swapper was valid for the baubles slot
+                                if (baublesInv.insertItem(slot, swapperStackInSlot, false) == null)
+                                {
+                                    swapperInv.setStackInSlot(slotInSwapper, baublesStackInSlot);
+                                }
+                                // The item in the swapper was not a valid baubles item, put back the original baubles item
+                                else
+                                {
+                                    baublesInv.insertItem(slot, baublesStackInSlot, false);
+                                }
+                            }
+                        }
+                        // Empty baubles slot
+                        else
+                        {
+                            // The item in the swapper was valid for the baubles slot
+                            if (baublesInv.insertItem(slot, swapperStackInSlot, false) == null)
+                            {
+                                swapperInv.setStackInSlot(slotInSwapper, null);
+                            }
+                        }
+                    }
+                }
+                bit <<= 1;
+            }
         }
 
         player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
@@ -492,10 +546,15 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                     {
                         mask ^= (0x08040201L << element); // toggle the bits for the slots in the selected column of the inventory
                     }
-                    // Armor slots
+                    // Armor slots and offhand slot
                     else if (element == 9)
                     {
-                        mask ^= 0x1F000000000L; // toggle bits 40..36
+                        mask ^= 0x1FL << 36; //0x1F000000000L; // toggle bits 40..36
+                    }
+                    // Baubles slots
+                    else if (element == 10)
+                    {
+                        mask ^= 0x7FL << 41; //0xFE0000000000L; // toggle bits 47..41 (offhand slot is @ 40)
                     }
 
                     NBTUtils.setLong(stack, TAG_NAME_CONTAINER,

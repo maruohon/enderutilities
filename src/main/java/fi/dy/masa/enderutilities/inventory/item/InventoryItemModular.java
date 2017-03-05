@@ -17,10 +17,11 @@ public class InventoryItemModular extends InventoryItemPermissions
 
     public InventoryItemModular(ItemStack containerStack, EntityPlayer player, boolean allowCustomStackSizes, ModuleType moduleType)
     {
-        this(containerStack, ((ItemInventoryModular)containerStack.getItem()).getSizeInventory(containerStack), allowCustomStackSizes, player, ((ItemInventoryModular)containerStack.getItem()).getSizeModuleInventory(containerStack), moduleType);
+        this(containerStack, player, ((ItemInventoryModular) containerStack.getItem()).getSizeInventory(containerStack),
+              allowCustomStackSizes, ((ItemInventoryModular) containerStack.getItem()).getSizeModuleInventory(containerStack), moduleType);
     }
 
-    public InventoryItemModular(ItemStack containerStack, int mainInvSize, boolean allowCustomStackSizes, EntityPlayer player, int moduleInvSize, ModuleType moduleType)
+    public InventoryItemModular(ItemStack containerStack, EntityPlayer player, int mainInvSize, boolean allowCustomStackSizes, int moduleInvSize, ModuleType moduleType)
     {
         super(containerStack, mainInvSize, 64, allowCustomStackSizes, player.getEntityWorld().isRemote, player);
 

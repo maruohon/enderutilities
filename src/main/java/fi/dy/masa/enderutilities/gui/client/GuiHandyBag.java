@@ -63,7 +63,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
     private int firstModuleSlotY;
     private boolean hasActivePotionEffects;
     private int[] lastPos = new int[2];
-    private boolean baublesLoaded;
+    private final boolean baublesLoaded;
     public static final ResourceLocation RESOURCES_BAUBLES_BUTTON
             = new ResourceLocation(ModRegistry.MODID_BAUBLES.toLowerCase(), "textures/gui/expanded_inventory.png");
 

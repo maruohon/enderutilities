@@ -124,6 +124,11 @@ public class ContainerEnderUtilities extends Container
         return this.playerMainSlotsIncHotbar;
     }
 
+    public SlotRange getPlayerArmorSlots()
+    {
+        return this.playerArmorSlots;
+    }
+
     public SlotRange getCustomInventorySlotRange()
     {
         return this.customInventorySlots;

@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.inventory.slot;
 
+import javax.annotation.Nullable;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -46,6 +47,7 @@ public class SlotItemHandlerArmor extends SlotItemHandlerGeneric
     }
 
     @SideOnly(Side.CLIENT)
+    @Nullable
     @Override
     public String getSlotTexture()
     {
