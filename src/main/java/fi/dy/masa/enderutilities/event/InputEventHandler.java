@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.event;
 
 import org.lwjgl.input.Keyboard;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
@@ -28,7 +29,6 @@ import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -145,11 +145,12 @@ public class InputEventHandler
             if (keyState && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
                 eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
             {
-                // EntityPlayerSP adds 0.5 to all the coordinates for some reason...
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-                IBlockState state = player.getEntityWorld().getBlockState(pos.down());
+                World world = player.getEntityWorld();
 
-                if (state.getBlock() == EnderUtilitiesBlocks.blockElevator)
+                // Check the player's feet position in case they are standing inside a slab or layer elevator
+                if (world.getBlockState(pos       ).getBlock() instanceof BlockElevator ||
+                    world.getBlockState(pos.down()).getBlock() instanceof BlockElevator)
                 {
                     int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? HotKeys.KEYCODE_JUMP : HotKeys.KEYCODE_SNEAK;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));

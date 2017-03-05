@@ -1,0 +1,30 @@
+{
+    "textures": {
+        "particle": "enderutilities:blocks/enderelevator_side",
+        "top":      "enderutilities:blocks/enderelevator_side",
+        "side":     "enderutilities:blocks/enderelevator_slab_side",
+        "overlay":  "enderutilities:blocks/enderelevator_top_overlay"
+    },
+    "elements": [
+        {
+            "from": [  0,  0,  0 ],
+            "to":   [ 16,  8, 16 ],
+            "faces": {
+                "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#top" },
+                "down":  { "uv": [ 16, 16,  0,  0 ], "texture": "#top" },
+                "north": { "uv": [  0,  8, 16, 16 ], "texture": "#side" },
+                "south": { "uv": [  0,  8, 16, 16 ], "texture": "#side" },
+                "west":  { "uv": [  0,  8, 16, 16 ], "texture": "#side" },
+                "east":  { "uv": [  0,  8, 16, 16 ], "texture": "#side" }
+            }
+        },
+        {
+            "from": [  0,  0,  0 ],
+            "to":   [ 16,  8, 16 ],
+            "faces": {
+                "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#overlay", "tintindex": 1 },
+                "down":  { "uv": [ 16, 16,  0,  0 ], "texture": "#overlay", "tintindex": 1 }
+            }
+        }
+    ]
+}

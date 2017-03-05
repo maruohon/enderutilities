@@ -86,6 +86,26 @@ public class ClientProxy extends CommonProxy
                     }
                 }, EnderUtilitiesBlocks.blockElevator);
 
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                    new IBlockColor()
+                    {
+                        @Override
+                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                        {
+                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, EnderUtilitiesBlocks.blockElevatorSlab);
+
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                    new IBlockColor()
+                    {
+                        @Override
+                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                        {
+                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, EnderUtilitiesBlocks.blockElevatorLayer);
+
             Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
                 new IItemColor()
                 {
@@ -95,6 +115,26 @@ public class ClientProxy extends CommonProxy
                         return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
                     }
                 }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevator));
+
+            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                    new IItemColor()
+                    {
+                        @Override
+                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        {
+                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevatorSlab));
+
+            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                    new IItemColor()
+                    {
+                        @Override
+                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        {
+                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevatorLayer));
         }
 
         if (EnderUtilitiesBlocks.blockPortal.isEnabled())
@@ -296,10 +336,13 @@ public class ClientProxy extends CommonProxy
         for (int i = 0; i < 16; i++)
         {
             this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevator, i, "inventory");
+            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevatorSlab, i, "inventory");
+            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevatorLayer, i, "inventory");
         }
 
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,
-                (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,      (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevatorSlab,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevatorLayer, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");

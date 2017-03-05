@@ -48,6 +48,8 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_ENDER_ELEVATOR         = "enderelevator";
+    public static final String NAME_TILE_ENDER_ELEVATOR_SLAB    = "enderelevator_slab";
+    public static final String NAME_TILE_ENDER_ELEVATOR_LAYER   = "enderelevator_layer";
     public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
     public static final String NAME_TILE_FRAME                  = "frame";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";

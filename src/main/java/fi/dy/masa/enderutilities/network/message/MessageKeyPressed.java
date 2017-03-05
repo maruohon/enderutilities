@@ -3,14 +3,15 @@ package fi.dy.masa.enderutilities.network.message;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.reference.HotKeys;
@@ -107,11 +108,17 @@ public class MessageKeyPressed implements IMessage
             if (message.keyPressed == HotKeys.KEYCODE_JUMP || message.keyPressed == HotKeys.KEYCODE_SNEAK)
             {
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-                TileEntity te = player.getEntityWorld().getTileEntity(pos.down());
+                World world = player.getEntityWorld();
+                TileEntityEnderElevator te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos, TileEntityEnderElevator.class);
 
-                if (te instanceof TileEntityEnderElevator)
+                if (te == null)
                 {
-                    ((TileEntityEnderElevator)te).activateForEntity(player, message.keyPressed == HotKeys.KEYCODE_JUMP);
+                    te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos.down(), TileEntityEnderElevator.class);
+                }
+
+                if (te != null)
+                {
+                    te.activateForEntity(player, message.keyPressed == HotKeys.KEYCODE_JUMP);
                     return true;
                 }
             }

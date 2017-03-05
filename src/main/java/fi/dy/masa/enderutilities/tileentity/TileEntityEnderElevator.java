@@ -12,11 +12,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.BlockPosDistance;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 
@@ -35,7 +35,7 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
 
                 IBlockState state = te.getWorld().getBlockState(te.getPos());
 
-                return state.getBlock() == EnderUtilitiesBlocks.blockElevator && state.getValue(BlockElevator.COLOR) == color;
+                return state.getBlock() instanceof BlockElevator && state.getValue(BlockElevator.COLOR) == color;
             }
         };
     }
@@ -89,16 +89,16 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
 
     public void activateForEntity(Entity entity, boolean goingUp)
     {
-        BlockPos targetPos = this.getMoveVector(goingUp);
+        Vec3d posDifference = this.getMoveVector(goingUp);
 
-        if (targetPos != null)
+        if (posDifference != null)
         {
-            entity.setPositionAndUpdate(entity.posX + targetPos.getX(), entity.posY + targetPos.getY(), entity.posZ + targetPos.getZ());
+            entity.setPositionAndUpdate(entity.posX + posDifference.xCoord, entity.posY + posDifference.yCoord, entity.posZ + posDifference.zCoord);
             this.getWorld().playSound(null, entity.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.3f, 1.8f);
         }
     }
 
-    private BlockPos getMoveVector(boolean goingUp)
+    private Vec3d getMoveVector(boolean goingUp)
     {
         BlockPos center = goingUp ? this.getPos().up() : this.getPos().down();
         int rangeHorizontal = 64;
@@ -106,7 +106,8 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         int rangeVerticalDown = goingUp ? 0 : 256;
 
         IBlockState state = this.getWorld().getBlockState(this.getPos());
-        if (state.getBlock() != EnderUtilitiesBlocks.blockElevator)
+
+        if ((state.getBlock() instanceof BlockElevator) == false)
         {
             EnderUtilities.logger.warn("Wrong block in {}#getMoveVector", this.getClass().getSimpleName());
             return null;
@@ -117,7 +118,12 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
 
         if (elevators.size() > 0)
         {
-            return elevators.get(0).pos.subtract(this.getPos());
+            World world = this.getWorld();
+            BlockPos posFound = elevators.get(0).pos;
+            AxisAlignedBB bbThis = world.getBlockState(this.getPos()).getBoundingBox(world, this.getPos());
+            AxisAlignedBB bbFound = world.getBlockState(posFound).getBoundingBox(world, posFound);
+            double yDiff = (posFound.getY() + bbFound.maxY) - (this.getPos().getY() + bbThis.maxY);
+            return new Vec3d(posFound.getX() - this.getPos().getX(), yDiff, posFound.getZ() - this.getPos().getZ());
         }
 
         return null;

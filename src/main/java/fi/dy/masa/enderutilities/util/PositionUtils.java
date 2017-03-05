@@ -647,7 +647,7 @@ public class PositionUtils
 
     /**
      * Gets a list of all the TileEntities within the given range of the center position.
-     * The list is sorted by distance to the center position.
+     * The list is sorted by distance to the center position (closest one first).
      * @param world
      * @param centerPos
      * @param rangeH
@@ -660,6 +660,17 @@ public class PositionUtils
         return getTileEntityPositions(world, centerPos, rangeH, rangeVertPos, rangeVertNeg, null);
     }
 
+    /**
+     * Gets a list of all the TileEntities within the given range of the center position.
+     * The list is sorted by distance to the center position (closest one first)
+     * @param world
+     * @param centerPos
+     * @param rangeH
+     * @param rangeVertPos the range upwards from the center position
+     * @param rangeVertNeg the range downwards from the center position
+     * @param filter a predicate to check if the found TileEntity is suitable
+     * @return
+     */
     public static List<BlockPosDistance> getTileEntityPositions(World world, BlockPos centerPos, int rangeH,
             int rangeVertPos, int rangeVertNeg, Predicate <? super TileEntity> filter)
     {

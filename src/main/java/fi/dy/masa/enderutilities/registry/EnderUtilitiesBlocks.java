@@ -25,6 +25,8 @@ import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 public class EnderUtilitiesBlocks
 {
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1      = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
@@ -37,6 +39,8 @@ public class EnderUtilitiesBlocks
     {
         // Register blocks
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
+        registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
+        registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
         registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
@@ -76,6 +80,14 @@ public class EnderUtilitiesBlocks
                     'L', Blocks.STONE_PRESSURE_PLATE,
                     'P', Blocks.STICKY_PISTON,
                     'R', Items.REDSTONE));
+
+            // Elevator to Elevator slab and back
+            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevatorSlab, 2), blockElevator, 0, "EE", 'E', blockElevator));
+            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevator, 2), blockElevatorSlab, 0, "E", "E", 'E', blockElevatorSlab));
+
+            // Elevator Slab to Elevator Layer and back
+            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevatorLayer, 2), blockElevatorSlab, 0, "EE", 'E', blockElevatorSlab));
+            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevatorSlab, 2), blockElevatorLayer, 0, "E", "E", 'E', blockElevatorLayer));
         }
 
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
