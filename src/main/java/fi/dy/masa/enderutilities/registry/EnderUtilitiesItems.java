@@ -10,6 +10,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
+import fi.dy.masa.enderutilities.item.ItemChairWand;
 import fi.dy.masa.enderutilities.item.ItemEnderArrow;
 import fi.dy.masa.enderutilities.item.ItemEnderBag;
 import fi.dy.masa.enderutilities.item.ItemEnderBow;
@@ -44,6 +45,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities linkCrystal = new ItemLinkCrystal();
 
     public static final ItemEnderUtilities buildersWand = new ItemBuildersWand();
+    public static final ItemEnderUtilities chairWand = new ItemChairWand();
     public static final ItemEnderUtilities enderArrow = new ItemEnderArrow();
     public static final ItemEnderUtilities enderBag = new ItemEnderBag();
     public static final ItemEnderUtilities enderBow = new ItemEnderBow();
@@ -70,6 +72,7 @@ public class EnderUtilitiesItems
         registerItem(enderCapacitor,        ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR,  Configs.disableItemEnderCapacitor);
         registerItem(linkCrystal,           ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL,     Configs.disableItemLinkCrystal);
         registerItem(buildersWand,          ReferenceNames.NAME_ITEM_BUILDERS_WAND,             Configs.disableItemBuildersWand);
+        registerItem(chairWand,             ReferenceNames.NAME_ITEM_CHAIR_WAND,                Configs.disableItemChairWand);
         registerItem(enderArrow,            ReferenceNames.NAME_ITEM_ENDER_ARROW,               Configs.disableItemEnderArrow);
         registerItem(enderBag,              ReferenceNames.NAME_ITEM_ENDER_BAG,                 Configs.disableItemEnderBag);
         registerItem(enderBow,              ReferenceNames.NAME_ITEM_ENDER_BOW,                 Configs.disableItemEnderBow);
@@ -108,6 +111,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeBuildersWand == false && Configs.disableItemBuildersWand == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(buildersWand), "C  ", " A ", "  A", 'C', active_core2, 'A', alloy2));
+        }
+        if (Configs.disableRecipeChairWand == false && Configs.disableItemChairWand == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(chairWand), "S  ", " I ", "  I", 'S', "stairWood", 'I', alloy0));
         }
         if (Configs.disableRecipeEnderArrow == false && Configs.disableItemEnderArrow == false)
         {

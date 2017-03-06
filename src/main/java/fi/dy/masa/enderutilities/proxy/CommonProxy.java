@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
+import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
@@ -24,7 +25,17 @@ import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.*;
+import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
+import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
+import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
+import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public class CommonProxy implements IProxy
@@ -52,6 +63,7 @@ public class CommonProxy implements IProxy
         EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 2, true);
         EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 2, true);
         EntityRegistry.registerModEntity(EntityEndermanFighter.class, ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER, id++, EnderUtilities.instance, 64, 3, true, 0x161616, 0x1947dc);
+        EntityRegistry.registerModEntity(EntityChair.class, ReferenceNames.NAME_ENTITY_CHAIR, id++, EnderUtilities.instance, 64, 10, false);
     }
 
     @Override

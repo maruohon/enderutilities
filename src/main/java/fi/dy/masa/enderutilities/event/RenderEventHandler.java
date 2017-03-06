@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
+import com.google.common.base.Predicates;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntitySelectors;
@@ -31,7 +33,9 @@ import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
+import fi.dy.masa.enderutilities.client.renderer.util.RenderUtils;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
@@ -118,6 +122,18 @@ public class RenderEventHandler
         if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
             this.buildersWandRenderer.renderSelectedArea(world, usingPlayer, stack, clientPlayer, partialTicks);
+        }
+
+        stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.chairWand);
+
+        if (stack != null)
+        {
+            List<Entity> chairs = this.mc.world.getEntities(EntityChair.class, Predicates.alwaysTrue());
+
+            for (Entity entity : chairs)
+            {
+                RenderUtils.renderEntityDebugBoundingBox(entity, partialTicks, false, false);
+            }
         }
 
         this.rulerRenderer.renderAllPositionPairs(usingPlayer, clientPlayer, partialTicks);

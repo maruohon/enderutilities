@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderChair;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
@@ -39,6 +40,7 @@ import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
+import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
@@ -224,6 +226,12 @@ public class ClientProxy extends CommonProxy
                         return new RenderEndermanFighter(manager);
                     }
                 });
+        RenderingRegistry.registerEntityRenderingHandler(EntityChair.class,
+                new IRenderFactory<EntityChair>() {
+                    @Override public Render<? super EntityChair> createRenderFor (RenderManager manager) {
+                        return new RenderChair(manager);
+                    }
+                });
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
     }
@@ -260,6 +268,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariants(EnderUtilitiesItems.linkCrystal);
 
         this.registerItemModel(EnderUtilitiesItems.buildersWand);
+        this.registerItemModel(EnderUtilitiesItems.chairWand);
         this.registerItemModel(EnderUtilitiesItems.enderArrow);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
         this.registerItemModel(EnderUtilitiesItems.enderBow);

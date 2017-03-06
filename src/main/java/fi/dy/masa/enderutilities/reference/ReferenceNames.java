@@ -5,6 +5,7 @@ public class ReferenceNames
     public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
     public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
+    public static final String NAME_ENTITY_CHAIR                = Reference.MOD_ID + ":chair";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";
@@ -20,6 +21,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard_items";
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
+    public static final String NAME_ITEM_CHAIR_WAND             = "chairwand";
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
     public static final String NAME_ITEM_ENDER_PICKAXE          = "enderpickaxe";
     public static final String NAME_ITEM_ENDER_AXE              = "enderaxe";
