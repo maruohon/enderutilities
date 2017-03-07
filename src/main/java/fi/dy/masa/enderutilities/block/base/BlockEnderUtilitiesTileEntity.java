@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.block.base;
 
 import javax.annotation.Nullable;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -98,6 +99,20 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
             if (te != null)
             {
                 te.onLeftClickBlock(playerIn);
+            }
+        }
+    }
+
+    @Override
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    {
+        if (worldIn.isRemote == false)
+        {
+            TileEntityEnderUtilities te = getTileEntitySafely(worldIn, pos, TileEntityEnderUtilities.class);
+
+            if (te != null)
+            {
+                te.onNeighborBlockChange(worldIn, pos, state, blockIn);
             }
         }
     }

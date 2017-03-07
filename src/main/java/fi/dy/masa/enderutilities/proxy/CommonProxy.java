@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
+import fi.dy.masa.enderutilities.entity.EntityFallingBlockEU;
 import fi.dy.masa.enderutilities.event.AnvilUpdateEventHandler;
 import fi.dy.masa.enderutilities.event.BlockEventHandler;
 import fi.dy.masa.enderutilities.event.EntityEventHandler;
@@ -32,6 +33,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMolecularExciter;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
@@ -64,6 +66,7 @@ public class CommonProxy implements IProxy
         EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 2, true);
         EntityRegistry.registerModEntity(EntityEndermanFighter.class, ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER, id++, EnderUtilities.instance, 64, 3, true, 0x161616, 0x1947dc);
         EntityRegistry.registerModEntity(EntityChair.class, ReferenceNames.NAME_ENTITY_CHAIR, id++, EnderUtilities.instance, 64, 10, false);
+        EntityRegistry.registerModEntity(EntityFallingBlockEU.class, ReferenceNames.NAME_ENTITY_FALLING_BLOCK, id++, EnderUtilities.instance, 64, 2, false);
     }
 
     @Override
@@ -106,6 +109,7 @@ public class CommonProxy implements IProxy
         this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
         this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
         this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntity(TileEntityMolecularExciter.class,       ReferenceNames.NAME_TILE_ENTITY_MOLECULAR_EXCITER);
         this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
         this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
         this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);

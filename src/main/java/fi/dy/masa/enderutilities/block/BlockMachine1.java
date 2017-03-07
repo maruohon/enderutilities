@@ -10,7 +10,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
@@ -28,17 +27,17 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class BlockMachine extends BlockEnderUtilitiesInventory
+public class BlockMachine1 extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyEnum<BlockMachine.EnumMachineType> TYPE =
-            PropertyEnum.<BlockMachine.EnumMachineType>create("type", BlockMachine.EnumMachineType.class);
+    public static final PropertyEnum<BlockMachine1.EnumMachineType> TYPE =
+            PropertyEnum.<BlockMachine1.EnumMachineType>create("type", BlockMachine1.EnumMachineType.class);
 
-    public BlockMachine(String name, float hardness, float resistance, int harvestLevel, Material material)
+    public BlockMachine1(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
+                .withProperty(TYPE, BlockMachine1.EnumMachineType.ENDER_INFUSER)
                 .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING));
     }
 
@@ -129,10 +128,11 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
     @Override
     public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random rand)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te instanceof TileEntityEnderFurnace)
+        TileEntityEnderFurnace te = getTileEntitySafely(worldIn, pos, TileEntityEnderFurnace.class);
+
+        if (te != null)
         {
-            if (((TileEntityEnderFurnace)te).isBurningLast == true)
+            if (te.isBurningLast == true)
             {
                 Effects.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
             }

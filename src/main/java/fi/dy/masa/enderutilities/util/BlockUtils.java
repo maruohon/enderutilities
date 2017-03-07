@@ -60,6 +60,15 @@ public class BlockUtils
         }
     }
 
+    public static void setBlockToAirWithBreakSound(World world, BlockPos pos)
+    {
+        IBlockState state = world.getBlockState(pos);
+        SoundType soundtype = state.getBlock().getSoundType(state, world, pos, null);
+
+        world.setBlockToAir(pos);
+        world.playSound(null, pos, soundtype.getBreakSound(), SoundCategory.BLOCKS, soundtype.getVolume(), soundtype.getPitch());
+    }
+
     /**
      * Sets the block state in the world and plays the placement sound
      */

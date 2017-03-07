@@ -6,6 +6,7 @@ public class ReferenceNames
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
     public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
     public static final String NAME_ENTITY_CHAIR                = Reference.MOD_ID + ":chair";
+    public static final String NAME_ENTITY_FALLING_BLOCK        = Reference.MOD_ID + ":fallingblock";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";
@@ -56,6 +57,7 @@ public class ReferenceNames
     public static final String NAME_TILE_FRAME                  = "frame";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";
     public static final String NAME_TILE_MACHINE_1              = "machine_1";
+    public static final String NAME_TILE_MACHINE_2              = "machine_2";
     public static final String NAME_TILE_PORTAL                 = "portal";
     public static final String NAME_TILE_PORTAL_PANEL           = "portal_panel";
     public static final String NAME_TILE_STORAGE_0              = "storage_0";
@@ -71,6 +73,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
     public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
     public static final String NAME_TILE_ENTITY_MEMORY_CHEST         = "memorychest";
+    public static final String NAME_TILE_ENTITY_MOLECULAR_EXCITER    = "molecularexciter";
     public static final String NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED = "quickstackeradvanced";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 

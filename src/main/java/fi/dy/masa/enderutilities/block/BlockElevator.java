@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -124,20 +123,6 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         }
 
         return false;
-    }
-
-    @Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block)
-    {
-        if (world.isRemote == false)
-        {
-            TileEntityEnderElevator te = getTileEntitySafely(world, pos, TileEntityEnderElevator.class);
-
-            if (te != null)
-            {
-                te.onNeighborBlockChange(state, world, pos, block);
-            }
-        }
     }
 
     @Override

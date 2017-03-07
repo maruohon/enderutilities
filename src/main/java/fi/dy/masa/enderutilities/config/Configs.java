@@ -48,6 +48,7 @@ public class Configs
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
+    public static boolean disableBlockMachine_2;
     public static boolean disableBlockPortal;
     public static boolean disableBlockPortalFrame;
     public static boolean disableBlockPortalPanel;
@@ -86,6 +87,7 @@ public class Configs
     public static boolean disableRecipeCreationStation;
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
+    public static boolean disableRecipeMolecularExciter;
     public static boolean disableRecipePortalFrame;
     public static boolean disableRecipePortalPanel;
     public static boolean disableRecipeToolWorkstation;

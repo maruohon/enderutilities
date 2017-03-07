@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,6 +14,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -101,7 +105,25 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData == null || this.ownerData.canAccess(player);
     }
 
-    public void onLeftClickBlock(EntityPlayer player) { }
+    public void onLeftClickBlock(EntityPlayer player)
+    {
+    }
+
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block blockIn)
+    {
+    }
+
+    public void onScheduledBlockUpdate(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    {
+    }
+
+    public void scheduleBlockUpdate(int delay, boolean force)
+    {
+        if (force || this.getWorld().isBlockTickPending(this.getPos(), this.getBlockType()) == false)
+        {
+            this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), delay);
+        }
+    }
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
@@ -124,7 +146,7 @@ public class TileEntityEnderUtilities extends TileEntity
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(nbt);
+        nbt = super.writeToNBT(nbt);
 
         nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Rotation", (byte)this.facing.getIndex());
@@ -208,5 +230,10 @@ public class TileEntityEnderUtilities extends TileEntity
     public String toString()
     {
         return this.getClass().getSimpleName() + "(" + this.getPos() + ")@" + System.identityHashCode(this);
+    }
+
+    public boolean hasGui()
+    {
+        return true;
     }
 }

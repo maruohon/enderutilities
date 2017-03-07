@@ -232,6 +232,10 @@ public class ConfigReader
         prop.setComment("Info: Machine_1 meta values: 0 = Ender Infuser; 1 = Tool Workstation, 2 = Creation Station");
         Configs.disableBlockMachine_1 = prop.getBoolean();
 
+        prop = getProp("disableBlockMachine_2", false);
+        prop.setComment("Info: Machine_2 meta values: 0 = Molecular Exciter");
+        Configs.disableBlockMachine_2 = prop.getBoolean();
+
         prop = getProp("disableBlockStorage_0", false);
         prop.setComment("Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests");
         Configs.disableBlockStorage_0 = prop.getBoolean();
@@ -277,6 +281,7 @@ public class ConfigReader
         Configs.disableRecipeEnderElevator        = getProp("disableRecipeEnderElevator", false).getBoolean();
         Configs.disableRecipeEnderFurnace         = getProp("disableRecipeEnderFurnace", false).getBoolean();
         Configs.disableRecipeEnderInfuser         = getProp("disableRecipeEnderInfuser", false).getBoolean();
+        Configs.disableRecipeMolecularExciter     = getProp("disableRecipeMolecularExciter", false).getBoolean();
         Configs.disableRecipePortalFrame          = getProp("disableRecipeFrame", false).getBoolean();
         Configs.disableRecipePortalPanel          = getProp("disableRecipePortalPanel", false).getBoolean();
         Configs.disableRecipeToolWorkstation      = getProp("disableRecipeToolWorkstation", false).getBoolean();

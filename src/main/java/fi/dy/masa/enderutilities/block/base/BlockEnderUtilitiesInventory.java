@@ -43,7 +43,7 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
     {
         TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
 
-        if (te != null && this.isTileEntityValid(te))
+        if (te != null && te.hasGui() && this.isTileEntityValid(te))
         {
             if (world.isRemote == false)
             {

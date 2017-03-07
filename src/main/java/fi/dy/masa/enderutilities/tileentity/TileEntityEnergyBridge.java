@@ -408,6 +408,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         }
     }
 
+    @Override
+    public boolean hasGui()
+    {
+        return false;
+    }
+
     @SideOnly(Side.CLIENT)
     private void getBeamEndPoints()
     {

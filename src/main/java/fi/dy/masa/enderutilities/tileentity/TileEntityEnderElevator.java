@@ -65,7 +65,8 @@ public class TileEntityEnderElevator extends TileEntityEnderUtilities
         return nbt;
     }
 
-    public void onNeighborBlockChange(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block blockIn)
     {
         boolean redstone = worldIn.isBlockPowered(pos);
 

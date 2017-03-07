@@ -35,6 +35,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderChair;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEnderArrow;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
+import fi.dy.masa.enderutilities.client.renderer.entity.RenderFallingBlockEU;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
@@ -44,6 +45,7 @@ import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
+import fi.dy.masa.enderutilities.entity.EntityFallingBlockEU;
 import fi.dy.masa.enderutilities.event.GuiEventHandler;
 import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
@@ -232,6 +234,12 @@ public class ClientProxy extends CommonProxy
                         return new RenderChair(manager);
                     }
                 });
+        RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlockEU.class,
+                new IRenderFactory<EntityFallingBlockEU>() {
+                    @Override public Render<? super EntityFallingBlockEU> createRenderFor (RenderManager manager) {
+                        return new RenderFallingBlockEU(manager);
+                    }
+                });
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
     }
@@ -355,6 +363,7 @@ public class ClientProxy extends CommonProxy
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_2,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
 
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");
