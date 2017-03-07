@@ -10,6 +10,7 @@ import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class EntityFallingBlockEU extends Entity
@@ -35,6 +37,7 @@ public class EntityFallingBlockEU extends Entity
     private boolean shouldDropItem = true;
     private boolean canSetAsBlock = true;
     private boolean hurtEntities;
+    private boolean canBePushed;
     private int fallHurtMax = 40;
     private float fallHurtAmount = 2.0F;
     private NBTTagCompound tileEntityData;
@@ -62,6 +65,7 @@ public class EntityFallingBlockEU extends Entity
         }
 
         entity.preventEntitySpawning = true;
+        entity.setCanBePushed(true);
         entity.setSize(0.98F, 0.98F);
         entity.setPosition(pos.getX() + 0.5D, pos.getY() + (1.0F - entity.height) / 2.0F, pos.getZ() + 0.5D);
         entity.motionX = 0.0D;
@@ -88,6 +92,11 @@ public class EntityFallingBlockEU extends Entity
     private void setOrigin(BlockPos pos)
     {
         this.getDataManager().set(ORIGIN, pos);
+    }
+
+    public void setCanBePushed(boolean canBePushed)
+    {
+        this.canBePushed = canBePushed;
     }
 
     private void setBlockState(IBlockState state)
@@ -123,6 +132,13 @@ public class EntityFallingBlockEU extends Entity
     public boolean canBeCollidedWith()
     {
         return this.isDead == false;
+    }
+
+    @Override
+    public boolean canBePushed()
+    {
+        // Returning true here allows the entity to be picked up by a Minecart
+        return this.canBePushed;
     }
 
     @Override
@@ -285,6 +301,29 @@ public class EntityFallingBlockEU extends Entity
                     {
                         this.blockState = this.blockState.withProperty(BlockAnvil.DAMAGE, Integer.valueOf(j));
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void dismountRidingEntity()
+    {
+        Entity entity = this.getRidingEntity();
+
+        super.dismountRidingEntity();
+
+        // Try to find an air block beside the track to dismount to
+        if (entity instanceof EntityMinecart)
+        {
+            BlockPos pos = new BlockPos(this);
+
+            for (BlockPos posTmp : PositionUtils.getAdjacentPositions(pos, EnumFacing.UP, true))
+            {
+                if (this.getEntityWorld().isAirBlock(posTmp))
+                {
+                    this.setPosition(posTmp.getX() + 0.5D, this.posY, posTmp.getZ() + 0.5D);
+                    break;
                 }
             }
         }
