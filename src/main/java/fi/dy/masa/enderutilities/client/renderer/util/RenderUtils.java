@@ -29,6 +29,7 @@ public class RenderUtils
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.disableBlend();
+        GlStateManager.glLineWidth(1.0F);
 
         double entityRadius = entityIn.width / 2.0D;
         AxisAlignedBB bb = entityIn.getEntityBoundingBox();
