@@ -746,24 +746,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, true);
     }
 
-    public static boolean canManipulateBlock(World world, BlockPos pos, EntityPlayer player, ItemStack stack, boolean allowTileEntities)
-    {
-        if (player.capabilities.isCreativeMode)
-        {
-            return true;
-        }
-
-        IBlockState state = world.getBlockState(pos);
-        if (state.getBlock().isAir(state, world, pos))
-        {
-            return true;
-        }
-
-        float hardness = state.getBlockHardness(world, pos);
-        return hardness >= 0 && hardness <= Configs.buildersWandMaxBlockHardness &&
-                (allowTileEntities || state.getBlock().hasTileEntity(state) == false);
-    }
-
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player, BlockPosStateDist posStateDist)
     {
         BlockInfo blockInfo;
@@ -807,8 +789,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        if (hasEnoughCharge(wandStack, player) == false ||
-            (isAir == false && (replace == false || canManipulateBlock(world, pos, player, wandStack, false) == false)))
+        if (hasEnoughCharge(wandStack, player) == false || (isAir == false &&
+            (replace == false || BlockUtils.canChangeBlock(world, pos, player, false, Configs.buildersWandMaxBlockHardness) == false)))
         {
             return false;
         }
@@ -875,7 +857,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (this.canReplaceBlock(world, player, stack, posIn))
         {
-            this.handleOldBlock(world, player, pos, posIn.side);
+            BlockUtils.getDropAndSetToAir(world, player, pos, posIn.side, false);
 
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             return wand.placeBlockToPosition(stack, world, player, posIn);
@@ -886,79 +868,27 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private boolean canReplaceBlock(World world, EntityPlayer player, ItemStack stack, BlockPosStateDist posIn)
     {
-        return (ItemBuildersWand.hasEnoughCharge(stack, player) &&
-               ItemBuildersWand.canManipulateBlock(world, posIn.toBlockPos(), player, stack, true)) &&
-               (player.capabilities.isCreativeMode ||
-                   ItemBuildersWand.getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true) != null);
-    }
-
-    private void handleOldBlock(World world, EntityPlayer player, BlockPos pos, EnumFacing side)
-    {
-        if (player.capabilities.isCreativeMode == false)
-        {
-            ItemStack stack = BlockUtils.getStackedItemFromBlock(world, pos, player, side);
-
-            if (stack != null)
-            {
-                stack = InventoryUtils.tryInsertItemStackToInventory(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack);
-
-                if (stack != null)
-                {
-                    EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
-                }
-            }
-        }
-
-        world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+        return player.capabilities.isCreativeMode || (hasEnoughCharge(stack, player) &&
+                BlockUtils.canChangeBlock(world, posIn.toBlockPos(), player, true, Configs.buildersWandMaxBlockHardness) &&
+                getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true) != null);
     }
 
     public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, World world, BlockPos pos, IBlockState newState, EntityPlayer player, boolean simulate)
     {
-        // NOTE: This isn't technically correct, because the block in the world is air and not the target block we want to place...
-        ItemStack templateStack = BlockUtils.getStackedItemFromBlock(world, pos, newState, player, EnumFacing.UP);
+        ItemStack templateStack = BlockUtils.getPickBlockItemStack(world, pos, newState, player, EnumFacing.UP);
+
+        if (templateStack == null)
+        {
+            templateStack = BlockUtils.getSilkTouchDrop(newState);
+        }
+
         if (templateStack == null)
         {
             return null;
         }
 
-        IItemHandler inv = getInventoryWithItems(wandStack, templateStack, player);
-        return consumeBuildItem(inv, templateStack, 1, simulate);
-    }
-
-    private static IItemHandler getInventoryWithItems(ItemStack wandStack, ItemStack templateStack, EntityPlayer player)
-    {
-        IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
-        if (slot != -1)
-        {
-            return inv;
-        }
-
-        inv = UtilItemModular.getBoundInventory(wandStack, player, 30);
-        if (inv != null)
-        {
-            slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
-            if (slot != -1)
-            {
-                return inv;
-            }
-        }
-
-        return null;
-    }
-
-    private static ItemStack consumeBuildItem(IItemHandler inv, ItemStack templateStack, int amount, boolean simulate)
-    {
-        if (inv != null)
-        {
-            int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
-            if (slot != -1)
-            {
-                return inv.extractItem(slot, amount, simulate);
-            }
-        }
-
-        return null;
+        IItemHandler inv = UtilItemModular.getPlayerOrBoundInventoryWithItems(wandStack, templateStack, player);
+        return inv != null ? InventoryUtils.extractMatchingItems(inv, templateStack, 1, simulate) : null;
     }
 
     private void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos, boolean secondary)

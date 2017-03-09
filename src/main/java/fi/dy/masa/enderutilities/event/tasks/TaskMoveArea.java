@@ -16,11 +16,13 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.WandOption;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosBox;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -152,7 +154,7 @@ public class TaskMoveArea implements IPlayerTask
             // or if one of the source and destination blocks can't be moved/broken if necessary,
             // or the wand doesn't have enough charge left, then skip this position
             if ((replace == false && destinationOverlapsSource == false && world.isAirBlock(posDst) == false) ||
-                this.canMoveBlock(world, posSrc, posDst, player, stack) == false)
+                this.canMoveBlock(world, posSrc, posDst, player) == false)
             {
                 this.handledPositions.add(posRelative);
                 continue;
@@ -236,10 +238,10 @@ public class TaskMoveArea implements IPlayerTask
         }
     }
 
-    public boolean canMoveBlock(World world, BlockPos posSrc, BlockPos posDst, EntityPlayer player, ItemStack stack)
+    public boolean canMoveBlock(World world, BlockPos posSrc, BlockPos posDst, EntityPlayer player)
     {
-        return ItemBuildersWand.canManipulateBlock(world, posSrc, player, stack, true) &&
-               ItemBuildersWand.canManipulateBlock(world, posDst, player, stack, true);
+        return BlockUtils.canChangeBlock(world, posSrc, player, true, Configs.buildersWandMaxBlockHardness) &&
+               BlockUtils.canChangeBlock(world, posDst, player, true, Configs.buildersWandMaxBlockHardness);
     }
 
     @Override
