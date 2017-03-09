@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class UtilItemModular
 {
@@ -908,5 +909,34 @@ public class UtilItemModular
         }
 
         return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
+    }
+
+    /**
+     * Returns either the player's inventory, or a bound, linked inventory that has items matching <b>templateStack</b>,
+     * or null if no matching items are found.
+     */
+    public static IItemHandler getPlayerOrBoundInventoryWithItems(ItemStack toolStack, ItemStack templateStack, EntityPlayer player)
+    {
+        IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
+
+        if (slot != -1)
+        {
+            return inv;
+        }
+
+        inv = getBoundInventory(toolStack, player, 30);
+
+        if (inv != null)
+        {
+            slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, templateStack);
+
+            if (slot != -1)
+            {
+                return inv;
+            }
+        }
+
+        return null;
     }
 }

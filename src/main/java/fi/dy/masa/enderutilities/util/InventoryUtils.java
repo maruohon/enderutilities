@@ -620,6 +620,22 @@ public class InventoryUtils
     }
 
     /**
+     * Extracts up to <b>amount</b> items from the first found slot with items matching <b>templateStack</b>.
+     * Does not try to fill the stack up to amount if the first found slot has less than <b>amount</b> items!
+     */
+    public static ItemStack extractMatchingItems(IItemHandler inv, @Nonnull ItemStack templateStack, int amount, boolean simulate)
+    {
+        int slot = getSlotOfFirstMatchingItemStack(inv, templateStack);
+
+        if (slot >= 0)
+        {
+            return inv.extractItem(slot, amount, simulate);
+        }
+
+        return null;
+    }
+
+    /**
      * Get the ItemStack that has the given UUID stored in its NBT. If <b>containerTagName</b>
      * is not null, then the UUID is read from a compound tag by that name.
      */
