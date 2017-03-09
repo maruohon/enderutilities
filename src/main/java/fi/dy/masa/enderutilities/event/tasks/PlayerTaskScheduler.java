@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.event.tasks.TaskScheduler.Timer;
@@ -35,6 +36,7 @@ public class PlayerTaskScheduler
     public void runTasks(World world, EntityPlayer player)
     {
         List<IPlayerTask> playerTasks = this.tasks.get(player.getUniqueID());
+
         if (playerTasks == null)
         {
             return;
@@ -43,13 +45,13 @@ public class PlayerTaskScheduler
         Iterator<IPlayerTask> taskIter = playerTasks.iterator();
         Iterator<Timer> timerIter = this.timers.get(player.getUniqueID()).iterator();
 
-        while (taskIter.hasNext() == true)
+        while (taskIter.hasNext())
         {
             boolean finished = false;
             IPlayerTask task = taskIter.next();
             Timer timer = timerIter.next();
 
-            if (timer.tick() == true)
+            if (timer.tick())
             {
                 if (task.canExecute(world, player))
                 {
@@ -61,7 +63,7 @@ public class PlayerTaskScheduler
                 }
             }
 
-            if (finished == true)
+            if (finished)
             {
                 task.stop();
                 taskIter.remove();
@@ -93,6 +95,7 @@ public class PlayerTaskScheduler
     public boolean hasTask(EntityPlayer player, Class <? extends IPlayerTask> clazz)
     {
         List<IPlayerTask> playerTasks = this.tasks.get(player.getUniqueID());
+
         if (playerTasks == null)
         {
             return false;
@@ -100,11 +103,11 @@ public class PlayerTaskScheduler
 
         Iterator<IPlayerTask> taskIter = playerTasks.iterator();
 
-        while (taskIter.hasNext() == true)
+        while (taskIter.hasNext())
         {
             IPlayerTask taskTmp = taskIter.next();
 
-            if (clazz.equals(taskTmp.getClass()) == true)
+            if (clazz.equals(taskTmp.getClass()))
             {
                 return true;
             }
@@ -113,9 +116,16 @@ public class PlayerTaskScheduler
         return false;
     }
 
-    public void removeTask(EntityPlayer player, Class <? extends IPlayerTask> clazz)
+    /**
+     * Remove all tasks matchin <b>clazz</b> from player <b>player</b>.
+     * If <b>clazz</b> is null, then all tasks from <b>player</b> are removed.
+     * @param player
+     * @param clazz
+     */
+    public void removeTask(EntityPlayer player, @Nullable Class <? extends IPlayerTask> clazz)
     {
         List<IPlayerTask> playerTasks = this.tasks.get(player.getUniqueID());
+
         if (playerTasks == null)
         {
             return;
@@ -124,12 +134,12 @@ public class PlayerTaskScheduler
         Iterator<IPlayerTask> taskIter = playerTasks.iterator();
         Iterator<Timer> timerIter = this.timers.get(player.getUniqueID()).iterator();
 
-        while (taskIter.hasNext() == true)
+        while (taskIter.hasNext())
         {
             IPlayerTask taskTmp = taskIter.next();
             timerIter.next();
 
-            if (clazz.equals(taskTmp.getClass()) == true)
+            if (clazz == null || clazz.equals(taskTmp.getClass()))
             {
                 taskTmp.stop();
                 taskIter.remove();
@@ -137,7 +147,7 @@ public class PlayerTaskScheduler
             }
         }
 
-        if (playerTasks.isEmpty() == true)
+        if (playerTasks.isEmpty())
         {
             this.tasks.remove(player.getUniqueID());
             this.timers.remove(player.getUniqueID());
