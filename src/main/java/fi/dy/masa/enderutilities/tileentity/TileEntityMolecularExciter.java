@@ -37,20 +37,9 @@ public class TileEntityMolecularExciter extends TileEntityEnderUtilities
 
     private void convertBlockToFallingBlockEntity(World worldIn, BlockPos pos)
     {
-        if (worldIn.isAirBlock(pos) == false)
+        if (worldIn.isAirBlock(pos) == false && worldIn.getBlockState(pos).getBlockHardness(worldIn, pos) >= 0F)
         {
             worldIn.spawnEntity(EntityFallingBlockEU.convertBlockToEntity(worldIn, pos));
-
-            /*EntityFallingBlock falling = new EntityFallingBlock(worldIn, posFront.getX() + 0.5D, posFront.getY(), posFront.getZ() + 0.5D, stateFront);
-            worldIn.restoringBlockSnapshots = true;
-
-            try
-            {
-                BlockUtils.setBlockToAirWithBreakSound(worldIn, posFront);
-            }
-            catch (Exception e) {}
-
-            worldIn.restoringBlockSnapshots = false;*/
         }
     }
 
