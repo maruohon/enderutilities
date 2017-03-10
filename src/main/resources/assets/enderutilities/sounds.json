@@ -1,6 +1,4 @@
 {
-    "jailer":
-    {
-        "category": "master", "sounds": ["enderutilities:jailer"], "subtitle": "enderutilities.subtitle.jailer"
-    }
+    "jailer":               { "sounds": ["enderutilities:jailer"],              "subtitle": "enderutilities.subtitle.jailer" },
+    "molecular_exciter":    { "sounds": ["enderutilities:molecular_exciter"],   "subtitle": "enderutilities.subtitle.molecular_exciter" }
 }

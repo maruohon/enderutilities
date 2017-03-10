@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.effects.Sounds;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
@@ -95,8 +94,14 @@ public class CommonProxy implements IProxy
     @Override
     public void registerSounds()
     {
-        ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, "jailer");
-        Sounds.jailer = GameRegistry.register(new SoundEvent(resloc), resloc);
+        this.registerSound("jailer");
+        this.registerSound("molecular_exciter");
+    }
+
+    private void registerSound(String name)
+    {
+        ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, name);
+        GameRegistry.register(new SoundEvent(resloc), resloc);
     }
 
     @Override

@@ -745,7 +745,7 @@ public class EntityUtils
             {
                 // Sets the persistenceRequired boolean
                 living.enablePersistence();
-                living.getEntityWorld().playSound(null, living.getPosition(), Sounds.jailer, SoundCategory.MASTER, 0.8f, 1.2f);
+                living.getEntityWorld().playSound(null, living.getPosition(), Sounds.JAILER, SoundCategory.MASTER, 0.8f, 1.2f);
 
                 return true;
             }

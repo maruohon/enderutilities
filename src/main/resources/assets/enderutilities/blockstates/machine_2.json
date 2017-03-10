@@ -2,20 +2,30 @@
     "forge_marker": 1,
     "defaults": {
         "model": "enderutilities:cube_directional_individual",
-        "transform": "forge:default-block"
+        "transform": "forge:default-block",
+        "textures": {
+            "front":            "#front_unpowered",
+            "top":              "#side",
+            "bottom":           "#side",
+            "left":             "#side",
+            "right":            "#side",
+            "back":             "#base"
+        }
     },
     "variants": {
         "type": {
             "molecularexciter": {
                 "textures": {
-                    "front":    "enderutilities:blocks/molecularexciter_front",
-                    "back":     "enderutilities:blocks/molecularexciter_back",
-                    "top":      "enderutilities:blocks/molecularexciter_side",
-                    "bottom":   "enderutilities:blocks/molecularexciter_side",
-                    "left":     "enderutilities:blocks/molecularexciter_side",
-                    "right":    "enderutilities:blocks/molecularexciter_side"
+                    "front_unpowered":  "enderutilities:blocks/molecularexciter_front",
+                    "front_powered":    "enderutilities:blocks/molecularexciter_front_active",
+                    "base":             "enderutilities:blocks/molecularexciter_back",
+                    "side":             "enderutilities:blocks/molecularexciter_side"
                 }
             }
+        },
+        "powered": {
+            "false": {},
+            "true":  { "textures": { "front": "#front_powered" } }
         },
         "facing": {
             "north": {},

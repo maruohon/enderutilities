@@ -125,6 +125,11 @@ public class TileEntityEnderUtilities extends TileEntity
         }
     }
 
+    public boolean isPowered()
+    {
+        return false;
+    }
+
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         if (nbt.hasKey("Rotation", Constants.NBT.TAG_BYTE))

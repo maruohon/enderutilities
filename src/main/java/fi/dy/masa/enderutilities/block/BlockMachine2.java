@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -15,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
@@ -26,6 +28,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMolecularExciter;
 public class BlockMachine2 extends BlockEnderUtilitiesInventory
 {
     public static final PropertyEnum<EnumMachineType> TYPE = PropertyEnum.<EnumMachineType>create("type", EnumMachineType.class);
+    public static final PropertyBool POWERED = PropertyBool.create("powered");
 
     public BlockMachine2(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -33,14 +36,15 @@ public class BlockMachine2 extends BlockEnderUtilitiesInventory
 
         this.propFacing = FACING;
         this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(TYPE, EnumMachineType.MOLECULAR_EXCITER)
-                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING));
+                .withProperty(FACING, BlockEnderUtilities.DEFAULT_FACING)
+                .withProperty(POWERED, false)
+                .withProperty(TYPE, EnumMachineType.MOLECULAR_EXCITER));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING });
+        return new BlockStateContainer(this, new IProperty[] { FACING, POWERED, TYPE });
     }
 
     @Override
@@ -72,6 +76,21 @@ public class BlockMachine2 extends BlockEnderUtilitiesInventory
     public int getMetaFromState(IBlockState state)
     {
         return state.getValue(TYPE).getMeta();
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    {
+        state = super.getActualState(state, worldIn, pos);
+
+        TileEntityEnderUtilities te = getTileEntitySafely(worldIn, pos, TileEntityEnderUtilities.class);
+
+        if (te != null)
+        {
+            state = state.withProperty(POWERED, te.isPowered());
+        }
+
+        return state;
     }
 
     @Override
