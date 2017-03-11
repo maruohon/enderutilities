@@ -12,6 +12,7 @@ public class Configs
     public static int configFileVersion;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;
+    public static int msuMaxItems;
     public static int portalFrameCheckLimit;
     public static int portalLoopCheckLimit;
     public static int portalAreaCheckLimit;
@@ -49,6 +50,7 @@ public class Configs
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
     public static boolean disableBlockMachine_2;
+    public static boolean disableBlockMSU;
     public static boolean disableBlockPortal;
     public static boolean disableBlockPortalFrame;
     public static boolean disableBlockPortalPanel;
@@ -87,6 +89,8 @@ public class Configs
     public static boolean disableRecipeCreationStation;
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
+    public static boolean disableRecipeMassiveStorageBundle;
+    public static boolean disableRecipeMassiveStorageUnit;
     public static boolean disableRecipeMolecularExciter;
     public static boolean disableRecipePortalFrame;
     public static boolean disableRecipePortalPanel;

@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -19,8 +18,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
  */
 public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IItemHandlerSelective
 {
-    private final IItemHandlerModifiable baseHandlerModifiable;
-    private final IItemHandler wrapperHandler;
+    protected final IItemHandlerModifiable baseHandlerModifiable;
+    protected final IItemHandler wrapperHandler;
 
     public ItemHandlerWrapperContainer(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler)
     {

@@ -234,7 +234,7 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartEnderAlloy1 == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 4, 1), "ingotGold", alloy0, alloy0, alloy0));
+            GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 4, 1), "ingotGold", "ingotGold", "ingotGold", "ingotGold", pearl));
         }
         if (Configs.disableRecipePartEnderAlloy2 == false && Configs.disableItemCraftingPart == false)
         {

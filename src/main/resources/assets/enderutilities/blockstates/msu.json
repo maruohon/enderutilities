@@ -1,0 +1,28 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "transform": "forge:default-block",
+        "textures": {
+            "front": "#side"
+        }
+    },
+    "variants": {
+        "type": {
+            "msu_0": {
+                "textures": {
+                    "top":      "enderutilities:blocks/msu_top_0",
+                    "bottom":   "enderutilities:blocks/msu_bottom_0",
+                    "side":     "enderutilities:blocks/msu_side_0"
+                }
+            },
+            "msu_1": {
+                "textures": {
+                    "top":      "enderutilities:blocks/msu_top_1",
+                    "bottom":   "enderutilities:blocks/msu_bottom_1",
+                    "side":     "enderutilities:blocks/msu_side_1"
+                }
+            }
+        }
+    }
+}

@@ -24,8 +24,6 @@ public interface IProxy
 
     public void registerTileEntities();
 
-    public void setupReflection();
-
     public boolean isShiftKeyDown();
 
     public boolean isControlKeyDown();

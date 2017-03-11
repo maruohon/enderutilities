@@ -12,12 +12,12 @@ import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
+import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
 import fi.dy.masa.enderutilities.block.BlockMachine2;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
-import fi.dy.masa.enderutilities.block.base.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -32,6 +32,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1      = new BlockMachine1(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_2      = new BlockMachine2(ReferenceNames.NAME_TILE_MACHINE_2,         6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_ENTITY_MSU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
     public static final BlockEnderUtilities blockPortalFrame    = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
@@ -47,6 +48,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
         registerBlock(blockMachine_2,       Configs.disableBlockMachine_2);
+        registerBlock(MSU,                  Configs.disableBlockMSU);
         registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
         registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
         registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel, true, false);
@@ -162,6 +164,15 @@ public class EnderUtilitiesBlocks
             GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 6), "   ", "ACA", "ACA", 'A', alloy0, 'C', new ItemStack(blockStorage_0, 1, 5));
         }
 
+        if (Configs.disableRecipeMassiveStorageUnit == false && Configs.disableBlockMSU == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(MSU, 1, 0), "ACA", "AOA", "ACA", 'A', alloy2, 'O', active_core2, 'C', new ItemStack(blockStorage_0, 1, 5));
+        }
+        if (Configs.disableRecipeMassiveStorageBundle == false && Configs.disableBlockMSU == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(MSU, 1, 1), "MMM", "MMM", "MMM", 'M', new ItemStack(MSU, 1, 0));
+        }
+
         if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalFrame, 8, 0), "GAG", "ARA", "GAG", 'G', "blockGlass", 'A', alloy0, 'R', Items.REDSTONE));
@@ -191,7 +202,7 @@ public class EnderUtilitiesBlocks
 
             if (createItemBlock)
             {
-                GameRegistry.register(new ItemBlockEnderUtilities(block).setRegistryName(Reference.MOD_ID, block.getBlockName()).setHasSubtypes(hasSubtypes));
+                GameRegistry.register(block.createItemBlock().setHasSubtypes(hasSubtypes).setRegistryName(Reference.MOD_ID, block.getBlockName()));
             }
         }
         else

@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -490,7 +492,8 @@ public class NBTUtils
             @Nonnull String tagName, int tagType, boolean create)
     {
         NBTTagCompound nbt = getCompoundTag(containerStack, containerTagName, create);
-        if (create == true && nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == false)
+
+        if (create && nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == false)
         {
             nbt.setTag(tagName, new NBTTagList());
         }
@@ -576,6 +579,24 @@ public class NBTUtils
     }*/
 
     /**
+     * Reads an ItemStack from the given compound tag, including the Ender Utilities-specific custom stackSize.
+     * @param tag
+     * @return
+     */
+    @Nullable
+    public static ItemStack loadItemStackFromTag(@Nonnull NBTTagCompound tag)
+    {
+        ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+
+        if (stack != null && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
+        {
+            stack.stackSize = tag.getInteger("ActualCount");
+        }
+
+        return stack;
+    }
+
+    /**
      * Reads the stored items from the provided NBTTagCompound, from a NBTTagList by the name <b>tagName</b>
      * and writes them to the provided array of ItemStacks <b>items</b>.
      * @param tag
@@ -599,18 +620,46 @@ public class NBTUtils
 
             if (slotNum >= 0 && slotNum < items.length)
             {
-                items[slotNum] = ItemStack.loadItemStackFromNBT(tag);
-
-                if (items[slotNum] != null && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
-                {
-                    items[slotNum].stackSize = tag.getInteger("ActualCount");
-                }
+                items[slotNum] = loadItemStackFromTag(tag);
             }
             /*else
             {
                 EnderUtilities.logger.warn("Failed to read items from NBT, invalid slot: " + slotNum + " (max: " + (items.length - 1) + ")");
             }*/
         }
+    }
+
+    /**
+     * Reads the stored items from the provided ItemStack. If <b>containerTag</b> is not null, then
+     * the list of items is read from within a compound tag by that name.
+     * The items will be read from a NBTTagList by the name <b>tagName</b>.
+     * @param stack
+     * @param tagName
+     * @return a list of the existing ItemStacks, or an empty list if there were none
+     */
+    public static List<ItemStack> readStoredItemsFromStack(@Nonnull ItemStack stack, @Nullable String containerTag, @Nonnull String tagName)
+    {
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        NBTTagCompound nbt = NBTUtils.getCompoundTag(stack, containerTag, false);
+
+        if (nbt != null && nbt.hasKey(tagName, Constants.NBT.TAG_LIST))
+        {
+            NBTTagList tagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
+            int count = tagList.tagCount();
+
+            for (int i = 0; i < count; i++)
+            {
+                NBTTagCompound tag = tagList.getCompoundTagAt(i);
+                ItemStack stackTmp = loadItemStackFromTag(tag);
+
+                if (stackTmp != null)
+                {
+                    stacks.add(stackTmp);
+                }
+            }
+        }
+
+        return stacks;
     }
 
     /**

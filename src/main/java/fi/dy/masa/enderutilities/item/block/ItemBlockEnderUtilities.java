@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.block.base;
+package fi.dy.masa.enderutilities.item.block;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
@@ -21,13 +22,14 @@ public class ItemBlockEnderUtilities extends ItemBlock
     public ItemBlockEnderUtilities(Block block)
     {
         super(block);
+
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
 
         if (block instanceof BlockEnderUtilities)
         {
-            this.setBlockNames(((BlockEnderUtilities)block).getUnlocalizedNames());
-            this.setTooltipNames(((BlockEnderUtilities)block).getTooltipNames());
+            this.setBlockNames(((BlockEnderUtilities) block).getUnlocalizedNames());
+            this.setTooltipNames(((BlockEnderUtilities) block).getTooltipNames());
         }
     }
 
@@ -78,6 +80,11 @@ public class ItemBlockEnderUtilities extends ItemBlock
     }
 
     @SideOnly(Side.CLIENT)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+    }
+
+    @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
@@ -85,7 +92,7 @@ public class ItemBlockEnderUtilities extends ItemBlock
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
 
         // "Fresh" items without NBT data: display the tips before the usual tooltip data
-        if (stack != null && stack.getTagCompound() == null)
+        if (stack.getTagCompound() == null)
         {
             this.addTooltips(stack, tmpList, verbose);
 
@@ -97,6 +104,26 @@ public class ItemBlockEnderUtilities extends ItemBlock
             {
                 list.addAll(tmpList);
             }
+        }
+
+        tmpList.clear();
+        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
+        // plus the "Hold Shift for more" tooltip.
+        if (verbose == false && tmpList.size() > 2)
+        {
+            tmpList.clear();
+            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            if (tmpList.size() > 0)
+            {
+                list.add(tmpList.get(0));
+            }
+            list.add(I18n.format("enderutilities.tooltip.item.holdshift"));
+        }
+        else
+        {
+            list.addAll(tmpList);
         }
     }
 

@@ -1,39 +1,61 @@
 package fi.dy.masa.enderutilities.util;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+import net.minecraft.item.ItemStack;
 
 public class EUStringUtils
 {
     public static final String EMPTY = "";
+    public static final String[] SI_PREFIXES = new String[] { "", "k", "M", "G", "T", "P", "E", "Z", "Y" };
 
-    /**
-     * Formats the number in value into a floored, postfixed form for display.
-     * Supported formats are: 0..1000, 1.0k..9.9k, 10k..999k, 1M..nM
-     * @param value
-     * @return
-     */
-    public static String formatNumberFloorWithPostfix(int value)
+    public static String getStackSizeString(ItemStack stack, int maxChars)
     {
-        if (value >= 1000000000)
+        return formatNumber(stack.stackSize, 9999, maxChars);
+    }
+
+    public static String formatNumber(long value, long maxUnformatted, int maxChars)
+    {
+        // Simple case, we can display the entire number
+        if (value <= maxUnformatted)
         {
-            return String.format("%dG", value / 1000000000);
+            return String.valueOf(value);
         }
 
-        if (value >= 1000000)
+        //long limit = Math.max((long) Math.pow(10, maxChars), 10) / 10; // divide by 10 to leave space for the SI prefix
+        double dValue = value;
+        int prefixIndex = 0;
+
+        while (dValue >= 1000D)
         {
-            return String.format("%dM", value / 1000000);
+            dValue /= 1000D;
+            prefixIndex++;
         }
 
-        if (value >= 10000)
+        int digits = 1;
+        double div = 10D;
+
+        while (dValue >= div && digits < 64) // use a fail-safe
         {
-            return String.format("%dk", value / 1000);
+            div *= 10;
+            digits++;
         }
 
-        if (value > 1000)
+        try
         {
-            return String.format("%.1fk", ((float)value) / 1000);
-        }
+            // How many decimals can we fit. The -1 is for the decimal dot.
+            int maxDecimals = maxChars - digits - 1 - SI_PREFIXES[prefixIndex].length();
+            String valueStr = String.valueOf(dValue);
+            int endIndex = maxDecimals > 0 ? Math.min(digits + 1 + maxDecimals, valueStr.length()) : digits;
+            valueStr = valueStr.substring(0, endIndex);
+            //String fmt = maxDecimals >= 0 ? "%" + (digits + maxDecimals) + "." + maxDecimals + "f%s" : "%.0f%s";
 
-        return String.valueOf(value);
+            return valueStr + SI_PREFIXES[prefixIndex];
+        }
+        catch (Exception e)
+        {
+            return "OOPS";
+        }
     }
 
     /**
@@ -43,25 +65,7 @@ public class EUStringUtils
      */
     public static String formatNumberWithKSeparators(int value)
     {
-        StringBuilder sb = new StringBuilder(16);
-
-        String number = String.valueOf(value);
-        int len = number.length();
-        int end = len % 3, i = 0;
-
-        sb.append(number.substring(0, end));
-
-        for (i = end; i <= (len - 3); i += 3)
-        {
-            if (i > 0)
-            {
-                sb.append(",");
-            }
-
-            sb.append(number.substring(i, i + 3));
-        }
-
-        return sb.toString();
+        return NumberFormat.getNumberInstance(Locale.US).format(value);
     }
 
     /**

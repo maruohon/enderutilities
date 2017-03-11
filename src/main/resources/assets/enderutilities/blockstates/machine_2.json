@@ -14,12 +14,12 @@
     },
     "variants": {
         "type": {
-            "molecularexciter": {
+            "molecular_exciter": {
                 "textures": {
-                    "front_unpowered":  "enderutilities:blocks/molecularexciter_front",
-                    "front_powered":    "enderutilities:blocks/molecularexciter_front_active",
-                    "base":             "enderutilities:blocks/molecularexciter_back",
-                    "side":             "enderutilities:blocks/molecularexciter_side"
+                    "front_unpowered":  "enderutilities:blocks/molecular_exciter_front",
+                    "front_powered":    "enderutilities:blocks/molecular_exciter_front_active",
+                    "base":             "enderutilities:blocks/molecular_exciter_back",
+                    "side":             "enderutilities:blocks/molecular_exciter_side"
                 }
             }
         },

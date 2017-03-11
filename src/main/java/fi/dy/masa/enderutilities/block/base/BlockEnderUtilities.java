@@ -7,11 +7,13 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 
 public class BlockEnderUtilities extends Block
 {
@@ -83,6 +85,11 @@ public class BlockEnderUtilities extends Block
     {
         this.enabled = enabled;
         return this;
+    }
+
+    public ItemBlock createItemBlock()
+    {
+        return new ItemBlockEnderUtilities(this);
     }
 
     @Override

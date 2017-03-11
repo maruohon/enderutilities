@@ -31,6 +31,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMolecularExciter;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
@@ -107,22 +108,21 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
-        this.registerTileEntity(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
-        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
-        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
-        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.registerTileEntity(TileEntityMolecularExciter.class,       ReferenceNames.NAME_TILE_ENTITY_MOLECULAR_EXCITER);
-        this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
-        this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
-        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
-        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-    }
+        this.registerTileEntityWithAlternatives(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntityWithAlternatives(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
+        this.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        this.registerTileEntityWithAlternatives(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.registerTileEntityWithAlternatives(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        this.registerTileEntityWithAlternatives(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        this.registerTileEntityWithAlternatives(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntityWithAlternatives(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
+        this.registerTileEntityWithAlternatives(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
+        this.registerTileEntityWithAlternatives(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        this.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
 
-    @Override
-    public void setupReflection() { }
+        this.registerTileEntity(TileEntityMolecularExciter.class,       ReferenceNames.NAME_TILE_ENTITY_MOLECULAR_EXCITER);
+        this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);
+    }
 
     @Override
     public boolean isShiftKeyDown()
@@ -142,10 +142,15 @@ public class CommonProxy implements IProxy
         return false;
     }
 
-    private void registerTileEntity(Class<? extends TileEntity> clazz, String id)
+    private void registerTileEntityWithAlternatives(Class<? extends TileEntity> clazz, String id)
     {
         // TODO Remove at some point
         String oldName = Reference.MOD_ID + "." + id.replaceAll("_", ".");
-        GameRegistry.registerTileEntityWithAlternatives(clazz, ReferenceNames.getPrefixedName(id), oldName);
+        GameRegistry.registerTileEntityWithAlternatives(clazz, Reference.MOD_ID + ":" + id, ReferenceNames.getPrefixedName(id), oldName);
+    }
+
+    private void registerTileEntity(Class<? extends TileEntity> clazz, String id)
+    {
+        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
     }
 }

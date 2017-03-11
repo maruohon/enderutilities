@@ -72,8 +72,9 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
     public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
     public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
+    public static final String NAME_TILE_ENTITY_MSU                  = "msu";
     public static final String NAME_TILE_ENTITY_MEMORY_CHEST         = "memorychest";
-    public static final String NAME_TILE_ENTITY_MOLECULAR_EXCITER    = "molecularexciter";
+    public static final String NAME_TILE_ENTITY_MOLECULAR_EXCITER    = "molecular_exciter";
     public static final String NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED = "quickstackeradvanced";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 

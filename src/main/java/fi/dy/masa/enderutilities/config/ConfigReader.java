@@ -114,6 +114,10 @@ public class ConfigReader
         prop.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
         Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
 
+        prop = getProp("msuMaxItems", 1000000000);
+        prop.setComment("The maximum amount of items (per slot) the MSUs can store.");
+        Configs.msuMaxItems = prop.getInt();
+
         prop = getProp("portalAreaCheckLimit", 10000);
         prop.setComment("How many blocks to check at most when checking that one portal area is valid");
         Configs.portalAreaCheckLimit = prop.getInt();
@@ -240,6 +244,10 @@ public class ConfigReader
         prop.setComment("Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests");
         Configs.disableBlockStorage_0 = prop.getBoolean();
 
+        prop = getProp("disableBlockMSU", false);
+        prop.setComment("Meta values: 0 = Massive Storage Unit, 1 = Massive Storage Bundle");
+        Configs.disableBlockMSU = prop.getBoolean();
+
         currentCategory = "DisableItems";
         conf.addCustomCategoryComment(currentCategory, "Completely disable items (don't register them to the game.)\n" +
                 "Note that some items are grouped together using the damage value (and/or NBT data) to identify them.\n" +
@@ -298,6 +306,9 @@ public class ConfigReader
         Configs.disableRecipeMemoryChest_0        = getProp("disableRecipeMemoryChest0", false).getBoolean();
         Configs.disableRecipeMemoryChest_1        = getProp("disableRecipeMemoryChest1", false).getBoolean();
         Configs.disableRecipeMemoryChest_2        = getProp("disableRecipeMemoryChest2", false).getBoolean();
+
+        Configs.disableRecipeMassiveStorageUnit     = getProp("disableRecipeMassiveStorageUnit", false).getBoolean();
+        Configs.disableRecipeMassiveStorageBundle   = getProp("disableRecipeMassiveStorageBundle", false).getBoolean();
 
         // Items
         Configs.disableRecipeBuildersWand         = getProp("disableRecipeBuildersWand", false).getBoolean();

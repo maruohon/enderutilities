@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class GuiContainerLargeStacks extends GuiEnderUtilities
 {
@@ -127,7 +128,12 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
         if (stack.stackSize != 1)
         {
-            String str = stack.stackSize < 1 ? TextFormatting.RED + String.valueOf(stack.stackSize) : String.valueOf(stack.stackSize);
+            String str = EUStringUtils.getStackSizeString(stack, 4);
+
+            if (stack.stackSize < 1)
+            {
+                str = TextFormatting.RED + str;
+            }
 
             GlStateManager.disableLighting();
             GlStateManager.disableDepth();

@@ -510,68 +510,6 @@ public class UtilItemModular
     }
 
     /**
-     * Returns the total number of stored items in the containerStack.
-     * @param containerStack
-     * @return
-     */
-    public static int getTotalNumberOfStoredItems(ItemStack containerStack)
-    {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
-        if (nbtTagList == null)
-        {
-            return 0;
-        }
-
-        int count = 0;
-        int num = nbtTagList.tagCount();
-        for (int i = 0; i < num; ++i)
-        {
-            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-
-            if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
-            {
-                count += tag.getInteger("ActualCount");
-            }
-            else
-            {
-                count += tag.getByte("Count");
-
-                /*ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
-                if (stack != null)
-                {
-                    count += stack.stackSize;
-                }*/
-            }
-        }
-
-        return count;
-    }
-
-    /**
-     * Reads the display names of all the stored items in <b>containerStack</b>.
-     */
-    public static void readItemNamesFromContainerItem(ItemStack containerStack, List<String> listNames)
-    {
-        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
-        if (nbtTagList == null)
-        {
-            return;
-        }
-
-        int num = nbtTagList.tagCount();
-        for (int i = 0; i < num; ++i)
-        {
-            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
-
-            if (stack != null)
-            {
-                listNames.add(stack.getDisplayName());
-            }
-        }
-    }
-
-    /**
      * Adds a formatted list of ItemStack sizes and the display names of the ItemStacks
      * to the <b>listLines</b> list. Returns the total number of items stored.
      * @param containerStack
@@ -590,31 +528,24 @@ public class UtilItemModular
         if (nbtTagList != null && nbtTagList.tagCount() > 0)
         {
             int num = nbtTagList.tagCount();
+
             for (int i = 0; i < num; ++i)
             {
                 NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-                if (tag != null)
+                ItemStack tmpStack = NBTUtils.loadItemStackFromTag(tag);
+
+                if (tmpStack != null)
                 {
-                    ItemStack tmpStack = ItemStack.loadItemStackFromNBT(tag);
+                    int stackSize = tmpStack.stackSize;
+                    itemCount += stackSize;
 
-                    if (tmpStack != null)
+                    if (i < maxLines)
                     {
-                        int stackSize = tmpStack.stackSize;
-
-                        if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT) == true)
-                        {
-                            stackSize = tag.getInteger("ActualCount");
-                        }
-                        itemCount += stackSize;
-
-                        if (i < maxLines)
-                        {
-                            listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
-                        }
-                        else
-                        {
-                            overflow++;
-                        }
+                        listLines.add(String.format("  %s%4d%s %s", preWhite, stackSize, rst, tmpStack.getDisplayName()));
+                    }
+                    else
+                    {
+                        overflow++;
                     }
                 }
             }
