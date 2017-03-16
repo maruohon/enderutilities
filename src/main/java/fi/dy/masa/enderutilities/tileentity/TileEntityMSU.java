@@ -150,6 +150,12 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
 
             return super.extractItem(slot, amount, simulate);
         }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            return this.te.isCreative() == false;
+        }
     }
 
     private class ItemHandlerWrapperContainerMSU extends ItemHandlerWrapperContainer

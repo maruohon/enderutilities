@@ -62,7 +62,7 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     {
         if (this.wrapperHandler instanceof IItemHandlerSelective)
         {
-            return ((IItemHandlerSelective)this.wrapperHandler).isItemValidForSlot(slot, stack);
+            return ((IItemHandlerSelective) this.wrapperHandler).isItemValidForSlot(slot, stack);
         }
 
         return true;
@@ -71,6 +71,11 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public boolean canExtractFromSlot(int slot)
     {
+        if (this.wrapperHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective) this.wrapperHandler).canExtractFromSlot(slot);
+        }
+
         return true;
     }
 }
