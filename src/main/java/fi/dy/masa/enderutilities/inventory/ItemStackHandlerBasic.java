@@ -2,19 +2,17 @@ package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandlerModifiable;
-
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>, IItemHandlerSelective, IItemHandlerSize
 {
     protected final int invSize;
-    protected final int stackLimit;
     protected final boolean allowCustomStackSizes;
     protected final ItemStack[] items;
     protected String tagName;
+    protected int stackLimit;
 
     public ItemStackHandlerBasic(int invSize)
     {
@@ -24,10 +22,10 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     public ItemStackHandlerBasic(int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName)
     {
         this.invSize = invSize;
-        this.stackLimit = stackLimit;
         this.tagName = tagName;
         this.allowCustomStackSizes = allowCustomStackSizes;
         this.items = new ItemStack[invSize];
+        this.setStackLimit(stackLimit);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        if (slot < 0 || slot >= this.items.length || stack == null || this.isItemValidForSlot(slot, stack) == false)
+        if (stack == null || this.isItemValidForSlot(slot, stack) == false)
         {
             return stack;
         }
@@ -98,6 +96,11 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         }
 
         int amount = Math.min(max - existingStackSize, stack.stackSize);
+
+        if (amount <= 0)
+        {
+            return stack;
+        }
 
         if (simulate == false)
         {
@@ -182,6 +185,11 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
     public void onContentsChanged(int slot)
     {
+    }
+
+    public void setStackLimit(int stackLimit)
+    {
+        this.stackLimit = stackLimit;
     }
 
     @Override

@@ -219,6 +219,7 @@ public class ConfigReader
                 "Note that machines are grouped together and identified by the meta value. You can't disable just a specific meta value.");
 
         // Block disable
+        Configs.disableBlockASU           = getProp("disableBlockAdjustableStorageUnit", false).getBoolean();
         Configs.disableBlockEnderElevator = getProp("disableBlockEnderElevator", false).getBoolean();
         Configs.disableBlockPortal        = getProp("disableBlockPortal", false).getBoolean();
         Configs.disableBlockPortalFrame   = getProp("disableBlockPortalFrame", false).getBoolean();
@@ -244,7 +245,7 @@ public class ConfigReader
         prop.setComment("Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests");
         Configs.disableBlockStorage_0 = prop.getBoolean();
 
-        prop = getProp("disableBlockMSU", false);
+        prop = getProp("disableBlockMassiveStorageUnit", false);
         prop.setComment("Meta values: 0 = Massive Storage Unit, 1 = Massive Storage Bundle");
         Configs.disableBlockMSU = prop.getBoolean();
 
@@ -307,6 +308,7 @@ public class ConfigReader
         Configs.disableRecipeMemoryChest_1        = getProp("disableRecipeMemoryChest1", false).getBoolean();
         Configs.disableRecipeMemoryChest_2        = getProp("disableRecipeMemoryChest2", false).getBoolean();
 
+        Configs.disableRecipeAdjustableStorageUnit  = getProp("disableRecipeAdjustableStorageUnit", false).getBoolean();
         Configs.disableRecipeMassiveStorageUnit     = getProp("disableRecipeMassiveStorageUnit", false).getBoolean();
         Configs.disableRecipeMassiveStorageBundle   = getProp("disableRecipeMassiveStorageBundle", false).getBoolean();
 

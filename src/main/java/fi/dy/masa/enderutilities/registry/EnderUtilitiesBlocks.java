@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import fi.dy.masa.enderutilities.block.BlockASU;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
@@ -25,6 +26,7 @@ import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 
 public class EnderUtilitiesBlocks
 {
+    public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ENTITY_ASU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
@@ -41,6 +43,7 @@ public class EnderUtilitiesBlocks
     public static void init()
     {
         // Register blocks
+        registerBlock(ASU,                  Configs.disableBlockASU);
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
@@ -164,6 +167,24 @@ public class EnderUtilitiesBlocks
             GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 6), "   ", "ACA", "ACA", 'A', alloy0, 'C', new ItemStack(blockStorage_0, 1, 5));
         }
 
+        if (Configs.disableRecipeAdjustableStorageUnit == false && Configs.disableBlockASU == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(ASU, 9, 0), "ARA", "AHA", "ACA", 'A', alloy0, 'R', Items.REPEATER, 'H', Blocks.CHEST, 'C', Items.COMPARATOR);
+
+            // Split higher tiers into tier 1s
+            for (int i = 1; i <= 8; i++)
+            {
+                GameRegistry.addShapelessRecipe(new ItemStack(ASU, i + 1, 0), new ItemStack(ASU, 1, i));
+            }
+
+            // Combine tier 1s into higher tiers
+            for (int i = 1; i <= 8; i++)
+            {
+                Object[] arr = new Object[i + 1];
+                for (int j = 0; j < arr.length; j++) { arr[j] = new ItemStack(ASU, 1, 0); }
+                GameRegistry.addShapelessRecipe(new ItemStack(ASU, 1, i), arr);
+            }
+        }
         if (Configs.disableRecipeMassiveStorageUnit == false && Configs.disableBlockMSU == false)
         {
             GameRegistry.addRecipe(new ItemStack(MSU, 1, 0), "ACA", "AOA", "ACA", 'A', alloy2, 'O', active_core2, 'C', new ItemStack(blockStorage_0, 1, 5));

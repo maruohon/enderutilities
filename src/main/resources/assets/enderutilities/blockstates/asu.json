@@ -1,0 +1,25 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "transform": "forge:default-block",
+        "textures": {
+            "top":      "enderutilities:blocks/asu_top",
+            "bottom":   "#top",
+            "front":    "#side"
+        }
+    },
+    "variants": {
+        "tier": {
+            "1": { "textures": { "side": "enderutilities:blocks/asu_side_1" } },
+            "2": { "textures": { "side": "enderutilities:blocks/asu_side_2" } },
+            "3": { "textures": { "side": "enderutilities:blocks/asu_side_3" } },
+            "4": { "textures": { "side": "enderutilities:blocks/asu_side_4" } },
+            "5": { "textures": { "side": "enderutilities:blocks/asu_side_5" } },
+            "6": { "textures": { "side": "enderutilities:blocks/asu_side_6" } },
+            "7": { "textures": { "side": "enderutilities:blocks/asu_side_7" } },
+            "8": { "textures": { "side": "enderutilities:blocks/asu_side_8" } },
+            "9": { "textures": { "side": "enderutilities:blocks/asu_side_9" } }
+        }
+    }
+}

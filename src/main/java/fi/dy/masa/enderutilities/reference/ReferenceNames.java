@@ -67,6 +67,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge_resonator";
 
 
+    public static final String NAME_TILE_ENTITY_ASU                  = "asu";
     public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";

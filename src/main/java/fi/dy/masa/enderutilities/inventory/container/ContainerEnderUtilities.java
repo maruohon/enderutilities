@@ -229,6 +229,7 @@ public class ContainerEnderUtilities extends Container
     protected boolean transferStackFromSlot(EntityPlayer player, int slotNum)
     {
         Slot slot = this.getSlot(slotNum);
+
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
@@ -279,6 +280,7 @@ public class ContainerEnderUtilities extends Container
     protected boolean transferStackToSlotRange(EntityPlayer player, int slotNum, MergeSlotRange slotRange, boolean reverse)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
@@ -314,11 +316,13 @@ public class ContainerEnderUtilities extends Container
         // Actually merge the items
         stack = this.mergeItemStack(stack, slotRange, reverse, false);
 
-        // If they couldn't fit after all, then return them. This shouldn't happen, and will cause some issues like gaining XP from nothing.
+        // If they couldn't fit after all, then return them.
+        // This shouldn't happen, and will cause some issues like gaining XP from nothing in furnaces.
         if (stack != null)
         {
             slot.insertItem(stack, false);
-            EnderUtilities.logger.warn("Failed to merge all items in " + this.getClass().getSimpleName() + ". This shouldn't happen and should be reported.");
+            EnderUtilities.logger.warn("Failed to merge all items in '{}'. This shouldn't happen and should be reported.",
+                    this.getClass().getSimpleName());
         }
 
         return true;

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -14,57 +14,47 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.item.block.ItemBlockASU;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
+import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
-import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.util.ItemUtils;
 
-public class BlockMSU extends BlockEnderUtilitiesInventory
+public class BlockASU extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyEnum<BlockMSU.EnumStorageType> TYPE =
-            PropertyEnum.<BlockMSU.EnumStorageType>create("type", BlockMSU.EnumStorageType.class);
+    public static final PropertyInteger TIER = PropertyInteger.create("tier", 1, 9);
 
-    public BlockMSU(String name, float hardness, float resistance, int harvestLevel, Material material)
+    public BlockASU(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.getBlockState().getBaseState().withProperty(TYPE, BlockMSU.EnumStorageType.MASSIVE_STORAGE_UNIT));
+        this.setDefaultState(this.getBlockState().getBaseState().withProperty(TIER, 1));
+        this.setUnlocalizedName(Reference.MOD_ID + "." + name);
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE });
-    }
-
-    @Override
-    protected String[] generateUnlocalizedNames()
-    {
-        return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_MSU + "_0",
-                ReferenceNames.NAME_TILE_ENTITY_MSU + "_1"
-        };
+        return new BlockStateContainer(this, new IProperty[] { TIER });
     }
 
     @Override
     public ItemBlock createItemBlock()
     {
-        return new ItemBlockStorage(this);
+        return new ItemBlockASU(this);
     }
 
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        return new TileEntityMSU();
+        return new TileEntityASU();
     }
 
     @Override
@@ -76,7 +66,7 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
 
             if (te instanceof ITieredStorage)
             {
-                ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getMeta());
+                ((ITieredStorage) te).setStorageTier(state.getValue(TIER));
             }
         }
     }
@@ -115,8 +105,8 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     protected ItemStack getDroppedItemWithNBT(IBlockAccess worldIn, BlockPos pos, IBlockState state, boolean addNBTLore)
     {
         Random rand = worldIn instanceof World ? ((World) worldIn).rand : RANDOM;
-        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, state.getValue(TYPE).getMeta());
-        TileEntityMSU te = getTileEntitySafely(worldIn, pos, TileEntityMSU.class);
+        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, state.getValue(TIER) - 1);
+        TileEntityASU te = getTileEntitySafely(worldIn, pos, TileEntityASU.class);
 
         if (te != null)
         {
@@ -136,27 +126,13 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TYPE, EnumStorageType.fromMeta(meta));
+        return this.getDefaultState().withProperty(TIER, (meta % 9) + 1);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TYPE).getMeta();
-    }
-
-    @Override
-    @Deprecated
-    public float getBlockHardness(IBlockState state, World world, BlockPos pos)
-    {
-        TileEntityMSU te = getTileEntitySafely(world, pos, TileEntityMSU.class);
-
-        if (te != null && te.isCreative())
-        {
-            return -1f;
-        }
-
-        return super.getBlockHardness(state, world, pos);
+        return state.getValue(TIER) - 1;
     }
 
     @Override
@@ -180,40 +156,9 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < EnumStorageType.values().length; meta++)
+        for (int meta = 0; meta < 9; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
-        }
-    }
-
-    public static enum EnumStorageType implements IStringSerializable
-    {
-        MASSIVE_STORAGE_UNIT    (0, ReferenceNames.NAME_TILE_ENTITY_MSU + "_0"),
-        MASSIVE_STORAGE_BUNDLE  (1, ReferenceNames.NAME_TILE_ENTITY_MSU + "_1");
-
-        private final String name;
-        private final int meta;
-
-        private EnumStorageType(int meta, String nameBase)
-        {
-            this.meta = meta;
-            this.name = nameBase;
-        }
-
-        @Override
-        public String getName()
-        {
-            return this.name;
-        }
-
-        public int getMeta()
-        {
-            return this.meta;
-        }
-
-        public static EnumStorageType fromMeta(int meta)
-        {
-            return values()[meta % values().length];
         }
     }
 }
