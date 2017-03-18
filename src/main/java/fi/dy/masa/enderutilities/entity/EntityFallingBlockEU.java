@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -35,6 +36,7 @@ public class EntityFallingBlockEU extends Entity
     private IBlockState blockState;
     private int fallTime;
     private boolean shouldDropItem = true;
+    private boolean dropAsItemOnPlacementFail;
     private boolean canSetAsBlock = true;
     private boolean hurtEntities;
     private boolean canBePushed;
@@ -47,6 +49,8 @@ public class EntityFallingBlockEU extends Entity
     public EntityFallingBlockEU(World worldIn)
     {
         super(worldIn);
+
+        this.dropAsItemOnPlacementFail = Configs.fallingBlockDropsAsItemOnPlacementFail;
     }
 
     public static EntityFallingBlockEU convertBlockToEntity(World worldIn, BlockPos pos)
@@ -198,8 +202,6 @@ public class EntityFallingBlockEU extends Entity
 
             if (iblockstate.getBlock() != Blocks.PISTON_EXTENSION)
             {
-                this.setDead();
-
                 if (this.canSetAsBlock)
                 {
                     if (world.canBlockBePlaced(block, pos, true, EnumFacing.UP, null, null) &&
@@ -231,17 +233,24 @@ public class EntityFallingBlockEU extends Entity
                                 }
                             }
                         }
-                    }
-                    else if (this.shouldDropItem && world.getGameRules().getBoolean("doEntityDrops"))
-                    {
-                        ItemStack stack = new ItemStack(block, 1, block.damageDropped(this.blockState));
 
-                        if (this.tileEntityData != null)
+                        this.setDead();
+                    }
+                    else if (this.dropAsItemOnPlacementFail)
+                    {
+                        if (this.shouldDropItem && world.getGameRules().getBoolean("doEntityDrops"))
                         {
-                            NBTUtils.getRootCompoundTag(stack, true).setTag("BlockEntityTag", this.tileEntityData);
+                            ItemStack stack = new ItemStack(block, 1, block.damageDropped(this.blockState));
+
+                            if (this.tileEntityData != null)
+                            {
+                                NBTUtils.getRootCompoundTag(stack, true).setTag("BlockEntityTag", this.tileEntityData);
+                            }
+
+                            this.entityDropItem(stack, 0.0F);
                         }
 
-                        this.entityDropItem(stack, 0.0F);
+                        this.setDead();
                     }
                 }
             }

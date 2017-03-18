@@ -102,6 +102,11 @@ public class ConfigReader
         prop.setComment("Is the Ender Lasso allowed to teleport players (directly or in a 'stack' riding something)");
         Configs.enderLassoAllowPlayers = prop.getBoolean();
 
+        prop = getProp("fallingBlockDropsAsItemOnPlacementFail", false);
+        prop.setComment("If true, then the block will drop as item when failing to place (like vanilla falling blocks).\n" +
+                        "If false, then it will stay in entity form until it's able to place itself.");
+        Configs.fallingBlockDropsAsItemOnPlacementFail = prop.getBoolean();
+
         prop = getProp("handyBagEnableItemUpdate", false);
         prop.setComment("Master config to enable calling the stored items' update method in the Handy Bag.\n" +
                         "WARNING: Due to how complex the bag's inventory stuff is (due to the bag storing Memory Cards,\n" +
