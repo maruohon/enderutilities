@@ -128,7 +128,7 @@ public class RenderEventHandler
 
         if (stack != null)
         {
-            List<Entity> chairs = this.mc.world.getEntities(EntityChair.class, Predicates.alwaysTrue());
+            List<EntityChair> chairs = this.mc.world.getEntities(EntityChair.class, Predicates.alwaysTrue());
 
             for (Entity entity : chairs)
             {
