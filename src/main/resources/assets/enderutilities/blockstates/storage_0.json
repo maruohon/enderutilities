@@ -54,6 +54,15 @@
                     "side":     "enderutilities:blocks/handychest_3_side",
                     "top":      "enderutilities:blocks/handychest_3_top"
                 }
+            },
+            "jsu": {
+                "model": "enderutilities:orientable_ftbs",
+                "textures": {
+                    "front":    "enderutilities:blocks/jsu_front",
+                    "side":     "enderutilities:blocks/jsu_side",
+                    "top":      "enderutilities:blocks/jsu_side",
+                    "bottom":   "enderutilities:blocks/jsu_side"
+                }
             }
         },
         "facing": {

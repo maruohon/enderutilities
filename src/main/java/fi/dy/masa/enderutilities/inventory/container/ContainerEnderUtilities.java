@@ -410,4 +410,8 @@ public class ContainerEnderUtilities extends Container
     {
         this.mergeSlotRangesPlayerToExt.add(new MergeSlotRange(start, numSlots, existingOnly));
     }
+
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+    }
 }

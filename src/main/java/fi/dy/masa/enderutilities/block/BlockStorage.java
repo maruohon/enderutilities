@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
@@ -64,6 +65,11 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
+        if (state.getValue(TYPE) == EnumStorageType.JSU)
+        {
+            return FULL_BLOCK_AABB;
+        }
+
         return SINGLE_CHEST_AABB;
     }
 
@@ -77,7 +83,8 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_0",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_1",
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_2",
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_3"
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST + "_3",
+                ReferenceNames.NAME_TILE_ENTITY_JSU
         };
     }
 
@@ -91,7 +98,8 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
                 ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
-                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST
+                ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST,
+                ReferenceNames.NAME_TILE_ENTITY_JSU
         };
     }
 
@@ -107,6 +115,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case HANDY_CHEST_1:     return new TileEntityHandyChest();
             case HANDY_CHEST_2:     return new TileEntityHandyChest();
             case HANDY_CHEST_3:     return new TileEntityHandyChest();
+            case JSU:               return new TileEntityJSU();
         }
 
         return new TileEntityMemoryChest();
@@ -230,7 +239,8 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         HANDY_CHEST_0 (3, 0, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
         HANDY_CHEST_1 (4, 1, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
         HANDY_CHEST_2 (5, 2, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
-        HANDY_CHEST_3 (6, 3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
+        HANDY_CHEST_3 (6, 3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
+        JSU           (7, -1, ReferenceNames.NAME_TILE_ENTITY_JSU);
 
         private final int tier;
         private final String nameBase;
@@ -245,9 +255,15 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
         public String toString()
         {
+            if (this.tier < 0)
+            {
+                return this.nameBase;
+            }
+
             return this.nameBase + "_" + this.tier;
         }
 
+        @Override
         public String getName()
         {
             return this.toString();

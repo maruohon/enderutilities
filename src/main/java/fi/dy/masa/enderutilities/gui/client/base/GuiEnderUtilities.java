@@ -8,6 +8,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import fi.dy.masa.enderutilities.gui.client.base.ScrollBar.ScrollbarAction;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -102,35 +103,29 @@ public class GuiEnderUtilities extends GuiContainer
 
     protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException { }
 
+    public void scrollbarAction(int scrollbarId, ScrollbarAction action, int position)
+    {
+    }
+
     protected void bindTexture(ResourceLocation rl)
     {
         this.mc.getTextureManager().bindTexture(rl);
     }
 
-    public static class GuiArea
+    public static class InfoArea
     {
         public final int posX;
         public final int posY;
         public final int width;
         public final int height;
+        public final String infoText;
 
-        public GuiArea(int x, int y, int width, int height)
+        public InfoArea(int x, int y, int width, int height, String infoTextKey)
         {
             this.posX = x;
             this.posY = y;
             this.width = width;
             this.height = height;
-        }
-    }
-
-    public static class InfoArea extends GuiArea
-    {
-        public final String infoText;
-
-        public InfoArea(int x, int y, int width, int height, String infoTextKey)
-        {
-            super(x, y, width, height);
-
             this.infoText = infoTextKey;
         }
     }

@@ -42,6 +42,12 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     }
 
     @Override
+    public ItemStack getStack()
+    {
+        return this.getItemHandler().getStackInSlot(this.getSlotIndex());
+    }
+
+    @Override
     public void putStack(ItemStack stack)
     {
         if (this.getItemHandler() instanceof IItemHandlerModifiable)
@@ -73,6 +79,12 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     public ItemStack insertItem(ItemStack stack, boolean simulate)
     {
         return this.getItemHandler().insertItem(this.getSlotIndex(), stack, simulate);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int amount)
+    {
+        return this.getItemHandler().extractItem(this.getSlotIndex(), amount, false);
     }
 
     /**

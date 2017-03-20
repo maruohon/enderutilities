@@ -17,6 +17,7 @@ enderutilities.container.enderinfuser=Ender Infuser
 enderutilities.container.handybag=Handy Bag
 enderutilities.container.handychest=Handy Chest
 enderutilities.container.inventoryswapper=Inventory Swapper
+enderutilities.container.jsu=Junk Storage Unit
 enderutilities.container.memorychest=Memory Chest
 enderutilities.container.msu.0=Massive Storage Unit
 enderutilities.container.msu.1=Massive Storage Bundle
@@ -87,6 +88,7 @@ tile.enderutilities.energybridge_transmitter.name=Energy Bridge Transmitter
 tile.enderutilities.energybridge_receiver.name=Energy Bridge Receiver
 tile.enderutilities.energybridge_resonator.name=Energy Bridge Resonator
 tile.enderutilities.frame.name=Portal Frame
+tile.enderutilities.jsu.name=Junk Storage Unit
 tile.enderutilities.msu_0.name=Massive Storage Unit
 tile.enderutilities.msu_1.name=Massive Storage Bundle
 tile.enderutilities.handychest_0.name=Handy Chest (Small)
@@ -244,6 +246,7 @@ tile.enderutilities.energybridge_receiver.tooltips=- An active Energy Bridge giv
 tile.enderutilities.energybridge_resonator.tooltips=- See the description for the Transmitter and Receiver|lf- There must only be air "between" the Resonators|lf  (ie. where the beams will form, diagonally between Resonators|lf  and between the Resonators and the Receiver)
 tile.enderutilities.frame.tooltips=- The portal can be any shape or size|lf  (within reason, there are configurable limits)|lf- It just needs to form a closed loop for the frame
 tile.enderutilities.handychest.tooltips=- Easier inventory management and lots|lf  of storage space|lf- Middle click to swap two large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action|lf- The owner of a Memory Card can|lf  right click the card selection button to lock|lf  that card into the slot, so nobody else can|lf  take the card itself out of that slot|lf- A chest with locked-in-place cards is unbreakable
+tile.enderutilities.jsu.tooltips=- Can only store normally non-stackable items|lf- 270 slots of storage space, max 256 items per stack
 tile.enderutilities.msu_0.tooltips=- One slot, which can store stupid amounts of items|lf- Middle click the slots with items in cursor in creative mode to fill/clear the slot|lf  (1 item in cursor => grow stack by x10, > 1 items in cursor => fill/clear the slot)
 tile.enderutilities.msu_1.tooltips=- 9 slots, which can store stupid amounts of items|lf- Middle click the slots with items in cursor in creative mode to fill/clear the slot|lf  (1 item in cursor => grow stack by x10, > 1 items in cursor => fill/clear the slot)
 tile.enderutilities.memorychest.tooltips=Each slot can be locked to an item type

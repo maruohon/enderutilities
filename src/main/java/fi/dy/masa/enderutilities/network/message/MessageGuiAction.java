@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
@@ -123,6 +124,13 @@ public class MessageGuiAction implements IMessage
                             {
                                 ((TileEntityEnderUtilitiesInventory) te).performGuiAction(player, message.action, message.elementId);
                             }
+                        }
+                        break;
+
+                    case ReferenceGuiIds.GUI_ID_CONTAINER_GENERIC:
+                        if (player.openContainer instanceof ContainerEnderUtilities)
+                        {
+                            ((ContainerEnderUtilities) player.openContainer).performGuiAction(player, message.action, message.elementId);
                         }
                         break;
 
