@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.gui.client;
+package fi.dy.masa.enderutilities.gui.client.base;
 
 import java.util.ArrayList;
 import java.util.List;

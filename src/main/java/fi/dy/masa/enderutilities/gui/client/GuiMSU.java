@@ -9,6 +9,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
 import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;

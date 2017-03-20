@@ -15,6 +15,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;

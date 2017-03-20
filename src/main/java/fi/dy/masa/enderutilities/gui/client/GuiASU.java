@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 

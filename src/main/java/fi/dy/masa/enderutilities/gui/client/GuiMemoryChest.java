@@ -10,6 +10,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
 import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;

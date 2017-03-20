@@ -8,6 +8,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
 import fi.dy.masa.enderutilities.inventory.container.ContainerPickupManager;

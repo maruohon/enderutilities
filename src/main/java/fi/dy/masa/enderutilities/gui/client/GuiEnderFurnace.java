@@ -8,6 +8,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
 import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
