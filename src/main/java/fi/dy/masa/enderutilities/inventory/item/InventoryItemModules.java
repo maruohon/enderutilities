@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.inventory.item;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-
 import fi.dy.masa.enderutilities.item.base.IModule;
 
 public class InventoryItemModules extends InventoryItem

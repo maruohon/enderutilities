@@ -1,9 +1,9 @@
 package fi.dy.masa.enderutilities.event;
 
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.enderutilities.item.ItemHandyBag;
+import fi.dy.masa.enderutilities.item.ItemPickupManager;
 
 public class ItemPickupEventHandler
 {

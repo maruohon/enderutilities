@@ -7,14 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import com.google.common.collect.Maps;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Maps;
-import fi.dy.masa.enderutilities.EnderUtilities;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import fi.dy.masa.enderutilities.EnderUtilities;
 
 public class TemplateManagerEU
 {

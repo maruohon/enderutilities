@@ -1,9 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandler;
-
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 

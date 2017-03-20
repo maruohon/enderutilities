@@ -2,10 +2,8 @@ package fi.dy.masa.enderutilities.creativetab;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 

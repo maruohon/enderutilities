@@ -1,9 +1,9 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 
 public class BlockEventHandler
 {

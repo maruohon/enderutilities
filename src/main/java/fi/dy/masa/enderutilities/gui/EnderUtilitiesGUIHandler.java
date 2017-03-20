@@ -5,9 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
 import net.minecraftforge.fml.common.network.IGuiHandler;
-
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiInventorySwapper;
 import fi.dy.masa.enderutilities.gui.client.GuiPickupManager;

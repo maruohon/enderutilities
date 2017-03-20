@@ -2,9 +2,7 @@ package fi.dy.masa.enderutilities.event;
 
 import java.util.Iterator;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnumEnchantmentType;
@@ -12,10 +10,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
-
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool.ToolType;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;

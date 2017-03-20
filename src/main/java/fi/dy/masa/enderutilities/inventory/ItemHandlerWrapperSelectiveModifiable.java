@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class ItemHandlerWrapperSelectiveModifiable extends ItemHandlerWrapperSelective implements IItemHandlerModifiable

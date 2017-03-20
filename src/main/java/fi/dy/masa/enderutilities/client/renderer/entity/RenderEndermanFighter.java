@@ -1,15 +1,12 @@
 package fi.dy.masa.enderutilities.client.renderer.entity;
 
 import java.util.Random;
-
 import net.minecraft.client.model.ModelEnderman;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import fi.dy.masa.enderutilities.client.renderer.entity.layer.LayerEnderFighterEyes;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;

@@ -1,10 +1,8 @@
 package fi.dy.masa.enderutilities.item.base;
 
 import java.util.List;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public interface IModular
