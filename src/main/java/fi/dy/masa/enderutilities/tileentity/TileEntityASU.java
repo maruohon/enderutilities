@@ -69,6 +69,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
         this.itemHandlerReference.deserializeNBT(nbt);
+        this.itemHandlerBase.setStackLimit(this.itemHandlerASU.getInventoryStackLimit());
 
         super.readItemsFromNBT(nbt);
     }
