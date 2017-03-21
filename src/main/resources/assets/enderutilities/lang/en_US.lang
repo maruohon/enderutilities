@@ -354,6 +354,7 @@ enderutilities.tooltip.item.advanced=Advanced
 enderutilities.tooltip.item.all=All
 enderutilities.tooltip.item.amount=Amount
 enderutilities.tooltip.item.and=and
+enderutilities.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
 enderutilities.tooltip.item.area=Area
 enderutilities.tooltip.item.area.flipped=Area flipped
 enderutilities.tooltip.item.bag.enabled=Bag enabled

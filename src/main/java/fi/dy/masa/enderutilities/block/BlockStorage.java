@@ -1,6 +1,8 @@
 package fi.dy.masa.enderutilities.block;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -9,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -21,12 +24,14 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
+import fi.dy.masa.enderutilities.util.ItemUtils;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
@@ -51,26 +56,9 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public boolean isOpaqueCube(IBlockState state)
+    public ItemBlock createItemBlock()
     {
-        return false;
-    }
-
-    @Override
-    public boolean isFullCube(IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-    {
-        if (state.getValue(TYPE) == EnumStorageType.JSU)
-        {
-            return FULL_BLOCK_AABB;
-        }
-
-        return SINGLE_CHEST_AABB;
+        return new ItemBlockStorage(this);
     }
 
     @Override
@@ -166,6 +154,70 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
+    {
+        if (state.getValue(TYPE).retainsContents())
+        {
+            world.updateComparatorOutputLevel(pos, this);
+            world.removeTileEntity(pos);
+        }
+        else
+        {
+            super.breakBlock(world, pos, state);
+        }
+    }
+
+    @Override
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    {
+        if (willHarvest && state.getValue(TYPE).retainsContents())
+        {
+            this.onBlockHarvested(world, pos, state, player);
+            return true;
+        }
+
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
+    {
+        // This will cascade down to getDrops()
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
+
+        worldIn.setBlockToAir(pos);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    {
+        if (state.getValue(TYPE).retainsContents())
+        {
+            List<ItemStack> items = new ArrayList<ItemStack>();
+            items.add(this.getDroppedItemWithNBT(worldIn, pos, state, false));
+            return items;
+        }
+        else
+        {
+            return super.getDrops(worldIn, pos, state, fortune);
+        }
+    }
+
+    protected ItemStack getDroppedItemWithNBT(IBlockAccess worldIn, BlockPos pos, IBlockState state, boolean addNBTLore)
+    {
+        Random rand = worldIn instanceof World ? ((World) worldIn).rand : RANDOM;
+        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, state.getValue(TYPE).getMeta());
+        TileEntityEnderUtilities te = getTileEntitySafely(worldIn, pos, TileEntityEnderUtilities.class);
+
+        if (te != null)
+        {
+            return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+        }
+
+        return stack;
+    }
+
+    @Override
     @Deprecated
     public float getBlockHardness(IBlockState state, World world, BlockPos pos)
     {
@@ -211,6 +263,29 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        if (state.getValue(TYPE) == EnumStorageType.JSU)
+        {
+            return FULL_BLOCK_AABB;
+        }
+
+        return SINGLE_CHEST_AABB;
+    }
+
+    @Override
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(TYPE, EnumStorageType.fromMeta(meta));
@@ -240,17 +315,26 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         HANDY_CHEST_1 (4, 1, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
         HANDY_CHEST_2 (5, 2, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
         HANDY_CHEST_3 (6, 3, ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST),
-        JSU           (7, -1, ReferenceNames.NAME_TILE_ENTITY_JSU);
+        JSU           (7, -1, ReferenceNames.NAME_TILE_ENTITY_JSU, true, true);
 
         private final int tier;
         private final String nameBase;
         private final int meta;
+        private final boolean isFullCube;
+        private final boolean retainsContents;
 
         private EnumStorageType(int meta, int tier, String nameBase)
+        {
+            this(meta, tier, nameBase, false, false);
+        }
+
+        private EnumStorageType(int meta, int tier, String nameBase, boolean fullCube, boolean retainsContents)
         {
             this.meta = meta;
             this.tier = tier;
             this.nameBase = nameBase;
+            this.isFullCube = fullCube;
+            this.retainsContents = retainsContents;
         }
 
         public String toString()
@@ -277,6 +361,16 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
         public int getMeta()
         {
             return this.meta;
+        }
+
+        public boolean isFullCube()
+        {
+            return this.isFullCube;
+        }
+
+        public boolean retainsContents()
+        {
+            return this.retainsContents;
         }
 
         public static EnumStorageType fromMeta(int meta)

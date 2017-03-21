@@ -110,7 +110,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
 
         if (te != null)
         {
-            return ItemUtils.storeTileEntityInStack(stack, te, addNBTLore);
+            return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }
 
         return stack;

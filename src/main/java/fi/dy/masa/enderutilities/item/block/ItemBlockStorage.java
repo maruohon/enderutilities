@@ -2,13 +2,13 @@ package fi.dy.masa.enderutilities.item.block;
 
 import java.util.List;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemBlockStorage extends ItemBlockEnderUtilities
@@ -28,44 +28,27 @@ public class ItemBlockStorage extends ItemBlockEnderUtilities
     @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
-        List<ItemStack> storedItems = NBTUtils.readStoredItemsFromStack(stack, "BlockEntityTag", "Items");
-
-        if (storedItems.isEmpty() == false)
-        {
-            int count = storedItems.size();
-
-            for (int i = 0; i < count && i < 16; i++)
-            {
-                ItemStack stackTmp = storedItems.get(i);
-                String countStr = String.format("%s", EUStringUtils.formatNumberWithKSeparators(stackTmp.stackSize));
-                list.add(String.format("%s (%s%s%s)", stackTmp.getDisplayName(), PRE_WHITE, countStr, RST_GRAY));
-            }
-
-            if (count > 16)
-            {
-                String str1 = I18n.format("enderutilities.tooltip.item.and");
-                String str2 = I18n.format("enderutilities.tooltip.item.morestacksnotlisted");
-                list.add(String.format("  ... %s %s%d%s %s", str1, PRE_WHITE, 16 - count, RST_GRAY, str2));
-            }
-        }
+        NBTUtils.getCachedInventoryStrings(stack, list, 9);
     }
 
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String name = super.getItemStackDisplayName(stack);
-        List<ItemStack> storedItems = NBTUtils.readStoredItemsFromStack(stack, "BlockEntityTag", "Items");
+        return NBTUtils.getItemStackDisplayName(stack, super.getItemStackDisplayName(stack));
+    }
 
-        if (storedItems.size() == 1)
+    @Override
+    public NBTTagCompound getNBTShareTag(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+
+        if (nbt != null && nbt.hasKey("InvCache", Constants.NBT.TAG_COMPOUND))
         {
-            String countStr = EUStringUtils.getStackSizeString(storedItems.get(0), 4);
-            name = String.format("%s - %s%s%s (%s)", name, PRE_GREEN, storedItems.get(0).getDisplayName(), RST_WHITE, countStr);
-        }
-        else if (storedItems.size() > 0)
-        {
-            name = String.format("%s (%d %s)", name, storedItems.size(), I18n.format("enderutilities.tooltip.item.stacks"));
+            NBTTagCompound shareNBT = new NBTTagCompound();
+            shareNBT.setTag("InvCache", nbt.getCompoundTag("InvCache").copy());
+            return shareNBT;
         }
 
-        return name;
+        return nbt;
     }
 }

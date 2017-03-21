@@ -15,6 +15,7 @@ import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
 {
@@ -93,6 +94,24 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
         if (this.hasCustomName())
         {
             nbt.setString("CustomName", this.customInventoryName);
+        }
+
+        return nbt;
+    }
+
+    /**
+     * Stores a cached snapshot of the current inventory in a compound tag <b>InvCache</b>.
+     * It is meant for tooltip use in the ItemBlocks.
+     * @param nbt
+     * @return
+     */
+    public NBTTagCompound getCachedInventory(NBTTagCompound nbt, int maxEntries)
+    {
+        IItemHandler inv = this.getBaseItemHandler();
+
+        if (inv != null)
+        {
+            nbt = NBTUtils.storeCachedInventory(nbt, inv, maxEntries);
         }
 
         return nbt;

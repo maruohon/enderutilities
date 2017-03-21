@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,7 +12,12 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class NBTUtils
 {
@@ -616,7 +621,7 @@ public class NBTUtils
         for (int i = 0; i < num; ++i)
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            byte slotNum = tag.getByte("Slot");
+            int slotNum = tag.getShort("Slot");
 
             if (slotNum >= 0 && slotNum < items.length)
             {
@@ -637,6 +642,7 @@ public class NBTUtils
      * @param tagName
      * @return a list of the existing ItemStacks, or an empty list if there were none
      */
+    /*
     public static List<ItemStack> readStoredItemsFromStack(@Nonnull ItemStack stack, @Nullable String containerTag, @Nonnull String tagName)
     {
         List<ItemStack> stacks = new ArrayList<ItemStack>();
@@ -661,6 +667,7 @@ public class NBTUtils
 
         return stacks;
     }
+    */
 
     /**
      * Writes the ItemStacks in <b>items</b> to a new NBTTagList and returns that list.
@@ -673,14 +680,23 @@ public class NBTUtils
         NBTTagList nbtTagList = new NBTTagList();
 
         // Write all the ItemStacks into a TAG_List
-        for (int slotNum = 0; slotNum < invSlots && slotNum <= 127; slotNum++)
+        for (int slotNum = 0; slotNum < invSlots; slotNum++)
         {
             if (items[slotNum] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 items[slotNum].writeToNBT(tag);
                 tag.setInteger("ActualCount", items[slotNum].stackSize);
-                tag.setByte("Slot", (byte)slotNum);
+
+                if (invSlots <= 127)
+                {
+                    tag.setByte("Slot", (byte) slotNum);
+                }
+                else
+                {
+                    tag.setShort("Slot", (short) slotNum);
+                }
+
                 nbtTagList.appendTag(tag);
             }
         }
@@ -702,15 +718,17 @@ public class NBTUtils
         int invSlots = items.length;
         NBTTagList nbtTagList = createTagListForItems(items);
 
-        if (keepExtraSlots == true && nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == true)
+        if (keepExtraSlots && nbt.hasKey(tagName, Constants.NBT.TAG_LIST))
         {
             // Read the old items and append any existing items that are outside the current written slot range
             NBTTagList nbtTagListExisting = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
+
             for (int i = 0; i < nbtTagListExisting.tagCount(); i++)
             {
                 NBTTagCompound tag = nbtTagListExisting.getCompoundTagAt(i);
-                byte slotNum = tag.getByte("Slot");
-                if (slotNum >= invSlots && slotNum <= 127)
+                int slotNum = tag.getShort("Slot");
+
+                if (slotNum >= invSlots)
                 {
                     nbtTagList.appendTag(tag);
                 }
@@ -747,6 +765,115 @@ public class NBTUtils
 
         // This checks for hasNoTags and then removes the tag if it's empty
         setRootCompoundTag(containerStack, nbt);
+    }
+
+    /**
+     * Stores a cached snapshot of the current inventory in a compound tag <b>InvCache</b>.
+     * It is meant for tooltip use in the ItemBlocks.
+     * @param nbt
+     * @return
+     */
+    public static NBTTagCompound storeCachedInventory(NBTTagCompound nbt, IItemHandler inv, int maxEntries)
+    {
+        NBTTagList list = new NBTTagList();
+        int stacks = 0;
+        long items = 0;
+
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (stack != null)
+            {
+                if (stacks < maxEntries)
+                {
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setString("dn", stack.getDisplayName());
+                    tag.setInteger("c", stack.stackSize);
+                    list.appendTag(tag);
+                }
+
+                stacks++;
+                items += stack.stackSize;
+            }
+        }
+
+        if (stacks > 0)
+        {
+            NBTTagCompound wrapper = new NBTTagCompound();
+            wrapper.setTag("il", list);
+            wrapper.setInteger("ts", stacks);
+            wrapper.setLong("ti", items);
+            nbt.setTag("InvCache", wrapper);
+        }
+
+        return nbt;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void getCachedInventoryStrings(ItemStack stack, List<String> lines, int maxItemLines)
+    {
+        NBTTagCompound wrapper = getCompoundTag(stack, "InvCache", false);
+
+        if (wrapper == null)
+        {
+            return;
+        }
+
+        String preWhite = TextFormatting.WHITE.toString();
+        String rstGray = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        NBTTagList list = wrapper.getTagList("il", Constants.NBT.TAG_COMPOUND);
+        int count = list.tagCount();
+        int totalStacks = wrapper.getInteger("ts");
+
+        for (int i = 0; i < count && i < maxItemLines; i++)
+        {
+            NBTTagCompound tag = list.getCompoundTagAt(i);
+            String countStr = EUStringUtils.formatNumberWithKSeparators(tag.getInteger("c"));
+            lines.add(String.format("%s (%s%s%s)", tag.getString("dn"), preWhite, countStr, rstGray));
+        }
+
+        if (totalStacks > maxItemLines)
+        {
+            lines.add(I18n.format("enderutilities.tooltip.item.andmorestacksnotlisted", preWhite, totalStacks - maxItemLines, rstGray));
+        }
+    }
+
+    /**
+     * Returns the base display name appended with either the display name
+     * and stack size of the stored item if there is only one, or the number of
+     * stored stacks, if there are more than one stack.
+     * @param stack
+     * @param nameBase
+     * @return
+     */
+    @SideOnly(Side.CLIENT)
+    public static String getItemStackDisplayName(ItemStack stack, String nameBase)
+    {
+        NBTTagCompound wrapper = getCompoundTag(stack, "InvCache", false);
+
+        if (wrapper == null)
+        {
+            return nameBase;
+        }
+
+        String preGree = TextFormatting.GREEN.toString();
+        String rstWhite = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+        NBTTagList list = wrapper.getTagList("il", Constants.NBT.TAG_COMPOUND);
+        int totalStacks = wrapper.getInteger("ts");
+
+        if (totalStacks == 1)
+        {
+            NBTTagCompound tag = list.getCompoundTagAt(0);
+            String countStr = EUStringUtils.formatNumber(tag.getInteger("c"), 9999, 4);
+            nameBase = String.format("%s - %s%s%s (%s)", nameBase, preGree, tag.getString("dn"), rstWhite, countStr);
+        }
+        else if (totalStacks > 0)
+        {
+            nameBase = String.format("%s (%d %s)", nameBase, totalStacks, I18n.format("enderutilities.tooltip.item.stacks"));
+        }
+
+        return nameBase;
     }
 
     public static void setPositionInTileEntityNBT(@Nonnull NBTTagCompound tag, @Nonnull BlockPos pos)

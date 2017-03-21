@@ -152,12 +152,12 @@ public class ScrollBar extends GuiArea
             // Click over the up button
             if (isMouseOverRegion(mouseX, mouseY, x, y, w, w))
             {
-                return this.move(-1);
+                return this.move(-1, true);
             }
             // Click over the down button
             else if (isMouseOverRegion(mouseX, mouseY, x, y + h - w, w, w))
             {
-                return this.move(1);
+                return this.move(1, true);
             }
             // Click over the scroll bar
             else if (isMouseOverRegion(mouseX, mouseY, x, y + w, w, h - 2 * w))
@@ -178,17 +178,22 @@ public class ScrollBar extends GuiArea
         }
         else if (dWheel != 0)
         {
-            return this.move(dWheel < 0 ? 1 : -1);
+            return this.move(dWheel < 0 ? 1 : -1, false);
         }
 
         return false;
     }
 
-    private boolean move(int amount)
+    private boolean move(int amount, boolean playSound)
     {
         this.position = MathHelper.clamp(this.position + amount, 0, this.positionMax);
         this.parent.scrollbarAction(this.id, ScrollbarAction.MOVE, -1);
-        this.playPressSound();
+
+        if (playSound)
+        {
+            this.playPressSound();
+        }
+
         return true;
     }
 

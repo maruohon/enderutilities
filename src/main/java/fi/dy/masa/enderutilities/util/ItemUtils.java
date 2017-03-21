@@ -6,6 +6,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemUtils
 {
@@ -35,6 +37,19 @@ public class ItemUtils
                 tagDisplay.setTag("Lore", tagLore);
                 stack.setTagInfo("display", tagDisplay);
             }
+        }
+
+        return stack;
+    }
+
+    public static ItemStack storeTileEntityInStackWithCachedInventory(ItemStack stack, TileEntity te, boolean addNBTLore, int maxStackEntries)
+    {
+        storeTileEntityInStack(stack, te, addNBTLore);
+
+        if (te instanceof TileEntityEnderUtilitiesInventory)
+        {
+            NBTTagCompound nbt = NBTUtils.getRootCompoundTag(stack, true);
+            ((TileEntityEnderUtilitiesInventory) te).getCachedInventory(nbt, maxStackEntries);
         }
 
         return stack;
