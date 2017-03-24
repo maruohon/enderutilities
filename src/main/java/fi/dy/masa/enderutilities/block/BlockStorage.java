@@ -136,16 +136,13 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
                 case MEMORY_CHEST_2:
                     TileEntityMemoryChest te = getTileEntitySafely(world, pos, TileEntityMemoryChest.class);
 
-                    if (te != null && te instanceof TileEntityMemoryChest)
+                    if (te != null && te.isUseableByPlayer(player) == false)
                     {
-                        // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
-                        if (te.isUseableByPlayer(player) == false)
-                        {
-                            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by", te.getOwnerName()));
-                            return false;
-                        }
+                        player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by", te.getOwnerName()));
+                        return false;
                     }
                     break;
+
                 default:
             }
         }
@@ -229,13 +226,10 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case HANDY_CHEST_3:
                 TileEntityHandyChest tehc = getTileEntitySafely(world, pos, TileEntityHandyChest.class);
 
-                if (tehc != null)
+                // If a Handy Chest has any locked memory card slots, then the chest itself shall be unbreakable
+                if (tehc != null && tehc.getLockMask() != 0)
                 {
-                    // If a Handy Chest has any locked memory card slots, then the chest itself shall be unbreakable
-                    if (tehc.getLockMask() != 0)
-                    {
-                        return -1f;
-                    }
+                    return -1f;
                 }
 
                 break;
@@ -245,13 +239,10 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case MEMORY_CHEST_2:
                 TileEntityMemoryChest temc = getTileEntitySafely(world, pos, TileEntityMemoryChest.class);
 
-                if (temc != null)
+                // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
+                if (temc != null && temc.isPublic() == false)
                 {
-                    // If a Memory Chest has been set to Private mode, then the chest itself shall be unbreakable
-                    if (temc.isPublic() == false)
-                    {
-                        return -1f;
-                    }
+                    return -1f;
                 }
 
                 break;

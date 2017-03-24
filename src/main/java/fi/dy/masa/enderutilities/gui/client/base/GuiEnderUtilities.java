@@ -63,19 +63,13 @@ public class GuiEnderUtilities extends GuiContainer
             }
         }
 
-        // Info text has been set, show it if the mouse is over the designated info area
-        if (this.infoArea != null)
-        {
-            int x = (this.width - this.xSize) / 2 + this.infoArea.posX;
-            int y = (this.height - this.ySize) / 2 + this.infoArea.posY;
+        int x = (this.width - this.xSize) / 2;
+        int y = (this.height - this.ySize) / 2;
 
-            // Hovering over the info icon
-            if (mouseX >= x && mouseX <= x + this.infoArea.width && mouseY >= y && mouseY <= y + this.infoArea.height)
-            {
-                List<String> list = new ArrayList<String>();
-                ItemEnderUtilities.addTooltips(this.infoArea.infoText, list, false);
-                this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
-            }
+        // Info text has been set, show it if the mouse is over the designated info area
+        if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, x, y))
+        {
+            this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRendererObj);
         }
     }
 
@@ -114,19 +108,34 @@ public class GuiEnderUtilities extends GuiContainer
 
     public static class InfoArea
     {
-        public final int posX;
-        public final int posY;
-        public final int width;
-        public final int height;
-        public final String infoText;
+        private final int posX;
+        private final int posY;
+        private final int width;
+        private final int height;
+        private final String infoText;
+        private final Object[] args;
 
-        public InfoArea(int x, int y, int width, int height, String infoTextKey)
+        public InfoArea(int x, int y, int width, int height, String infoTextKey, Object... args)
         {
             this.posX = x;
             this.posY = y;
             this.width = width;
             this.height = height;
             this.infoText = infoTextKey;
+            this.args = args;
+        }
+
+        public List<String> getInfoLines()
+        {
+            List<String> lines = new ArrayList<String>();
+            ItemEnderUtilities.addTooltips(this.infoText, lines, false, this.args);
+            return lines;
+        }
+
+        public boolean isMouseOver(int mouseX, int mouseY, int guiLeft, int guiTop)
+        {
+            return mouseX >= guiLeft + this.posX && mouseX <= guiLeft + this.posX + this.width &&
+                   mouseY >= guiTop + this.posY && mouseY <= guiTop + this.posY + this.height;
         }
     }
 }

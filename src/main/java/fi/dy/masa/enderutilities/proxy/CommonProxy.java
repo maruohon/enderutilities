@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
+import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
@@ -123,6 +124,7 @@ public class CommonProxy implements IProxy
         this.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
 
         this.registerTileEntity(TileEntityASU.class,                    ReferenceNames.NAME_TILE_ENTITY_ASU);
+        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
         this.registerTileEntity(TileEntityMolecularExciter.class,       ReferenceNames.NAME_TILE_ENTITY_MOLECULAR_EXCITER);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);

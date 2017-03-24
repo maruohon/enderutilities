@@ -82,6 +82,14 @@ public class ConfigReader
         currentCategory = CATEGORY_GENERIC;
         currentRequiresMcRestart = false;
 
+        prop = getProp("barrelCapacityUpgradeStacksPer", 256);
+        prop.setComment("How many stacks of storage each Barrel Capacity Upgrade adds");
+        Configs.barrelCapacityUpgradeStacksPer = prop.getInt();
+
+        prop = getProp("barrelMaxCapacityUpgrades", 64);
+        prop.setComment("How many Barrel Capacity Upgrades can be applied to one barrel");
+        Configs.barrelMaxCapacityUpgrades = prop.getInt();
+
         prop = getProp("buildersWandAndRulerRenderForOtherPlayers", true);
         prop.setComment("Render the Ruler and Builder's Wand areas/selections also for the items held by other players");
         Configs.buildersWandRenderForOtherPlayers = prop.getBoolean();
@@ -134,6 +142,10 @@ public class ConfigReader
         prop = getProp("portalLoopCheckLimit", 2000);
         prop.setComment("How many blocks to check at most when checking portal enclosing loops");
         Configs.portalLoopCheckLimit = prop.getInt();
+
+        prop = getProp("registerWoodFencesToOreDict", true);
+        prop.setComment("If enabled, registers the vanilla wooden fences to the OreDictionary as 'fenceWood'");
+        Configs.registerWoodFencesToOreDict = prop.getBoolean();
 
         prop = getProp("useEnderCharge", true);
         prop.setComment("Do items require Ender Charge to operate? (stored in Ender Capacitors)");
@@ -355,6 +367,9 @@ public class ConfigReader
         Configs.disableRecipeModuleLinkCrystalBlock     = getProp("disableRecipeModuleLinkCrystalBlock", false).getBoolean();
         Configs.disableRecipeModuleLinkCrystalPortal    = getProp("disableRecipeModuleLinkCrystalPortal", false).getBoolean();
 
+        Configs.disableRecipePartBarrelCapacity     = getProp("disableRecipePartBarrelCapacity", false).getBoolean();
+        Configs.disableRecipePartBarrelLabel        = getProp("disableRecipePartBarrelLabel", false).getBoolean();
+        Configs.disableRecipePartBarrelStructure    = getProp("disableRecipePartBarrelStructure", false).getBoolean();
         Configs.disableRecipePartEnderAlloy0        = getProp("disableRecipePartEnderAlloy0", false).getBoolean();
         Configs.disableRecipePartEnderAlloy1        = getProp("disableRecipePartEnderAlloy1", false).getBoolean();
         Configs.disableRecipePartEnderAlloy2        = getProp("disableRecipePartEnderAlloy2", false).getBoolean();

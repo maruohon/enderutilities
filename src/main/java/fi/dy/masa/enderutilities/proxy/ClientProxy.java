@@ -37,6 +37,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderFallingBlockEU;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
+import fi.dy.masa.enderutilities.client.renderer.model.ModelBarrel;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
@@ -265,11 +266,12 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerModels()
     {
+        this.registerBlockModels();
         this.registerItemBlockModels();
         this.registerAllItemModels();
     }
 
-    public void registerAllItemModels()
+    private void registerAllItemModels()
     {
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderCapacitor);
         this.registerItemModelWithVariants(EnderUtilitiesItems.enderPart);
@@ -348,12 +350,20 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
     }*/
 
+    private void registerBlockModels()
+    {
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrel.StateMapper());
+        ModelLoaderRegistry.registerLoader(new ModelBarrel.ModelLoader());
+    }
+
     private void registerItemBlockModels()
     {
         for (int i = 0; i < 9; i++)
         {
             this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, i, "tier=" + (i + 1));
         }
+
+        this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "facing=north");
 
         for (int i = 0; i < 16; i++)
         {

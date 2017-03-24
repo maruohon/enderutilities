@@ -93,6 +93,16 @@ public class EnderUtilitiesItems
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
         registerItem(syringe,               ReferenceNames.NAME_ITEM_SYRINGE,                   Configs.disableItemSyringe);
 
+        if (Configs.registerWoodFencesToOreDict)
+        {
+            OreDictionary.registerOre("fenceWood", Blocks.ACACIA_FENCE);
+            OreDictionary.registerOre("fenceWood", Blocks.BIRCH_FENCE);
+            OreDictionary.registerOre("fenceWood", Blocks.DARK_OAK_FENCE);
+            OreDictionary.registerOre("fenceWood", Blocks.JUNGLE_FENCE);
+            OreDictionary.registerOre("fenceWood", Blocks.OAK_FENCE);
+            OreDictionary.registerOre("fenceWood", Blocks.SPRUCE_FENCE);
+        }
+
         ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
         ItemStack pearl = new ItemStack(Items.ENDER_PEARL);
         ItemStack wool = new ItemStack(Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE);
@@ -106,6 +116,7 @@ public class EnderUtilitiesItems
         ItemStack active_core2 = new ItemStack(enderPart, 1, 17);
         ItemStack ender_stick = new ItemStack(enderPart, 1, 20);
         ItemStack rope = new ItemStack(enderPart, 1, 21);
+        //Object fenceWood = OreDictionary.doesOreNameExist("fenceWood") ? "fenceWood" : Blocks.OAK_FENCE;
 
         // "Usable" items
         if (Configs.disableRecipeBuildersWand == false && Configs.disableItemBuildersWand == false)
@@ -294,6 +305,18 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipePartEnderStick == false && Configs.disableItemCraftingPart == false)
         {
             GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 2, 20), "stickWood", "stickWood", "stickWood", "stickWood", pearl));
+        }
+        if (Configs.disableRecipePartBarrelLabel == false && Configs.disableItemCraftingPart == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 70), " S ", "SIS", " S ", 'S', ender_stick, 'I', Items.ITEM_FRAME);
+        }
+        if (Configs.disableRecipePartBarrelStructure == false && Configs.disableItemCraftingPart == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 71), "OIO", "ICI", "OIO", 'O', obsidian, 'I', Blocks.IRON_BARS, 'C', core0);
+        }
+        if (Configs.disableRecipePartBarrelCapacity == false && Configs.disableItemCraftingPart == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 72), "ACA", "AOA", "ACA", 'A', alloy1, 'C', "chestWood", 'O', active_core1));
         }
 
         if (Configs.disableRecipeModuleEnderCapacitor0 == false && Configs.disableItemEnderCapacitor == false)

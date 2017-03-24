@@ -20,6 +20,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD      = "memorycard"; // Not actual item, used for all memory cards in places
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard_misc";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard_items";
+    public static final String NAME_ITEM_ENDERPART_BARREL_UPGRADE   = "barrel_upgrade";
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_CHAIR_WAND             = "chairwand";
@@ -68,6 +69,7 @@ public class ReferenceNames
 
 
     public static final String NAME_TILE_ENTITY_ASU                  = "asu";
+    public static final String NAME_TILE_ENTITY_BARREL               = "barrel";
     public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
     public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
     public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";

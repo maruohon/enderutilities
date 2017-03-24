@@ -104,9 +104,10 @@ public class ItemEnderUtilities extends Item
         }
     }
 
-    public static void addTooltips(String key, List<String> list, boolean verbose)
+    public static void addTooltips(String key, List<String> list, boolean verbose, Object... args)
     {
-        String translated = I18n.format(key);
+        String translated = I18n.format(key, args);
+
         // Translation found
         if (translated.equals(key) == false)
         {

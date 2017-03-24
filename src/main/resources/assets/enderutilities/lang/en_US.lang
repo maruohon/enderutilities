@@ -11,6 +11,7 @@ enderutilities.key.togglemode=Toggle Mode
 ############################
 
 enderutilities.container.asu=Adjustable Storage Unit
+enderutilities.container.barrel=Barrel
 enderutilities.container.creationstation=Creation Station
 enderutilities.container.enderfurnace=Ender Furnace
 enderutilities.container.enderinfuser=Ender Infuser
@@ -33,6 +34,7 @@ enderutilities.container.toolworkstation=Tool Workstation
 ##############
 
 tile.enderutilities.asu.name=Adjustable Storage Unit (%s slots)
+tile.enderutilities.barrel.name=Barrel
 tile.enderutilities.creationstation.name=Creation Station
 tile.enderutilities.enderelevator_white.name=Ender Elevator (White)
 tile.enderutilities.enderelevator_orange.name=Ender Elevator (Orange)
@@ -129,6 +131,9 @@ item.enderutilities.endercapacitor_1.name=Ender Capacitor (Enhanced)
 item.enderutilities.endercapacitor_2.name=Ender Capacitor (Advanced)
 item.enderutilities.endercapacitor_3.name=Ender Capacitor (Creative)
 item.enderutilities.enderlasso.name=Ender Lasso
+item.enderutilities.enderpart_barrel_upgrade_0.name=Barrel Label
+item.enderutilities.enderpart_barrel_upgrade_1.name=Barrel Structural Upgrade
+item.enderutilities.enderpart_barrel_upgrade_2.name=Barrel Capacity Upgrade
 item.enderutilities.enderpart_enderalloy_0.name=Ender Alloy (Basic)
 item.enderutilities.enderpart_enderalloy_1.name=Ender Alloy (Enhanced)
 item.enderutilities.enderpart_enderalloy_2.name=Ender Alloy (Advanced)
@@ -260,6 +265,7 @@ tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules
 ###################################
 
 enderutilities.gui.infoarea.asu=- The stack size of the "reference stack"|lf  determines the maximum stack size of the inventory
+enderutilities.gui.infoarea.barrel=- Right click a side of the barrel with a|lf  Barrel Label to apply a label to that side|lf- Add a Barrel Structural Upgrade to keep contents when broken|lf- Each Barrel capacity Upgrade adds %d stacks of capacity
 enderutilities.gui.infoarea.creationstation=Crafting presets:|lf- Left click (1st): Load recipe|lf- Left click (2nd): Add an item to the grid|lf- Left Click (3rd): Fill grid up to largest existing stack|lf- Shift + left click: Store recipe|lf- Right click: Clear grid (same as 'x')|lf- Clear the grid (again) when empty to hide the recipe|lf- Middle click: Remove stored recipe|lf- Shift + click the quick move buttons to set the quick|lf  action, which happens on double-left-click on the block|lf- The crafting grid you last interact with|lf (hilighted) is used for JEI recipe filling
 enderutilities.gui.infoarea.inventoryswapper=- Can swap the player's inventory with the|lf  currently selected memory card's contents|lf- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots|lf- In Cycle mode changing the selected card|lf  effectively does 'swap + change card + swap',|lf  which allows quickly cycling through multiple|lf  sets of items
 enderutilities.gui.infoarea.memorychest=- Middle click to lock the current item type for the slot|lf- You can also middle click (and/or drag)|lf  with items in cursor to do it faster|lf- Only that type of item can enter an empty slot|lf- When there is room in locked slots, that item type|lf  can only go to those slots until they are full (this restriction|lf  doesn't apply to the player using the chest via the GUI)|lf- A Private chest can't be opened by others,|lf  and it is also unbreakable

@@ -95,6 +95,21 @@
                 "textures": {
                     "layer0": "enderutilities:items/enderpart_memorycard_items_12b"
                 }
+            },
+            "barrel_label": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_barrel_label"
+                }
+            },
+            "barrel_structure": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_barrel_structure"
+                }
+            },
+            "barrel_capacity": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_barrel_capacity"
+                }
             }
         }
     }

@@ -9,6 +9,8 @@ public class Configs
     public static boolean useToolSounds;
 
     // Generic
+    public static int barrelCapacityUpgradeStacksPer;
+    public static int barrelMaxCapacityUpgrades;
     public static int configFileVersion;
     public static int enderBucketCapacity;
     public static int harvestLevelEnderAlloyAdvanced;
@@ -18,6 +20,7 @@ public class Configs
     public static int portalAreaCheckLimit;
     public static boolean fallingBlockDropsAsItemOnPlacementFail;
     public static boolean handyBagEnableItemUpdate;
+    public static boolean registerWoodFencesToOreDict;
     public static boolean useEnderCharge;
 
     // Builder's Wand
@@ -47,6 +50,7 @@ public class Configs
 
     // Block disable
     public static boolean disableBlockASU;
+    public static boolean disableBlockBarrel;
     public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockMachine_0;
@@ -89,6 +93,7 @@ public class Configs
     // Blocks
     public static boolean disableRecipeAdjustableStorageUnit;
     public static boolean disableRecipeAdvancedQuickStacker;
+    public static boolean disableRecipeBarrel;
     public static boolean disableRecipeCreationStation;
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
@@ -145,6 +150,9 @@ public class Configs
     public static boolean disableRecipeEnderHoe;
 
     // Parts
+    public static boolean disableRecipePartBarrelCapacity;
+    public static boolean disableRecipePartBarrelLabel;
+    public static boolean disableRecipePartBarrelStructure;
     public static boolean disableRecipePartEnderAlloy0;
     public static boolean disableRecipePartEnderAlloy1;
     public static boolean disableRecipePartEnderAlloy2;

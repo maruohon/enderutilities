@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -880,14 +879,50 @@ public class EntityUtils
      * @param stack The template ItemStack of the dropped items.
      * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
      * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
      */
-    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, @Nonnull ItemStack stack, int amountOverride, boolean dropFullStacks)
+    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks)
     {
-        double xr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
-        double yr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
-        double zr = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();
-        double motionScale = 0.04d;
+        dropItemStacksInWorld(worldIn, pos, stack, amountOverride, dropFullStacks, true);
+    }
 
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amountOverride.
+     * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
+     * (Thus amountOverride can also be larger than stack.stackSize.)
+     * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
+     * @param worldIn
+     * @param pos
+     * @param stack The template ItemStack of the dropped items.
+     * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
+     */
+    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks, boolean randomMotion)
+    {
+        double x = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
+        double y = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
+        double z = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();
+
+        dropItemStacksInWorld(worldIn, new Vec3d(x, y, z), stack, amountOverride, dropFullStacks, randomMotion);
+    }
+
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amountOverride.
+     * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
+     * (Thus amountOverride can also be larger than stack.stackSize.)
+     * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
+     * @param worldIn
+     * @param pos The exact position where the EntityItems will be spawned
+     * @param stack The template ItemStack of the dropped items.
+     * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
+     */
+    public static void dropItemStacksInWorld(World worldIn, Vec3d pos, ItemStack stack, int amountOverride, boolean dropFullStacks, boolean randomMotion)
+    {
         int amount = stack.stackSize;
         int max = stack.getMaxStackSize();
         int num = max;
@@ -909,10 +944,21 @@ public class EntityUtils
             dropStack.stackSize = num;
             amount -= num;
 
-            EntityItem entityItem = new EntityItem(worldIn, xr, yr, zr, dropStack);
-            entityItem.motionX = worldIn.rand.nextGaussian() * motionScale;
-            entityItem.motionY = worldIn.rand.nextGaussian() * motionScale + 0.3d;
-            entityItem.motionZ = worldIn.rand.nextGaussian() * motionScale;
+            EntityItem entityItem = new EntityItem(worldIn, pos.xCoord, pos.yCoord, pos.zCoord, dropStack);
+
+            if (randomMotion)
+            {
+                double motionScale = 0.04d;
+                entityItem.motionX = worldIn.rand.nextGaussian() * motionScale;
+                entityItem.motionY = worldIn.rand.nextGaussian() * motionScale + 0.3d;
+                entityItem.motionZ = worldIn.rand.nextGaussian() * motionScale;
+            }
+            else
+            {
+                entityItem.motionX = 0d;
+                entityItem.motionY = 0d;
+                entityItem.motionZ = 0d;
+            }
 
             worldIn.spawnEntity(entityItem);
         }

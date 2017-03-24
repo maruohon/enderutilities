@@ -97,6 +97,11 @@ public class ItemEnderPart extends ItemModule
             case 53: // Damage 53: Memory Card (items) 10 B
             case 54: // Damage 54: Memory Card (items) 12 B
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "_" + (damage - 51);
+
+            case 70: // Barrel Label
+            case 71: // Barrel Structural Upgrade
+            case 72: // Barrel Capacity Upgrade
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_BARREL_UPGRADE + "_" + (damage - 70);
         }
 
         return super.getUnlocalizedName();
@@ -105,7 +110,7 @@ public class ItemEnderPart extends ItemModule
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true)
+        if (world.isRemote)
         {
             return EnumActionResult.PASS;
         }
@@ -113,7 +118,7 @@ public class ItemEnderPart extends ItemModule
         // Ender Relic
         if (stack != null && stack.getMetadata() == 40)
         {
-            if (EntityUtils.spawnEnderCrystal(world, pos) == true)
+            if (EntityUtils.spawnEnderCrystal(world, pos))
             {
                 stack.stackSize--;
                 return EnumActionResult.SUCCESS;
@@ -149,7 +154,7 @@ public class ItemEnderPart extends ItemModule
         // Jailer module
         if (stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
         {
-            if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase) == true)
+            if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase))
             {
                 --stack.stackSize;
 
@@ -178,7 +183,7 @@ public class ItemEnderPart extends ItemModule
 
         int meta = stack.getMetadata();
         NBTTagCompound nbt = stack.getTagCompound();
-        if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags() == true))
+        if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags()))
         {
             list.add(I18n.format("enderutilities.tooltip.item.memorycard.nodata"));
             return;
@@ -352,6 +357,9 @@ public class ItemEnderPart extends ItemModule
         list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
         list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
         list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
+        list.add(new ItemStack(this, 1, 70)); // Barrel Label
+        list.add(new ItemStack(this, 1, 71)); // Barrel Structural Upgrade
+        list.add(new ItemStack(this, 1, 72)); // Barrel Capacity Upgrade
     }
 
     @SideOnly(Side.CLIENT)
@@ -378,7 +386,10 @@ public class ItemEnderPart extends ItemModule
                 new ModelResourceLocation(rl, "tex=memorycard_items_6b"),
                 new ModelResourceLocation(rl, "tex=memorycard_items_8b"),
                 new ModelResourceLocation(rl, "tex=memorycard_items_10b"),
-                new ModelResourceLocation(rl, "tex=memorycard_items_12b")
+                new ModelResourceLocation(rl, "tex=memorycard_items_12b"),
+                new ModelResourceLocation(rl, "tex=barrel_label"),
+                new ModelResourceLocation(rl, "tex=barrel_structure"),
+                new ModelResourceLocation(rl, "tex=barrel_capacity")
         };
     }
 }

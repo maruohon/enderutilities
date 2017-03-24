@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.BlockASU;
+import fi.dy.masa.enderutilities.block.BlockBarrel;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
@@ -27,6 +28,7 @@ import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 public class EnderUtilitiesBlocks
 {
     public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ENTITY_ASU,             6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_ENTITY_BARREL,       4.0f,   10f, 1, Material.IRON);
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
@@ -44,6 +46,7 @@ public class EnderUtilitiesBlocks
     {
         // Register blocks
         registerBlock(ASU,                  Configs.disableBlockASU);
+        registerBlock(BARREL,               Configs.disableBlockBarrel);
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
@@ -185,6 +188,12 @@ public class EnderUtilitiesBlocks
                 GameRegistry.addShapelessRecipe(new ItemStack(ASU, 1, i), arr);
             }
         }
+
+        if (Configs.disableRecipeBarrel == false && Configs.disableBlockBarrel == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BARREL, 1, 0), "PAP", "PCP", "PAP", 'P', "plankWood", 'A', alloy0, 'C', "chestWood"));
+        }
+
         if (Configs.disableRecipeMassiveStorageUnit == false && Configs.disableBlockMSU == false)
         {
             GameRegistry.addRecipe(new ItemStack(MSU, 1, 0), "ACA", "AOA", "ACA", 'A', alloy2, 'O', active_core2, 'C', new ItemStack(blockStorage_0, 1, 5));
