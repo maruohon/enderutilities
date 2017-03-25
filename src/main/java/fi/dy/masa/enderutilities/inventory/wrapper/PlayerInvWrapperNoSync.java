@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;

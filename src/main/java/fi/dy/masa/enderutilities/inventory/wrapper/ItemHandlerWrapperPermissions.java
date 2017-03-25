@@ -1,10 +1,13 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSyncable;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 

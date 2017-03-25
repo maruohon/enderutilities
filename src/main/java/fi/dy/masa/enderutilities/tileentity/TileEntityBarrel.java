@@ -26,9 +26,10 @@ import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiBarrel;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -41,13 +42,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     private List<EnumFacing> labels = new ArrayList<EnumFacing>();
     private int labelMask;
     private int maxStacks = 64;
-    private boolean creative;
     private ItemStack cachedStack;
     public String cachedStackSizeString;
 
     public TileEntityBarrel()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        super(ReferenceNames.NAME_TILE_ENTITY_BARREL, true);
 
         this.initStorage();
     }
@@ -55,10 +55,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     private void initStorage()
     {
         int maxUpgrades = Configs.barrelMaxCapacityUpgrades;
-        int maxStack = maxUpgrades * Configs.barrelCapacityUpgradeStacksPer * 64 + 4096;
-        this.itemHandlerBase        = new ItemHandlerBarrel(0, 1, maxStack, true, "Items", this);
+        this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, 1, 4096, true, "Items", this);
         this.itemHandlerUpgrades    = new ItemHandlerBarrelUpgrades(1, 3, maxUpgrades, true, "ItemsUpgrades", this);
-        this.itemHandlerExternal    = this.itemHandlerBase;
+        this.itemHandlerExternal    = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+    }
+
+    public IItemHandler getUpgradeInventory()
+    {
+        return new ItemHandlerWrapperContainerBarrelUpgrades(this.itemHandlerUpgrades);
     }
 
     public int getMaxStacks()
@@ -78,16 +82,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     {
         ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
         return stack != null && stack.stackSize > 4096;
-    }
-
-    public IItemHandler getUpgradeInventory()
-    {
-        return new ItemHandlerWrapperContainerBarrel(this.itemHandlerUpgrades);
-    }
-
-    public boolean isCreative()
-    {
-        return this.creative;
     }
 
     public List<EnumFacing> getLabeledFaces()
@@ -116,7 +110,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     {
         super.readFromNBTCustom(nbt);
 
-        this.creative = nbt.getBoolean("Creative");
+        this.setCreative(nbt.getBoolean("Creative"));
         this.setLabelsFromMask(nbt.getByte("Labels"));
         this.updateBarrelProperties(true);
     }
@@ -127,7 +121,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         nbt = super.writeToNBT(nbt);
 
         nbt.setByte("Labels", (byte) this.labelMask);
-        nbt.setBoolean("Creative", this.creative);
+        nbt.setBoolean("Creative", this.isCreative());
 
         return nbt;
     }
@@ -145,7 +139,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
             nbt.setTag("st", tag);
         }
 
-        nbt.setBoolean("cr", this.creative);
+        nbt.setBoolean("cr", this.isCreative());
         nbt.setByte("la", (byte) this.getLabelMask(true));
 
         return nbt;
@@ -154,8 +148,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.initStorage();
-
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
         {
             NBTTagCompound tmp = tag.getCompoundTag("st");
@@ -167,7 +159,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
             }
         }
 
-        this.creative = tag.getBoolean("cr");
+        this.setCreative(tag.getBoolean("cr"));
         this.setLabelsFromMask(tag.getByte("la"));
 
         super.handleUpdateTag(tag);
@@ -207,11 +199,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
 
             if (InventoryUtils.areItemStacksEqual(stack, this.cachedStack) == false)
             {
-                
+                this.updateMaxStackSize();
+                // TODO Send a custom packet syncing the stack
             }
             else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
             {
-                
+                // TODO Send a custom packet syncing just the stack size
             }
         }
         // Upgrades changed
@@ -223,9 +216,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
 
     public void updateBarrelProperties(boolean updateLabels)
     {
-        ItemStack stackCapacityUpgrades = this.itemHandlerUpgrades.getStackInSlot(2);
-        int upgrades = stackCapacityUpgrades != null ? stackCapacityUpgrades.stackSize : 0;
-        this.maxStacks = 64 + upgrades * Configs.barrelCapacityUpgradeStacksPer;
+        this.updateMaxStackSize();
 
         if (updateLabels && this.itemHandlerUpgrades.getStackInSlot(0) == null)
         {
@@ -244,6 +235,17 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
             IBlockState state = this.getWorld().getBlockState(this.getPos());
             this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
         }
+    }
+
+    private void updateMaxStackSize()
+    {
+        ItemStack stackCapacityUpgrades = this.itemHandlerUpgrades.getStackInSlot(2);
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
+
+        int upgrades = stackCapacityUpgrades != null ? stackCapacityUpgrades.stackSize : 0;
+        this.maxStacks = 64 + upgrades * Configs.barrelCapacityUpgradeStacksPer;
+
+        this.itemHandlerBase.setStackLimit(this.maxStacks * (stack != null ? stack.getMaxStackSize() : 64));
     }
 
     public int getLabelMask(boolean cached)
@@ -370,7 +372,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
                 return;
             }
 
-            stack = InventoryUtils.tryInsertItemStackToInventory(this.itemHandlerBase, stack);
+            stack = InventoryUtils.tryInsertItemStackToInventory(this.itemHandlerExternal, stack);
             player.setHeldItem(hand, stack);
         }
 
@@ -379,7 +381,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
 
         if (last != null && time - last.longValue() < 300)
         {
-            InventoryUtils.tryMoveMatchingItems(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), this.itemHandlerBase);
+            InventoryUtils.tryMoveMatchingItems(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), this.itemHandlerExternal);
             player.openContainer.detectAndSendChanges();
         }
 
@@ -390,7 +392,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     public void onLeftClickBlock(EntityPlayer player)
     {
         int amount = player.isSneaking() ? 1 : 64;
-        ItemStack stack = this.itemHandlerBase.extractItem(0, amount, false);
+        ItemStack stack = this.itemHandlerExternal.extractItem(0, amount, false);
 
         if (stack != null)
         {
@@ -399,6 +401,22 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
             if (rayTrace != null && rayTrace.typeOfHit == RayTraceResult.Type.BLOCK && this.getPos().equals(rayTrace.getBlockPos()))
             {
                 EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(rayTrace.sideHit), stack, -1, true, false);
+            }
+        }
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 1)
+        {
+            if (player.capabilities.isCreativeMode)
+            {
+                this.setCreative(! this.isCreative());
+                this.markDirty();
+
+                IBlockState state = this.getWorld().getBlockState(this.getPos());
+                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
             }
         }
     }
@@ -417,27 +435,27 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         return new Vec3d(x, y, z);
     }
 
-    private class ItemHandlerWrapperContainerBarrel extends ItemHandlerWrapperContainer implements IItemHandlerSize
+    private class ItemHandlerWrapperContainerBarrelUpgrades extends ItemHandlerWrapperContainer implements IItemHandlerSize
     {
-        private final ItemHandlerBarrelUpgrades barrel;
+        private final ItemHandlerBarrelUpgrades barrelUpgrades;
 
-        public ItemHandlerWrapperContainerBarrel(ItemHandlerBarrelUpgrades baseHandler)
+        public ItemHandlerWrapperContainerBarrelUpgrades(ItemHandlerBarrelUpgrades baseHandler)
         {
-            super(baseHandler, baseHandler);
+            super(baseHandler, baseHandler, true);
 
-            this.barrel = baseHandler;
+            this.barrelUpgrades = baseHandler;
         }
 
         @Override
         public int getInventoryStackLimit()
         {
-            return this.barrel.getInventoryStackLimit();
+            return this.barrelUpgrades.getInventoryStackLimit();
         }
 
         @Override
         public int getItemStackLimit(ItemStack stack)
         {
-            return this.barrel.getItemStackLimit(stack);
+            return this.barrelUpgrades.getItemStackLimit(stack);
         }
     }
 
@@ -497,84 +515,29 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         }
 
         @Override
-        public boolean canExtractFromSlot(int slot)
-        {
-            // Capacity Upgrades can only be removed when the stored stackSIze is less than the default capacity
-            if (slot == 2)
-            {
-                return this.te.isOverSpillCapacity() == false;
-            }
-
-            return true;
-        }
-    }
-
-    private class ItemHandlerBarrel extends ItemStackHandlerTileEntity
-    {
-        private final TileEntityBarrel te;
-
-        public ItemHandlerBarrel(int inventoryId, int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName, TileEntityBarrel te)
-        {
-            super(inventoryId, invSize, stackLimit, allowCustomStackSizes, tagName, te);
-
-            this.te = te;
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.te.isCreative())
-            {
-                return stack;
-            }
-
-            return super.insertItem(slot, stack, simulate);
-        }
-
-        @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            if (this.te.isCreative())
+            // Capacity upgrades can only be removed for those upgrades that are currently not needed
+            if (slot == 2)
             {
-                return super.extractItem(slot, amount, true);
+                ItemStack stack = this.te.itemHandlerBase.getStackInSlot(0);
+                ItemStack upgradeStack = this.getStackInSlot(2);
+
+                if (stack != null && stack.stackSize > 4096 && upgradeStack != null)
+                {
+                    int needed = (int) Math.ceil(((double) (stack.stackSize - 4096) / stack.getMaxStackSize()) / Configs.barrelCapacityUpgradeStacksPer);
+                    int toRemove = Math.min(amount, upgradeStack.stackSize - needed);
+
+                    if (toRemove > 0)
+                    {
+                        return super.extractItem(slot, toRemove, simulate);
+                    }
+
+                    return null;
+                }
             }
 
             return super.extractItem(slot, amount, simulate);
-        }
-
-        @Override
-        public boolean isItemValidForSlot(int slot, ItemStack stack)
-        {
-            return this.te.isCreative() == false;
-        }
-
-        @Override
-        public int getInventoryStackLimit()
-        {
-            ItemStack stack = this.getStackInSlot(0);
-            return this.te.getMaxStacks() * (stack != null ? stack.getMaxStackSize() : 64);
-        }
-
-        @Override
-        public int getItemStackLimit(ItemStack stack)
-        {
-            return this.getInventoryStackLimit();
-        }
-    }
-
-    @Override
-    public void performGuiAction(EntityPlayer player, int action, int element)
-    {
-        if (action == 1)
-        {
-            if (player.capabilities.isCreativeMode)
-            {
-                this.creative = ! this.creative;
-                this.markDirty();
-
-                IBlockState state = this.getWorld().getBlockState(this.getPos());
-                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
-            }
         }
     }
 

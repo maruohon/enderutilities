@@ -2,31 +2,26 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiMSU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMSU;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
     public static final int GUI_ACTION_TOGGLE_CREATIVE = 1;
     private int tier;
-    private boolean creative;
 
     public TileEntityMSU()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_MSU);
+        super(ReferenceNames.NAME_TILE_ENTITY_MSU, true);
         this.initStorage();
     }
 
@@ -35,21 +30,10 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
         return this.tier == 1 ? 9 : 1;
     }
 
-    public boolean isCreative()
-    {
-        return this.creative;
-    }
-
     private void initStorage()
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, this.getInvSize(), Configs.msuMaxItems, true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperMSU(this.getBaseItemHandler(), this);
-    }
-
-    @Override
-    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
-    {
-        return new ItemHandlerWrapperContainerMSU(this.getBaseItemHandler(), this.itemHandlerExternal);
+        this.itemHandlerExternal = new ItemHandlerWrapperCreative(this.getBaseItemHandler(), this);
     }
 
     @Override
@@ -70,7 +54,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.tier = MathHelper.clamp(nbt.getByte("Tier"), 0, 1);
-        this.creative = nbt.getBoolean("Creative");
+        this.setCreative(nbt.getBoolean("Creative"));
 
         super.readFromNBTCustom(nbt);
     }
@@ -89,7 +73,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("Tier", (byte) this.tier);
-        nbt.setBoolean("Creative", this.creative);
+        nbt.setBoolean("Creative", this.isCreative());
 
         super.writeToNBT(nbt);
 
@@ -102,7 +86,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
         nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setByte("tier", (byte) this.tier);
-        nbt.setBoolean("cr", this.creative);
+        nbt.setBoolean("cr", this.isCreative());
 
         return nbt;
     }
@@ -111,65 +95,11 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
     public void handleUpdateTag(NBTTagCompound tag)
     {
         this.tier = tag.getByte("tier");
-        this.creative = tag.getBoolean("cr");
+        this.setCreative(tag.getBoolean("cr"));
 
         this.initStorage();
 
         super.handleUpdateTag(tag);
-    }
-
-    private class ItemHandlerWrapperMSU extends ItemHandlerWrapperSelective
-    {
-        private final TileEntityMSU te;
-
-        public ItemHandlerWrapperMSU(IItemHandler baseHandler, TileEntityMSU te)
-        {
-            super(baseHandler);
-
-            this.te = te;
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.te.isCreative())
-            {
-                return stack;
-            }
-
-            return super.insertItem(slot, stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            if (this.te.isCreative())
-            {
-                return super.extractItem(slot, amount, true);
-            }
-
-            return super.extractItem(slot, amount, simulate);
-        }
-
-        @Override
-        public boolean isItemValidForSlot(int slot, ItemStack stack)
-        {
-            return this.te.isCreative() == false;
-        }
-    }
-
-    private class ItemHandlerWrapperContainerMSU extends ItemHandlerWrapperContainer
-    {
-        public ItemHandlerWrapperContainerMSU(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler)
-        {
-            super(baseHandler, wrapperHandler);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return this.wrapperHandler.extractItem(slot, amount, simulate);
-        }
     }
 
     @Override
@@ -179,7 +109,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
         {
             if (player.capabilities.isCreativeMode)
             {
-                this.creative = ! this.creative;
+                this.setCreative(! this.isCreative());
                 this.markDirty();
 
                 IBlockState state = this.getWorld().getBlockState(this.getPos());

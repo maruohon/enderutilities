@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;

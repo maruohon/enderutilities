@@ -54,18 +54,6 @@ public class InventoryItem extends ItemStackHandlerBasic
         }
     }
 
-    /**
-     * Sets the NBTTagList tag name that stores the items of this inventory in the container ItemStack
-     * @param tagName
-     */
-    public void setItemStorageTagName(String tagName)
-    {
-        if (tagName != null)
-        {
-            this.tagName = tagName;
-        }
-    }
-
     public UUID getContainerUUID()
     {
         return this.containerUUID;
@@ -141,7 +129,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             ItemStack stack = this.getContainerItemStack();
             if (stack != null && this.isCurrentlyAccessible() == true)
             {
-                NBTUtils.writeItemsToContainerItem(stack, this.items, this.tagName, true);
+                NBTUtils.writeItemsToContainerItem(stack, this.items, this.getItemStorageTagName(), true);
             }
         }
     }

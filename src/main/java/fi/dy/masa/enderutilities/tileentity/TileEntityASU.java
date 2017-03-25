@@ -9,9 +9,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiASU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSize;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements ITieredStorage

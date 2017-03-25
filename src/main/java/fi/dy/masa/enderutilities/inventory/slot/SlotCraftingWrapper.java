@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.inventory.InventoryCraftingWrapper;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapper;
 
 public class SlotCraftingWrapper extends SlotItemHandlerGeneric
 {

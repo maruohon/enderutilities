@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;

@@ -10,10 +10,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -22,10 +22,29 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
     protected ItemStackHandlerTileEntity itemHandlerBase;
     protected IItemHandler itemHandlerExternal;
     protected String customInventoryName;
+    protected boolean useWrapperHandlerForContainerExtract;
+    private boolean creative;
 
     public TileEntityEnderUtilitiesInventory(String name)
     {
         super(name);
+    }
+
+    public TileEntityEnderUtilitiesInventory(String name, boolean useWrapperHandlerForContainerExtract)
+    {
+        super(name);
+
+        this.useWrapperHandlerForContainerExtract = useWrapperHandlerForContainerExtract;
+    }
+
+    public boolean isCreative()
+    {
+        return this.creative;
+    }
+
+    public void setCreative(boolean isCreative)
+    {
+        this.creative = isCreative;
     }
 
     public void setInventoryName(String name)
@@ -58,7 +77,7 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
      */
     public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), this.itemHandlerExternal);
+        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), this.itemHandlerExternal, this.useWrapperHandlerForContainerExtract);
     }
 
     protected void readItemsFromNBT(NBTTagCompound nbt)

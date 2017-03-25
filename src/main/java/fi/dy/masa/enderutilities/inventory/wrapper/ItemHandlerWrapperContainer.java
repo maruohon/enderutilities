@@ -1,8 +1,9 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
 
 /**
  * Wraps the "base" IItemHandler (which has no slot-specific insert or extract restrictions),
@@ -20,11 +21,18 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
 {
     protected final IItemHandlerModifiable baseHandlerModifiable;
     protected final IItemHandler wrapperHandler;
+    private final boolean useWrapperForExtract;
 
     public ItemHandlerWrapperContainer(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler)
     {
+        this(baseHandler, wrapperHandler, false);
+    }
+
+    public ItemHandlerWrapperContainer(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler, boolean useWrapperForExtract)
+    {
         this.baseHandlerModifiable = baseHandler;
         this.wrapperHandler = wrapperHandler;
+        this.useWrapperForExtract = useWrapperForExtract;
     }
 
     @Override
@@ -40,6 +48,12 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     }
 
     @Override
+    public void setStackInSlot(int slot, ItemStack stack)
+    {
+        this.baseHandlerModifiable.setStackInSlot(slot, stack);
+    }
+
+    @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
         return this.wrapperHandler.insertItem(slot, stack, simulate);
@@ -48,13 +62,14 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        return this.baseHandlerModifiable.extractItem(slot, amount, simulate);
-    }
-
-    @Override
-    public void setStackInSlot(int slot, ItemStack stack)
-    {
-        this.baseHandlerModifiable.setStackInSlot(slot, stack);
+        if (this.useWrapperForExtract)
+        {
+            return this.wrapperHandler.extractItem(slot, amount, simulate);
+        }
+        else
+        {
+            return this.baseHandlerModifiable.extractItem(slot, amount, simulate);
+        }
     }
 
     @Override

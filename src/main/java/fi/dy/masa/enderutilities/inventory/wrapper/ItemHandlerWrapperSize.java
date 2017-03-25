@@ -1,7 +1,8 @@
-package fi.dy.masa.enderutilities.inventory;
+package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 
 public class ItemHandlerWrapperSize implements IItemHandler, IItemHandlerSize
 {

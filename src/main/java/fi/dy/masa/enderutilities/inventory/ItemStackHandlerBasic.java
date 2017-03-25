@@ -8,11 +8,10 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>, IItemHandlerSelective, IItemHandlerSize
 {
-    protected final int invSize;
-    protected final boolean allowCustomStackSizes;
     protected final ItemStack[] items;
-    protected String tagName;
-    protected int stackLimit;
+    private final boolean allowCustomStackSizes;
+    private int stackLimit;
+    private String tagName;
 
     public ItemStackHandlerBasic(int invSize)
     {
@@ -21,7 +20,6 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
     public ItemStackHandlerBasic(int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName)
     {
-        this.invSize = invSize;
         this.tagName = tagName;
         this.allowCustomStackSizes = allowCustomStackSizes;
         this.items = new ItemStack[invSize];
@@ -37,28 +35,14 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        /*
-        if (slot >= 0 && slot < this.items.length)
-        {
-            return this.items[slot];
-        }
-
-        return null;
-        */
-
         return this.items[slot];
     }
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack)
     {
-        //System.out.println("ItemStackHandlerBasic#setStackInSlot(), slot: " + slot);
-        //if (this.isItemValidForSlot(slot, stack) == true) // && slot >= 0 && slot < this.items.length)
-        {
-            //System.out.println("isItemValid == true");
-            this.items[slot] = stack;
-            this.onContentsChanged(slot);
-        }
+        this.items[slot] = stack;
+        this.onContentsChanged(slot);
     }
 
     @Override
@@ -141,7 +125,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
         ItemStack stack;
 
-        if (simulate == true)
+        if (simulate)
         {
             stack = this.items[slot].copy();
             stack.stackSize = amount;
@@ -183,15 +167,6 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         NBTUtils.readStoredItemsFromTag(nbt, this.items, this.tagName);
     }
 
-    public void onContentsChanged(int slot)
-    {
-    }
-
-    public void setStackLimit(int stackLimit)
-    {
-        this.stackLimit = stackLimit;
-    }
-
     @Override
     public int getInventoryStackLimit()
     {
@@ -203,7 +178,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     public int getItemStackLimit(ItemStack stack)
     {
         //System.out.println("ItemStackHandlerBasic.getItemStackLimit(stack)");
-        if (this.allowCustomStackSizes == true || (stack != null && this.getInventoryStackLimit() < stack.getMaxStackSize()))
+        if (this.allowCustomStackSizes || (stack != null && this.getInventoryStackLimit() < stack.getMaxStackSize()))
         {
             return this.getInventoryStackLimit();
         }
@@ -221,5 +196,31 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     public boolean canExtractFromSlot(int slot)
     {
         return true;
+    }
+
+    public void setStackLimit(int stackLimit)
+    {
+        this.stackLimit = stackLimit;
+    }
+
+    public void onContentsChanged(int slot)
+    {
+    }
+
+    /**
+     * Sets the NBTTagList tag name that stores the items of this inventory in the container ItemStack
+     * @param tagName
+     */
+    public void setItemStorageTagName(String tagName)
+    {
+        if (tagName != null)
+        {
+            this.tagName = tagName;
+        }
+    }
+
+    public String getItemStorageTagName()
+    {
+        return this.tagName;
     }
 }
