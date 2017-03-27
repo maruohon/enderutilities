@@ -40,6 +40,7 @@ import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper
 import fi.dy.masa.enderutilities.client.renderer.model.ModelBarrel;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
+import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
 import fi.dy.masa.enderutilities.entity.EntityChair;
@@ -55,6 +56,7 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
+import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
@@ -242,6 +244,7 @@ public class ClientProxy extends CommonProxy
                     }
                 });
 
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBarrel.class, new TESRBarrel());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
     }
 

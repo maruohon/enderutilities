@@ -6,17 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+import com.google.common.base.Predicates;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,19 +35,22 @@ import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.ISyncableTile;
+import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
+public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
     private ItemHandlerBarrelUpgrades itemHandlerUpgrades;
     private Map<UUID, Long> rightClickTimes = new HashMap<UUID, Long>();
     private List<EnumFacing> labels = new ArrayList<EnumFacing>();
     private int labelMask;
     private int maxStacks = 64;
-    private ItemStack cachedStack;
+    public ItemStack cachedStack;
     public String cachedStackSizeString;
 
     public TileEntityBarrel()
@@ -103,6 +111,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         nbt.merge(this.itemHandlerUpgrades.serializeNBT());
 
         super.writeItemsToNBT(nbt);
+
+        this.cachedStack = ItemStack.copyItemStack(this.itemHandlerBase.getStackInSlot(0));
     }
 
     @Override
@@ -130,12 +140,13 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
         nbt = super.getUpdatePacketTag(nbt);
+        ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
 
-        if (this.cachedStack != null)
+        if (stack != null)
         {
             NBTTagCompound tag = new NBTTagCompound();
-            this.cachedStack.writeToNBT(tag);
-            tag.setInteger("ac", this.cachedStack.stackSize);
+            stack.writeToNBT(tag);
+            tag.setInteger("ac", stack.stackSize);
             nbt.setTag("st", tag);
         }
 
@@ -151,12 +162,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
         {
             NBTTagCompound tmp = tag.getCompoundTag("st");
-            this.cachedStack = ItemStack.loadItemStackFromNBT(tmp);
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tmp);
 
-            if (this.cachedStack != null && tmp.hasKey("ac", Constants.NBT.TAG_INT))
+            if (stack != null && tmp.hasKey("ac", Constants.NBT.TAG_INT))
             {
-                this.cachedStack.stackSize = tmp.getInteger("ac");
+                stack.stackSize = tmp.getInteger("ac");
             }
+
+            this.setCachedStack(stack);
         }
 
         this.setCreative(tag.getBoolean("cr"));
@@ -187,31 +200,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
         super.setFacing(facing);
 
         this.updateBarrelProperties(false);
-    }
-
-    @Override
-    public void inventoryChanged(int inventoryId, int slot)
-    {
-        // Main inventory contents changed
-        if (inventoryId == 0)
-        {
-            ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
-
-            if (InventoryUtils.areItemStacksEqual(stack, this.cachedStack) == false)
-            {
-                this.updateMaxStackSize();
-                // TODO Send a custom packet syncing the stack
-            }
-            else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
-            {
-                // TODO Send a custom packet syncing just the stack size
-            }
-        }
-        // Upgrades changed
-        else if (inventoryId == 1)
-        {
-            this.updateBarrelProperties(true);
-        }
     }
 
     public void updateBarrelProperties(boolean updateLabels)
@@ -417,6 +405,95 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory
 
                 IBlockState state = this.getWorld().getBlockState(this.getPos());
                 this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            }
+        }
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        // Main inventory contents changed
+        if (inventoryId == 0)
+        {
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
+
+            if (InventoryUtils.areItemStacksEqual(stack, this.cachedStack) == false)
+            {
+                this.updateMaxStackSize();
+                this.cachedStack = ItemStack.copyItemStack(stack);
+
+                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
+            }
+            else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
+            {
+                this.cachedStack.stackSize = stack.stackSize;
+                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize));
+            }
+        }
+        // Upgrades changed
+        else if (inventoryId == 1)
+        {
+            this.updateBarrelProperties(true);
+        }
+    }
+
+    private void sendSyncPacket(MessageSyncTileEntity message)
+    {
+        World world = this.getWorld();
+
+        if (world instanceof WorldServer)
+        {
+            WorldServer worldServer = (WorldServer) world;
+            int chunkX = this.getPos().getX() >> 4;
+            int chunkZ = this.getPos().getZ() >> 4;
+            PlayerChunkMap map = worldServer.getPlayerChunkMap();
+
+            for (EntityPlayerMP player : worldServer.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue()))
+            {
+                if (map.isPlayerWatchingChunk(player, chunkX, chunkZ))
+                {
+                    PacketHandler.INSTANCE.sendTo(message, player);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void syncTile(int[] intValues, ItemStack[] stacks)
+    {
+        if (stacks.length == 1)
+        {
+            this.setCachedStack(stacks[0]);
+        }
+        else if (intValues.length == 1 && this.cachedStack != null)
+        {
+            this.cachedStack.stackSize = intValues[0];
+            // Update the cached item count string
+            this.setCachedStack(this.cachedStack);
+        }
+    }
+
+    private void setCachedStack(ItemStack stack)
+    {
+        this.cachedStack = stack;
+
+        if (stack != null)
+        {
+            int max = stack.getMaxStackSize();
+            int stacks = stack.stackSize / max;
+            int remainder = stack.stackSize % max;
+
+            if (max == 1 || stack.stackSize <= max)
+            {
+                this.cachedStackSizeString = String.valueOf(stack.stackSize);
+            }
+            else if (remainder != 0)
+            {
+                this.cachedStackSizeString = String.format("%dx%d + %d", stacks, max, remainder);
+            }
+            else
+            {
+                this.cachedStackSizeString = String.format("%dx%d", stacks, max);
             }
         }
     }

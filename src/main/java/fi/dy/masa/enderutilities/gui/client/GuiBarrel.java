@@ -1,8 +1,14 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.inventory.Slot;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
@@ -14,7 +20,9 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCallback
 {
     private final TileEntityBarrel tebarrel;
@@ -107,5 +115,23 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
     public boolean isButtonEnabled(int callbackId)
     {
         return true;
+    }
+
+    @SubscribeEvent
+    public static void onTooltipEvent(ItemTooltipEvent event)
+    {
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiBarrel && event.getEntityPlayer() != null &&
+            event.getEntityPlayer().openContainer instanceof ContainerBarrel)
+        {
+            ContainerBarrel container = (ContainerBarrel) event.getEntityPlayer().openContainer;
+            GuiBarrel gui = (GuiBarrel) Minecraft.getMinecraft().currentScreen;
+            Slot slot = gui.getSlotUnderMouse();
+
+            if (slot != null && slot.getHasStack() && container.getCustomInventorySlotRange().contains(slot.slotNumber))
+            {
+                String size = EUStringUtils.formatNumberWithKSeparators(slot.getStack().stackSize);
+                event.getToolTip().add(size + " " + I18n.format("enderutilities.tooltip.item.items"));
+            }
+        }
     }
 }
