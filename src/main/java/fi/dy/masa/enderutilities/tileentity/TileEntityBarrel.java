@@ -150,6 +150,13 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             nbt.setTag("st", tag);
         }
 
+        stack = this.itemHandlerUpgrades.getStackInSlot(1);
+
+        if (stack != null)
+        {
+            nbt.setTag("ups", stack.writeToNBT(new NBTTagCompound()));
+        }
+
         nbt.setBoolean("cr", this.isCreative());
         nbt.setByte("la", (byte) this.getLabelMask(true));
 
@@ -170,6 +177,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             }
 
             this.setCachedStack(stack);
+        }
+
+        if (tag.hasKey("ups", Constants.NBT.TAG_COMPOUND))
+        {
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("ups"));
+            this.itemHandlerUpgrades.setStackInSlot(1, stack);
         }
 
         this.setCreative(tag.getBoolean("cr"));

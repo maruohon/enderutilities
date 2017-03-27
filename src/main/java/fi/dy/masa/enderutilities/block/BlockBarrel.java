@@ -23,6 +23,7 @@ import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemUtils;
 
@@ -110,9 +111,22 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
             if (te != null)
             {
                 InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getUpgradeInventory());
-            }
 
-            super.breakBlock(world, pos, state);
+                // Fail-safe for not spawning hundreds of thousands of items in the world,
+                // if there is no structure upgrade installed and a barrel is broken in Creative mode.
+                if (te.getBaseItemHandler() != null)
+                {
+                    ItemStack stack = te.getBaseItemHandler().getStackInSlot(0);
+
+                    if (stack != null)
+                    {
+                        EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.stackSize, 4096), true);
+                    }
+                }
+
+                world.updateComparatorOutputLevel(pos, this);
+                world.removeTileEntity(pos);
+            }
         }
     }
 
