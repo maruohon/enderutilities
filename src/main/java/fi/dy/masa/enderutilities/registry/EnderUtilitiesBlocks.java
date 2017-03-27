@@ -42,7 +42,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f,   60f, 1, Material.ROCK);
 
-    public static void init()
+    public static void registerBlocks()
     {
         // Register blocks
         registerBlock(ASU,                  Configs.disableBlockASU);
@@ -59,7 +59,10 @@ public class EnderUtilitiesBlocks
         registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
         registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel, true, false);
         registerBlock(blockStorage_0,       Configs.disableBlockStorage_0);
+    }
 
+    public static void registerRecipes()
+    {
         ItemStack chest = new ItemStack(Blocks.CHEST);
         ItemStack craftingtable = new ItemStack(Blocks.CRAFTING_TABLE);
         ItemStack furnace = new ItemStack(Blocks.FURNACE);
@@ -191,7 +194,7 @@ public class EnderUtilitiesBlocks
 
         if (Configs.disableRecipeBarrel == false && Configs.disableBlockBarrel == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BARREL, 1, 0), "PAP", "PCP", "PAP", 'P', "plankWood", 'A', alloy0, 'C', "chestWood"));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BARREL, 1, 0), "LAL", "LCL", "LAL", 'L', "logWood", 'A', alloy0, 'C', "chestWood"));
         }
 
         if (Configs.disableRecipeMassiveStorageUnit == false && Configs.disableBlockMSU == false)

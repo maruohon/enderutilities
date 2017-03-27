@@ -45,14 +45,15 @@ public class EnderUtilities
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        instance = this;
         logger = event.getModLog();
         ConfigReader.loadConfigsFromFile(event.getSuggestedConfigurationFile());
         ModRegistry.checkLoadedMods();
 
-        EnderUtilitiesItems.init(); // Initialize and register mod items and item recipes
-        EnderUtilitiesBlocks.init(); // Initialize and register mod blocks and block recipes
-        PacketHandler.init(); // Initialize network stuff
+        EnderUtilitiesItems.registerItems();
+        EnderUtilitiesBlocks.registerBlocks();
+
+        EnderUtilitiesItems.registerRecipes();
+        EnderUtilitiesBlocks.registerRecipes();
 
         proxy.registerModels();
         proxy.registerEntities();
@@ -61,6 +62,8 @@ public class EnderUtilities
         proxy.registerEventHandlers();
         proxy.registerRenderers();
         proxy.registerSounds();
+
+        PacketHandler.init(); // Initialize network stuff
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 

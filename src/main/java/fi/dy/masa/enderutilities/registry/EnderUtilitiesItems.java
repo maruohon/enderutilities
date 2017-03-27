@@ -66,7 +66,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities ruler = new ItemRuler();
     public static final ItemEnderUtilities syringe = new ItemSyringe();
 
-    public static void init()
+    public static void registerItems()
     {
         registerItem(enderPart,             ReferenceNames.NAME_ITEM_ENDERPART,                 Configs.disableItemCraftingPart);
         registerItem(enderCapacitor,        ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR,  Configs.disableItemEnderCapacitor);
@@ -92,7 +92,10 @@ public class EnderUtilitiesItems
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
         registerItem(syringe,               ReferenceNames.NAME_ITEM_SYRINGE,                   Configs.disableItemSyringe);
+    }
 
+    public static void registerRecipes()
+    {
         if (Configs.registerWoodFencesToOreDict)
         {
             OreDictionary.registerOre("fenceWood", Blocks.ACACIA_FENCE);
@@ -308,15 +311,15 @@ public class EnderUtilitiesItems
         }
         if (Configs.disableRecipePartBarrelLabel == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 70), " S ", "SIS", " S ", 'S', ender_stick, 'I', Items.ITEM_FRAME);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 70), "SSS", "SIS", "SSS", 'S', Items.STICK, 'I', alloy0);
         }
         if (Configs.disableRecipePartBarrelStructure == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 71), "OIO", "ICI", "OIO", 'O', obsidian, 'I', Blocks.IRON_BARS, 'C', core0);
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 71), "OIO", "ICI", "OIO", 'O', obsidian, 'I', Blocks.IRON_BARS, 'C', active_core1);
         }
         if (Configs.disableRecipePartBarrelCapacity == false && Configs.disableItemCraftingPart == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 72), "ACA", "AOA", "ACA", 'A', alloy1, 'C', "chestWood", 'O', active_core1));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 72), "ACA", "ABA", "ACA", 'A', alloy1, 'C', "chestWood", 'B', EnderUtilitiesBlocks.BARREL));
         }
 
         if (Configs.disableRecipeModuleEnderCapacitor0 == false && Configs.disableItemEnderCapacitor == false)
