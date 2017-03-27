@@ -397,12 +397,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         if (stack != null)
         {
+            EnumFacing side = this.getFacing();
             RayTraceResult rayTrace = EntityUtils.getRayTraceFromPlayer(this.getWorld(), player, false);
 
             if (rayTrace != null && rayTrace.typeOfHit == RayTraceResult.Type.BLOCK && this.getPos().equals(rayTrace.getBlockPos()))
             {
-                EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(rayTrace.sideHit), stack, -1, true, false);
+                side = rayTrace.sideHit;
             }
+
+            EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(side), stack, -1, true, false);
         }
     }
 
