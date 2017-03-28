@@ -144,6 +144,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         // directly away from the face, which is visible as the block faces having identical
         // (dark) shading.
 
+        GlStateManager.disableRescaleNormal(); // This fixes a render state leak from TileEntitySkullRenderer
         GlStateManager.pushAttrib();
         GlStateManager.enableRescaleNormal();
         GlStateManager.popAttrib();
