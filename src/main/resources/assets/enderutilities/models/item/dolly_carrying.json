@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/dolly",
+    "textures": {
+        "layer0": "enderutilities:items/dolly_carrying"
+    }
+}

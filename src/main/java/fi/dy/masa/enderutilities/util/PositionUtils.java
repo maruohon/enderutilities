@@ -610,6 +610,12 @@ public class PositionUtils
         return pos;
     }
 
+    /**
+     * Returns the rotation that would transform <b>facingOriginal</b> into <b>facingRotated</b>.
+     * @param facingOriginal
+     * @param facingRotated
+     * @return
+     */
     public static Rotation getRotation(EnumFacing facingOriginal, EnumFacing facingRotated)
     {
         if (facingOriginal.getAxis() == EnumFacing.Axis.Y ||

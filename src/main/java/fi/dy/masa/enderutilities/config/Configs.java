@@ -69,6 +69,7 @@ public class Configs
 
     public static boolean disableItemBuildersWand;
     public static boolean disableItemChairWand;
+    public static boolean disableItemDolly;
     public static boolean disableItemEnderArrow;
     public static boolean disableItemEnderBag;
     public static boolean disableItemEnderBow;
@@ -122,6 +123,7 @@ public class Configs
     // Items
     public static boolean disableRecipeBuildersWand;
     public static boolean disableRecipeChairWand;
+    public static boolean disableRecipeDolly;
     public static boolean disableRecipeEnderArrow;
     public static boolean disableRecipeEnderBag;
     public static boolean disableRecipeEnderBow;

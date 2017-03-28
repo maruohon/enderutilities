@@ -282,6 +282,7 @@ public class ClientProxy extends CommonProxy
 
         this.registerItemModel(EnderUtilitiesItems.buildersWand);
         this.registerItemModel(EnderUtilitiesItems.chairWand);
+        this.registerItemModel(EnderUtilitiesItems.DOLLY);
         this.registerItemModel(EnderUtilitiesItems.enderArrow);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
         this.registerItemModel(EnderUtilitiesItems.enderBow);

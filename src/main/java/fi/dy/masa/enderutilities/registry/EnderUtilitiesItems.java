@@ -9,25 +9,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import fi.dy.masa.enderutilities.config.Configs;
-import fi.dy.masa.enderutilities.item.ItemBuildersWand;
-import fi.dy.masa.enderutilities.item.ItemChairWand;
-import fi.dy.masa.enderutilities.item.ItemEnderArrow;
-import fi.dy.masa.enderutilities.item.ItemEnderBag;
-import fi.dy.masa.enderutilities.item.ItemEnderBow;
-import fi.dy.masa.enderutilities.item.ItemEnderBucket;
-import fi.dy.masa.enderutilities.item.ItemEnderLasso;
-import fi.dy.masa.enderutilities.item.ItemEnderPearlReusable;
-import fi.dy.masa.enderutilities.item.ItemEnderPorter;
-import fi.dy.masa.enderutilities.item.ItemHandyBag;
-import fi.dy.masa.enderutilities.item.ItemIceMelter;
-import fi.dy.masa.enderutilities.item.ItemInventorySwapper;
-import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
-import fi.dy.masa.enderutilities.item.ItemMobHarness;
-import fi.dy.masa.enderutilities.item.ItemPickupManager;
-import fi.dy.masa.enderutilities.item.ItemPortalScaler;
-import fi.dy.masa.enderutilities.item.ItemQuickStacker;
-import fi.dy.masa.enderutilities.item.ItemRuler;
-import fi.dy.masa.enderutilities.item.ItemSyringe;
+import fi.dy.masa.enderutilities.item.*;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
@@ -46,6 +28,7 @@ public class EnderUtilitiesItems
 
     public static final ItemEnderUtilities buildersWand = new ItemBuildersWand();
     public static final ItemEnderUtilities chairWand = new ItemChairWand();
+    public static final ItemEnderUtilities DOLLY = new ItemDolly();
     public static final ItemEnderUtilities enderArrow = new ItemEnderArrow();
     public static final ItemEnderUtilities enderBag = new ItemEnderBag();
     public static final ItemEnderUtilities enderBow = new ItemEnderBow();
@@ -73,6 +56,7 @@ public class EnderUtilitiesItems
         registerItem(linkCrystal,           ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL,     Configs.disableItemLinkCrystal);
         registerItem(buildersWand,          ReferenceNames.NAME_ITEM_BUILDERS_WAND,             Configs.disableItemBuildersWand);
         registerItem(chairWand,             ReferenceNames.NAME_ITEM_CHAIR_WAND,                Configs.disableItemChairWand);
+        registerItem(DOLLY,                 ReferenceNames.NAME_ITEM_DOLLY,                     Configs.disableItemDolly);
         registerItem(enderArrow,            ReferenceNames.NAME_ITEM_ENDER_ARROW,               Configs.disableItemEnderArrow);
         registerItem(enderBag,              ReferenceNames.NAME_ITEM_ENDER_BAG,                 Configs.disableItemEnderBag);
         registerItem(enderBow,              ReferenceNames.NAME_ITEM_ENDER_BOW,                 Configs.disableItemEnderBow);
@@ -129,6 +113,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeChairWand == false && Configs.disableItemChairWand == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(chairWand), "S  ", " I ", "  I", 'S', "stairWood", 'I', alloy0));
+        }
+        if (Configs.disableRecipeDolly == false && Configs.disableItemDolly == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(DOLLY), "  A", "  A", "AAS", 'A', alloy1, 'S', Blocks.SLIME_BLOCK));
         }
         if (Configs.disableRecipeEnderArrow == false && Configs.disableItemEnderArrow == false)
         {

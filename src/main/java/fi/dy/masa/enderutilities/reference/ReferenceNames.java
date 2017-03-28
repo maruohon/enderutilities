@@ -24,6 +24,7 @@ public class ReferenceNames
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_CHAIR_WAND             = "chairwand";
+    public static final String NAME_ITEM_DOLLY                  = "dolly";
     public static final String NAME_ITEM_ENDERTOOL              = "endertool";
     public static final String NAME_ITEM_ENDER_PICKAXE          = "enderpickaxe";
     public static final String NAME_ITEM_ENDER_AXE              = "enderaxe";
