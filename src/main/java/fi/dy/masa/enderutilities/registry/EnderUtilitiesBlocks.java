@@ -14,6 +14,7 @@ import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
+import fi.dy.masa.enderutilities.block.BlockFloor;
 import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
 import fi.dy.masa.enderutilities.block.BlockMachine2;
@@ -32,6 +33,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                4.0f,    6f, 1, Material.WOOD);
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1      = new BlockMachine1(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
@@ -50,6 +52,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
+        registerBlock(FLOOR,                Configs.disableBlockFloor);
         registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
@@ -104,6 +107,11 @@ public class EnderUtilitiesBlocks
             GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevatorSlab, 2), blockElevatorLayer, 0, "E", "E", 'E', blockElevatorLayer));
         }
 
+        if (Configs.disableRecipeFloor == false && Configs.disableBlockFloor == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 6, 0), "SSS", "T T", "SSS", 'S', "slabWood", 'T', "stickWood"));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 6, 1), "MMM", "T T", "MMM", 'M', Blocks.MOSSY_COBBLESTONE, 'T', "stickWood"));
+        }
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
         {
             GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', furnace, 'C', core0);

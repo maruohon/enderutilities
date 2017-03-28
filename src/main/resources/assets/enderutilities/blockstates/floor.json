@@ -1,0 +1,12 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "half=bottom,type=cracked": [{ "model": "enderutilities:floor_cracked_bottom" }],
+        "half=bottom,type=normal":  [{ "model": "enderutilities:floor_normal_bottom"  }],
+        "half=top,type=cracked":    [{ "model": "enderutilities:floor_cracked_top"    }],
+        "half=top,type=normal":     [{ "model": "enderutilities:floor_normal_top"     }]
+    }
+}
