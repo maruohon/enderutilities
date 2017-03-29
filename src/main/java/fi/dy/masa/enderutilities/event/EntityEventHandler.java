@@ -4,12 +4,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
@@ -22,6 +25,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -118,6 +122,17 @@ public class EntityEventHandler
                     event.setCanceled(true);
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onCollisionBoxesEvent(GetCollisionBoxesEvent event)
+    {
+        if (Configs.replaceEntityItemCollisionBoxHandling &&
+            ((event.getEntity() instanceof EntityItem) || (event.getEntity() instanceof EntityXPOrb)))
+        {
+            event.getCollisionBoxesList().clear();
+            event.getCollisionBoxesList().addAll(PositionUtils.getSurroundingCollisionBoxesForEntityItem(event.getWorld(), event.getAabb(), event.getEntity()));
         }
     }
 }

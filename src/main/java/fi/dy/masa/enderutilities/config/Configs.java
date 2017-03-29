@@ -22,6 +22,7 @@ public class Configs
     public static boolean handyBagEnableItemUpdate;
     public static boolean registerWoodFencesToOreDict;
     public static boolean useEnderCharge;
+    public static boolean replaceEntityItemCollisionBoxHandling;
 
     // Builder's Wand
     public static boolean buildersWandEnableCopyMode;

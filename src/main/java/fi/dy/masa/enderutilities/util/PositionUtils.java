@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -821,5 +824,63 @@ public class PositionUtils
         }
 
         return new Vec3d(posX, posY, posZ);
+    }
+
+    /**
+     * Gets the surrounding collision boxes for an EntityItem, when it is being pushed
+     * out of blocks. This is identical to the vanilla method other than the vanilla
+     * method not passing the entity to the addCollisionBoxToList() method, which
+     * prevents having blocks that don't have any collision boxes for EntityItems,
+     * when it comes to the pushing-out-of-blocks code.
+     * @param world
+     * @param bb
+     * @param entity
+     * @return
+     */
+    public static List<AxisAlignedBB> getSurroundingCollisionBoxesForEntityItem(World world, AxisAlignedBB bb, @Nullable Entity entity)
+    {
+        List<AxisAlignedBB> list = Lists.<AxisAlignedBB>newArrayList();
+        int xMin = MathHelper.floor(bb.minX) - 1;
+        int xMax = MathHelper.ceil( bb.maxX) + 1;
+        int yMin = MathHelper.floor(bb.minY) - 1;
+        int yMax = MathHelper.ceil( bb.maxY) + 1;
+        int zMin = MathHelper.floor(bb.minZ) - 1;
+        int zMax = MathHelper.ceil( bb.maxZ) + 1;
+        BlockPos.PooledMutableBlockPos pos = BlockPos.PooledMutableBlockPos.retain();
+
+        for (int x = xMin; x < xMax; x++)
+        {
+            for (int z = zMin; z < zMax; z++)
+            {
+                int edges = (x != xMin && x != xMax - 1 ? 0 : 1) + (z != zMin && z != zMax - 1 ? 0 : 1);
+
+                if (edges != 2 && world.isBlockLoaded(pos.setPos(x, 64, z)))
+                {
+                    for (int y = yMin; y < yMax; y++)
+                    {
+                        if (edges <= 0 || y != yMin && y != yMax - 1)
+                        {
+                            pos.setPos(x, y, z);
+                            IBlockState state;
+
+                            if (x >= -30000000 && x < 30000000 && z >= -30000000 && z < 30000000)
+                            {
+                                state = world.getBlockState(pos);
+                            }
+                            else
+                            {
+                                state = Blocks.BEDROCK.getDefaultState();
+                            }
+
+                            state.addCollisionBoxToList(world, pos, bb, list, entity);
+                        }
+                    }
+                }
+            }
+        }
+
+        pos.release();
+
+        return list;
     }
 }
