@@ -1,0 +1,13 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "minecraft:cube_all",
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "inverted=false,powered=false": [{ "textures": { "all": "enderutilities:blocks/phasing_normal_solid"    } }],
+        "inverted=false,powered=true":  [{ "textures": { "all": "enderutilities:blocks/phasing_normal_phased"   } }],
+        "inverted=true,powered=false":  [{ "textures": { "all": "enderutilities:blocks/phasing_inverted_phased" } }],
+        "inverted=true,powered=true":   [{ "textures": { "all": "enderutilities:blocks/phasing_inverted_solid"  } }]
+    }
+}

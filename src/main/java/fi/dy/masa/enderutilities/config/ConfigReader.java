@@ -244,7 +244,10 @@ public class ConfigReader
 
         // Block disable
         Configs.disableBlockASU           = getProp("disableBlockAdjustableStorageUnit", false).getBoolean();
+        Configs.disableBlockBarrel        = getProp("disableBlockBarrel", false).getBoolean();
         Configs.disableBlockEnderElevator = getProp("disableBlockEnderElevator", false).getBoolean();
+        Configs.disableBlockFloor         = getProp("disableBlockFloor", false).getBoolean();
+        Configs.disableBlockPhasing       = getProp("disableBlockPhasing", false).getBoolean();
         Configs.disableBlockPortal        = getProp("disableBlockPortal", false).getBoolean();
         Configs.disableBlockPortalFrame   = getProp("disableBlockPortalFrame", false).getBoolean();
         Configs.disableBlockPortalPanel   = getProp("disableBlockPortalPanel", false).getBoolean();
@@ -266,7 +269,7 @@ public class ConfigReader
         Configs.disableBlockMachine_2 = prop.getBoolean();
 
         prop = getProp("disableBlockStorage_0", false);
-        prop.setComment("Meta values: 0..2 = Memory Chests, 3..5 = Handy Chests");
+        prop.setComment("Meta values: 0..2 = Memory Chests, 3..6 = Handy Chests, 7 = Junk Storage Unit");
         Configs.disableBlockStorage_0 = prop.getBoolean();
 
         prop = getProp("disableBlockMassiveStorageUnit", false);
@@ -311,10 +314,13 @@ public class ConfigReader
         // Blocks
         Configs.disableRecipeAdvancedQuickStacker = getProp("disableRecipeAdvancedQuickStacker", false).getBoolean();
         Configs.disableRecipeCreationStation      = getProp("disableRecipeCreationStation", false).getBoolean();
+        Configs.disableRecipeBarrel               = getProp("disableRecipeBarrel", false).getBoolean();
         Configs.disableRecipeEnderElevator        = getProp("disableRecipeEnderElevator", false).getBoolean();
         Configs.disableRecipeEnderFurnace         = getProp("disableRecipeEnderFurnace", false).getBoolean();
         Configs.disableRecipeEnderInfuser         = getProp("disableRecipeEnderInfuser", false).getBoolean();
+        Configs.disableRecipeFloor                = getProp("disableRecipeFloor", false).getBoolean();
         Configs.disableRecipeMolecularExciter     = getProp("disableRecipeMolecularExciter", false).getBoolean();
+        Configs.disableRecipePhasingBlock         = getProp("disableRecipePhasingBlock", false).getBoolean();
         Configs.disableRecipePortalFrame          = getProp("disableRecipeFrame", false).getBoolean();
         Configs.disableRecipePortalPanel          = getProp("disableRecipePortalPanel", false).getBoolean();
         Configs.disableRecipeToolWorkstation      = getProp("disableRecipeToolWorkstation", false).getBoolean();
@@ -333,6 +339,7 @@ public class ConfigReader
         Configs.disableRecipeMemoryChest_2        = getProp("disableRecipeMemoryChest2", false).getBoolean();
 
         Configs.disableRecipeAdjustableStorageUnit  = getProp("disableRecipeAdjustableStorageUnit", false).getBoolean();
+        Configs.disableRecipeJunkStorageUnit        = getProp("disableRecipeJunkStorageUnit", false).getBoolean();
         Configs.disableRecipeMassiveStorageUnit     = getProp("disableRecipeMassiveStorageUnit", false).getBoolean();
         Configs.disableRecipeMassiveStorageBundle   = getProp("disableRecipeMassiveStorageBundle", false).getBoolean();
 

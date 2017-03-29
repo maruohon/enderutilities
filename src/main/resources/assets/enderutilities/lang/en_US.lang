@@ -103,6 +103,8 @@ tile.enderutilities.memorychest_0.name=Small Memory Chest
 tile.enderutilities.memorychest_1.name=Memory Chest
 tile.enderutilities.memorychest_2.name=Large Memory Chest
 tile.enderutilities.molecular_exciter.name=Molecular Exciter
+tile.enderutilities.phasing.name=Phasing Block
+tile.enderutilities.phasing_inverted.name=Phasing Block (inverted)
 tile.enderutilities.portal.name=Portal
 tile.enderutilities.portal_panel.name=Portal Control Panel
 tile.enderutilities.quickstackeradvanced.name=Advanced Quick Stacker
@@ -262,6 +264,8 @@ tile.enderutilities.msu_1.tooltips=- 9 slots, which can store stupid amounts of 
 tile.enderutilities.memorychest.tooltips=Each slot can be locked to an item type
 tile.enderutilities.portal_panel.tooltips=- Used to activate a Portal made of Portal Frame blocks|lf- The panel must be placed on a Portal Frame block|lf- That frame must connect to the actual portal frame loop/rim|lf  via a _continuous_ "path" of Portal Frame blocks|lf  (no diagonal gaps allowed in it)|lf- However the portal frame rim itself can have "diagonal corners"
 tile.enderutilities.molecular_exciter.tooltips=- Turns blocks infront of itself into falling|lf  blocks on redstone pulse or block update|lf- Needs a redstone signal to be active
+tile.enderutilities.phasing.tooltips=- Changes state between solid and non-solid based on redstone signal
+tile.enderutilities.phasing_inverted.tooltips=- Changes state between solid and non-solid based on redstone signal
 tile.enderutilities.quickstackeradvanced.tooltips=- A more configurable, stationary version of Quick Stacker
 tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items|lf- Can also rename any item for free
 

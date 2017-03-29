@@ -59,6 +59,7 @@ public class Configs
     public static boolean disableBlockMachine_1;
     public static boolean disableBlockMachine_2;
     public static boolean disableBlockMSU;
+    public static boolean disableBlockPhasing;
     public static boolean disableBlockPortal;
     public static boolean disableBlockPortalFrame;
     public static boolean disableBlockPortalPanel;
@@ -101,9 +102,11 @@ public class Configs
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
     public static boolean disableRecipeFloor;
+    public static boolean disableRecipeJunkStorageUnit;
     public static boolean disableRecipeMassiveStorageBundle;
     public static boolean disableRecipeMassiveStorageUnit;
     public static boolean disableRecipeMolecularExciter;
+    public static boolean disableRecipePhasingBlock;
     public static boolean disableRecipePortalFrame;
     public static boolean disableRecipePortalPanel;
     public static boolean disableRecipeToolWorkstation;

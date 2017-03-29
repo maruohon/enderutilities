@@ -18,6 +18,7 @@ import fi.dy.masa.enderutilities.block.BlockFloor;
 import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
 import fi.dy.masa.enderutilities.block.BlockMachine2;
+import fi.dy.masa.enderutilities.block.BlockPhasing;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
@@ -33,12 +34,13 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                4.0f,    6f, 1, Material.WOOD);
+    public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                2.0f,    6f, 1, Material.WOOD);
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_1      = new BlockMachine1(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities blockMachine_1      = new BlockMachine1(ReferenceNames.NAME_TILE_MACHINE_1,         6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_2      = new BlockMachine2(ReferenceNames.NAME_TILE_MACHINE_2,         6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_ENTITY_MSU,             6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,            2.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
     public static final BlockEnderUtilities blockPortalFrame    = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
@@ -58,6 +60,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
         registerBlock(blockMachine_2,       Configs.disableBlockMachine_2);
         registerBlock(MSU,                  Configs.disableBlockMSU);
+        registerBlock(PHASING,              Configs.disableBlockPhasing);
         registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
         registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
         registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel, true, false);
@@ -180,6 +183,10 @@ public class EnderUtilitiesBlocks
         {
             GameRegistry.addRecipe(new ItemStack(blockStorage_0, 1, 6), "   ", "ACA", "ACA", 'A', alloy0, 'C', new ItemStack(blockStorage_0, 1, 5));
         }
+        if (Configs.disableRecipeJunkStorageUnit == false && Configs.disableBlockStorage_0 == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockStorage_0, 1, 7), "SCS", "SMS", "SCS", 'S', "cobblestone", 'C', "chestWood", 'M', new ItemStack(blockStorage_0, 1, 3)));
+        }
 
         if (Configs.disableRecipeAdjustableStorageUnit == false && Configs.disableBlockASU == false)
         {
@@ -212,6 +219,14 @@ public class EnderUtilitiesBlocks
         if (Configs.disableRecipeMassiveStorageBundle == false && Configs.disableBlockMSU == false)
         {
             GameRegistry.addRecipe(new ItemStack(MSU, 1, 1), "MMM", "MMM", "MMM", 'M', new ItemStack(MSU, 1, 0));
+        }
+
+        if (Configs.disableRecipePhasingBlock == false && Configs.disableBlockPhasing == false)
+        {
+            // Normal
+            GameRegistry.addRecipe(new ItemStack(PHASING, 8, 0), "SSS", "SRS", "SAS", 'S', Blocks.STONEBRICK, 'A', alloy0, 'R', Items.REDSTONE);
+            // Inverted
+            GameRegistry.addRecipe(new ItemStack(PHASING, 8, 1), "SSS", "SRS", "SAS", 'S', Blocks.STONEBRICK, 'A', alloy0, 'R', Blocks.REDSTONE_TORCH);
         }
 
         if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)

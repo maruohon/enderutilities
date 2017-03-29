@@ -53,7 +53,7 @@ public class BlockFloor extends BlockEnderUtilities
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_FLOOR,
-                ReferenceNames.NAME_TILE_FLOOR_CRACKED
+                ReferenceNames.NAME_TILE_FLOOR + "_cracked"
         };
     }
 
