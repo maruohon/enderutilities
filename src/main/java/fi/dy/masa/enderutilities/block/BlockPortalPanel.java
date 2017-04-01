@@ -1,12 +1,11 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -26,7 +25,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
-import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 
 public class BlockPortalPanel extends BlockEnderUtilitiesInventory
@@ -35,8 +33,8 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public static final AxisAlignedBB PANEL_BOUNDS_SOUTH = new AxisAlignedBB(    0.0D,    0.0D,    0.0D,    1.0D,    1.0D, 0.3125D);
     public static final AxisAlignedBB PANEL_BOUNDS_NORTH = new AxisAlignedBB(    0.0D,    0.0D, 0.6875D,    1.0D,    1.0D,    1.0D);
     public static final AxisAlignedBB PANEL_BOUNDS_WEST  = new AxisAlignedBB( 0.6875D,    0.0D,    0.0D,    1.0D,    1.0D,    1.0D);
-    public static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(    0.0D,    0.0D,    0.0D, 0.3225D,    1.0D,    1.0D);
-    public static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(    0.0D,    0.0D,    0.0D,    1.0D, 0.3225D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_EAST  = new AxisAlignedBB(    0.0D,    0.0D,    0.0D, 0.3125D,    1.0D,    1.0D);
+    public static final AxisAlignedBB PANEL_BOUNDS_UP    = new AxisAlignedBB(    0.0D,    0.0D,    0.0D,    1.0D, 0.3125D,    1.0D);
     public static final AxisAlignedBB PANEL_BOUNDS_DOWN  = new AxisAlignedBB(    0.0D, 0.6875D,    0.0D,    1.0D,    1.0D,    1.0D);
 
     public static final float BTN_X  = 15.5f / 16f;
@@ -56,6 +54,8 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public static final AxisAlignedBB BUTTON_7 = new AxisAlignedBB(BTN_X - 2 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 2 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
     public static final AxisAlignedBB BUTTON_8 = new AxisAlignedBB(BTN_X - 3 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 3 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
     public static final AxisAlignedBB BUTTON_M = new AxisAlignedBB(4f / 16f, 5.5f / 16f, BTN_ZS, 12f / 16f, 10.5f / 16f, 10.5f / 16f);
+
+    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new HashMap<Integer, AxisAlignedBB>();
 
     public BlockPortalPanel(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -113,9 +113,11 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     {
         if (world.isRemote == false)
         {
-            int id = getPointedElementId(pos, state.getValue(FACING), player);
+            // Returns the "id" of the pointed element of this block the player is currently looking at.
+            // The target selection buttons are ids 0..7, the middle button is 8 and the base of the panel is 9.
+            Integer id = this.getPointedElementId(world, pos, state.getValue(FACING), player);
 
-            if (id >= 0 && id <= 8)
+            if (id != null && id >= 0 && id <= 8)
             {
                 TileEntityPortalPanel te = getTileEntitySafely(world, pos, TileEntityPortalPanel.class);
 
@@ -181,7 +183,8 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     @Override
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
-        AxisAlignedBB bb = RenderEventHandler.getInstance().getSelectedBoundingBox();
+        AxisAlignedBB bb = RenderEventHandler.getInstance().getPointedHilightBox(this);
+
         if (bb != null)
         {
             return bb;
@@ -202,29 +205,30 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
         return false;
     }
 
-    /**
-     * Returns the "id" of the pointed element of the Portal Panel the player is currently looking at.
-     * The target selection buttons are ids 0..7, the middle button is 8 and the base of the panel is 9.
-     * Invalid hits/misses return -1.
-     */
-    public static int getPointedElementId(BlockPos pos, EnumFacing side, Entity entity)
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<Integer, AxisAlignedBB> getHilightBoxMap()
     {
-        List<AxisAlignedBB> panelBoxes = new ArrayList<AxisAlignedBB>();
+        return this.hilightBoxMap;
+    }
 
+    @Override
+    public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
+    {
+        Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
+        boxMap.clear();
         Vec3d reference = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 
         // The button AABBs are defined in the NORTH orientation
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_1.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_2.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_3.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_4.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_5.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_6.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_7.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_8.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BUTTON_M.offset(pos), reference, EnumFacing.NORTH, side));
-        panelBoxes.add(PositionUtils.rotateBoxAroundPoint(PANEL_BOUNDS_BASE.offset(pos), reference, EnumFacing.NORTH, side));
-
-        return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, panelBoxes);
+        boxMap.put(0, PositionUtils.rotateBoxAroundPoint(BUTTON_1.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(1, PositionUtils.rotateBoxAroundPoint(BUTTON_2.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(2, PositionUtils.rotateBoxAroundPoint(BUTTON_3.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(3, PositionUtils.rotateBoxAroundPoint(BUTTON_4.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(4, PositionUtils.rotateBoxAroundPoint(BUTTON_5.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(5, PositionUtils.rotateBoxAroundPoint(BUTTON_6.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(6, PositionUtils.rotateBoxAroundPoint(BUTTON_7.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(7, PositionUtils.rotateBoxAroundPoint(BUTTON_8.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(8, PositionUtils.rotateBoxAroundPoint(BUTTON_M.offset(pos), reference, EnumFacing.NORTH, facing));
+        boxMap.put(9, PositionUtils.rotateBoxAroundPoint(PANEL_BOUNDS_BASE.offset(pos), reference, EnumFacing.NORTH, facing));
     }
 }

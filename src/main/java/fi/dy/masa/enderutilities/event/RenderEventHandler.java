@@ -1,16 +1,16 @@
 package fi.dy.masa.enderutilities.event;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 import com.google.common.base.Predicates;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -22,14 +22,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.block.BlockPortalPanel;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.client.renderer.item.BuildersWandRenderer;
 import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
@@ -49,9 +48,8 @@ public class RenderEventHandler
     protected BuildersWandRenderer buildersWandRenderer;
     protected RulerRenderer rulerRenderer;
 
-    protected BlockPos portalPanelPosLast = BlockPos.ORIGIN;
-    protected EnumFacing panelFacingLast = EnumFacing.DOWN;
-    protected List<AxisAlignedBB> panelBoxes;
+    protected BlockPos pointedPosLast = BlockPos.ORIGIN;
+    protected EnumFacing pointedBlockFacingLast = EnumFacing.DOWN;
     protected float partialTicks;
 
     public RenderEventHandler()
@@ -59,7 +57,6 @@ public class RenderEventHandler
         this.mc = Minecraft.getMinecraft();
         this.buildersWandRenderer = new BuildersWandRenderer();
         this.rulerRenderer = new RulerRenderer();
-        this.panelBoxes = new ArrayList<AxisAlignedBB>();
         INSTANCE = this;
     }
 
@@ -104,13 +101,20 @@ public class RenderEventHandler
 
         if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK)
         {
-            IBlockState state = this.mc.world.getBlockState(trace.getBlockPos());
+            World world = this.mc.world;
+            BlockPos pos = trace.getBlockPos();
+            IBlockState state = world.getBlockState(pos);
+            state = state.getActualState(world, pos);
+            Block block = state.getBlock();
 
-            if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
+            if (block == EnderUtilitiesBlocks.blockPortalPanel || block == EnderUtilitiesBlocks.INSERTER)
             {
-                this.renderPortalPanelText(trace.getBlockPos(), event.getPartialTicks());
-                this.renderPortalPanelHilight(event.getContext(), state, trace.getBlockPos(), event.getPartialTicks());
-                //event.setCanceled(true);
+                this.updatePointedBlockHilight(world, trace.getBlockPos(), state, (BlockEnderUtilities) block, event.getPartialTicks());
+            }
+
+            if (block == EnderUtilitiesBlocks.blockPortalPanel)
+            {
+                this.renderPortalPanelText(this.mc.world, trace.getBlockPos(), (BlockEnderUtilities) block, this.mc.player, event.getPartialTicks());
             }
         }
     }
@@ -128,7 +132,7 @@ public class RenderEventHandler
 
         if (stack != null)
         {
-            List<EntityChair> chairs = this.mc.world.getEntities(EntityChair.class, Predicates.alwaysTrue());
+            List<EntityChair> chairs = world.getEntities(EntityChair.class, Predicates.alwaysTrue());
 
             for (Entity entity : chairs)
             {
@@ -139,33 +143,30 @@ public class RenderEventHandler
         this.rulerRenderer.renderAllPositionPairs(usingPlayer, clientPlayer, partialTicks);
     }
 
-    private void renderPortalPanelText(BlockPos pos, float partialTicks)
+    private void renderPortalPanelText(World world, BlockPos pos, BlockEnderUtilities block, EntityPlayer player, float partialTicks)
     {
-        IBlockState state = this.mc.world.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos);
 
-        if (state.getBlock() == EnderUtilitiesBlocks.blockPortalPanel)
+        TileEntityPortalPanel te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos, TileEntityPortalPanel.class);
+
+        if (te != null)
         {
-            TileEntityPortalPanel te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(this.mc.world, pos, TileEntityPortalPanel.class);
+            EnumFacing facing = state.getValue(block.propFacing);
+            Integer elementId = block.getPointedElementId(world, pos, facing, player);
+            String name;
 
-            if (te != null)
+            if (elementId != null && elementId >= 0 && elementId <= 7)
             {
-                EnumFacing facing = state.getValue(EnderUtilitiesBlocks.blockPortalPanel.propFacing);
-                int elementId = BlockPortalPanel.getPointedElementId(pos, facing, this.mc.player);
-                String name;
+                name = te.getTargetDisplayName(elementId);
+            }
+            else
+            {
+                name = te.getPanelDisplayName();
+            }
 
-                if (elementId >= 0 && elementId <= 7)
-                {
-                    name = te.getTargetDisplayName(elementId);
-                }
-                else
-                {
-                    name = te.getPanelDisplayName();
-                }
-
-                if (StringUtils.isBlank(name) == false && name.length() > 0)
-                {
-                    this.renderPortalPanelText(name, this.mc.player, pos, facing, partialTicks);
-                }
+            if (StringUtils.isBlank(name) == false && name.length() > 0)
+            {
+                this.renderPortalPanelText(name, player, pos, facing, partialTicks);
             }
         }
     }
@@ -268,48 +269,30 @@ public class RenderEventHandler
         GlStateManager.popMatrix();
     }
 
-    protected void renderPortalPanelHilight(RenderGlobal context, IBlockState state, BlockPos pos, float partialTicks)
+    public <T> AxisAlignedBB getPointedHilightBox(BlockEnderUtilities block)
     {
-        EnumFacing facing = state.getValue(EnderUtilitiesBlocks.blockPortalPanel.propFacing);
+        Map<T, AxisAlignedBB> boxMap = block.getHilightBoxMap();
+        T key = EntityUtils.getPointedBox(this.mc.getRenderViewEntity(), 6d, boxMap, this.partialTicks);
 
-        if (pos.equals(this.portalPanelPosLast) == false || facing != this.panelFacingLast)
+        if (key != null)
         {
-            this.updatePanelBoxBounds(pos, facing);
-            this.portalPanelPosLast = pos;
-            this.panelFacingLast = facing;
-        }
-
-        this.partialTicks = partialTicks;
-    }
-
-    public AxisAlignedBB getSelectedBoundingBox()
-    {
-        int index = EntityUtils.getPointedBox(this.mc.getRenderViewEntity(), 6d, this.panelBoxes, this.partialTicks);
-
-        if (index >= 0 && index < this.panelBoxes.size())
-        {
-            return this.panelBoxes.get(index);
+            return boxMap.get(key);
         }
 
         return PositionUtils.ZERO_BB;
     }
 
-    private void updatePanelBoxBounds(BlockPos pos, EnumFacing facing)
+    protected <T> void updatePointedBlockHilight(World world, BlockPos pos, IBlockState state, BlockEnderUtilities block, float partialTicks)
     {
-        this.panelBoxes.clear();
+        EnumFacing facing = state.getValue(block.propFacing);
 
-        Vec3d reference = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        if (pos.equals(this.pointedPosLast) == false || facing != this.pointedBlockFacingLast)
+        {
+            block.updateBlockHilightBoxes(world, pos, facing);
+            this.pointedPosLast = pos;
+            this.pointedBlockFacingLast = facing;
+        }
 
-        // The button AABBs are defined in the NORTH orientation
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_1.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_2.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_3.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_4.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_5.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_6.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_7.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_8.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.BUTTON_M.offset(pos), reference, EnumFacing.NORTH, facing));
-        this.panelBoxes.add(PositionUtils.rotateBoxAroundPoint(BlockPortalPanel.PANEL_BOUNDS_BASE.offset(pos), reference, EnumFacing.NORTH, facing));
+        this.partialTicks = partialTicks;
     }
 }

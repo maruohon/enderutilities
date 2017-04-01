@@ -4,7 +4,9 @@ import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -135,6 +137,57 @@ public class EntityUtils
         }
 
         return index;
+    }
+
+    /**
+     * Returns the index of the BB in the given list that the given entity is currently looking at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    public static <T> T getPointedBox(Entity entity, double reach, Map<T, AxisAlignedBB> boxes, float partialTicks)
+    {
+        Vec3d eyesVec = entity.getPositionEyes(partialTicks);
+        Vec3d lookVec = entity.getLook(partialTicks);
+
+        return getPointedBox(eyesVec, lookVec, reach, boxes);
+    }
+
+    /**
+     * Returns the index of the BB in the given list that the given vectors are currently pointing at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    @Nullable
+    public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
+    {
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        double distance = reach;
+        T key = null;
+
+        for (Map.Entry<T, AxisAlignedBB> entry : boxMap.entrySet())
+        {
+            AxisAlignedBB bb = entry.getValue();
+            RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
+
+            if (bb.isVecInside(eyesVec))
+            {
+                if (distance >= 0.0D)
+                {
+                    distance = 0.0D;
+                    key = entry.getKey();
+                }
+            }
+            else if (rayTrace != null)
+            {
+                double distanceTmp = eyesVec.distanceTo(rayTrace.hitVec);
+
+                if (distanceTmp < distance)
+                {
+                    distance = distanceTmp;
+                    key = entry.getKey();
+                }
+            }
+        }
+
+        return key;
     }
 
     public static boolean isHoldingItem(EntityLivingBase entity, Item item)

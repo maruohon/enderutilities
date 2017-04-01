@@ -231,7 +231,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.labelMask = this.getLabelMask(false);
 
-        if (this.getWorld() != null)
+        if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
             IBlockState state = this.getWorld().getBlockState(this.getPos());
             this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);

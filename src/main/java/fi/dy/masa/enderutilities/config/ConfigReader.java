@@ -247,6 +247,7 @@ public class ConfigReader
         Configs.disableBlockBarrel        = getProp("disableBlockBarrel", false).getBoolean();
         Configs.disableBlockEnderElevator = getProp("disableBlockEnderElevator", false).getBoolean();
         Configs.disableBlockFloor         = getProp("disableBlockFloor", false).getBoolean();
+        Configs.disableBlockInserter      = getProp("disableBlockInserter", false).getBoolean();
         Configs.disableBlockPhasing       = getProp("disableBlockPhasing", false).getBoolean();
         Configs.disableBlockPortal        = getProp("disableBlockPortal", false).getBoolean();
         Configs.disableBlockPortalFrame   = getProp("disableBlockPortalFrame", false).getBoolean();
@@ -319,6 +320,7 @@ public class ConfigReader
         Configs.disableRecipeEnderFurnace         = getProp("disableRecipeEnderFurnace", false).getBoolean();
         Configs.disableRecipeEnderInfuser         = getProp("disableRecipeEnderInfuser", false).getBoolean();
         Configs.disableRecipeFloor                = getProp("disableRecipeFloor", false).getBoolean();
+        Configs.disableRecipeInserter             = getProp("disableRecipeInserter", false).getBoolean();
         Configs.disableRecipeMolecularExciter     = getProp("disableRecipeMolecularExciter", false).getBoolean();
         Configs.disableRecipePhasingBlock         = getProp("disableRecipePhasingBlock", false).getBoolean();
         Configs.disableRecipePortalFrame          = getProp("disableRecipeFrame", false).getBoolean();

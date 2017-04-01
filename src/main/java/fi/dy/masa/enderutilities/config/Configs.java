@@ -55,6 +55,7 @@ public class Configs
     public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockFloor;
+    public static boolean disableBlockInserter;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
     public static boolean disableBlockMachine_2;
@@ -102,6 +103,7 @@ public class Configs
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
     public static boolean disableRecipeFloor;
+    public static boolean disableRecipeInserter;
     public static boolean disableRecipeJunkStorageUnit;
     public static boolean disableRecipeMassiveStorageBundle;
     public static boolean disableRecipeMassiveStorageUnit;

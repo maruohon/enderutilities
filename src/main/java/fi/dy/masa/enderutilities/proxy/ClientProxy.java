@@ -37,9 +37,10 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEntityEnderPearl;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderFallingBlockEU;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
-import fi.dy.masa.enderutilities.client.renderer.model.ModelBarrel;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrel;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
@@ -358,6 +359,9 @@ public class ClientProxy extends CommonProxy
     {
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrel.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelBarrel.ModelLoader());
+
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
+        ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoader());
     }
 
     private void registerItemBlockModels()
@@ -388,6 +392,8 @@ public class ClientProxy extends CommonProxy
 
         this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 0, "half=bottom,type=normal");
         this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 1, "half=bottom,type=cracked");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 0, "type=normal");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 1, "type=filtered");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");

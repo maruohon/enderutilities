@@ -14,6 +14,7 @@ import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
+import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.block.BlockFloor;
 import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
@@ -34,6 +35,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities INSERTER            = new BlockInserter(ReferenceNames.NAME_TILE_INSERTER,          2.0f,    6f, 1, Material.ROCK);
     public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                2.0f,    6f, 1, Material.WOOD);
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
@@ -54,6 +56,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
+        registerBlock(INSERTER,             Configs.disableBlockInserter);
         registerBlock(FLOOR,                Configs.disableBlockFloor);
         registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
@@ -86,7 +89,7 @@ public class EnderUtilitiesBlocks
         //ItemStack active_core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 15);
         ItemStack active_core1 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 16);
         ItemStack active_core2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 17);
-        //ItemStack ender_stick = new ItemStack(EnderUtilitiesItems.enderPart, 1, 20);
+        ItemStack ender_stick = new ItemStack(EnderUtilitiesItems.enderPart, 1, 20);
         //ItemStack rope = new ItemStack(EnderUtilitiesItems.enderPart, 1, 21);
 
         // Register block recipes
@@ -110,11 +113,20 @@ public class EnderUtilitiesBlocks
             GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(blockElevatorSlab, 2), blockElevatorLayer, 0, "E", "E", 'E', blockElevatorLayer));
         }
 
+        if (Configs.disableRecipeInserter == false && Configs.disableBlockInserter == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 1, 0), "CPC", "CHA", "C C", 'C', "cobblestone", 'P', Blocks.PISTON, 'H', Blocks.HOPPER, 'A', alloy0));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 1, 1), "CPC", "CHA", "COC", 'C', "cobblestone", 'P', Blocks.PISTON, 'H', Blocks.HOPPER, 'A', alloy1, 'O', Items.COMPARATOR));
+        }
+
         if (Configs.disableRecipeFloor == false && Configs.disableBlockFloor == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 6, 0), "SSS", "T T", "SSS", 'S', "slabWood", 'T', "stickWood"));
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 6, 1), "MMM", "T T", "MMM", 'M', Blocks.MOSSY_COBBLESTONE, 'T', "stickWood"));
+            // Normal Floor
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 12, 0), "SSS", "I I", "SSS", 'S', "slabWood", 'I', "stickWood"));
+            // Cracked Floor
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 12, 1), "SSS", " I ", "SSS", 'S', "slabWood", 'I', ender_stick));
         }
+
         if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
         {
             GameRegistry.addRecipe(new ItemStack(blockMachine_0, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', furnace, 'C', core0);

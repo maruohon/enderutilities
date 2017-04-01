@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.client.renderer.model;
+package fi.dy.masa.enderutilities.client.renderer.model.block;
 
 import java.util.Collection;
 import java.util.HashMap;

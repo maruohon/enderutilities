@@ -58,6 +58,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
     public static final String NAME_TILE_FLOOR                  = "floor";
     public static final String NAME_TILE_FRAME                  = "frame";
+    public static final String NAME_TILE_INSERTER               = "inserter";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";
     public static final String NAME_TILE_MACHINE_1              = "machine_1";
     public static final String NAME_TILE_MACHINE_2              = "machine_2";

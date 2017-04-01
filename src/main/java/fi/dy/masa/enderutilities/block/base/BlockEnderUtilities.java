@@ -1,5 +1,7 @@
 package fi.dy.masa.enderutilities.block.base;
 
+import java.util.Collections;
+import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockHorizontal;
@@ -7,13 +9,16 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockEnderUtilities extends Block
 {
@@ -98,5 +103,24 @@ public class BlockEnderUtilities extends Block
         IBlockState state = world.getBlockState(pos).withRotation(Rotation.CLOCKWISE_90);
         world.setBlockState(pos, state, 3);
         return true;
+    }
+
+    public <T> Map<T, AxisAlignedBB> getHilightBoxMap()
+    {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Returns the "id" or "key" of the pointed element's bounding box the player is currently looking at.
+     * Invalid hits (ie. misses) return null.
+     */
+    public <T> T getPointedElementId(World world, BlockPos pos, EnumFacing side, Entity entity)
+    {
+        this.updateBlockHilightBoxes(world, pos, side);
+        return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, this.getHilightBoxMap());
+    }
+
+    public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
+    {
     }
 }
