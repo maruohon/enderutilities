@@ -33,7 +33,6 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
 public class ModelInserterBaked implements IBakedModel
 {
@@ -109,9 +108,9 @@ public class ModelInserterBaked implements IBakedModel
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
+        // Item model
         if (state == null)
         {
-            state = EnderUtilitiesBlocks.INSERTER.getDefaultState();
             return this.bakedBaseModel.getQuads(state, side, rand);
         }
 
@@ -119,7 +118,7 @@ public class ModelInserterBaked implements IBakedModel
 
         if (quads == null)
         {
-            System.out.printf("no model, baking a new one for state: %s\n", state);
+            //IModelState modelState = new ModelStateComposition(new TRSRTransformation(state.getValue(BlockInserter.FACING)), this.modelState);
             IModelState modelState = new TRSRTransformation(state.getValue(BlockInserter.FACING));
             IBakedModel bakedBaseModel = this.baseModel.bake(modelState, this.format, this.bakedTextureGetter);
 
