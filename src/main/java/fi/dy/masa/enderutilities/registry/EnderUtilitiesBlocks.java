@@ -14,8 +14,8 @@ import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
-import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.block.BlockFloor;
+import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
 import fi.dy.masa.enderutilities.block.BlockMachine2;
@@ -115,8 +115,8 @@ public class EnderUtilitiesBlocks
 
         if (Configs.disableRecipeInserter == false && Configs.disableBlockInserter == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 1, 0), "CPC", "CHA", "C C", 'C', "cobblestone", 'P', Blocks.PISTON, 'H', Blocks.HOPPER, 'A', alloy0));
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 1, 1), "CPC", "CHA", "COC", 'C', "cobblestone", 'P', Blocks.PISTON, 'H', Blocks.HOPPER, 'A', alloy1, 'O', Items.COMPARATOR));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 4, 0), "AAA", "GGG", "AAA", 'A', alloy0, 'G', "blockGlass"));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 4, 1), "AAA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', Items.COMPARATOR));
         }
 
         if (Configs.disableRecipeFloor == false && Configs.disableBlockFloor == false)
