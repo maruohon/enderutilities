@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
 import fi.dy.masa.enderutilities.util.SlotRange;
@@ -13,6 +14,9 @@ public class ContainerInserter extends ContainerCustomSlotClick
     private final TileEntityInserter tef;
     private final IItemHandler invFilters;
     private SlotRange filterSlots = new SlotRange(0, 0);
+    private int delayLast;
+    private int stackLimitLast;
+    private int filtersLast;
 
     public ContainerInserter(EntityPlayer player, TileEntityInserter te)
     {
@@ -30,6 +34,7 @@ public class ContainerInserter extends ContainerCustomSlotClick
         int posX = 8;
         int posY = 47;
 
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), 1);
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 80, 27));
 
         if (this.tef.isFiltered())
@@ -43,6 +48,63 @@ public class ContainerInserter extends ContainerCustomSlotClick
                     this.addSlotToContainer(new SlotItemHandlerGeneric(this.invFilters, row * 9 + column, posX + column * 18, posY + row * 18));
                 }
             }
+        }
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        int delay = this.tef.getUpdateDelay();
+        int stackLimit = this.tef.getBaseItemHandler().getInventoryStackLimit();
+        int filters = this.tef.getFilterMask();
+
+        for (int i = 0; i < this.listeners.size(); i++)
+        {
+            if (delay != this.delayLast)
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 0, delay & 0xFFFF);
+                this.listeners.get(i).sendProgressBarUpdate(this, 1, (delay >>> 16) & 0xFFFF);
+            }
+
+            if (stackLimit != this.stackLimitLast)
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 2, stackLimit);
+            }
+
+            if (filters != this.filtersLast)
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 3, filters);
+            }
+        }
+
+        this.delayLast = delay;
+        this.stackLimitLast = stackLimit;
+        this.filtersLast = filters;
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
+    public void updateProgressBar(int id, int data)
+    {
+        super.updateProgressBar(id, data);
+
+        switch (id)
+        {
+            case 0:
+                data = (this.tef.getUpdateDelay() & 0xFFFF0000) | data;
+                this.tef.setUpdateDelay(data);
+                break;
+            case 1:
+                data = (this.tef.getUpdateDelay() & 0xFFFF) | (data << 16);
+                this.tef.setUpdateDelay(data);
+                break;
+            case 2:
+                this.tef.getBaseItemHandler().setStackLimit(data);
+                break;
+            case 3:
+                this.tef.setFilterMask(data);
+                break;
         }
     }
 
@@ -61,7 +123,9 @@ public class ContainerInserter extends ContainerCustomSlotClick
 
             if (stackCursor != null)
             {
-                slot.insertItem(stackCursor.copy(), false);
+                ItemStack stackTmp = stackCursor.copy();
+                stackTmp.stackSize = 1;
+                slot.insertItem(stackTmp, false);
             }
             else
             {
@@ -78,6 +142,7 @@ public class ContainerInserter extends ContainerCustomSlotClick
                 if (stackCursor != null)
                 {
                     ItemStack stackTmp = stackCursor.copy();
+                    stackTmp.stackSize = 1;
 
                     for (int i : this.draggedSlots)
                     {

@@ -2,50 +2,57 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.gui.client.GuiInserter;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerInserter;
+import fi.dy.masa.enderutilities.network.message.ISyncableTile;
+import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
+public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
+    private final ItemHandlerWrapperInserter itemHandlerInserter;
     private final ItemStackHandlerTileEntity itemHandlerFilters;
     private final List<EnumFacing> enabledSides = new ArrayList<EnumFacing>();
     private final List<EnumFacing> validSides = new ArrayList<EnumFacing>();
+    private EnumFacing facingOpposite = EnumFacing.SOUTH;
     private int filterMask;
+    private int delay = 4;
+    private int outputSideIndex;
     private boolean isFiltered;
+    private ItemStack[] cachedFilterStacks = new ItemStack[0];
 
     public TileEntityInserter()
     {
         super(ReferenceNames.NAME_TILE_INSERTER);
 
         this.filterMask = FilterSetting.IS_WHITELIST.getBitMask() | FilterSetting.MATCH_META.getBitMask();
-        this.itemHandlerBase    = new ItemStackHandlerTileEntity(0,  1, 64, false, "Items", this);
+        this.itemHandlerBase    = new ItemStackHandlerTileEntity(0,  1,  1, false, "Items", this);
         this.itemHandlerFilters = new ItemStackHandlerTileEntity(1, 27, 64, false, "ItemsFilter", this);
-        this.itemHandlerExternal = this.itemHandlerBase;
-
-        this.initStorage();
-    }
-
-    private void initStorage()
-    {
+        this.itemHandlerInserter = new ItemHandlerWrapperInserter(this.itemHandlerBase);
+        this.itemHandlerExternal = this.itemHandlerInserter;
     }
 
     public boolean isFiltered()
@@ -53,48 +60,45 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
         return this.isFiltered;
     }
 
-    public void setIsFiltered(boolean filtered)
+    public void setIsFiltered(boolean isFiltered)
     {
-        this.isFiltered = filtered;
+        this.isFiltered = isFiltered;
     }
 
-    @Override
-    public void setFacing(EnumFacing facing)
+    public int getUpdateDelay()
     {
-        super.setFacing(facing);
-
-        this.markDirtyAndSync();
+        return this.delay;
     }
 
-    @Override
-    public void rotate(Rotation rotationIn)
+    public void setUpdateDelay(int delay)
     {
-        super.rotate(rotationIn);
+        this.delay = delay;
+    }
 
-        List<EnumFacing> newList = new ArrayList<EnumFacing>();
+    public boolean isFilterSettingEnabled(FilterSetting setting)
+    {
+        return setting.getFromBitmask(this.filterMask);
+    }
 
-        for (EnumFacing side : this.enabledSides)
-        {
-            newList.add(rotationIn.rotate(side));
-        }
+    public int getFilterMask()
+    {
+        return this.filterMask;
+    }
 
-        this.enabledSides.clear();
-        this.enabledSides.addAll(newList);
-        this.updateValidSides();
+    public void setFilterMask(int mask)
+    {
+        this.filterMask = mask;
+    }
+
+    public IItemHandler getFilterInventory()
+    {
+        return this.itemHandlerFilters;
     }
 
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block blockIn)
     {
-        this.updateValidSides();
-    }
-
-    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
-    {
-        // When a tile changes on the input side, schedule a new tile tick, if necessary
-        if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())))
-        {
-        }
+        this.updateValidSides(true);
     }
 
     public void toggleOutputSide(EnumFacing side)
@@ -110,12 +114,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
                 this.enabledSides.add(side);
             }
 
-            this.updateValidSides();
-            this.markDirtyAndSync();
+            this.updateValidSides(true);
         }
     }
 
-    public void updateValidSides()
+    private void updateValidSides(boolean markDirtyAndSync)
     {
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
@@ -134,8 +137,17 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
                 }
             }
 
-            this.markDirtyAndSync(); // TODO add custom integer sync
+            if (markDirtyAndSync)
+            {
+                this.markDirty();
+                this.syncSideConfigs();
+            }
         }
+    }
+
+    private void syncSideConfigs()
+    {
+        this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.getCombinesSideMask()));
     }
 
     public ImmutableList<EnumFacing> getEnabledOutputSides()
@@ -148,7 +160,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
         return ImmutableList.copyOf(this.validSides);
     }
 
-    public int getSideMask(List<EnumFacing> list)
+    private int getSideMask(List<EnumFacing> list)
     {
         int mask = 0;
 
@@ -173,53 +185,83 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    public boolean isFilterSettingEnabled(FilterSetting setting)
+    private int getCombinesSideMask()
     {
-        return setting.getFromBitmask(this.filterMask);
+        return (this.getSideMask(this.validSides) << 6) | this.getSideMask(this.enabledSides);
     }
 
-    public IItemHandler getFilterInventory()
+    private void setSidesFromCombinedMask(int mask)
     {
-        return this.itemHandlerFilters;
-    }
-
-    private void markDirtyAndSync()
-    {
-        if (this.getWorld() != null && this.getWorld().isRemote == false)
-        {
-            this.markDirty();
-
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
-        }
+        this.setSidesFromMask(mask         & 0x3F, this.enabledSides);
+        this.setSidesFromMask((mask >>> 6) & 0x3F, this.validSides);
     }
 
     @Override
-    public void readFromNBTCustom(NBTTagCompound nbt)
+    public void setFacing(EnumFacing facing)
     {
-        this.isFiltered = nbt.getBoolean("Filtered");
-        this.filterMask = nbt.getByte("FilterMask");
-        this.setSidesFromMask(nbt.getByte("Sides"), this.enabledSides);
+        this.facingOpposite = facing.getOpposite();
 
-        super.readFromNBTCustom(nbt);
+        super.setFacing(facing);
+
+        this.syncSideConfigs();
+    }
+
+    @Override
+    public void rotate(Rotation rotationIn)
+    {
+        List<EnumFacing> newList = new ArrayList<EnumFacing>();
+
+        for (EnumFacing side : this.enabledSides)
+        {
+            newList.add(rotationIn.rotate(side));
+        }
+
+        this.enabledSides.clear();
+        this.enabledSides.addAll(newList);
+        this.updateValidSides(false);
+
+        super.rotate(rotationIn);
     }
 
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        // This creates the inventories themselves...
-        this.initStorage();
+        this.itemHandlerFilters.deserializeNBT(nbt);
+        this.inventoryChanged(this.itemHandlerFilters.getInventoryId(), 0); // Update the cached array of stacks
 
-        // ... and this de-serializes the items from NBT into the inventory
         super.readItemsFromNBT(nbt);
+    }
+
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        nbt.merge(this.itemHandlerFilters.serializeNBT());
+
+        super.writeItemsToNBT(nbt);
+    }
+
+    @Override
+    public void readFromNBTCustom(NBTTagCompound nbt)
+    {
+        super.readFromNBTCustom(nbt);
+
+        this.setSidesFromCombinedMask(nbt.getShort("Sides"));
+        this.filterMask = nbt.getByte("FilterMask");
+        this.isFiltered = (this.filterMask & 0x80) != 0;
+        this.outputSideIndex = nbt.getByte("OutputIndex");
+        this.delay = nbt.getInteger("Delay");
+        this.facingOpposite = this.getFacing().getOpposite();
+        this.itemHandlerBase.setStackLimit(MathHelper.clamp(nbt.getByte("StackLimit"), 1, 64));
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        nbt.setBoolean("Filtered", this.isFiltered);
-        nbt.setByte("FilterMask", (byte) this.filterMask);
-        nbt.setByte("Sides", (byte) this.getSideMask(this.enabledSides));
+        nbt.setShort("Sides", (short) this.getCombinesSideMask());
+        nbt.setByte("FilterMask", (byte) (this.filterMask | (this.isFiltered ? 0x80 : 0x00)));
+        nbt.setByte("OutputIndex", (byte) this.outputSideIndex);
+        nbt.setInteger("Delay", this.delay);
+        nbt.setByte("StackLimit", (byte) this.itemHandlerBase.getInventoryStackLimit());
 
         super.writeToNBT(nbt);
 
@@ -229,12 +271,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        this.updateValidSides();
-
         nbt = super.getUpdatePacketTag(nbt);
-        nbt.setBoolean("flt", this.isFiltered);
-        nbt.setByte("esd", (byte) this.getSideMask(this.enabledSides));
-        nbt.setByte("vsd", (byte) this.getSideMask(this.validSides));
+        nbt.setShort("sd", (short) this.getCombinesSideMask());
 
         return nbt;
     }
@@ -242,12 +280,15 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.isFiltered = tag.getBoolean("flt");
-        this.setSidesFromMask(tag.getByte("esd"), this.enabledSides);
-        this.setSidesFromMask(tag.getByte("vsd"), this.validSides);
+        this.setSidesFromCombinedMask(tag.getShort("sd"));
 
         super.handleUpdateTag(tag);
 
+        this.updateFilterState(true);
+    }
+
+    private void updateFilterState(boolean updateHilightBoxes)
+    {
         if (this.getWorld() != null)
         {
             World world = this.getWorld();
@@ -255,14 +296,225 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
 
             if (state.getBlock() == EnderUtilitiesBlocks.INSERTER)
             {
-                EnderUtilitiesBlocks.INSERTER.updateBlockHilightBoxes(world, this.getPos(), this.getFacing());
+                this.isFiltered = state.getValue(BlockInserter.TYPE) == BlockInserter.InserterType.FILTERED;
+
+                if (updateHilightBoxes)
+                {
+                    EnderUtilitiesBlocks.INSERTER.updateBlockHilightBoxes(world, this.getPos(), this.getFacing());
+                }
+
+                world.notifyBlockUpdate(this.getPos(), state, state, 3);
             }
         }
     }
 
-    @Override
-    public void performGuiAction(EntityPlayer player, int action, int element)
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
+        // When a tile changes on the input side, schedule a new tile tick, if necessary
+        if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())))
+        {
+            this.scheduleBlockUpdate(this.delay, false);
+        }
+    }
+
+    @Override
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
+    {
+        //System.out.printf("onScheduledBlockUpdate() @ %s\n", pos);
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
+
+        // Currently holding items, try to push them out
+        if (stack != null)
+        {
+            this.tryPushOutItems(world, pos);
+            // Always schedule a new update after pushing out items,
+            // both in case it failed and we need to try again, or if we need to pull in new items.
+            this.scheduleBlockUpdate(this.delay, false);
+        }
+        // Not holding items, try to pull items in
+        else
+        {
+            if (this.tryPullInItems(world, pos))
+            {
+                this.scheduleBlockUpdate(this.delay, false);
+            }
+        }
+    }
+
+    /**
+     * Tries to pull in items from an inventory on the input side.<br>
+     * <b>NOTE: ONLY call this when the internal slot is empty, as this method doesn't check it!</b>
+     * @return true if the operation succeeded and at least some items were moved, false otherwise
+     */
+    private boolean tryPullInItems(World world, BlockPos posSelf)
+    {
+        TileEntity te = world.getTileEntity(posSelf.offset(this.facingOpposite));
+
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
+        {
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing());
+
+            if (inv != null)
+            {
+                ItemStack stack = InventoryUtils.getItemsFromFirstNonEmptySlot(inv, this.itemHandlerBase.getInventoryStackLimit(), false);
+
+                if (stack != null)
+                {
+                    this.itemHandlerBase.insertItem(0, stack, false);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Tries to push out items to the next valid output side, or as a fallback to the front side.<br>
+     * <b>NOTE: Only call this if there are items currently in the internal inventory!</b>
+     * @param world
+     * @param posSelf
+     */
+    private void tryPushOutItems(World world, BlockPos posSelf)
+    {
+        if (this.isFiltered)
+        {
+            boolean match = InventoryUtils.matchingStackFoundInArray(
+                this.cachedFilterStacks, this.itemHandlerBase.getStackInSlot(0),
+                this.isFilterSettingEnabled(FilterSetting.MATCH_META) == false,
+                this.isFilterSettingEnabled(FilterSetting.MATCH_NBT) == false);
+
+            if (match != this.isFilterSettingEnabled(FilterSetting.IS_WHITELIST))
+            {
+                // Fall back to the front facing
+                this.tryPushOutItemsToSide(world, posSelf, this.getFacing());
+                return;
+            }
+        }
+
+        int numValidSides = this.validSides.size();
+
+        for (int i = 0; i < numValidSides; i++)
+        {
+            if (this.outputSideIndex >= numValidSides)
+            {
+                this.outputSideIndex = 0;
+            }
+
+            // At least one valid output side
+            if (this.outputSideIndex < numValidSides)
+            {
+                EnumFacing side = this.validSides.get(this.outputSideIndex);
+                this.outputSideIndex++;
+
+                if (this.tryPushOutItemsToSide(world, posSelf, side))
+                {
+                    return;
+                }
+            }
+        }
+
+        // Fall back to the front facing
+        this.tryPushOutItemsToSide(world, posSelf, this.getFacing());
+    }
+
+    private boolean tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing side)
+    {
+        TileEntity te = world.getTileEntity(posSelf.offset(side));
+
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
+        {
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing());
+
+            if (inv != null)
+            {
+                ItemStack stack = this.itemHandlerBase.extractItem(0, 64, false);
+                int sizeOrig = stack.stackSize;
+                boolean movedSome = false;
+                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
+
+                // Return the items that couldn't be moved
+                if (stack != null)
+                {
+                    movedSome = stack.stackSize != sizeOrig;
+                    this.itemHandlerBase.insertItem(0, stack, false);
+                }
+
+                return stack == null || movedSome;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        // Filter inventory
+        if (inventoryId == 1)
+        {
+            this.cachedFilterStacks = InventoryUtils.createInventorySnapshotOfNonEmptySlots(this.itemHandlerFilters);
+        }
+    }
+
+    private class ItemHandlerWrapperInserter implements IItemHandler
+    {
+        private final IItemHandler baseHandler;
+
+        private ItemHandlerWrapperInserter(IItemHandler baseHandler)
+        {
+            this.baseHandler = baseHandler;
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return this.baseHandler.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return this.baseHandler.getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            stack = this.baseHandler.insertItem(slot, stack, simulate);
+
+            if (simulate == false)
+            {
+                TileEntityInserter.this.scheduleBlockUpdate(TileEntityInserter.this.delay, false);
+            }
+
+            return stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            return this.baseHandler.extractItem(slot, amount, simulate);
+        }
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int actionIn, int element)
+    {
+        GuiAction action = GuiAction.fromInt(actionIn);
+
+        switch (action)
+        {
+            case CHANGE_DELAY:
+                this.delay = MathHelper.clamp(this.delay + element, 1, 72000); // max 1 hour
+                break;
+            case CHANGE_STACK_LIMIT:
+                this.itemHandlerBase.setStackLimit(MathHelper.clamp(this.itemHandlerBase.getInventoryStackLimit() + element, 1, 64));
+                break;
+            case CHANGE_FILTERS:
+                this.filterMask = (this.filterMask ^ element) & 0x7;
+                break;
+        }
     }
 
     @Override
@@ -299,6 +551,28 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory
         public int getBitMask()
         {
             return this.bitMask;
+        }
+    }
+
+    public enum GuiAction
+    {
+        CHANGE_DELAY,
+        CHANGE_STACK_LIMIT,
+        CHANGE_FILTERS;
+
+        public static GuiAction fromInt(int action)
+        {
+            return values()[action % values().length];
+        }
+    }
+
+    @Override
+    public void syncTile(int[] values, ItemStack[] stacks)
+    {
+        if (values.length == 1)
+        {
+            this.setSidesFromCombinedMask(values[0]);
+            this.updateFilterState(true);
         }
     }
 }

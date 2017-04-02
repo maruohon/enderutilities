@@ -6,22 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import com.google.common.base.Predicates;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -35,7 +30,6 @@ import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
-import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.ISyncableTile;
 import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -450,27 +444,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         else if (inventoryId == 1)
         {
             this.updateBarrelProperties(true);
-        }
-    }
-
-    private void sendSyncPacket(MessageSyncTileEntity message)
-    {
-        World world = this.getWorld();
-
-        if (world instanceof WorldServer)
-        {
-            WorldServer worldServer = (WorldServer) world;
-            int chunkX = this.getPos().getX() >> 4;
-            int chunkZ = this.getPos().getZ() >> 4;
-            PlayerChunkMap map = worldServer.getPlayerChunkMap();
-
-            for (EntityPlayerMP player : worldServer.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue()))
-            {
-                if (map.isPlayerWatchingChunk(player, chunkX, chunkZ))
-                {
-                    PacketHandler.INSTANCE.sendTo(message, player);
-                }
-            }
         }
     }
 

@@ -3,21 +3,27 @@ package fi.dy.masa.enderutilities.tileentity;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import com.google.common.base.Predicates;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
@@ -229,6 +235,27 @@ public class TileEntityEnderUtilities extends TileEntity
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         this.handleUpdateTag(packet.getNbtCompound());
+    }
+
+    protected void sendSyncPacket(MessageSyncTileEntity message)
+    {
+        World world = this.getWorld();
+
+        if (world instanceof WorldServer)
+        {
+            WorldServer worldServer = (WorldServer) world;
+            int chunkX = this.getPos().getX() >> 4;
+            int chunkZ = this.getPos().getZ() >> 4;
+            PlayerChunkMap map = worldServer.getPlayerChunkMap();
+
+            for (EntityPlayerMP player : worldServer.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue()))
+            {
+                if (map.isPlayerWatchingChunk(player, chunkX, chunkZ))
+                {
+                    PacketHandler.INSTANCE.sendTo(message, player);
+                }
+            }
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
@@ -114,7 +115,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        super.breakBlock(world, pos, state);
+        super.breakBlock(world, pos, state); // TODO unnecessary override?
     }
 
     @Override
@@ -178,6 +179,25 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
             if (te != null)
             {
                 te.onNeighborTileChange(world, pos, neighbor);
+            }
+        }
+    }
+
+    @Override
+    public void randomTick(World world, BlockPos pos, IBlockState state, Random random)
+    {
+    }
+
+    @Override
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
+    {
+        if (world.isRemote == false)
+        {
+            TileEntityInserter te = getTileEntitySafely(world, pos, TileEntityInserter.class);
+
+            if (te != null)
+            {
+                te.onScheduledBlockUpdate(world, pos, state, rand);
             }
         }
     }

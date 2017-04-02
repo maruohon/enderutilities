@@ -360,6 +360,44 @@ public class InventoryUtils
     }
 
     /**
+     * Returns the slot number of the first non-empty slot in the given inventory, or -1 if there are no items.
+     */
+    /*
+    public static int getFirstNonEmptySlot(IItemHandler inv)
+    {
+        for (int i = 0; i < inv.getSlots(); i++)
+        {
+            if (inv.getStackInSlot(i) != null)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    */
+
+    /**
+     * Returns an ItemStack of up to maxAmount items from the first slot possible to extract from.
+     */
+    public static ItemStack getItemsFromFirstNonEmptySlot(IItemHandler inv, int maxAmount, boolean simulate)
+    {
+        ItemStack stack = null;
+
+        for (int i = 0; i < inv.getSlots(); i++)
+        {
+            stack = inv.extractItem(i, maxAmount, simulate);
+
+            if (stack != null)
+            {
+                return stack;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get the slot number of the first slot containing a matching item, or -1 if there are no such items in the inventory.
      */
     public static int getSlotOfFirstMatchingItem(IItemHandler inv, Item item)
@@ -948,6 +986,39 @@ public class InventoryUtils
     }
 
     /**
+     * Checks if there is a matching ItemStack in the provided array of stacks
+     */
+    public static boolean matchingStackFoundInArray(ItemStack[] stackArray, @Nonnull ItemStack stackTemplate, boolean ignoreMeta, boolean ignoreNbt)
+    {
+        Item item = stackTemplate.getItem();
+        int meta = stackTemplate.getMetadata();
+
+        for (int i = 0; i < stackArray.length; i++)
+        {
+            ItemStack stackTmp = stackArray[i];
+
+            if (stackTmp == null || stackTmp.getItem() != item)
+            {
+                continue;
+            }
+
+            if (ignoreMeta == false && (meta != OreDictionary.WILDCARD_VALUE && stackTmp.getMetadata() != meta))
+            {
+                continue;
+            }
+
+            if (ignoreNbt == false && ItemStack.areItemStackTagsEqual(stackTemplate, stackTmp) == false)
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param inv
      * @return true if all the slots in the inventory are empty, ie. null
      */
@@ -1167,6 +1238,29 @@ public class InventoryUtils
         }
 
         return items;
+    }
+
+    /**
+     * Creates a copy of the non-empty stacks in the inventory and returns it in a new ItemStack array.
+     * @param inv
+     * @return an array of ItemStacks containing copies of the non-empty stacks
+     */
+    public static ItemStack[] createInventorySnapshotOfNonEmptySlots(IItemHandler inv)
+    {
+        int slots = inv.getSlots();
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+
+        for (int i = 0; i < slots; i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+
+            if (stack != null)
+            {
+                stacks.add(stack.copy());
+            }
+        }
+
+        return stacks.toArray(new ItemStack[stacks.size()]);
     }
 
     /**
