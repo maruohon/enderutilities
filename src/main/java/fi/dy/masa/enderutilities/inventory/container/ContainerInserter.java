@@ -17,6 +17,7 @@ public class ContainerInserter extends ContainerCustomSlotClick
     private int delayLast;
     private int stackLimitLast;
     private int filtersLast;
+    private int redstoneLast;
 
     public ContainerInserter(EntityPlayer player, TileEntityInserter te)
     {
@@ -57,6 +58,7 @@ public class ContainerInserter extends ContainerCustomSlotClick
         int delay = this.tef.getUpdateDelay();
         int stackLimit = this.tef.getBaseItemHandler().getInventoryStackLimit();
         int filters = this.tef.getFilterMask();
+        int redstone = this.tef.getRedstoneModeOrdinal();
 
         for (int i = 0; i < this.listeners.size(); i++)
         {
@@ -75,11 +77,17 @@ public class ContainerInserter extends ContainerCustomSlotClick
             {
                 this.listeners.get(i).sendProgressBarUpdate(this, 3, filters);
             }
+
+            if (redstone != this.redstoneLast)
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 4, redstone);
+            }
         }
 
         this.delayLast = delay;
         this.stackLimitLast = stackLimit;
         this.filtersLast = filters;
+        this.redstoneLast = redstone;
 
         super.detectAndSendChanges();
     }
@@ -104,6 +112,9 @@ public class ContainerInserter extends ContainerCustomSlotClick
                 break;
             case 3:
                 this.tef.setFilterMask(data);
+                break;
+            case 4:
+                this.tef.setRedstoneModeFromOrdinal(data);
                 break;
         }
     }

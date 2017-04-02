@@ -28,7 +28,7 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
 
         if (te.isFiltered())
         {
-            this.infoArea = new InfoArea(150, 19, 17, 17, "enderutilities.gui.infoarea.inserter_filtered");
+            this.infoArea = new InfoArea(151, 7, 17, 17, "enderutilities.gui.infoarea.inserter_filtered");
         }
         else
         {
@@ -81,6 +81,11 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
                 this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.stacklimit"));
         this.buttonList.add(new GuiButtonHoverText(1, x + 129, y + 35, 8, 8, 0, 120,
                 this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.delay.inserter"));
+
+        this.buttonList.add(new GuiButtonStateCallback(2, x + 153, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 224, "enderutilities.gui.label.redstone.ignored"),
+                ButtonState.createTranslate(60, 196, "enderutilities.gui.label.redstone.low"),
+                ButtonState.createTranslate(60, 210, "enderutilities.gui.label.redstone.high")));
 
         if (this.tef.isFiltered())
         {
@@ -164,6 +169,11 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityInserter.GuiAction.CHANGE_DELAY.ordinal(), amount));
         }
+        if (button.id == 2)
+        {
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityInserter.GuiAction.CHANGE_REDSTONE_MODE.ordinal(), amount));
+        }
         else if (button.id >= 10 && button.id <= 12)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
@@ -174,7 +184,11 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
     @Override
     public int getButtonStateIndex(int callbackId)
     {
-        if (callbackId == 10)
+        if (callbackId == 2)
+        {
+            return this.tef.getRedstoneModeOrdinal();
+        }
+        else if (callbackId == 10)
         {
             return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.IS_WHITELIST) ? 1 : 0;
         }

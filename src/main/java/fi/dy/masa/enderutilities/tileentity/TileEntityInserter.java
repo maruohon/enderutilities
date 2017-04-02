@@ -38,6 +38,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     private final List<EnumFacing> enabledSides = new ArrayList<EnumFacing>();
     private final List<EnumFacing> validSides = new ArrayList<EnumFacing>();
     private EnumFacing facingOpposite = EnumFacing.SOUTH;
+    private RedstoneMode redstoneMode = RedstoneMode.IGNORED;
     private int filterMask;
     private int delay = 4;
     private int outputSideIndex;
@@ -90,6 +91,16 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         this.filterMask = mask;
     }
 
+    public int getRedstoneModeOrdinal()
+    {
+        return this.redstoneMode.ordinal();
+    }
+
+    public void setRedstoneModeFromOrdinal(int ordinal)
+    {
+        this.redstoneMode = RedstoneMode.fromOrdinal(ordinal);
+    }
+
     public IItemHandler getFilterInventory()
     {
         return this.itemHandlerFilters;
@@ -99,6 +110,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block blockIn)
     {
         this.updateValidSides(true);
+        this.scheduleBlockUpdate(this.delay, false);
     }
 
     public void toggleOutputSide(EnumFacing side)
@@ -248,6 +260,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         this.setSidesFromCombinedMask(nbt.getShort("Sides"));
         this.filterMask = nbt.getByte("FilterMask");
         this.isFiltered = (this.filterMask & 0x80) != 0;
+        this.redstoneMode = RedstoneMode.fromOrdinal(nbt.getByte("RSMode"));
         this.outputSideIndex = nbt.getByte("OutputIndex");
         this.delay = nbt.getInteger("Delay");
         this.facingOpposite = this.getFacing().getOpposite();
@@ -259,6 +272,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         nbt.setShort("Sides", (short) this.getCombinesSideMask());
         nbt.setByte("FilterMask", (byte) (this.filterMask | (this.isFiltered ? 0x80 : 0x00)));
+        nbt.setByte("RSMode", (byte) this.redstoneMode.ordinal());
         nbt.setByte("OutputIndex", (byte) this.outputSideIndex);
         nbt.setInteger("Delay", this.delay);
         nbt.setByte("StackLimit", (byte) this.itemHandlerBase.getInventoryStackLimit());
@@ -311,16 +325,26 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
         // When a tile changes on the input side, schedule a new tile tick, if necessary
-        if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())))
+        if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) && this.shouldOperate())
         {
             this.scheduleBlockUpdate(this.delay, false);
         }
+    }
+
+    private boolean shouldOperate()
+    {
+        return this.redstoneMode.shouldOperate(this.getWorld().isBlockPowered(this.getPos()));
     }
 
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         //System.out.printf("onScheduledBlockUpdate() @ %s\n", pos);
+        if (this.shouldOperate() == false)
+        {
+            return;
+        }
+
         ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
 
         // Currently holding items, try to push them out
@@ -505,6 +529,19 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
         switch (action)
         {
+            case CHANGE_REDSTONE_MODE:
+                int ord = this.redstoneMode.ordinal() + element;
+                if (ord >= RedstoneMode.values().length)
+                {
+                    ord = 0;
+                }
+                else if (ord < 0)
+                {
+                    ord = RedstoneMode.values().length - 1;
+                }
+                this.redstoneMode = RedstoneMode.fromOrdinal(ord);
+                this.scheduleBlockUpdate(this.delay, false);
+                break;
             case CHANGE_DELAY:
                 this.delay = MathHelper.clamp(this.delay + element, 1, 72000); // max 1 hour
                 break;
@@ -515,6 +552,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 this.filterMask = (this.filterMask ^ element) & 0x7;
                 break;
         }
+
+        this.markDirty();
     }
 
     @Override
@@ -554,11 +593,36 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         }
     }
 
+    public enum RedstoneMode
+    {
+        IGNORED (true),
+        LOW     (false),
+        HIGH    (true);
+
+        private final boolean operateWhenPowered;
+
+        private RedstoneMode(boolean operateWhenPowered)
+        {
+            this.operateWhenPowered = operateWhenPowered;
+        }
+
+        public boolean shouldOperate(boolean isPowered)
+        {
+            return this == IGNORED || this.operateWhenPowered == isPowered;
+        }
+
+        public static RedstoneMode fromOrdinal(int intValue)
+        {
+            return values()[intValue % values().length];
+        }
+    }
+
     public enum GuiAction
     {
         CHANGE_DELAY,
         CHANGE_STACK_LIMIT,
-        CHANGE_FILTERS;
+        CHANGE_FILTERS,
+        CHANGE_REDSTONE_MODE;
 
         public static GuiAction fromInt(int action)
         {
