@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
@@ -21,7 +22,9 @@ import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PlacementProperties;
 
@@ -33,24 +36,30 @@ public class PlayerEventHandler
         EntityPlayer player = event.getEntityPlayer();
         // You can only left click with the main hand, so this is fine here
         ItemStack stack = player.getHeldItemMainhand();
-        if (stack == null)
-        {
-            return;
-        }
-
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         EnumFacing face = event.getFace();
 
-        if (stack.getItem() == EnderUtilitiesItems.buildersWand)
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
         {
-            ((ItemBuildersWand)stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
+            ((ItemBuildersWand) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
             event.setCanceled(true);
         }
-        else if (stack.getItem() == EnderUtilitiesItems.ruler)
+        else if (stack != null && stack.getItem() == EnderUtilitiesItems.ruler)
         {
-            ((ItemRuler)stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
+            ((ItemRuler) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
             event.setCanceled(true);
+        }
+
+        if (player.capabilities.isCreativeMode && world.getBlockState(pos).getBlock() == EnderUtilitiesBlocks.BARREL)
+        {
+            TileEntityBarrel te = BlockEnderUtilities.getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+            if (te != null && te.getLabeledFaces().contains(face))
+            {
+                world.getBlockState(pos).getBlock().onBlockClicked(world, pos, player);
+                event.setCanceled(true);
+            }
         }
     }
 
