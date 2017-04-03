@@ -1,15 +1,20 @@
 package fi.dy.masa.enderutilities.client.renderer.tileentity;
 
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 
 public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
@@ -50,6 +55,23 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                 double posZ = z + 0.502 * side.getFrontOffsetZ();
 
                 this.renderStack(te.cachedStack, posX, posY, posZ, side, barrelFront);
+            }
+
+            if (Configs.barrelRenderFullnessBar)
+            {
+                for (EnumFacing side : te.getLabeledFaces())
+                {
+                    int ambLight = this.getWorld().getCombinedLight(pos.offset(side), 0);
+                    int lu = ambLight % 65536;
+                    int lv = ambLight / 65536;
+                    OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
+
+                    double posX = x + 0.502 * side.getFrontOffsetX();
+                    double posY = y + 0.502 * side.getFrontOffsetY();
+                    double posZ = z + 0.502 * side.getFrontOffsetZ();
+
+                    this.renderFullnessBar(te.cachedFullness, posX, posY, posZ, side, barrelFront);
+                }
             }
 
             // Render the stored item count text
@@ -192,6 +214,59 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         GlStateManager.disableBlend();
         GlStateManager.depthMask(true);
         GlStateManager.disablePolygonOffset();
+        GlStateManager.enableLighting();
+
+        GlStateManager.popMatrix();
+    }
+
+    private void renderFullnessBar(float fullness, double x, double y, double z, EnumFacing side, EnumFacing barrelFront)
+    {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
+
+        if (side == EnumFacing.UP || side == EnumFacing.DOWN)
+        {
+            GlStateManager.rotate(LABEL_ROT_SIDE_Y[barrelFront.getIndex()], 0, 1, 0);
+            GlStateManager.rotate(90f * side.getFrontOffsetY(), 1, 0, 0);
+        }
+        else
+        {
+            GlStateManager.rotate(LABEL_ROT_SIDE_Y[side.getIndex()], 0, 1, 0);
+        }
+
+        GlStateManager.translate(-0.3, -0.43, -0.001);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+        GlStateManager.disableLighting();
+        GlStateManager.disableTexture2D();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+
+        int r_b = 0x03;
+        int g_b = 0x03;
+        int b_b = 0x20;
+
+        buffer.pos(  0,    0, 0).color(r_b, g_b, b_b, 255).endVertex();
+        buffer.pos(  0, 0.08, 0).color(r_b, g_b, b_b, 255).endVertex();
+        buffer.pos(0.6, 0.08, 0).color(r_b, g_b, b_b, 255).endVertex();
+        buffer.pos(0.6,    0, 0).color(r_b, g_b, b_b, 255).endVertex();
+
+        int r_f = 0x20;
+        int g_f = 0x90;
+        int b_f = 0xF0;
+        float e = fullness * 0.57f;
+
+        buffer.pos(0.585    , 0.065, -0.001).color(r_f, g_f, b_f, 255).endVertex();
+        buffer.pos(0.585    , 0.015, -0.001).color(r_f, g_f, b_f, 255).endVertex();
+        buffer.pos(0.585 - e, 0.015, -0.001).color(r_f, g_f, b_f, 255).endVertex();
+        buffer.pos(0.585 - e, 0.065, -0.001).color(r_f, g_f, b_f, 255).endVertex();
+
+        tessellator.draw();
+
+        GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
 
         GlStateManager.popMatrix();

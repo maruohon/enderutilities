@@ -50,7 +50,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         super(ReferenceNames.NAME_TILE_INSERTER);
 
-        this.filterMask = FilterSetting.IS_WHITELIST.getBitMask() | FilterSetting.MATCH_META.getBitMask();
+        this.filterMask = FilterSetting.MATCH_META.getBitMask();
         this.itemHandlerBase    = new ItemStackHandlerTileEntity(0,  1,  1, false, "Items", this);
         this.itemHandlerFilters = new ItemStackHandlerTileEntity(1, 27, 64, false, "ItemsFilter", this);
         this.itemHandlerInserter = new ItemHandlerWrapperInserter(this.itemHandlerBase);

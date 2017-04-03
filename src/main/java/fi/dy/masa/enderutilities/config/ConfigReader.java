@@ -90,6 +90,10 @@ public class ConfigReader
         prop.setComment("How many Barrel Capacity Upgrades can be applied to one barrel");
         Configs.barrelMaxCapacityUpgrades = prop.getInt();
 
+        prop = getProp("barrelRenderFullnessBar", true);
+        prop.setComment("Whether or not to render the \"fullness bar\" on Barrels");
+        Configs.barrelRenderFullnessBar = prop.getBoolean();
+
         prop = getProp("buildersWandAndRulerRenderForOtherPlayers", true);
         prop.setComment("Render the Ruler and Builder's Wand areas/selections also for the items held by other players");
         Configs.buildersWandRenderForOtherPlayers = prop.getBoolean();

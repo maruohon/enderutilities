@@ -49,6 +49,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private int maxStacks = 64;
     public ItemStack cachedStack;
     public String cachedStackSizeString;
+    public float cachedFullness;
 
     public TileEntityBarrel()
     {
@@ -160,6 +161,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             nbt.setTag("ups", stack.writeToNBT(new NBTTagCompound()));
         }
 
+        nbt.setInteger("msc", this.maxStacks);
         nbt.setBoolean("cr", this.isCreative());
         nbt.setByte("la", (byte) this.getLabelMask(true));
 
@@ -169,6 +171,16 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
+        this.maxStacks = tag.getInteger("msc");
+        this.setCreative(tag.getBoolean("cr"));
+        this.setLabelsFromMask(tag.getByte("la"));
+
+        if (tag.hasKey("ups", Constants.NBT.TAG_COMPOUND))
+        {
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("ups"));
+            this.itemHandlerUpgrades.setStackInSlot(1, stack);
+        }
+
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
         {
             NBTTagCompound tmp = tag.getCompoundTag("st");
@@ -181,15 +193,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             this.setCachedStack(stack);
         }
-
-        if (tag.hasKey("ups", Constants.NBT.TAG_COMPOUND))
-        {
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("ups"));
-            this.itemHandlerUpgrades.setStackInSlot(1, stack);
-        }
-
-        this.setCreative(tag.getBoolean("cr"));
-        this.setLabelsFromMask(tag.getByte("la"));
 
         super.handleUpdateTag(tag);
     }
@@ -447,13 +450,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
             {
                 this.cachedStack.stackSize = stack.stackSize;
-                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize));
+                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize, this.maxStacks));
             }
         }
         // Upgrades changed
         else if (inventoryId == 1)
         {
             this.updateBarrelProperties(true);
+            int stackSize = this.cachedStack != null ? this.cachedStack.stackSize : 0;
+            this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
         }
     }
 
@@ -464,9 +469,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             this.setCachedStack(stacks[0]);
         }
-        else if (intValues.length == 1 && this.cachedStack != null)
+        else if (intValues.length == 2)
         {
-            this.cachedStack.stackSize = intValues[0];
+            this.maxStacks = intValues[1];
+
+            if (this.cachedStack != null)
+            {
+                this.cachedStack.stackSize = intValues[0];
+            }
+
             // Update the cached item count string
             this.setCachedStack(this.cachedStack);
         }
@@ -494,6 +505,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             {
                 this.cachedStackSizeString = String.format("%dx%d", stacks, max);
             }
+
+            this.cachedFullness = (float) stack.stackSize / ((float) this.maxStacks * max);
+        }
+        else
+        {
+            this.cachedFullness = 0f;
         }
     }
 
