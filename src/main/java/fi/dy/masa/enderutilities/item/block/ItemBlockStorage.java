@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.item.block;
 
 import java.util.List;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -9,6 +8,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemBlockStorage extends ItemBlockEnderUtilities
@@ -19,7 +19,7 @@ public class ItemBlockStorage extends ItemBlockEnderUtilities
     public static final String RST_GRAY = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
     public static final String RST_WHITE = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
-    public ItemBlockStorage(Block block)
+    public ItemBlockStorage(BlockEnderUtilities block)
     {
         super(block);
     }

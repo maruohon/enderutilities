@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import java.util.Random;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.google.common.base.Predicates;
 import net.minecraft.block.Block;
@@ -9,6 +10,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -89,6 +91,10 @@ public class TileEntityEnderUtilities extends TileEntity
         {
             this.ownerData.setIsPublic(isPublic);
         }
+    }
+
+    public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
+    {
     }
 
     public String getOwnerName()

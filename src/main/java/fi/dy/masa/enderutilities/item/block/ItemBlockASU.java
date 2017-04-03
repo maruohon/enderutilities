@@ -1,11 +1,11 @@
 package fi.dy.masa.enderutilities.item.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 
 public class ItemBlockASU extends ItemBlockStorage
 {
-    public ItemBlockASU(Block block)
+    public ItemBlockASU(BlockEnderUtilities block)
     {
         super(block);
     }

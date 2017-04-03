@@ -275,6 +275,20 @@ tile.enderutilities.phasing_inverted.tooltips=- Changes state between solid and 
 tile.enderutilities.quickstackeradvanced.tooltips=- A more configurable, stationary version of Quick Stacker
 tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items|lf- Can also rename any item for free
 
+
+###################################
+# Placement Properties HUD:
+###################################
+enderutilities.placement_properties.title=Placement Properties
+enderutilities.placement_properties.inserter.delay=Delay
+enderutilities.placement_properties.inserter.redstone_mode=Redstone Mode
+enderutilities.placement_properties.inserter.stack_limit=Stack Limit
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.high=High
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.ignored=Ignored
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.low=Low
+
+enderutilities.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties ***§r|lf- (Shift +) Toggle key to change property selection|lf- Shift/Ctrl/Alt + scroll to change the value
+
 ###################################
 # GUI and item labels/tooltips etc:
 ###################################

@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -73,7 +74,12 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public void setUpdateDelay(int delay)
     {
-        this.delay = delay;
+        this.delay = MathHelper.clamp(delay, 0, 72000); // max 1 hour
+    }
+
+    public void setStackLimit(int limit)
+    {
+        this.itemHandlerBase.setStackLimit(MathHelper.clamp(limit, 1, 64));
     }
 
     public boolean isFilterSettingEnabled(FilterSetting setting)
@@ -254,6 +260,27 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     }
 
     @Override
+    public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
+    {
+        if (tag.hasKey("inserter.stack_limit", Constants.NBT.TAG_BYTE))
+        {
+            this.setStackLimit(tag.getByte("inserter.stack_limit"));
+        }
+
+        if (tag.hasKey("inserter.delay", Constants.NBT.TAG_INT))
+        {
+            this.setUpdateDelay(tag.getInteger("inserter.delay"));
+        }
+
+        if (tag.hasKey("inserter.redstone_mode", Constants.NBT.TAG_BYTE))
+        {
+            this.setRedstoneModeFromOrdinal(tag.getByte("inserter.redstone_mode"));
+        }
+
+        this.markDirty();
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         super.readFromNBTCustom(nbt);
@@ -261,11 +288,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         this.setSidesFromCombinedMask(nbt.getShort("Sides"));
         this.filterMask = nbt.getByte("FilterMask");
         this.isFiltered = (this.filterMask & 0x80) != 0;
-        this.redstoneMode = RedstoneMode.fromOrdinal(nbt.getByte("RSMode"));
+        this.setRedstoneModeFromOrdinal(nbt.getByte("RSMode"));
         this.outputSideIndex = nbt.getByte("OutputIndex");
         this.delay = nbt.getInteger("Delay");
         this.facingOpposite = this.getFacing().getOpposite();
-        this.itemHandlerBase.setStackLimit(MathHelper.clamp(nbt.getByte("StackLimit"), 1, 64));
+        this.setStackLimit(nbt.getByte("StackLimit"));
     }
 
     @Override
@@ -543,14 +570,14 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 {
                     ord = RedstoneMode.values().length - 1;
                 }
-                this.redstoneMode = RedstoneMode.fromOrdinal(ord);
+                this.setRedstoneModeFromOrdinal(ord);
                 this.scheduleBlockUpdate(this.delay, false);
                 break;
             case CHANGE_DELAY:
-                this.delay = MathHelper.clamp(this.delay + element, 1, 72000); // max 1 hour
+                this.setUpdateDelay(this.delay + element);
                 break;
             case CHANGE_STACK_LIMIT:
-                this.itemHandlerBase.setStackLimit(MathHelper.clamp(this.itemHandlerBase.getInventoryStackLimit() + element, 1, 64));
+                this.setStackLimit(this.itemHandlerBase.getInventoryStackLimit() + element);
                 break;
             case CHANGE_FILTERS:
                 this.filterMask = (this.filterMask ^ element) & 0x7;

@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -27,11 +28,13 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
@@ -104,6 +107,23 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     protected String[] generateTooltipNames()
     {
         return this.generateUnlocalizedNames();
+    }
+
+    @Override
+    public ItemBlock createItemBlock()
+    {
+        ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
+
+        item.setHasPlacementProperties(true);
+
+        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".delay",         Constants.NBT.TAG_INT, 0, 72000);
+        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
+        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".stack_limit",   Constants.NBT.TAG_BYTE, 1, 64);
+
+        String[] names = new String[] { "ignored", "low", "high" };
+        item.addPlacementPropertyValueNames(ReferenceNames.NAME_TILE_INSERTER + ".redstone_mode", names);
+
+        return item;
     }
 
     @Override

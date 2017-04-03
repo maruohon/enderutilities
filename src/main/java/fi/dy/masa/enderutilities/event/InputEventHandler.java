@@ -24,6 +24,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
@@ -67,7 +68,10 @@ public class InputEventHandler
 
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
     {
-        return EntityUtils.isHoldingItemOfType(player, IKeyBound.class);
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
+
+        return stack != null && ((stack.getItem() instanceof ItemBlockEnderUtilities) == false || 
+                ((ItemBlockEnderUtilities) stack.getItem()).hasPlacementProperties());
     }
 
     public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)
@@ -193,6 +197,7 @@ public class InputEventHandler
             if (scrollingMask != 0)
             {
                 EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+
                 if (isHoldingKeyboundItem(player))
                 {
                     int key = HotKeys.KEYCODE_SCROLL | scrollingMask;

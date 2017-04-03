@@ -49,6 +49,11 @@ public class HotKeys
             this.keyCode = keyCode;
         }
 
+        public int getKeyCode()
+        {
+            return this.keyCode;
+        }
+
         public static int getBaseKey(int value)
         {
             return (value & BASE_KEY_MASK);

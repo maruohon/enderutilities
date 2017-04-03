@@ -6,9 +6,6 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,6 +26,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.event.RenderEventHandler;
+import fi.dy.masa.enderutilities.event.RenderEventHandler.HudAlignment;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Area3D;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
@@ -342,40 +341,7 @@ public class BuildersWandRenderer
 
         this.getText(lines, stack, player);
 
-        ScaledResolution scaledResolution = new ScaledResolution(this.mc);
-        int scaledY = scaledResolution.getScaledHeight();
-        int lineHeight = this.mc.fontRendererObj.FONT_HEIGHT + 2;
-        int y = scaledY - (lineHeight * lines.size());
-
-        this.renderText(4, y, lines);
-    }
-
-    private void renderText(int posX, int posY, List<String> lines)
-    {
-        int y = posY;
-        boolean useTextBackground = true;
-        boolean useFontShadow = true;
-        int textBgColor = 0x80000000;
-        FontRenderer fontRenderer = this.mc.fontRendererObj;
-
-        for (String line : lines)
-        {
-            if (useTextBackground)
-            {
-                Gui.drawRect(posX - 2, y - 2, posX + fontRenderer.getStringWidth(line) + 2, y + fontRenderer.FONT_HEIGHT, textBgColor);
-            }
-
-            if (useFontShadow)
-            {
-                this.mc.ingameGUI.drawString(fontRenderer, line, posX, y, 0xFFFFFFFF);
-            }
-            else
-            {
-                fontRenderer.drawString(line, posX, y, 0xFFFFFFFF);
-            }
-
-            y += fontRenderer.FONT_HEIGHT + 2;
-        }
+        RenderEventHandler.renderText(lines, 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
     }
 
     private void getText(List<String> lines, ItemStack stack, EntityPlayer player)

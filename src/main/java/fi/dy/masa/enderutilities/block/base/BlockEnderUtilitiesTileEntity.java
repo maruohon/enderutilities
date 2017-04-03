@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.block.base;
 
-import javax.annotation.Nullable;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -14,10 +12,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
@@ -162,35 +158,5 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         }
 
         return false;
-    }
-
-    /**
-     * Returns the tile of the specified class, returns null if it is the wrong type or does not exist.
-     * Avoids creating new tile entities when using a ChunkCache (off the main thread).
-     * see {@link BlockFlowerPot#getActualState(IBlockState, IBlockAccess, BlockPos)}
-     */
-    @Nullable
-    public static <T extends TileEntity> T getTileEntitySafely(IBlockAccess world, BlockPos pos, Class<T> tileClass)
-    {
-        TileEntity te;
-
-        if (world instanceof ChunkCache)
-        {
-            ChunkCache chunkCache = (ChunkCache) world;
-            te = chunkCache.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK);
-        }
-        else
-        {
-            te = world.getTileEntity(pos);
-        }
-
-        if (tileClass.isInstance(te))
-        {
-            return tileClass.cast(te);
-        }
-        else
-        {
-            return null;
-        }
     }
 }

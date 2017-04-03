@@ -27,6 +27,7 @@ import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
+import fi.dy.masa.enderutilities.util.PlacementProperties;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
@@ -80,6 +81,7 @@ public class EnderUtilities
         ConfigReader.reLoadAllConfigs(true);
         ChunkLoading.getInstance().init();
         EnergyBridgeTracker.readFromDisk();
+        PlacementProperties.getInstance().readFromDisk();
     }
 
     @EventHandler

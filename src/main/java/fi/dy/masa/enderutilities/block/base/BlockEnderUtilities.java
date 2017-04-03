@@ -2,8 +2,11 @@ package fi.dy.masa.enderutilities.block.base;
 
 import java.util.Collections;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -11,13 +14,20 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkCache;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockEnderUtilities extends Block
@@ -97,6 +107,16 @@ public class BlockEnderUtilities extends Block
         return new ItemBlockEnderUtilities(this);
     }
 
+    public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
+    {
+        TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+        if (te != null)
+        {
+            te.setPlacementProperties(world, pos, stack, tag);
+        }
+    }
+
     @Override
     public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
@@ -122,5 +142,35 @@ public class BlockEnderUtilities extends Block
 
     public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
     {
+    }
+
+    /**
+     * Returns the tile of the specified class, returns null if it is the wrong type or does not exist.
+     * Avoids creating new tile entities when using a ChunkCache (off the main thread).
+     * see {@link BlockFlowerPot#getActualState(IBlockState, IBlockAccess, BlockPos)}
+     */
+    @Nullable
+    public static <T extends TileEntity> T getTileEntitySafely(IBlockAccess world, BlockPos pos, Class<T> tileClass)
+    {
+        TileEntity te;
+
+        if (world instanceof ChunkCache)
+        {
+            ChunkCache chunkCache = (ChunkCache) world;
+            te = chunkCache.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK);
+        }
+        else
+        {
+            te = world.getTileEntity(pos);
+        }
+
+        if (tileClass.isInstance(te))
+        {
+            return tileClass.cast(te);
+        }
+        else
+        {
+            return null;
+        }
     }
 }

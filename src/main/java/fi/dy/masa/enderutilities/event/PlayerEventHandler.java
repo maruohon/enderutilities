@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.event;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +23,7 @@ import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.PlacementProperties;
 
 public class PlayerEventHandler
 {
@@ -77,6 +79,15 @@ public class PlayerEventHandler
             {
                 event.setCanceled(true);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        if (event.player instanceof EntityPlayerMP)
+        {
+            PlacementProperties.getInstance().syncAllDataForPlayer((EntityPlayerMP) event.player);
         }
     }
 

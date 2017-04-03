@@ -1,19 +1,25 @@
 package fi.dy.masa.enderutilities.event;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 import com.google.common.base.Predicates;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,6 +28,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -35,10 +42,13 @@ import fi.dy.masa.enderutilities.client.renderer.item.RulerRenderer;
 import fi.dy.masa.enderutilities.client.renderer.util.RenderUtils;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.entity.EntityChair;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.ItemType;
+import fi.dy.masa.enderutilities.util.PlacementProperties;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 
 public class RenderEventHandler
@@ -91,6 +101,7 @@ public class RenderEventHandler
         {
             this.buildersWandRenderer.renderHud(this.mc.player);
             this.rulerRenderer.renderHud();
+            this.renderPlacementPropertiesHud(this.mc.player);
         }
     }
 
@@ -269,6 +280,122 @@ public class RenderEventHandler
         GlStateManager.popMatrix();
     }
 
+    /**
+     * Renders text on the screen, with the given offset from the screen edge from the specified corner.<br>
+     * <b>NOTE: Only BOTTOM_LEFT is currently implemented!!</b>
+     * @param lines
+     * @param offsetX
+     * @param offsetY
+     * @param align
+     * @param useTextBackground
+     * @param useFontShadow
+     * @param mc
+     */
+    public static void renderText(List<String> lines, int offsetX, int offsetY, HudAlignment align,
+            boolean useTextBackground, boolean useFontShadow, Minecraft mc)
+    {
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        int scaledY = scaledResolution.getScaledHeight();
+        int lineHeight = mc.fontRendererObj.FONT_HEIGHT + 2;
+        int posX = offsetX;
+        int posY = offsetY;
+
+        switch (align)
+        {
+            // TODO Add all the others, if needed some time...
+            case TOP_LEFT:
+            case TOP_RIGHT:
+            case BOTTOM_RIGHT:
+                break;
+
+            case BOTTOM_LEFT:
+                posY = scaledY - (lineHeight * lines.size()) - offsetY;
+        }
+
+        int textBgColor = 0x80000000;
+        FontRenderer fontRenderer = mc.fontRendererObj;
+
+        for (String line : lines)
+        {
+            if (useTextBackground)
+            {
+                Gui.drawRect(posX - 2, posY - 2, posX + fontRenderer.getStringWidth(line) + 2, posY + fontRenderer.FONT_HEIGHT, textBgColor);
+            }
+
+            if (useFontShadow)
+            {
+                mc.ingameGUI.drawString(fontRenderer, line, posX, posY, 0xFFFFFFFF);
+            }
+            else
+            {
+                fontRenderer.drawString(line, posX, posY, 0xFFFFFFFF);
+            }
+
+            posY += fontRenderer.FONT_HEIGHT + 2;
+        }
+    }
+
+    private void renderPlacementPropertiesHud(EntityPlayer player)
+    {
+        ItemStack stack = player.getHeldItemMainhand();
+
+        if (stack == null || (stack.getItem() instanceof ItemBlockEnderUtilities) == false)
+        {
+            stack = player.getHeldItemOffhand();
+        }
+
+        if (stack != null && stack.getItem() instanceof ItemBlockEnderUtilities)
+        {
+            ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
+
+            if (item.hasPlacementProperties())
+            {
+                renderText(this.getPlacementPropertiesText(stack, player), 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
+            }
+        }
+    }
+
+    private List<String> getPlacementPropertiesText(ItemStack stack, EntityPlayer player)
+    {
+        String preGreen = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+
+        List<String> lines = new ArrayList<String>();
+        PlacementProperties props = PlacementProperties.getInstance();
+        ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
+        UUID uuid = player.getUniqueID();
+        ItemType type = new ItemType(stack);
+        int index = props.getPropertyIndex(uuid, type);
+        int count = item.getPlacementPropertyCount();
+
+        for (int i = 0; i < count; i++)
+        {
+            Pair<String, Integer> pair = item.getPlacementProperty(i);
+
+            if (pair != null)
+            {
+                String key = pair.getLeft();
+                String pre = (i == index) ? "> " : "  ";
+                String name = I18n.format("enderutilities.placement_properties." + key);
+                int value = props.getPropertyValue(uuid, type, key, pair.getRight());
+                String valueName = item.getPlacementPropertyValueName(key, value);
+
+                if (valueName == null)
+                {
+                    valueName = String.valueOf(value);
+                }
+                else
+                {
+                    valueName = I18n.format("enderutilities.placement_properties.valuenames." + key + "." + valueName);
+                }
+
+                lines.add(String.format("%s%s: %s%s%s", pre, name, preGreen, valueName, rst));
+            }
+        }
+
+        return lines;
+    }
+
     public <T> AxisAlignedBB getPointedHilightBox(BlockEnderUtilities block)
     {
         Map<T, AxisAlignedBB> boxMap = block.getHilightBoxMap();
@@ -294,5 +421,13 @@ public class RenderEventHandler
         }
 
         this.partialTicks = partialTicks;
+    }
+
+    public enum HudAlignment
+    {
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT
     }
 }
