@@ -13,14 +13,5 @@
                 "east":  { "texture": "#east",  "cullface": "east",  "rotation":   0 }
             }
         }
-    ],
-    "textures": {
-        "particle": "enderutilities:blocks/barrel_normal_top",
-        "up":       "enderutilities:blocks/barrel_normal_top",
-        "down":     "enderutilities:blocks/barrel_normal_top",
-        "north":    "enderutilities:blocks/barrel_normal_front",
-        "south":    "enderutilities:blocks/barrel_normal_side",
-        "east":     "enderutilities:blocks/barrel_normal_side",
-        "west":     "enderutilities:blocks/barrel_normal_side"
-    }
+    ]
 }

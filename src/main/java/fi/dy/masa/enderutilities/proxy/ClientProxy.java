@@ -39,7 +39,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderFallingBlockEU;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrel;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrelBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
@@ -357,8 +357,8 @@ public class ClientProxy extends CommonProxy
 
     private void registerBlockModels()
     {
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrel.StateMapper());
-        ModelLoaderRegistry.registerLoader(new ModelBarrel.ModelLoader());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
+        ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoader());
 
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoader());
@@ -371,7 +371,7 @@ public class ClientProxy extends CommonProxy
             this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, i, "tier=" + (i + 1));
         }
 
-        this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "creative=false");
 
         for (int i = 0; i < 16; i++)
         {
