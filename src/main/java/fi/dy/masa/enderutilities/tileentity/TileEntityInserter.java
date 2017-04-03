@@ -325,8 +325,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        // When a tile changes on the input side, schedule a new tile tick, if necessary
-        if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) && this.shouldOperate())
+        // When a tile changes on the input side, schedule a new tile tick, if necessary.
+        // Don't schedule when we are part of a "pipe line", unless we are the first one.
+        if (this.shouldOperate() && neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) &&
+            world.getBlockState(neighbor).getBlock() != this.getBlockType())
         {
             //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
             this.scheduleBlockUpdate(this.delay, false);
