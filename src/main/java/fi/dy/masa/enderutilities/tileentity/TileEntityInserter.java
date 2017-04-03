@@ -109,6 +109,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block blockIn)
     {
+        //System.out.printf("onNeighborBlockChange(), scheduling(?) for %s\n", this.getPos());
         this.updateValidSides(true);
         this.scheduleBlockUpdate(this.delay, false);
     }
@@ -327,6 +328,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         // When a tile changes on the input side, schedule a new tile tick, if necessary
         if (neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) && this.shouldOperate())
         {
+            //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
             this.scheduleBlockUpdate(this.delay, false);
         }
     }
@@ -339,7 +341,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        //System.out.printf("onScheduledBlockUpdate() @ %s\n", pos);
+        //System.out.printf("onScheduledBlockUpdate() @ %s (%s)\n", pos, world.isRemote ? "c" : "s");
         if (this.shouldOperate() == false)
         {
             return;
@@ -372,6 +374,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
      */
     private boolean tryPullInItems(World world, BlockPos posSelf)
     {
+        //System.out.printf("tryPullInItems() @ %s\n", posSelf);
         TileEntity te = world.getTileEntity(posSelf.offset(this.facingOpposite));
 
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
@@ -401,6 +404,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
      */
     private void tryPushOutItems(World world, BlockPos posSelf)
     {
+        //System.out.printf("tryPushOutItems() @ %s\n", posSelf);
         if (this.isFiltered)
         {
             boolean match = InventoryUtils.matchingStackFoundInArray(
@@ -505,20 +509,18 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            stack = this.baseHandler.insertItem(slot, stack, simulate);
-
             if (simulate == false)
             {
                 TileEntityInserter.this.scheduleBlockUpdate(TileEntityInserter.this.delay, false);
             }
 
-            return stack;
+            return this.baseHandler.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            return this.baseHandler.extractItem(slot, amount, simulate);
+            return null;
         }
     }
 
