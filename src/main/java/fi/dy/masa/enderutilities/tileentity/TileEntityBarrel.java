@@ -15,13 +15,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.block.BlockBarrel;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiBarrel;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
@@ -75,6 +78,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     public boolean retainsContentsWhenBroken()
     {
         return this.itemHandlerUpgrades.getStackInSlot(1) != null;
+    }
+
+    @Override
+    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
+    {
+        return oldState.getBlock() != newState.getBlock();
     }
 
     /**
@@ -414,7 +423,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.markDirty();
 
                 IBlockState state = this.getWorld().getBlockState(this.getPos());
-                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+                state = state.withProperty(BlockBarrel.CREATIVE, this.isCreative());
+                this.getWorld().setBlockState(this.getPos(), state);
             }
         }
     }

@@ -99,7 +99,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        if (this.retainsContentsWhenBroken(world, pos, state))
+        if (state.getValue(CREATIVE) || this.retainsContentsWhenBroken(world, pos, state))
         {
             world.updateComparatorOutputLevel(pos, this);
             world.removeTileEntity(pos);
@@ -190,9 +190,14 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Deprecated
     public float getBlockHardness(IBlockState state, World world, BlockPos pos)
     {
+        if (state.getValue(CREATIVE))
+        {
+            return -1f;
+        }
+
         TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
 
-        if (te != null && (te.isCreative() || (te.retainsContentsWhenBroken() == false && te.isOverSpillCapacity())))
+        if (te != null && te.retainsContentsWhenBroken() == false && te.isOverSpillCapacity())
         {
             return -1f;
         }
@@ -203,7 +208,13 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return 0;
+        return state.getValue(CREATIVE) ? 1 : 0;
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta)
+    {
+        return this.getDefaultState().withProperty(CREATIVE, (meta & 0x1) != 0);
     }
 
     @Override
@@ -216,7 +227,6 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
             int labelMask = te.getLabelMask(true);
             EnumFacing facing = te.getFacing();
             state = state.withProperty(FACING_H, facing);
-            state = state.withProperty(CREATIVE, te.isCreative());
             state = state.withProperty(LABEL_UP,    (labelMask & (1 << EnumFacing.UP.getIndex())) != 0);
             state = state.withProperty(LABEL_DOWN,  (labelMask & (1 << EnumFacing.DOWN.getIndex())) != 0);
             state = state.withProperty(LABEL_FRONT, (labelMask & (1 << facing.getIndex())) != 0);
