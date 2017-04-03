@@ -50,6 +50,8 @@ public class EntityFallingBlockEU extends Entity
     {
         super(worldIn);
 
+        this.setCanBePushed(true);
+        this.setSize(0.98F, 0.98F);
         this.dropAsItemOnPlacementFail = Configs.fallingBlockDropsAsItemOnPlacementFail;
     }
 
@@ -69,8 +71,6 @@ public class EntityFallingBlockEU extends Entity
         }
 
         entity.preventEntitySpawning = true;
-        entity.setCanBePushed(true);
-        entity.setSize(0.98F, 0.98F);
         entity.setPosition(pos.getX() + 0.5D, pos.getY() + (1.0F - entity.height) / 2.0F, pos.getZ() + 0.5D);
         entity.motionX = 0.0D;
         entity.motionY = 0.0D;
@@ -348,7 +348,7 @@ public class EntityFallingBlockEU extends Entity
         if (nbt.hasKey("Block", Constants.NBT.TAG_STRING))
         {
             block = Block.getBlockFromName(nbt.getString("Block"));
-            this.blockState = block.getStateFromMeta(meta);
+            this.setBlockState(block.getStateFromMeta(meta));
         }
 
         this.fallTime = nbt.getInteger("Time");
