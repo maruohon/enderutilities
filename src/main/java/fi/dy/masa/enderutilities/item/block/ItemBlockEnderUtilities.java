@@ -36,6 +36,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
     protected String[] blockNames;
     protected String[] tooltipNames;
     private boolean hasPlacementProperties;
+    private boolean placementPropertyNBTSensitive;
     private List<Pair<String, Integer>> placementPropertyTypes = new ArrayList<Pair<String, Integer>>();
     private List<Pair<Integer, Integer>> placementPropertyValueRange = new ArrayList<Pair<Integer, Integer>>();
     private Map<String, String[]> placementPropertyValueNames = new HashMap<String, String[]>();
@@ -70,6 +71,16 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
     public void setHasPlacementProperties(boolean hasProps)
     {
         this.hasPlacementProperties = hasProps;
+    }
+
+    public boolean getPlacementPropertyNBTSensitive()
+    {
+        return this.placementPropertyNBTSensitive;
+    }
+
+    public void setPlacementPropertyNBTSensitive(boolean checkNBT)
+    {
+        this.placementPropertyNBTSensitive = checkNBT;
     }
 
     public void addPlacementProperty(String key, int type, int minValue, int maxValue)
@@ -120,7 +131,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
 
         if (item.hasPlacementProperties() && player instanceof EntityPlayerMP)
         {
-            ItemType type = new ItemType(stack);
+            ItemType type = new ItemType(stack, this.placementPropertyNBTSensitive);
             int index = PlacementProperties.getInstance().getPropertyIndex(player.getUniqueID(), type);
 
             if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE) || EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
@@ -167,7 +178,8 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
 
         if (result == EnumActionResult.SUCCESS && this.hasPlacementProperties())
         {
-            NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), new ItemType(stack));
+            ItemType type = new ItemType(stack, this.placementPropertyNBTSensitive);
+            NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
 
             if (tag != null)
             {

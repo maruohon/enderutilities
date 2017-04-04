@@ -364,7 +364,9 @@ public class RenderEventHandler
         PlacementProperties props = PlacementProperties.getInstance();
         ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
         UUID uuid = player.getUniqueID();
-        ItemType type = new ItemType(stack);
+        boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
+                ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
+        ItemType type = new ItemType(stack, nbtSensitive);
         int index = props.getPropertyIndex(uuid, type);
         int count = item.getPlacementPropertyCount();
 

@@ -9,15 +9,27 @@ import net.minecraft.item.ItemStack;
 public class ItemType
 {
     private final ItemStack stack;
+    private final boolean checkNBT;
 
     public ItemType(ItemStack stack)
     {
+        this(stack, true);
+    }
+
+    public ItemType(ItemStack stack, boolean checkNBT)
+    {
         this.stack = stack.copy();
+        this.checkNBT = checkNBT;
     }
 
     public ItemStack getStack()
     {
         return this.stack;
+    }
+
+    public boolean checkNBT()
+    {
+        return this.checkNBT;
     }
 
     @Override
@@ -28,7 +40,12 @@ public class ItemType
         //result = prime * result + ((stack == null) ? 0 : stack.hashCode());
         result = prime * result + this.stack.getMetadata();
         result = prime * result + this.stack.getItem().hashCode();
-        result = prime * result + (this.stack.getTagCompound() != null ? this.stack.getTagCompound().hashCode() : 0);
+
+        if (this.checkNBT())
+        {
+            result = prime * result + (this.stack.getTagCompound() != null ? this.stack.getTagCompound().hashCode() : 0);
+        }
+
         return result;
     }
 
@@ -61,7 +78,7 @@ public class ItemType
                 return false;
             }
 
-            return ItemStack.areItemStackTagsEqual(this.stack, other.stack);
+            return this.checkNBT() == false || ItemStack.areItemStackTagsEqual(this.stack, other.stack);
         }
 
         return true;

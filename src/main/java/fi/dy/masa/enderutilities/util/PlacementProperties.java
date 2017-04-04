@@ -17,6 +17,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncNBTTag;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -250,7 +251,9 @@ public class PlacementProperties
 
             if (stack != null)
             {
-                ItemType type = new ItemType(stack);
+                boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
+                        ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
+                ItemType type = new ItemType(stack, nbtSensitive);
                 mapTags.put(type, tagData.getCompoundTag("Tag"));
 
                 if (tagData.hasKey("Index", Constants.NBT.TAG_BYTE))
@@ -323,7 +326,9 @@ public class PlacementProperties
     public void syncCurrentlyHeldItemDataForPlayer(EntityPlayerMP player, ItemStack stack)
     {
         UUID uuid = player.getUniqueID();
-        ItemType type = new ItemType(stack);
+        boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
+                ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
+        ItemType type = new ItemType(stack, nbtSensitive);
         NBTTagCompound props = this.getPropertyTag(uuid, type);
 
         if (props != null)
