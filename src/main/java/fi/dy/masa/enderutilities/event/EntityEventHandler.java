@@ -10,7 +10,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EntityDamageSource;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -19,6 +22,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
+import fi.dy.masa.enderutilities.item.ItemSyringe;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -122,6 +126,29 @@ public class EntityEventHandler
                     event.setCanceled(true);
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onAttackEntity(LivingAttackEvent event)
+    {
+        // When a "passified" entity is attacked by another entity, remove the "passified" tag,
+        // and restore the target AI tasks by re-creating the attacked entity
+        if (event.getSource() instanceof EntityDamageSource &&
+            event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED) &&
+            ItemSyringe.removePassifiedState(event.getEntity()))
+        {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onJoinWorld(EntityJoinWorldEvent event)
+    {
+        if (event.getWorld().isRemote == false && (event.getEntity() instanceof EntityLiving) &&
+             event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
+        {
+            EntityUtils.removeAllAITargetTasks((EntityLiving) event.getEntity());
         }
     }
 

@@ -200,14 +200,21 @@ public class EnderUtilitiesItems
         {
             GameRegistry.addRecipe(new ItemStack(ruler), "A  ", "AS ", "AAA", 'A', alloy0, 'S', ender_stick);
         }
-        if (Configs.disableRecipeSyringe == false && Configs.disableItemSyringe == false)
+        if (Configs.disableRecipeSyringeEmpty == false && Configs.disableItemSyringe == false)
         {
-            // Empty syringe
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(syringe, 1, 0), "A  ", " G ", "  S", 'A', alloy1, 'G', "blockGlass", 'S', ender_stick));
-            // Paralyzer syringe
+        }
+        if (Configs.disableRecipeSyringeParalyzer == false && Configs.disableItemSyringe == false)
+        {
             GameRegistry.addShapelessRecipe(new ItemStack(syringe, 1, 1), syringe, Items.FERMENTED_SPIDER_EYE, Blocks.RED_MUSHROOM, Blocks.BROWN_MUSHROOM);
-            // Stimulant syringe
+        }
+        if (Configs.disableRecipeSyringeStimulant == false && Configs.disableItemSyringe == false)
+        {
             GameRegistry.addShapelessRecipe(new ItemStack(syringe, 1, 2), syringe, Items.SUGAR, Items.SPECKLED_MELON, Items.CARROT);
+        }
+        if (Configs.disableRecipeSyringePassifier == false && Configs.disableItemSyringe == false)
+        {
+            GameRegistry.addShapelessRecipe(new ItemStack(syringe, 1, 3), syringe, Items.SUGAR, Items.CARROT, Items.CAKE, Items.COOKIE, Items.COOKIE);
         }
 
         // Tools and weapons

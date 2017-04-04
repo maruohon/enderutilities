@@ -15,6 +15,11 @@
                     "layer0": "enderutilities:items/syringe_paralyzer"
                 }
             },
+            "passifier": {
+                "textures": {
+                    "layer0": "enderutilities:items/syringe_passifier"
+                }
+            },
             "stimulant": {
                 "textures": {
                     "layer0": "enderutilities:items/syringe_stimulant"

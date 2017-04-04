@@ -153,7 +153,10 @@ public class Configs
     public static boolean disableRecipeQuickStacker;
     public static boolean disableRecipePortalScaler;
     public static boolean disableRecipeRuler;
-    public static boolean disableRecipeSyringe;
+    public static boolean disableRecipeSyringeEmpty;
+    public static boolean disableRecipeSyringeParalyzer;
+    public static boolean disableRecipeSyringePassifier;
+    public static boolean disableRecipeSyringeStimulant;
     public static boolean disableRecipeVoidPickaxe;
 
     public static boolean disableRecipeEnderSword;

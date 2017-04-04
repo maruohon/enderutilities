@@ -371,7 +371,10 @@ public class ConfigReader
         Configs.disableRecipeQuickStacker         = getProp("disableRecipeQuickStacker", false).getBoolean();
         Configs.disableRecipePortalScaler         = getProp("disableRecipePortalScaler", false).getBoolean();
         Configs.disableRecipeRuler                = getProp("disableRecipeRuler", false).getBoolean();
-        Configs.disableRecipeSyringe              = getProp("disableRecipeSyringe", false).getBoolean();
+        Configs.disableRecipeSyringeEmpty         = getProp("disableRecipeSyringeEmpty", false).getBoolean();
+        Configs.disableRecipeSyringeParalyzer     = getProp("disableRecipeSyringeParalyzer", false).getBoolean();
+        Configs.disableRecipeSyringePassifier     = getProp("disableRecipeSyringePassifier", false).getBoolean();
+        Configs.disableRecipeSyringeStimulant     = getProp("disableRecipeSyringeStimulant", false).getBoolean();
 
         // Tools and weapons
         Configs.disableRecipeEnderSword           = getProp("disableRecipeEnderSword", false).getBoolean();

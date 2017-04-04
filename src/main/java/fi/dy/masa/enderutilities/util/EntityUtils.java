@@ -785,7 +785,7 @@ public class EntityUtils
             {
                 try
                 {
-                    canDespawn = ((Boolean) methodHandle_EntityLiving_canDespawn.invokeExact(living)).booleanValue();
+                    canDespawn = (boolean) methodHandle_EntityLiving_canDespawn.invokeExact(living);
                 }
                 catch (Throwable t)
                 {
@@ -919,6 +919,23 @@ public class EntityUtils
         living.tasks.addTask(priority, task);
 
         return true;
+    }
+
+    /**
+     * Removes all AI tasks from the targetTasks of the given entity <b>living</b>
+     * @param living
+     * @return true if at least some tasks were removed
+     */
+    public static boolean removeAllAITargetTasks(EntityLiving living)
+    {
+        List<EntityAITaskEntry> tasks = new ArrayList<EntityAITaskEntry>(living.targetTasks.taskEntries);
+
+        for (EntityAITaskEntry taskEntry : tasks)
+        {
+            living.targetTasks.removeTask(taskEntry.action);
+        }
+
+        return tasks.isEmpty() == false;
     }
 
     /**
