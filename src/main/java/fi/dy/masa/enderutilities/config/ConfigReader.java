@@ -311,6 +311,7 @@ public class ConfigReader
         Configs.disableItemPortalScaler           = getProp("disableItemPortalScaler", false).getBoolean();
         Configs.disableItemRuler                  = getProp("disableItemRuler", false).getBoolean();
         Configs.disableItemSyringe                = getProp("disableItemSyringe", false).getBoolean();
+        Configs.disableItemVoidPickaxe            = getProp("disableItemVoidPickaxe", false).getBoolean();
 
         // Recipe disable
         currentCategory = "DisableRecipes";
@@ -378,6 +379,7 @@ public class ConfigReader
         Configs.disableRecipeEnderAxe             = getProp("disableRecipeEnderAxe", false).getBoolean();
         Configs.disableRecipeEnderShovel          = getProp("disableRecipeEnderShovel", false).getBoolean();
         Configs.disableRecipeEnderHoe             = getProp("disableRecipeEnderHoe", false).getBoolean();
+        Configs.disableRecipeVoidPickaxe          = getProp("disableRecipeVoidPickaxe", false).getBoolean();
 
         // Items - crafting parts, modules, etc.
         Configs.disableRecipeModuleEnderCapacitor0      = getProp("disableRecipeModuleEnderCapacitor0", false).getBoolean();

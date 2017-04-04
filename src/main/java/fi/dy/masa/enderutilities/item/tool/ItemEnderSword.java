@@ -2,11 +2,14 @@ package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nonnull;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -39,6 +42,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
+import fi.dy.masa.enderutilities.item.base.IAnvilRepairable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -58,7 +62,7 @@ import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class ItemEnderSword extends ItemLocationBoundModular
+public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRepairable
 {
     public static final int ENDER_CHARGE_COST = 50;
     private float damageVsEntity;
@@ -98,6 +102,36 @@ public class ItemEnderSword extends ItemLocationBoundModular
         }
 
         return true;
+    }
+
+    @Override
+    public boolean repairItem(ItemStack stack, int amount)
+    {
+        if (amount == -1)
+        {
+            amount = this.material.getMaxUses();
+        }
+
+        int damage = Math.max(this.getDamage(stack) - amount, 0);
+        boolean repaired = damage != this.getDamage(stack);
+
+        this.setDamage(stack, damage);
+
+        return repaired;
+    }
+
+    @Override
+    public boolean isRepairItem(@Nonnull ItemStack stackTool, @Nonnull ItemStack stackMaterial)
+    {
+        return InventoryUtils.areItemStacksEqual(stackMaterial, this.material.getRepairItemStack());
+    }
+
+    @Override
+    public boolean canApplyEnchantment(ItemStack stackTool, Enchantment enchantment)
+    {
+        return enchantment.type == EnumEnchantmentType.ALL ||
+               enchantment.type == EnumEnchantmentType.BREAKABLE ||
+               enchantment.type == EnumEnchantmentType.WEAPON;
     }
 
     public boolean isToolBroken(ItemStack stack)

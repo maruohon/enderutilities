@@ -5,16 +5,13 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
-import fi.dy.masa.enderutilities.item.tool.ItemEnderTool.ToolType;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.item.base.IAnvilRepairable;
 
 public class AnvilUpdateEventHandler
 {
@@ -24,17 +21,18 @@ public class AnvilUpdateEventHandler
         ItemStack left = event.getLeft();
         ItemStack right = event.getRight();
 
-        // Handle Ender Tool repairing
-        if (left.getItem() == EnderUtilitiesItems.enderTool || left.getItem() == EnderUtilitiesItems.enderSword)
+        if (left.getItem() instanceof IAnvilRepairable)
         {
+            IAnvilRepairable repairable = (IAnvilRepairable) left.getItem();
+
             // Advanced Ender Alloy
-            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getMetadata() == 2)
+            if (repairable.isRepairItem(left, right))
             {
-                this.fullyRepairItem(event, 1, 15);
+                this.fullyRepairItem(event, repairable, 1, 15);
             }
             else if (right.getItem() == Items.ENCHANTED_BOOK)
             {
-                this.enhantItem(event, (ItemEnchantedBook)right.getItem());
+                this.enchantItem(event, repairable, (ItemEnchantedBook) right.getItem());
             }
             else
             {
@@ -42,55 +40,27 @@ public class AnvilUpdateEventHandler
                 event.setCanceled(true);
             }
         }
-        else if (left.getItem() == EnderUtilitiesItems.enderBow)
-        {
-            // Enhanced Ender Alloy
-            if (right.getItem() == EnderUtilitiesItems.enderPart && right.getMetadata() == 1)
-            {
-                this.fullyRepairItem(event, 1, 15);
-            }
-            else if (right.getItem() != Items.ENCHANTED_BOOK)
-            {
-                // Cancel vanilla behaviour, otherwise it would allow repairing the bow with another bow (and lose the modules)
-                event.setCanceled(true);
-            }
-        }
     }
 
-    private void fullyRepairItem(AnvilUpdateEvent event, int materialCost, int xpCost)
+    private void fullyRepairItem(AnvilUpdateEvent event, IAnvilRepairable repairable, int materialCost, int xpCost)
     {
-        ItemStack left = event.getLeft();
-        ItemStack repaired = left.copy();
+        ItemStack repaired = event.getLeft().copy();
 
-        if (repaired.getItem() == EnderUtilitiesItems.enderTool)
+        if (repairable.repairItem(repaired, -1))
         {
-            if (repaired.getItemDamage() == 0)
-            {
-                event.setCanceled(true);
-                return;
-            }
+            event.setMaterialCost(materialCost);
+            event.setCost(xpCost);
+            event.setOutput(repaired);
 
-            ((ItemEnderTool)repaired.getItem()).repairTool(repaired, -1);
+            this.updateItemName(event, repaired);
         }
-        else if (repaired.getItem() == EnderUtilitiesItems.enderSword)
+        else
         {
-            if (repaired.getItemDamage() == 0)
-            {
-                event.setCanceled(true);
-                return;
-            }
-
-            int repairAmount = Math.min(repaired.getMaxDamage(), repaired.getItemDamage());
-            repaired.setItemDamage(repaired.getItemDamage() - repairAmount);
+            event.setCanceled(true);
         }
-
-        event.setMaterialCost(materialCost);
-        event.setCost(xpCost);
-        event.setOutput(repaired);
-        this.updateItemName(event, repaired);
     }
 
-    private void enhantItem(AnvilUpdateEvent event, ItemEnchantedBook book)
+    private void enchantItem(AnvilUpdateEvent event, IAnvilRepairable repairable, ItemEnchantedBook book)
     {
         ItemStack toolStack = event.getLeft().copy();
         ItemStack bookStack = event.getRight().copy();
@@ -107,7 +77,7 @@ public class AnvilUpdateEventHandler
         int cost = oldEnchantments.size() * 2;
         boolean levelIncreased = false;
 
-        while (iterBookEnchantments.hasNext() == true)
+        while (iterBookEnchantments.hasNext())
         {
             Map.Entry<Enchantment, Integer> enchantmentEntry = iterBookEnchantments.next();
             Enchantment enchBook = enchantmentEntry.getKey();
@@ -119,7 +89,7 @@ public class AnvilUpdateEventHandler
                 int newLvl = bookEnchLvl == oldEnchLvl ? oldEnchLvl + 1 : Math.max(oldEnchLvl, bookEnchLvl);
                 newLvl = Math.min(newLvl, enchBook.getMaxLevel());
 
-                if (this.canApplyEnchantment(enchBook, toolStack) == false)
+                if (repairable.canApplyEnchantment(toolStack, enchBook) == false)
                 {
                     event.setCanceled(true);
                     return;
@@ -133,7 +103,7 @@ public class AnvilUpdateEventHandler
                 Iterator<Map.Entry<Enchantment, Integer>> iterOldEnchantments = oldEnchantments.entrySet().iterator();
 
                 // Check that the new enchantment doesn't conflict with any of the existing enchantments
-                while (iterOldEnchantments.hasNext() == true)
+                while (iterOldEnchantments.hasNext())
                 {
                     Enchantment enchOld = iterOldEnchantments.next().getKey();
 
@@ -161,37 +131,6 @@ public class AnvilUpdateEventHandler
         event.setCost(cost);
         this.updateItemName(event, toolStack);
         event.setCost(Math.min(event.getCost(), 39));
-    }
-
-    private boolean canApplyEnchantment(Enchantment ench, ItemStack stack)
-    {
-        if (ench.type  == EnumEnchantmentType.BREAKABLE || ench.type  == EnumEnchantmentType.ALL)
-        {
-            return true;
-        }
-
-        if (stack.getItem() == EnderUtilitiesItems.enderSword)
-        {
-            return ench.type == EnumEnchantmentType.WEAPON;
-        }
-
-        if (stack.getItem() == EnderUtilitiesItems.enderTool)
-        {
-            ToolType type = ItemEnderTool.ToolType.fromStack(stack);
-            if (type == ToolType.HOE || type == ToolType.INVALID)
-            {
-                return false;
-            }
-
-            if (type == ToolType.AXE && ench.type == EnumEnchantmentType.WEAPON)
-            {
-                return true;
-            }
-
-            return ench.type == EnumEnchantmentType.DIGGER;
-        }
-
-        return false;
     }
 
     private void updateItemName(AnvilUpdateEvent event, ItemStack outputStack)

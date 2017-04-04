@@ -303,6 +303,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
         this.registerItemModel(EnderUtilitiesItems.ruler);
         this.registerItemModelWithVariants(EnderUtilitiesItems.syringe);
+        this.registerItemModelWithNameSuffix(EnderUtilitiesItems.VOID_PICKAXE, 0, "_normal");
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
@@ -318,6 +319,14 @@ public class ClientProxy extends CommonProxy
         if (item.isEnabled())
         {
             ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+        }
+    }
+
+    private void registerItemModelWithNameSuffix(ItemEnderUtilities item, int meta, String nameSuffix)
+    {
+        if (item.isEnabled())
+        {
+            ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName() + nameSuffix, "inventory"));
         }
     }
 

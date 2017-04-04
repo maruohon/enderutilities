@@ -50,6 +50,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";
     public static final String NAME_ITEM_RULER                  = "ruler";
     public static final String NAME_ITEM_SYRINGE                = "syringe";
+    public static final String NAME_ITEM_VOID_PICKAXE           = "void_pickaxe";
 
 
     public static final String NAME_TILE_ENDER_ELEVATOR         = "enderelevator";

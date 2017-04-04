@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderSword;
 import fi.dy.masa.enderutilities.item.tool.ItemEnderTool;
+import fi.dy.masa.enderutilities.item.tool.ItemVoidPickaxe;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.recipes.ShapedUpgradeOreRecipe;
@@ -48,6 +49,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
     public static final ItemEnderUtilities ruler = new ItemRuler();
     public static final ItemEnderUtilities syringe = new ItemSyringe();
+    public static final ItemEnderUtilities VOID_PICKAXE = new ItemVoidPickaxe();
 
     public static void registerItems()
     {
@@ -76,6 +78,7 @@ public class EnderUtilitiesItems
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
         registerItem(ruler,                 ReferenceNames.NAME_ITEM_RULER,                     Configs.disableItemRuler);
         registerItem(syringe,               ReferenceNames.NAME_ITEM_SYRINGE,                   Configs.disableItemSyringe);
+        registerItem(VOID_PICKAXE,          ReferenceNames.NAME_ITEM_VOID_PICKAXE,              Configs.disableItemVoidPickaxe);
     }
 
     public static void registerRecipes()
@@ -227,6 +230,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeEnderSword == false && Configs.disableItemEnderSword == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderSword, 1, 0), " A ", " A ", " S ", 'A', alloy2, 'S', ender_stick);
+        }
+        if (Configs.disableRecipeVoidPickaxe == false && Configs.disableItemVoidPickaxe == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(VOID_PICKAXE, 1, 0), "AAA", "LSL", "FSF", 'A', alloy2, 'S', ender_stick, 'L', Items.LAVA_BUCKET, 'F', Items.FIRE_CHARGE);
         }
 
         // Parts, modules etc.

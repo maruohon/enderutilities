@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
@@ -16,6 +17,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -56,6 +58,7 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
+import fi.dy.masa.enderutilities.item.base.IAnvilRepairable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -66,6 +69,7 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -74,7 +78,7 @@ import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class ItemEnderTool extends ItemLocationBoundModular
+public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRepairable
 {
     public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
         EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
@@ -83,6 +87,11 @@ public class ItemEnderTool extends ItemLocationBoundModular
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
     private final Item.ToolMaterial material;
+
+    static
+    {
+        ENDER_ALLOY_ADVANCED.setRepairItem(new ItemStack(EnderUtilitiesItems.enderPart, 1, 2));
+    }
 
     public ItemEnderTool()
     {
@@ -506,20 +515,51 @@ public class ItemEnderTool extends ItemLocationBoundModular
         return true;
     }
 
-    /**
-     * Repair the tool by the provided amount of uses.
-     * If amount is -1, then the tool will be fully repaired.
-     */
-    public void repairTool(ItemStack stack, int amount)
+    @Override
+    public boolean repairItem(ItemStack stack, int amount)
     {
         if (amount == -1)
         {
             amount = this.material.getMaxUses();
         }
 
-        int damage = Math.max(NBTUtils.getShort(stack, null, "ToolDamage") - amount, 0);
+        int damage = Math.max(this.getDamage(stack) - amount, 0);
+        boolean repaired = damage != this.getDamage(stack);
 
         this.setDamage(stack, damage);
+
+        return repaired;
+    }
+
+    @Override
+    public boolean isRepairItem(@Nonnull ItemStack stackTool, @Nonnull ItemStack stackMaterial)
+    {
+        return InventoryUtils.areItemStacksEqual(stackMaterial, this.material.getRepairItemStack());
+    }
+
+    @Override
+    public boolean canApplyEnchantment(ItemStack stackTool, Enchantment enchantment)
+    {
+        if (enchantment.type == EnumEnchantmentType.ALL ||
+            enchantment.type == EnumEnchantmentType.BREAKABLE)
+        {
+            return true;
+        }
+
+        switch (ToolType.fromStack(stackTool))
+        {
+            case SHOVEL:
+            case PICKAXE:
+                return enchantment.type == EnumEnchantmentType.DIGGER;
+
+            case AXE:
+                return enchantment.type == EnumEnchantmentType.WEAPON ||
+                       enchantment.type == EnumEnchantmentType.DIGGER;
+
+            case HOE:
+            default:
+                return false;
+        }
     }
 
     @Override

@@ -94,6 +94,7 @@ public class Configs
     public static boolean disableItemPortalScaler;
     public static boolean disableItemRuler;
     public static boolean disableItemSyringe;
+    public static boolean disableItemVoidPickaxe;
 
     // Recipe disable
     // Blocks
@@ -153,6 +154,7 @@ public class Configs
     public static boolean disableRecipePortalScaler;
     public static boolean disableRecipeRuler;
     public static boolean disableRecipeSyringe;
+    public static boolean disableRecipeVoidPickaxe;
 
     public static boolean disableRecipeEnderSword;
     public static boolean disableRecipeEnderPickaxe;

@@ -187,6 +187,7 @@ item.enderutilities.ruler.name=Ruler
 item.enderutilities.syringe_empty.name=Syringe (empty)
 item.enderutilities.syringe_paralyzer.name=Paralyzer Syringe
 item.enderutilities.syringe_stimulant.name=Stimulant Syringe
+item.enderutilities.void_pickaxe.name=Void Pickaxe
 
 
 ##########################################################################
@@ -245,6 +246,7 @@ item.enderutilities.quickstacker.tooltips=- Quick stacks items from the player's
 item.enderutilities.ruler.tooltips=Measure distances and visualize positions|lf- Left/right click to set start/end position|lf- Sneak to target the block, not the empty space|lf- Shift + scroll: Cycle selected point|lf- Ctrl + scroll: Cycle selected Memory Card|lf- Alt + Toggle: Toggle render when unselected|lf- Ctrl + Alt + Toggle: Toggle distance mode|lf- Alt + Shift + Toggle: Toggle render all points|lf- Just Toggle: Toggle "render with all" for selected point
 item.enderutilities.syringe_paralyzer.tooltips=Paralyzes mobs (sets the NoAI flag)
 item.enderutilities.syringe_stimulant.tooltips=Un-paralyzes mobs (removes the NoAI flag)
+item.enderutilities.void_pickaxe.tooltips=- Destroyed blocks drop nothing, not even inventory contents|lf- Also works in Creative mode|lf- Add an Efficiency V enchant for|lf  insta-mining of most blocks in the Fast mode|lf- Toggle key: Change between Normal and Fast mode
 
 
 ############################################

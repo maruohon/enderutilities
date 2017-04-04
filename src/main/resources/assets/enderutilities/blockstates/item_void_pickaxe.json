@@ -1,0 +1,16 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:item_void_pickaxe"
+    },
+    "variants": {
+        "mode": {
+            "normal": {},
+            "fast": {
+                "textures": {
+                    "base": "enderutilities:items/void_pickaxe_fast"
+                }
+            }
+        }
+    }
+}
