@@ -107,6 +107,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         this.itemHandlerUpgrades.deserializeNBT(nbt);
 
         super.readItemsFromNBT(nbt);
+
+        this.cachedStack = ItemStack.copyItemStack(this.itemHandlerBase.getStackInSlot(0));
     }
 
     @Override
