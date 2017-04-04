@@ -19,9 +19,12 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockASU;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -48,7 +51,10 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     @Override
     public ItemBlock createItemBlock()
     {
-        return new ItemBlockASU(this);
+        ItemBlockEnderUtilities item = new ItemBlockASU(this);
+        item.setHasPlacementProperties(true);
+        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".stack_limit", Constants.NBT.TAG_INT, 0, TileEntityASU.MAX_STACK_SIZE);
+        return item;
     }
 
     @Override

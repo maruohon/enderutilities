@@ -3,10 +3,12 @@ package fi.dy.masa.enderutilities.tileentity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiASU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
@@ -16,13 +18,15 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
-    private ItemStackHandlerTileEntity itemHandlerReference;
+    public static final int MAX_STACK_SIZE = 1024;
     private ItemHandlerWrapperASU itemHandlerASU;
     private int tier = 1;
 
     public TileEntityASU()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ASU);
+
+        this.initStorage();
     }
 
     private int getInvSize()
@@ -33,8 +37,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     private void initStorage()
     {
         this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, this.getInvSize(), 0, true, "Items", this);
-        this.itemHandlerReference   = new ItemStackHandlerTileEntity(1, 1, 1024, true, "ItemsRef", this);
-        this.itemHandlerASU         = new ItemHandlerWrapperASU(this.itemHandlerBase, this.itemHandlerReference);
+        this.itemHandlerASU         = new ItemHandlerWrapperASU(this.itemHandlerBase);
         this.itemHandlerExternal    = this.itemHandlerASU;
     }
 
@@ -52,44 +55,40 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         return this.tier;
     }
 
-    public IItemHandler getReferenceInventory()
+    public void setStackLimit(int limit)
     {
-        return this.itemHandlerReference;
+        this.getBaseItemHandler().setStackLimit(MathHelper.clamp(limit, 0, MAX_STACK_SIZE));
+    }
+
+    @Override
+    public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
+    {
+        if (tag.hasKey("asu.stack_limit", Constants.NBT.TAG_INT))
+        {
+            this.setStackLimit(tag.getInteger("asu.stack_limit"));
+        }
+
+        this.markDirty();
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.setStorageTier(nbt.getByte("Tier"));
+        this.setStackLimit(nbt.getInteger("StackLimit"));
 
         super.readFromNBTCustom(nbt);
-    }
-
-    @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
-    {
-        this.itemHandlerReference.deserializeNBT(nbt);
-        this.itemHandlerBase.setStackLimit(this.itemHandlerASU.getInventoryStackLimit());
-
-        super.readItemsFromNBT(nbt);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("Tier", (byte) this.tier);
+        nbt.setInteger("StackLimit", this.getBaseItemHandler().getInventoryStackLimit());
 
         super.writeToNBT(nbt);
 
         return nbt;
-    }
-
-    @Override
-    public void writeItemsToNBT(NBTTagCompound nbt)
-    {
-        nbt.merge(this.itemHandlerReference.serializeNBT());
-
-        super.writeItemsToNBT(nbt);
     }
 
     @Override
@@ -112,36 +111,36 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         super.handleUpdateTag(tag);
     }
 
-    @Override
-    public void inventoryChanged(int inventoryId, int slot)
-    {
-        if (inventoryId == 1)
-        {
-            this.itemHandlerBase.setStackLimit(this.itemHandlerASU.getInventoryStackLimit());
-        }
-    }
-
     private class ItemHandlerWrapperASU extends ItemHandlerWrapperSize
     {
-        private final IItemHandler referenceInv;
+        private final ItemStackHandlerTileEntity asuBaseHandler;
 
-        public ItemHandlerWrapperASU(IItemHandler baseHandler, IItemHandler referenceInv)
+        public ItemHandlerWrapperASU(ItemStackHandlerTileEntity baseHandler)
         {
             super(baseHandler);
-            this.referenceInv = referenceInv;
+
+            this.asuBaseHandler = baseHandler;
         }
 
         @Override
         public int getInventoryStackLimit()
         {
-            ItemStack stack = this.referenceInv.getStackInSlot(0);
-            return stack != null ? stack.stackSize : 0;
+            return this.asuBaseHandler.getInventoryStackLimit();
         }
 
         @Override
         public int getItemStackLimit(ItemStack stack)
         {
-            return this.getInventoryStackLimit();
+            return this.asuBaseHandler.getInventoryStackLimit();
+        }
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0)
+        {
+            this.setStackLimit(this.getBaseItemHandler().getInventoryStackLimit() + element);
         }
     }
 

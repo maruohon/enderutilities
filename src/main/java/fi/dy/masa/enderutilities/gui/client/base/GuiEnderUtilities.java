@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.gui.client.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.input.Mouse;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -92,6 +93,33 @@ public class GuiEnderUtilities extends GuiContainer
 
                 this.actionPerformedWithButton(guibutton, mouseButton);
             }
+        }
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException
+    {
+        int dWheel = Mouse.getEventDWheel();
+
+        if (dWheel != 0)
+        {
+            int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+            int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+
+            for (int i = 0; i < this.buttonList.size(); i++)
+            {
+                GuiButton button = this.buttonList.get(i);
+
+                if (button.mousePressed(this.mc, mouseX, mouseY))
+                {
+                    this.actionPerformedWithButton(button, 10 + dWheel / 120);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            super.handleMouseInput();
         }
     }
 

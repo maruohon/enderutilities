@@ -8,6 +8,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 public class ContainerASU extends ContainerLargeStacks
 {
     protected TileEntityASU teasu;
+    private int stackLimitLast;
 
     public ContainerASU(EntityPlayer player, TileEntityASU te)
     {
@@ -21,19 +22,53 @@ public class ContainerASU extends ContainerLargeStacks
     @Override
     protected void addCustomInventorySlots()
     {
-        int customInvStart = this.inventorySlots.size();
         int posX = 8;
-        int posY = 23;
+        int posY = 27;
         int slots = this.teasu.getStorageTier();
+
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
 
         for (int slot = 0; slot < slots; slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, slot, posX + slot * 18, posY));
         }
+    }
 
-        this.customInventorySlots = new MergeSlotRange(customInvStart, slots);
+    @Override
+    public void detectAndSendChanges()
+    {
+        if (this.isClient == false)
+        {
+            int stackLimit = this.teasu.getBaseItemHandler().getInventoryStackLimit();
+ 
+            for (int i = 0; i < this.listeners.size(); i++)
+            {
+                if (stackLimit != this.stackLimitLast)
+                {
+                    this.listeners.get(i).sendProgressBarUpdate(this, 0, stackLimit & 0xFFFF);
+                    this.listeners.get(i).sendProgressBarUpdate(this, 1, stackLimit >>> 16);
+                }
+            }
 
-        // Add the "reference inventory" slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.teasu.getReferenceInventory(), 0, 175, posY));
+            this.stackLimitLast = stackLimit;
+
+            super.detectAndSendChanges();
+        }
+    }
+
+    @Override
+    public void updateProgressBar(int id, int data)
+    {
+        super.updateProgressBar(id, data);
+
+        switch (id)
+        {
+            case 0:
+                this.stackLimitLast = data;
+                break;
+            case 1:
+                this.teasu.getBaseItemHandler().setStackLimit((data << 16) | this.stackLimitLast);
+                break;
+        }
     }
 }

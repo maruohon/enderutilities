@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
-import org.lwjgl.input.Mouse;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -64,12 +63,6 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
         this.fontRendererObj.drawString(str, 133 - this.fontRendererObj.getStringWidth(str) / 2, 24, 0x404040);
     }
 
-    @Override
-    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
-    {
-        super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
-    }
-
     protected void createButtons()
     {
         this.buttonList.clear();
@@ -100,33 +93,6 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
             this.buttonList.add(new GuiButtonStateCallback(12, x + 45, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(60, 154, "enderutilities.gui.label.nbt.ignore"),
                     ButtonState.createTranslate(60, 140, "enderutilities.gui.label.nbt.match")));
-        }
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        int dWheel = Mouse.getEventDWheel();
-
-        if (dWheel != 0)
-        {
-            int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
-            int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-
-            for (int i = 0; i < this.buttonList.size(); i++)
-            {
-                GuiButton button = this.buttonList.get(i);
-
-                if (button.mousePressed(this.mc, mouseX, mouseY))
-                {
-                    this.actionPerformedWithButton(button, 10 + dWheel / 120);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            super.handleMouseInput();
         }
     }
 
