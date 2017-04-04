@@ -574,6 +574,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     {
         //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
 
+        if ((livingBase instanceof EntityPlayer) && this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+        {
+            ((EntityPlayer) livingBase).getCooldownTracker().setCooldown(this, 5);
+        }
+
         // Don't use durability for breaking leaves with an axe
         if (state.getMaterial() == Material.LEAVES && ToolType.fromStack(stack).equals(ToolType.AXE))
         {
@@ -583,8 +588,9 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         // Don't use durability on instant-minable blocks (hardness == 0.0f), or if the tool is already broken
         if (this.isToolBroken(stack) == false && state.getBlockHardness(world, pos) > 0.0f)
         {
-            // Fast mode uses double the durability
-            int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED ? 2 : 1);
+            // Fast mode uses double the durability, but not while using the Creative Breaking upgrade
+            int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED &&
+                    this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) == 0 ? 2 : 1);
 
             this.addToolDamage(stack, dmg, livingBase, livingBase);
             return true;
@@ -753,6 +759,13 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         ToolType tool = ToolType.fromStack(stack);
+
+        if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0 &&
+            tool.getToolClass().equals(state.getBlock().getHarvestTool(state)))
+        {
+            return 1600f;
+        }
+
         // Allow instant mine of leaves with the axe
         if (state.getMaterial() == Material.LEAVES && tool.equals(ToolType.AXE))
         {
@@ -926,7 +939,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     @Override
     public int getMaxModules(ItemStack containerStack)
     {
-        return 5;
+        return 6;
     }
 
     @Override
@@ -938,6 +951,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         if (moduleType.equals(ModuleType.TYPE_ENDERCAPACITOR))
+        {
+            return 1;
+        }
+
+        if (moduleType.equals(ModuleType.CREATIVE_BREAKING))
         {
             return 1;
         }
@@ -1034,6 +1052,17 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             str += preRed + I18n.format("enderutilities.tooltip.item.none") + rst;
         }
         list.add(str);
+
+        if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+        {
+            str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
+        }
+        else
+        {
+            str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
+        }
+
+        list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_installed", str));
 
         // Link Crystals installed
         if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)

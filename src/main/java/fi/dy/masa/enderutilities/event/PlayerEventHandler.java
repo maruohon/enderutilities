@@ -50,6 +50,13 @@ public class PlayerEventHandler
             ((ItemRuler) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
             event.setCanceled(true);
         }
+        else if (player.capabilities.isCreativeMode == false && stack != null && stack.getItem() == EnderUtilitiesItems.enderTool)
+        {
+            if (player.getCooldownTracker().hasCooldown(stack.getItem()))
+            {
+                event.setCanceled(true);
+            }
+        }
 
         if (player.capabilities.isCreativeMode && world.getBlockState(pos).getBlock() == EnderUtilitiesBlocks.BARREL)
         {

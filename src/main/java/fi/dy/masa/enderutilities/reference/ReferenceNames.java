@@ -9,18 +9,19 @@ public class ReferenceNames
     public static final String NAME_ENTITY_FALLING_BLOCK        = Reference.MOD_ID + ":fallingblock";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
+    public static final String NAME_ITEM_ENDERPART_BARREL_UPGRADE   = "barrel_upgrade";
+    public static final String NAME_ITEM_ENDERPART_CREATIVE_BREAKING = "creative_breaking";
     public static final String NAME_ITEM_ENDERPART_ENDERALLOY       = "enderalloy";
     public static final String NAME_ITEM_ENDERPART_ENDERCAPACITOR   = "endercapacitor";
     public static final String NAME_ITEM_ENDERPART_ENDERCORE        = "endercore";
-    public static final String NAME_ITEM_ENDERPART_ENDERSTICK       = "enderstick";
-    public static final String NAME_ITEM_ENDERPART_ENDERROPE        = "enderrope";
-    public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL      = "linkcrystal";
-    public static final String NAME_ITEM_ENDERPART_JAILER           = "jailer";
     public static final String NAME_ITEM_ENDERPART_ENDERRELIC       = "enderrelic";
+    public static final String NAME_ITEM_ENDERPART_ENDERROPE        = "enderrope";
+    public static final String NAME_ITEM_ENDERPART_ENDERSTICK       = "enderstick";
+    public static final String NAME_ITEM_ENDERPART_JAILER           = "jailer";
+    public static final String NAME_ITEM_ENDERPART_LINKCRYSTAL      = "linkcrystal";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD      = "memorycard"; // Not actual item, used for all memory cards in places
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard_misc";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard_items";
-    public static final String NAME_ITEM_ENDERPART_BARREL_UPGRADE   = "barrel_upgrade";
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_CHAIR_WAND             = "chairwand";

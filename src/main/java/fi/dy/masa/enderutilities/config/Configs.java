@@ -166,6 +166,7 @@ public class Configs
     public static boolean disableRecipePartBarrelCapacity;
     public static boolean disableRecipePartBarrelLabel;
     public static boolean disableRecipePartBarrelStructure;
+    public static boolean disableRecipePartCreativeBreaking;
     public static boolean disableRecipePartEnderAlloy0;
     public static boolean disableRecipePartEnderAlloy1;
     public static boolean disableRecipePartEnderAlloy2;

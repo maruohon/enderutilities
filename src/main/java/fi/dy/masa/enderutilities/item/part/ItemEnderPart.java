@@ -83,6 +83,9 @@ public class ItemEnderPart extends ItemModule
             case 21: // Damage 21: Ender Rope
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
 
+            case 30: // Damage 30: Creative Breaking module
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_CREATIVE_BREAKING;
+
             case 40: // Damage 40: Ender Relic
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
 
@@ -261,6 +264,12 @@ public class ItemEnderPart extends ItemModule
             return ModuleType.TYPE_ENDERCORE;
         }
 
+        // Creative Breaking module
+        if (meta == 30)
+        {
+            return ModuleType.CREATIVE_BREAKING;
+        }
+
         // Mob Persistence
         if (meta == 45)
         {
@@ -296,6 +305,12 @@ public class ItemEnderPart extends ItemModule
         if (meta >= 15 && meta <= 17)
         {
             return meta - 15 + ENDER_CORE_TYPE_ACTIVE_BASIC;
+        }
+
+        // Creative Breaking module
+        if (meta == 30)
+        {
+            return 0;
         }
 
         // Mob Persistence
@@ -350,6 +365,7 @@ public class ItemEnderPart extends ItemModule
 
         list.add(new ItemStack(this, 1, 20)); // Ender Stick
         list.add(new ItemStack(this, 1, 21)); // Ender Rope
+        list.add(new ItemStack(this, 1, 30)); // Creative Breaking module
         list.add(new ItemStack(this, 1, 40)); // Ender Relic
         list.add(new ItemStack(this, 1, 45)); // Mob Persistence
         list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
@@ -380,6 +396,7 @@ public class ItemEnderPart extends ItemModule
                 new ModelResourceLocation(rl, "tex=endercore_active_2"),
                 new ModelResourceLocation(rl, "tex=enderstick"),
                 new ModelResourceLocation(rl, "tex=enderrope"),
+                new ModelResourceLocation(rl, "tex=creative_breaking"),
                 new ModelResourceLocation(rl, "tex=enderrelic"),
                 new ModelResourceLocation(rl, "tex=jailer"),
                 new ModelResourceLocation(rl, "tex=memorycard_misc"),

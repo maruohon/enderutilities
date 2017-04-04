@@ -261,6 +261,10 @@ public class EnderUtilitiesItems
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 12), "OAO", "ADA", "OAO", 'O', obsidian, 'A', alloy2, 'D', Items.DIAMOND);
         }
+        if (Configs.disableRecipePartCreativeBreaking == false && Configs.disableItemCraftingPart == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(enderPart, 1, 30), "ANA", " S ", " S ", 'A', alloy2, 'N', Items.NETHER_STAR, 'S', ender_stick);
+        }
         if (Configs.disableRecipePartMemoryCardMisc == false && Configs.disableItemCraftingPart == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 4, 50), " G ", "ARA", "AEA", 'A', alloy0, 'G', "ingotGold", 'R', Items.REPEATER, 'E', "dustRedstone"));

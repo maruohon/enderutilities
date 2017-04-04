@@ -17,6 +17,7 @@ public abstract class ItemModule extends ItemEnderUtilities implements IModule
         TYPE_MOBPERSISTENCE         (3, "mobpersistence"),
         TYPE_MEMORY_CARD_MISC       (4, "memorycard_misc"),
         TYPE_MEMORY_CARD_ITEMS      (5, "memorycard_items"),
+        CREATIVE_BREAKING           (6, "creative_breaking"),
         TYPE_ANY                    (-10, "any"),
         TYPE_INVALID                (-1, "invalid");
 

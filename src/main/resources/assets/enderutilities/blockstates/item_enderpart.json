@@ -110,6 +110,11 @@
                 "textures": {
                     "layer0": "enderutilities:items/enderpart_barrel_capacity"
                 }
+            },
+            "creative_breaking": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_creative_breaking"
+                }
             }
         }
     }
