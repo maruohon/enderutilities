@@ -26,8 +26,8 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class BlockFloor extends BlockEnderUtilities
 {
-    public static final AxisAlignedBB BOUNDS_BOTTOM = new AxisAlignedBB( 0.0,   0.0,  0.0, 1.0, 0.125, 1.0);
-    public static final AxisAlignedBB BOUNDS_TOP    = new AxisAlignedBB( 0.0, 0.875,  0.0, 1.0,   1.0, 1.0);
+    public static final AxisAlignedBB BOUNDS_BOTTOM = new AxisAlignedBB( 0.0,    0.0,  0.0, 1.0, 0.1875, 1.0);
+    public static final AxisAlignedBB BOUNDS_TOP    = new AxisAlignedBB( 0.0, 0.8125,  0.0, 1.0,    1.0, 1.0);
 
     public static final PropertyEnum<EnumHalf> HALF = PropertyEnum.<EnumHalf>create("half", EnumHalf.class);
     public static final PropertyEnum<FloorType> TYPE = PropertyEnum.<FloorType>create("type", FloorType.class);
