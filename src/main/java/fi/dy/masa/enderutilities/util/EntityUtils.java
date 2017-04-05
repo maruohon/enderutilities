@@ -950,16 +950,23 @@ public class EntityUtils
      * @param tasks
      * @param priority
      * @param mutexBits
+     * @return true if the blocker task didn't exist yet
      */
-    public static void addDummyAIBlockerTask(EntityLiving living, EntityAITasks tasks, int priority, int mutexBits)
+    public static boolean addDummyAIBlockerTask(EntityLiving living, EntityAITasks tasks, int priority, int mutexBits)
     {
         List<EntityAITaskEntry> taskList = new ArrayList<EntityAITaskEntry>(tasks.taskEntries);
+        boolean hadTask = false;
 
         // Removing and re-adding the tasks will remove them from the executing tasks
         for (EntityAITaskEntry taskEntry : taskList)
         {
             //taskEntry.action.resetTask();
             tasks.removeTask(taskEntry.action);
+
+            if (taskEntry.action instanceof EntityAIDummyBlockerTask)
+            {
+                hadTask = true;
+            }
         }
 
         tasks.addTask(priority, new EntityAIDummyBlockerTask(living, mutexBits));
@@ -980,6 +987,8 @@ public class EntityUtils
                 taskEntry.action.setMutexBits(taskEntry.action.getMutexBits() | 0x80);
             }
         }
+
+        return hadTask == false;
     }
 
     /**

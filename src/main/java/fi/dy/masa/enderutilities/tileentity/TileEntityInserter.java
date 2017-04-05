@@ -353,7 +353,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
         // When a tile changes on the input side, schedule a new tile tick, if necessary.
-        // Don't schedule when we are part of a "pipe line", unless we are the first one.
+        // Don't schedule when we are part of a "pipe line", unless we are the first one,
+        // because we try to operate on a push-basis.
         if (this.shouldOperate() && neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) &&
             world.getBlockState(neighbor).getBlock() != this.getBlockType())
         {
@@ -381,10 +382,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         // Currently holding items, try to push them out
         if (stack != null)
         {
-            this.tryPushOutItems(world, pos);
-            // Always schedule a new update after pushing out items,
-            // both in case it failed and we need to try again, or if we need to pull in new items.
-            this.scheduleBlockUpdate(this.delay, false);
+            if (this.tryPushOutItems(world, pos))
+            {
+                // Schedule a new update, if we managed to push at least some items out
+                this.scheduleBlockUpdate(this.delay, false);
+            }
         }
         // Not holding items, try to pull items in
         else
@@ -431,9 +433,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
      * @param world
      * @param posSelf
      */
-    private void tryPushOutItems(World world, BlockPos posSelf)
+    private boolean tryPushOutItems(World world, BlockPos posSelf)
     {
         //System.out.printf("tryPushOutItems() @ %s\n", posSelf);
+        boolean shouldPushToSides = true;
+
         if (this.isFiltered)
         {
             boolean match = InventoryUtils.matchingStackFoundInArray(
@@ -441,38 +445,36 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 this.isFilterSettingEnabled(FilterSetting.MATCH_META) == false,
                 this.isFilterSettingEnabled(FilterSetting.MATCH_NBT) == false);
 
-            if (match != this.isFilterSettingEnabled(FilterSetting.IS_WHITELIST))
-            {
-                // Fall back to the front facing
-                this.tryPushOutItemsToSide(world, posSelf, this.getFacing());
-                return;
-            }
+            shouldPushToSides = (match == this.isFilterSettingEnabled(FilterSetting.IS_WHITELIST));
         }
 
-        int numValidSides = this.validSides.size();
-
-        for (int i = 0; i < numValidSides; i++)
+        if (shouldPushToSides)
         {
-            if (this.outputSideIndex >= numValidSides)
-            {
-                this.outputSideIndex = 0;
-            }
+            int numValidSides = this.validSides.size();
 
-            // At least one valid output side
-            if (this.outputSideIndex < numValidSides)
+            for (int i = 0; i < numValidSides; i++)
             {
-                EnumFacing side = this.validSides.get(this.outputSideIndex);
-                this.outputSideIndex++;
-
-                if (this.tryPushOutItemsToSide(world, posSelf, side))
+                if (this.outputSideIndex >= numValidSides)
                 {
-                    return;
+                    this.outputSideIndex = 0;
+                }
+
+                // At least one valid output side
+                if (this.outputSideIndex < numValidSides)
+                {
+                    EnumFacing side = this.validSides.get(this.outputSideIndex);
+                    this.outputSideIndex++;
+
+                    if (this.tryPushOutItemsToSide(world, posSelf, side))
+                    {
+                        return true;
+                    }
                 }
             }
         }
 
         // Fall back to the front facing
-        this.tryPushOutItemsToSide(world, posSelf, this.getFacing());
+        return this.tryPushOutItemsToSide(world, posSelf, this.getFacing());
     }
 
     private boolean tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing side)
@@ -562,6 +564,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         {
             case CHANGE_REDSTONE_MODE:
                 int ord = this.redstoneMode.ordinal() + element;
+
                 if (ord >= RedstoneMode.values().length)
                 {
                     ord = 0;
@@ -570,15 +573,19 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 {
                     ord = RedstoneMode.values().length - 1;
                 }
+
                 this.setRedstoneModeFromOrdinal(ord);
                 this.scheduleBlockUpdate(this.delay, false);
                 break;
+
             case CHANGE_DELAY:
                 this.setUpdateDelay(this.delay + element);
                 break;
+
             case CHANGE_STACK_LIMIT:
                 this.setStackLimit(this.itemHandlerBase.getInventoryStackLimit() + element);
                 break;
+
             case CHANGE_FILTERS:
                 this.filterMask = (this.filterMask ^ element) & 0x7;
                 break;

@@ -92,10 +92,8 @@ public class ItemSyringe extends ItemEnderUtilities
         // 3: Passifier - remove target AI tasks and set a flag which causes the removal to happen on (re-)spawn
         if (meta == 3)
         {
-            if (playerIn.getEntityWorld().isRemote == false)
+            if (playerIn.getEntityWorld().isRemote == false && passifyEntity(living))
             {
-                passifyEntity(living);
-
                 if (playerIn.capabilities.isCreativeMode == false)
                 {
                     stack.setItemDamage(0);
@@ -110,10 +108,10 @@ public class ItemSyringe extends ItemEnderUtilities
         return super.itemInteractionForEntity(stack, playerIn, target, hand);
     }
 
-    public static void passifyEntity(EntityLiving living)
+    public static boolean passifyEntity(EntityLiving living)
     {
-        EntityUtils.addDummyAIBlockerTask(living, living.targetTasks, -10, 0xFF);
         living.addTag(TAG_PASSIFIED);
+        return EntityUtils.addDummyAIBlockerTask(living, living.targetTasks, -10, 0xFF);
     }
 
     public static void removePassifiedState(EntityLiving living)
