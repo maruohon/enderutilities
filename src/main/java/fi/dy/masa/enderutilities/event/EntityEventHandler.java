@@ -133,12 +133,11 @@ public class EntityEventHandler
     public void onAttackEntity(LivingAttackEvent event)
     {
         // When a "passified" entity is attacked by another entity, remove the "passified" tag,
-        // and restore the target AI tasks by re-creating the attacked entity
-        if (event.getSource() instanceof EntityDamageSource &&
-            event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED) &&
-            ItemSyringe.removePassifiedState(event.getEntity()))
+        // and restore the target AI tasks by re-adding all the AI tasks from a fresh clone
+        if ((event.getEntity() instanceof EntityLiving) && event.getEntity().getEntityWorld().isRemote == false &&
+            event.getSource() instanceof EntityDamageSource && event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
         {
-            event.setCanceled(true);
+            ItemSyringe.removePassifiedState((EntityLiving) event.getEntity());
         }
     }
 
@@ -146,9 +145,9 @@ public class EntityEventHandler
     public void onJoinWorld(EntityJoinWorldEvent event)
     {
         if (event.getWorld().isRemote == false && (event.getEntity() instanceof EntityLiving) &&
-             event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
+            event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
         {
-            EntityUtils.removeAllAITargetTasks((EntityLiving) event.getEntity());
+            ItemSyringe.passifyEntity((EntityLiving) event.getEntity());
         }
     }
 

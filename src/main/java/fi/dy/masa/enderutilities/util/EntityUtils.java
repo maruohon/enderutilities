@@ -9,9 +9,12 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAIFindEntityNearestPlayer;
+import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityAITasks.EntityAITaskEntry;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityItem;
@@ -23,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -33,6 +37,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.effects.Sounds;
+import fi.dy.masa.enderutilities.entity.ai.EntityAIDummyBlockerTask;
 import fi.dy.masa.enderutilities.registry.BlackLists;
 import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
 
@@ -922,22 +927,109 @@ public class EntityUtils
     }
 
     /**
-     * Removes all AI tasks from the targetTasks of the given entity <b>living</b>
-     * @param living
+     * Removes all AI tasks from the given EntityAITasks object
+     * @param tasks the EntityAITasks object to remove the tasks from
      * @return true if at least some tasks were removed
      */
-    public static boolean removeAllAITargetTasks(EntityLiving living)
+    public static boolean removeAllAITasks(EntityAITasks tasks)
     {
-        List<EntityAITaskEntry> tasks = new ArrayList<EntityAITaskEntry>(living.targetTasks.taskEntries);
+        List<EntityAITaskEntry> taskList = new ArrayList<EntityAITaskEntry>(tasks.taskEntries);
 
-        for (EntityAITaskEntry taskEntry : tasks)
+        for (EntityAITaskEntry taskEntry : taskList)
         {
-            living.targetTasks.removeTask(taskEntry.action);
+            tasks.removeTask(taskEntry.action);
         }
 
-        return tasks.isEmpty() == false;
+        return taskList.isEmpty() == false;
     }
 
+    /**
+     * Adds a dummy AI task with the given priority and mutex bits, to block other AI tasks.
+     * Also resets all other tasks in the same EntityAITasks object.
+     * @param living
+     * @param tasks
+     * @param priority
+     * @param mutexBits
+     */
+    public static void addDummyAIBlockerTask(EntityLiving living, EntityAITasks tasks, int priority, int mutexBits)
+    {
+        List<EntityAITaskEntry> taskList = new ArrayList<EntityAITaskEntry>(tasks.taskEntries);
+
+        // Removing and re-adding the tasks will remove them from the executing tasks
+        for (EntityAITaskEntry taskEntry : taskList)
+        {
+            //taskEntry.action.resetTask();
+            tasks.removeTask(taskEntry.action);
+        }
+
+        tasks.addTask(priority, new EntityAIDummyBlockerTask(living, mutexBits));
+
+        // The tickrate is hard coded to 3 at the moment, so this should get our dummy task into the executing tasks set
+        tasks.onUpdateTasks();
+        tasks.onUpdateTasks();
+        tasks.onUpdateTasks();
+
+        for (EntityAITaskEntry taskEntry : taskList)
+        {
+            tasks.addTask(taskEntry.priority, taskEntry.action);
+
+            // The EntityAIFindEntityNearestPlayer task by default has mutex bits as 0,
+            // so our dummy task wouldn't block it without this.
+            if (taskEntry.action instanceof EntityAIFindEntityNearestPlayer)
+            {
+                taskEntry.action.setMutexBits(taskEntry.action.getMutexBits() | 0x80);
+            }
+        }
+    }
+
+    /**
+     * Removes the (last found) dummy blocker AI task, if any
+     * @param tasks
+     */
+    public static void removeDummyAIBlockerTask(EntityAITasks tasks)
+    {
+        EntityAIBase task = null;
+
+        for (EntityAITaskEntry taskEntry : tasks.taskEntries)
+        {
+            if (taskEntry.action instanceof EntityAIDummyBlockerTask)
+            {
+                task = taskEntry.action;
+            }
+
+            // Restore the default mutex bits.
+            // TODO: If modded mob tasks use this bit, then we should store the original value so we can restore it.
+            if (taskEntry.action instanceof EntityAIFindEntityNearestPlayer)
+            {
+                taskEntry.action.setMutexBits(taskEntry.action.getMutexBits() & 0x7F);
+            }
+        }
+
+        if (task != null)
+        {
+            tasks.removeTask(task);
+        }
+    }
+
+    /**
+     * Creates a new, identical instance of the given entity, by writing it to NBT
+     * and then constructing a new entity based on that NBT data.
+     * @param entityOld the original entity
+     * @return the new entity, or null if the operation failed
+     */
+    @Nullable
+    public static Entity recreateEntityViaNBT(Entity entityOld)
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        Entity entityNew = null;
+
+        if (entityOld.writeToNBTOptional(tag))
+        {
+            entityNew = EntityList.createEntityFromNBT(tag, entityOld.getEntityWorld());
+        }
+
+        return entityNew;
+    }
     /**
      * Drops/spawns EntityItems to the world from the provided ItemStack stack.
      * The number of items dropped is dictated by the parameter amountOverride.

@@ -3,19 +3,15 @@ package fi.dy.masa.enderutilities.item;
 import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -98,8 +94,7 @@ public class ItemSyringe extends ItemEnderUtilities
         {
             if (playerIn.getEntityWorld().isRemote == false)
             {
-                EntityUtils.removeAllAITargetTasks(living);
-                living.addTag(TAG_PASSIFIED);
+                passifyEntity(living);
 
                 if (playerIn.capabilities.isCreativeMode == false)
                 {
@@ -115,41 +110,16 @@ public class ItemSyringe extends ItemEnderUtilities
         return super.itemInteractionForEntity(stack, playerIn, target, hand);
     }
 
-    public static boolean removePassifiedState(Entity entity)
+    public static void passifyEntity(EntityLiving living)
     {
-        entity.dismountRidingEntity();
-        entity.getTags().remove(TAG_PASSIFIED);
-        NBTTagCompound tag = new NBTTagCompound();
+        EntityUtils.addDummyAIBlockerTask(living, living.targetTasks, -10, 0xFF);
+        living.addTag(TAG_PASSIFIED);
+    }
 
-        if (entity.writeToNBTOptional(tag))
-        {
-            World world = entity.getEntityWorld();
-            Entity entityNew = EntityList.createEntityFromNBT(tag, world);
-
-            if (entityNew != null)
-            {
-                entity.isDead = true;
-
-                // This removal code is from World#updateEntities()
-                // We need to do it here so that the new entity with the same UUID can be spawned
-                int cx = entity.chunkCoordX;
-                int cz = entity.chunkCoordZ;
-
-                if (entity.addedToChunk)
-                {
-                    world.getChunkFromChunkCoords(cx, cz).removeEntity(entity);
-                }
-
-                world.loadedEntityList.remove(entity);
-                world.onEntityRemoved(entity);
-
-                world.spawnEntity(entityNew);
-
-                return true;
-            }
-        }
-
-        return false;
+    public static void removePassifiedState(EntityLiving living)
+    {
+        living.getTags().remove(TAG_PASSIFIED);
+        EntityUtils.removeDummyAIBlockerTask(living.targetTasks);
     }
 
     @SideOnly(Side.CLIENT)
