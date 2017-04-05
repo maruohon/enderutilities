@@ -159,7 +159,10 @@ public class ItemEnderPart extends ItemModule
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase))
             {
-                --stack.stackSize;
+                if (player.getEntityWorld().isRemote == false)
+                {
+                    stack.stackSize--;
+                }
 
                 return true;
             }
