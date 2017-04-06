@@ -342,7 +342,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     {
         byte preset = NBTUtils.getByte(manager, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
 
-        InventoryItem inv = new InventoryItem(manager, 36, 1, false, player.getEntityWorld().isRemote, player, TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        InventoryItem inv = new InventoryItem(manager, 36, 1, false, player.getEntityWorld().isRemote, TAG_NAME_FILTER_INVENTORY_PRE + preset);
         inv.readFromContainerItemStack();
 
         // Transport filters/functionality enabled

@@ -202,7 +202,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
         public ItemHandlerWrapperInstalledModules(IItemHandlerModifiable baseHandler, int invSize, boolean isRemote, TileEntityToolWorkstation te)
         {
-            super(null, invSize, 1, false, isRemote, null, te, "Items");
+            super(null, invSize, 1, false, isRemote, te, "Items");
             this.te = te;
         }
 

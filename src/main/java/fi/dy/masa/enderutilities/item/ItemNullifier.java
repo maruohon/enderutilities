@@ -82,23 +82,34 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         return super.onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
     }
 
-    private static boolean isNullifierEnabled(ItemStack stack)
+    public static boolean isNullifierEnabled(ItemStack stack)
     {
         return NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_DISABLED) == false;
     }
 
     private ItemStack getItemForUse(ItemStack stackNullifier, EntityPlayer player)
     {
-        //ItemHandlerNullifier inv = getInventoryForItem(stackNullifier, player);
-        // Create the inventory directy here, and pretend to be on the server side,
+        // Create the inventory here by pretending to be on the server side,
         // so that the readFromContainerItemStack() call actually reads the items on the client side too.
         // This is (mostly only?) required to get the block placing sounds to work on the client.
-        ItemHandlerNullifier inv = new ItemHandlerNullifier(stackNullifier, 5, 1024, true, false, player);
-        inv.readFromContainerItemStack();
+        // Ie. in other words, to get the correct item to use also on the client side.
+        ItemHandlerNullifier inv = createInventoryForItem(stackNullifier, false);
 
         int slot = MathHelper.clamp(NBTUtils.getByte(stackNullifier, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION), 0, inv.getSlots() - 1);
         boolean simulate = player.getEntityWorld().isRemote;
         return inv.extractItem(slot, 1, simulate);
+    }
+
+    public static ItemStack getSelectedStack(ItemStack stackNullifier)
+    {
+        // Create the inventory here by pretending to be on the server side,
+        // so that the readFromContainerItemStack() call actually reads the items on the client side too.
+        // This is (mostly only?) required to get the block placing sounds to work on the client.
+        // Ie. in other words, to get the correct item to use also on the client side.
+        ItemHandlerNullifier inv = createInventoryForItem(stackNullifier, false);
+
+        int slot = MathHelper.clamp(NBTUtils.getByte(stackNullifier, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION), 0, inv.getSlots() - 1);
+        return inv.getStackInSlot(slot);
     }
 
     private static ItemHandlerNullifier getInventoryForItem(ItemStack stackNullifier, EntityPlayer player)
@@ -114,7 +125,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         }
         else
         {
-            inv = createInventoryForItem(stackNullifier, player);
+            inv = createInventoryForItem(stackNullifier, player.getEntityWorld().isRemote);
         }
 
         if (inv.isAccessibleBy(player) == false)
@@ -125,9 +136,9 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         return inv;
     }
 
-    public static ItemHandlerNullifier createInventoryForItem(ItemStack stack, EntityPlayer player)
+    public static ItemHandlerNullifier createInventoryForItem(ItemStack stack, boolean isRemote)
     {
-        ItemHandlerNullifier inv = new ItemHandlerNullifier(stack, 5, 1024, true, player.getEntityWorld().isRemote, player);
+        ItemHandlerNullifier inv = new ItemHandlerNullifier(stack, 5, 1024, true, isRemote);
         inv.readFromContainerItemStack();
         return inv;
     }
@@ -405,9 +416,9 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     public static class ItemHandlerNullifier extends InventoryItem
     {
         public ItemHandlerNullifier(ItemStack containerStack, int invSize, int stackLimit,
-                boolean allowCustomStackSizes, boolean isRemote, EntityPlayer player)
+                boolean allowCustomStackSizes, boolean isRemote)
         {
-            super(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player);
+            super(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote);
         }
 
         @Override

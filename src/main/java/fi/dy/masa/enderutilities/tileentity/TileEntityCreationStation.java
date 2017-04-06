@@ -137,12 +137,12 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private void initStorage(boolean isRemote)
     {
-        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, isRemote, null, this);
+        this.itemInventory = new InventoryItemCallback(null, INV_SIZE_ITEMS, true, isRemote, this);
         this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
         this.itemHandlerExternal = this.wrappedInventory;
 
-        this.craftingInventories[0] = new InventoryItemCallback(null, 9, 64, false, isRemote, null, this, "CraftItems_0");
-        this.craftingInventories[1] = new InventoryItemCallback(null, 9, 64, false, isRemote, null, this, "CraftItems_1");
+        this.craftingInventories[0] = new InventoryItemCallback(null, 9, 64, false, isRemote, this, "CraftItems_0");
+        this.craftingInventories[1] = new InventoryItemCallback(null, 9, 64, false, isRemote, this, "CraftItems_1");
 
         ItemStack containerStack = this.getContainerStack();
         this.itemInventory.setContainerItemStack(containerStack);

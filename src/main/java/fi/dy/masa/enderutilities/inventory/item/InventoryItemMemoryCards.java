@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -8,9 +7,9 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 
 public class InventoryItemMemoryCards extends InventoryItemModularModules
 {
-    public InventoryItemMemoryCards(InventoryItemModular invModular, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    public InventoryItemMemoryCards(InventoryItemModular invModular, ItemStack containerStack, int invSize, boolean isRemote)
     {
-        super(invModular, containerStack, invSize, isRemote, player);
+        super(invModular, containerStack, invSize, isRemote);
     }
 
     @Override

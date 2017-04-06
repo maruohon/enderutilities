@@ -19,7 +19,7 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
 
     public ContainerNullifier(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, ItemNullifier.createInventoryForItem(containerStack, player));
+        super(player, ItemNullifier.createInventoryForItem(containerStack, player.getEntityWorld().isRemote));
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.inventoryItem = (ItemHandlerNullifier) this.inventory;
         this.inventoryItem.setHostInventory(this.playerInv, this.containerUUID);

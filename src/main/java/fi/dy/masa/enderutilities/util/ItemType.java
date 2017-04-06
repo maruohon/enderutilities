@@ -83,4 +83,17 @@ public class ItemType
 
         return true;
     }
+
+    @Override
+    public String toString()
+    {
+        if (this.checkNBT())
+        {
+            return this.stack.getItem().getRegistryName() + "@" + this.stack.getMetadata() + this.stack.getTagCompound();
+        }
+        else
+        {
+            return this.stack.getItem().getRegistryName() + "@" + this.stack.getMetadata();
+        }
+    }
 }

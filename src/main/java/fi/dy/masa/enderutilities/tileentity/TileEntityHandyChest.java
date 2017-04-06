@@ -67,7 +67,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
 
     private void initStorage(int invSize, boolean isRemote)
     {
-        this.itemInventory = new InventoryItemCallback(null, invSize, true, isRemote, null, this);
+        this.itemInventory = new InventoryItemCallback(null, invSize, true, isRemote, this);
         this.itemInventory.setContainerItemStack(this.getContainerStack());
         this.wrappedInventory = new ItemHandlerWrapperPermissions(this.itemInventory, null);
         this.itemHandlerExternal = this.wrappedInventory;

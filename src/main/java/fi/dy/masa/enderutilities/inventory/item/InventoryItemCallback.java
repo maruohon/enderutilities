@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
@@ -10,15 +9,15 @@ public class InventoryItemCallback extends InventoryItem
     private final IModularInventoryHolder callback;
 
     public InventoryItemCallback(ItemStack containerStack, int invSize, boolean allowCustomStackSizes,
-            boolean isRemote, EntityPlayer player, IModularInventoryHolder callback)
+            boolean isRemote, IModularInventoryHolder callback)
     {
-        this(containerStack, invSize, 64, allowCustomStackSizes, isRemote, player, callback, "Items");
+        this(containerStack, invSize, 64, allowCustomStackSizes, isRemote, callback, "Items");
     }
 
     public InventoryItemCallback(ItemStack containerStack, int invSize, int maxStackSize, boolean allowCustomStackSizes,
-            boolean isRemote, EntityPlayer player, IModularInventoryHolder callback, String tagName)
+            boolean isRemote, IModularInventoryHolder callback, String tagName)
     {
-        super(containerStack, invSize, maxStackSize, allowCustomStackSizes, isRemote, player, tagName);
+        super(containerStack, invSize, maxStackSize, allowCustomStackSizes, isRemote, tagName);
         this.callback = callback;
     }
 

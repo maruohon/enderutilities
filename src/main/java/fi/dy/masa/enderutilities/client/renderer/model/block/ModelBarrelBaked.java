@@ -34,7 +34,6 @@ import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
 public class ModelBarrelBaked implements IBakedModel
 {
-    public static final ResourceLocation BASE_MODEL = new ResourceLocation(Reference.MOD_ID, "block/barrel_base");
     public static final String TEX_NORMAL_FRONT   = Reference.MOD_ID + ":blocks/barrel_normal_front";
     public static final String TEX_NORMAL_SIDE    = Reference.MOD_ID + ":blocks/barrel_normal_side";
     public static final String TEX_NORMAL_TOP     = Reference.MOD_ID + ":blocks/barrel_normal_top";

@@ -1,15 +1,14 @@
 package fi.dy.masa.enderutilities.inventory.item;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public class InventoryItemModularModules extends InventoryItemModules
 {
     protected InventoryItemModular inventoryItemModular;
 
-    public InventoryItemModularModules (InventoryItemModular invModular, ItemStack containerStack, int invSize, boolean isRemote, EntityPlayer player)
+    public InventoryItemModularModules (InventoryItemModular invModular, ItemStack containerStack, int invSize, boolean isRemote)
     {
-        super(containerStack, invSize, isRemote, player);
+        super(containerStack, invSize, isRemote);
         this.inventoryItemModular = invModular;
     }
 

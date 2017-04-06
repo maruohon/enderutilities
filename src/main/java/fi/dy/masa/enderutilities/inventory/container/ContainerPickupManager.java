@@ -34,16 +34,16 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
-        super(player, new InventoryItem(containerStack, 1, 1024, true, player.getEntityWorld().isRemote, player, ItemPickupManager.TAG_NAME_TX_INVENTORY));
+        super(player, new InventoryItem(containerStack, 1, 1024, true, player.getEntityWorld().isRemote, ItemPickupManager.TAG_NAME_TX_INVENTORY));
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.filterSlots = new SlotRange(0, 0);
 
-        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.getEntityWorld().isRemote, player);
+        this.inventoryItemModules = new InventoryItemModules(containerStack, NUM_MODULES, player.getEntityWorld().isRemote);
         this.inventoryItemModules.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemModules.readFromContainerItemStack();
 
         byte preset = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
-        this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.getEntityWorld().isRemote, player, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
+        this.inventoryItemFilters = new InventoryItem(containerStack, 36, 1, false, player.getEntityWorld().isRemote, ItemPickupManager.TAG_NAME_FILTER_INVENTORY_PRE + preset);
         this.inventoryItemFilters.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 

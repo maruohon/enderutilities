@@ -26,7 +26,7 @@ public class InventoryItemPermissions extends InventoryItem
     public InventoryItemPermissions(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
             boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IItemHandler hostInv)
     {
-        super(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, tagName,containerUUID, hostInv);
+        super(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, tagName,containerUUID, hostInv);
 
         if (player != null)
         {

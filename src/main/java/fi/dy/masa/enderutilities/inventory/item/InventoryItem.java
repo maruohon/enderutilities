@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.inventory.item;
 
 import java.util.UUID;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
@@ -19,20 +18,19 @@ public class InventoryItem extends ItemStackHandlerBasic
     protected UUID containerUUID;
     protected IItemHandler hostInventory;
 
-    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
-            boolean isRemote, EntityPlayer player)
+    public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes, boolean isRemote)
     {
-        this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, "Items");
+        this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, "Items");
     }
 
     public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
-            boolean isRemote, EntityPlayer player, String tagName)
+            boolean isRemote, String tagName)
     {
-        this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, player, tagName, null, null);
+        this(containerStack, invSize, stackLimit, allowCustomStackSizes, isRemote, tagName, null, null);
     }
 
     public InventoryItem(ItemStack containerStack, int invSize, int stackLimit, boolean allowCustomStackSizes,
-            boolean isRemote, EntityPlayer player, String tagName, UUID containerUUID, IItemHandler hostInv)
+            boolean isRemote, String tagName, UUID containerUUID, IItemHandler hostInv)
     {
         super(invSize, stackLimit, allowCustomStackSizes, tagName);
         this.containerStack = containerStack;

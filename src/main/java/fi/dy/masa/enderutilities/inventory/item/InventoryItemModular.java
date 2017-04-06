@@ -30,7 +30,7 @@ public class InventoryItemModular extends InventoryItemPermissions
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.hostInventory = null;
 
-        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.getEntityWorld().isRemote, player);
+        this.moduleInventory = new InventoryItemMemoryCards(this, containerStack, moduleInvSize, player.getEntityWorld().isRemote);
         this.moduleInventory.readFromContainerItemStack();
 
         this.readFromContainerItemStack();

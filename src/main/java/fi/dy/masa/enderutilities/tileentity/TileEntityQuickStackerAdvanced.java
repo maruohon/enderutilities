@@ -83,8 +83,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     private void initStorage(boolean isRemote)
     {
-        this.inventoryFiltersBound = new InventoryItemCallback(null, 36, 1, false, isRemote, null, this, "FilterItems");
-        this.inventoryFiltersBoundTemp = new InventoryItem(null, 36, 1, false, isRemote, null, "FilterItems");
+        this.inventoryFiltersBound = new InventoryItemCallback(null, 36, 1, false, isRemote, this, "FilterItems");
+        this.inventoryFiltersBoundTemp = new InventoryItem(null, 36, 1, false, isRemote, "FilterItems");
         this.filtersBound = new FilterSettings(this.inventoryFiltersBound);
         this.readFilterSettingsFromModule(this.getContainerStack());
     }
