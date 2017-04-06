@@ -399,13 +399,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     /**
      * Try to handle the items being picked up.
      * @param event
-     * @return false to prevent further processing of the event
+     * @return true to prevent further processing of the event
      */
     public static boolean onItemPickupEvent(PlayerItemPickupEvent event)
     {
         if (event.getEntityPlayer().getEntityWorld().isRemote)
         {
-            return true;
+            return false;
         }
 
         EntityPlayer player = event.getEntityPlayer();
@@ -471,28 +471,27 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             event.setCanceled(true);
         }
 
-        return deny == false;
+        return deny;
     }
 
     /**
      * Try to handle the items being picked up.
      * @param event
-     * @return false to prevent further processing of the event
+     * @return true to prevent further processing of the event
      */
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
+        ItemStack stack = entityItem.getEntityItem();
+        EntityPlayer player = event.getEntityPlayer();
 
-        if (event.getEntityPlayer().getEntityWorld().isRemote || entityItem.isDead ||
-                entityItem.getEntityItem() == null || entityItem.getEntityItem().getItem() == null ||
-                entityItem.getEntityItem().stackSize <= 0)
+        if (player.getEntityWorld().isRemote || entityItem.isDead ||
+            stack == null || stack.getItem() == null || stack.stackSize <= 0)
         {
             return true;
         }
 
-        ItemStack stack = entityItem.getEntityItem();
         int origStackSize = stack.stackSize;
-        EntityPlayer player = event.getEntityPlayer();
         List<ItemStack> managers = getEnabledItems(player);
         // If there are enabled managers in the player's inventory, then initialize to "deny"
         boolean deny = managers.size() > 0;
@@ -550,7 +549,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             event.setCanceled(true);
         }
 
-        return deny == false;
+        return deny;
     }
 
     @Override

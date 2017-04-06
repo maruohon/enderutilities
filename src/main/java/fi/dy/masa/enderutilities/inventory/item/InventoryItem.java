@@ -111,7 +111,8 @@ public class InventoryItem extends ItemStackHandlerBasic
             this.clearInventory();
 
             ItemStack stack = this.getContainerItemStack();
-            if (stack != null && stack.hasTagCompound() == true && this.isCurrentlyAccessible() == true)
+
+            if (stack != null && stack.hasTagCompound() && this.isCurrentlyAccessible())
             {
                 this.deserializeNBT(stack.getTagCompound());
             }
@@ -127,7 +128,8 @@ public class InventoryItem extends ItemStackHandlerBasic
         {
             //System.out.println("InventoryItem#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
             ItemStack stack = this.getContainerItemStack();
-            if (stack != null && this.isCurrentlyAccessible() == true)
+
+            if (stack != null && this.isCurrentlyAccessible())
             {
                 NBTUtils.writeItemsToContainerItem(stack, this.items, this.getItemStorageTagName(), true);
             }
@@ -169,6 +171,7 @@ public class InventoryItem extends ItemStackHandlerBasic
         if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
         {
             int tier = ((IModule) stack.getItem()).getModuleTier(stack);
+
             if (tier >= 6 && tier <= 12)
             {
                 return (int)Math.pow(2, tier);

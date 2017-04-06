@@ -306,6 +306,7 @@ public class ConfigReader
         Configs.disableItemInventorySwapper       = getProp("disableItemInventorySwapper", false).getBoolean();
         Configs.disableItemLivingManipulator      = getProp("disableItemLivingManipulator", false).getBoolean();
         Configs.disableItemMobHarness             = getProp("disableItemMobHarness", false).getBoolean();
+        Configs.disableItemNullifier              = getProp("disableItemNullifier", false).getBoolean();
         Configs.disableItemPickupManager          = getProp("disableItemPickupManager", false).getBoolean();
         Configs.disableItemQuickStacker           = getProp("disableItemQuickStacker", false).getBoolean();
         Configs.disableItemPortalScaler           = getProp("disableItemPortalScaler", false).getBoolean();
@@ -367,6 +368,7 @@ public class ConfigReader
         Configs.disableRecipeInventorySwapper     = getProp("disableRecipeInventorySwapper", false).getBoolean();
         Configs.disableRecipeLivingManipulator    = getProp("disableRecipeLivingManipulator", false).getBoolean();
         Configs.disableRecipeMobHarness           = getProp("disableRecipeMobHarness", false).getBoolean();
+        Configs.disableRecipeNullifier            = getProp("disableRecipeNullifier", false).getBoolean();
         Configs.disableRecipePickupManager        = getProp("disableRecipePickupManager", false).getBoolean();
         Configs.disableRecipeQuickStacker         = getProp("disableRecipeQuickStacker", false).getBoolean();
         Configs.disableRecipePortalScaler         = getProp("disableRecipePortalScaler", false).getBoolean();

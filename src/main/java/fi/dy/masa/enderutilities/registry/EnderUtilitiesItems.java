@@ -44,6 +44,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities inventorySwapper = new ItemInventorySwapper();
     public static final ItemEnderUtilities livingManipulator = new ItemLivingManipulator();
     public static final ItemEnderUtilities mobHarness = new ItemMobHarness();
+    public static final ItemEnderUtilities NULLIFIER = new ItemNullifier();
     public static final ItemEnderUtilities pickupManager = new ItemPickupManager();
     public static final ItemEnderUtilities quickStacker = new ItemQuickStacker();
     public static final ItemEnderUtilities portalScaler = new ItemPortalScaler();
@@ -73,6 +74,7 @@ public class EnderUtilitiesItems
         registerItem(inventorySwapper,      ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER,         Configs.disableItemInventorySwapper);
         registerItem(livingManipulator,     ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR,        Configs.disableItemLivingManipulator);
         registerItem(mobHarness,            ReferenceNames.NAME_ITEM_MOB_HARNESS,               Configs.disableItemMobHarness);
+        registerItem(NULLIFIER,             ReferenceNames.NAME_ITEM_NULLIFIER,                 Configs.disableItemNullifier);
         registerItem(pickupManager,         ReferenceNames.NAME_ITEM_PICKUP_MANAGER,            Configs.disableItemPickupManager);
         registerItem(quickStacker,          ReferenceNames.NAME_ITEM_QUICK_STACKER,             Configs.disableItemQuickStacker);
         registerItem(portalScaler,          ReferenceNames.NAME_ITEM_PORTAL_SCALER,             Configs.disableItemPortalScaler);
@@ -183,6 +185,10 @@ public class EnderUtilitiesItems
         if (Configs.disableRecipeMobHarness == false && Configs.disableItemMobHarness == false)
         {
             GameRegistry.addRecipe(new ItemStack(mobHarness), "LRL", "LCL", "LRL", 'R', rope, 'L', Items.LEATHER, 'C', core0);
+        }
+        if (Configs.disableRecipeNullifier == false && Configs.disableItemNullifier == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(NULLIFIER), "CLC", "A A", "CLC", 'C', "chestWood", 'A', alloy0, 'L', Items.LAVA_BUCKET));
         }
         if (Configs.disableRecipePickupManager == false && Configs.disableItemPickupManager == false)
         {

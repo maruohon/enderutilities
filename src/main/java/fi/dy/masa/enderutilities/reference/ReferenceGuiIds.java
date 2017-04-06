@@ -15,4 +15,5 @@ public class ReferenceGuiIds
     public static final int GUI_ID_INVENTORY_SWAPPER        = 1003;
     public static final int GUI_ID_PICKUP_MANAGER           = 1004;
     public static final int GUI_ID_QUICK_STACKER            = 1005;
+    public static final int GUI_ID_NULLIFIER                = 1006;
 }

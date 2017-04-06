@@ -298,6 +298,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
         this.registerItemModel(EnderUtilitiesItems.mobHarness);
+        this.registerItemModel(EnderUtilitiesItems.NULLIFIER);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.quickStacker);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
