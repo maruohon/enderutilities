@@ -1,12 +1,11 @@
 {
     "textures": {
-        "base": "enderutilities:items/nullifier",
-        "base2": "minecraft:blocks/dirt"
+        "base": "enderutilities:items/nullifier"
     },
     "elements": [ 
         {
-            "from": [  0, 14, 7.5 ],
-            "to":   [ 16, 16, 8.5 ],
+            "from": [  0, 14, 7.51 ],
+            "to":   [ 16, 16, 8.49 ],
             "faces": {
                 "down":  { "uv": [ 0, 0, 16, 1 ], "texture": "#base" },
                 "up":    { "uv": [ 0, 0, 16, 1 ], "texture": "#base" },
@@ -17,8 +16,8 @@
             }
         },
         {
-            "from": [  0, 0, 7.5 ],
-            "to":   [ 16, 2, 8.5 ],
+            "from": [  0, 0, 7.51 ],
+            "to":   [ 16, 2, 8.49 ],
             "faces": {
                 "down":  { "uv": [ 0, 15, 16, 16 ], "texture": "#base" },
                 "up":    { "uv": [ 0, 15, 16, 16 ], "texture": "#base" },
@@ -29,8 +28,8 @@
             }
         },
         {
-            "from": [ 0,  2, 7.5 ],
-            "to":   [ 2, 14, 8.5 ],
+            "from": [ 0,  2, 7.51 ],
+            "to":   [ 2, 14, 8.49 ],
             "faces": {
                 "north": { "uv": [ 0, 2, 2, 14 ], "texture": "#base" },
                 "south": { "uv": [ 0, 2, 2, 14 ], "texture": "#base" },
@@ -39,8 +38,8 @@
             }
         },
         {
-            "from": [ 14,  2, 7.5 ],
-            "to":   [ 16, 14, 8.5 ],
+            "from": [ 14,  2, 7.51 ],
+            "to":   [ 16, 14, 8.49 ],
             "faces": {
                 "north": { "uv": [ 14, 2, 16, 14 ], "texture": "#base" },
                 "south": { "uv": [ 14, 2, 16, 14 ], "texture": "#base" },
@@ -62,12 +61,12 @@
         },
         "thirdperson_righthand": {
             "rotation": [ 0, 0, 0 ],
-            "translation": [ 0, 3, 1 ],
+            "translation": [ 0, 5.8, 1 ],
             "scale": [ 0.55, 0.55, 0.55 ]
         },
         "thirdperson_lefthand": {
             "rotation": [ 0, 0, 0 ],
-            "translation": [ 0, 3, 1 ],
+            "translation": [ 0, 5.8, 1 ],
             "scale": [ 0.55, 0.55, 0.55 ]
         },
         "firstperson_righthand": {

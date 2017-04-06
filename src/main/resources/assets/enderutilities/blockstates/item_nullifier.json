@@ -1,0 +1,10 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:custom/nullifier",
+        "transform": "forge:default-item"
+    },
+    "variants": {
+        "inventory": [{}]
+    }
+}

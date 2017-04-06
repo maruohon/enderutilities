@@ -39,6 +39,7 @@ import fi.dy.masa.enderutilities.client.renderer.entity.RenderFallingBlockEU;
 import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
+import fi.dy.masa.enderutilities.client.renderer.model.ModelNullifierBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrelBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
@@ -298,7 +299,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
         this.registerItemModel(EnderUtilitiesItems.mobHarness);
-        this.registerItemModel(EnderUtilitiesItems.NULLIFIER);
+        this.registerItemModelWithNamePrefix(EnderUtilitiesItems.NULLIFIER, 0, "item_");
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
         this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.quickStacker);
         this.registerItemModel(EnderUtilitiesItems.portalScaler);
@@ -308,6 +309,7 @@ public class ClientProxy extends CommonProxy
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
+        ModelLoaderRegistry.registerLoader(new ModelNullifierBaked.ModelLoader());
     }
 
     private void registerItemModel(ItemEnderUtilities item)
@@ -328,6 +330,16 @@ public class ClientProxy extends CommonProxy
         if (item.isEnabled())
         {
             ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName() + nameSuffix, "inventory"));
+        }
+    }
+
+    private void registerItemModelWithNamePrefix(ItemEnderUtilities item, int meta, String namePrefix)
+    {
+        if (item.isEnabled())
+        {
+            ResourceLocation rl = item.getRegistryName();
+            ModelLoader.setCustomModelResourceLocation(item, meta,
+                    new ModelResourceLocation(rl.getResourceDomain() + ":" + namePrefix + rl.getResourcePath(), "inventory"));
         }
     }
 
@@ -358,12 +370,6 @@ public class ClientProxy extends CommonProxy
             ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
         }
     }
-
-    /*private void registerSmartItemModelWrapper(ItemEnderUtilities item)
-    {
-        ModelLoader.registerItemVariants(item, item.getItemVariants());
-        ModelLoader.setCustomMeshDefinition(item, ItemMeshDefinitionWrapper.instance());
-    }*/
 
     private void registerBlockModels()
     {
