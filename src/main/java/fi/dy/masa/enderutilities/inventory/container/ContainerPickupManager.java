@@ -31,6 +31,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     public InventoryItem inventoryItemFilters;
     protected UUID containerUUID;
     protected SlotRange filterSlots;
+    private ItemStack stackLast;
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
@@ -109,12 +110,6 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         return InventoryUtils.getItemStackByUUID(this.playerInv, this.containerUUID, "UUID");
     }
 
-    @Override
-    public boolean canInteractWith(EntityPlayer player)
-    {
-        return true;
-    }
-
     protected boolean fakeSlotClick(int slotNum, int button, ClickType clickType, EntityPlayer player)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
@@ -181,6 +176,26 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     }
 
     @Override
+    public void detectAndSendChanges()
+    {
+        if (this.player.getEntityWorld().isRemote == false)
+        {
+            ItemStack stack = this.getContainerItem();
+
+            // The IPM stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            if (stack != this.stackLast)
+            {
+                this.inventoryItemTransmit.readFromContainerItemStack();
+                this.inventoryItemModules.readFromContainerItemStack();
+                this.inventoryItemFilters.readFromContainerItemStack();
+                this.stackLast = stack;
+            }
+        }
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
         if (this.filterSlots.contains(slotNum))
@@ -202,8 +217,6 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             }
         }
 
-        ItemStack modularStackPre = this.getContainerItem();
-
         ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
 
         ItemStack modularStackPost = this.getContainerItem();
@@ -218,15 +231,6 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             {
                 PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, 0, this.getSlot(0).getStack()), (EntityPlayerMP)player);
             }
-        }
-
-        // The modular stack changed after the click, re-read the inventory contents.
-        if (modularStackPre != modularStackPost)
-        {
-            //System.out.println("slotClick() - updating container");
-            this.inventoryItemTransmit.readFromContainerItemStack();
-            this.inventoryItemModules.readFromContainerItemStack();
-            this.inventoryItemFilters.readFromContainerItemStack();
         }
 
         this.detectAndSendChanges();

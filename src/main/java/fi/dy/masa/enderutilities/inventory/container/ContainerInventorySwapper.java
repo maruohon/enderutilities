@@ -168,12 +168,6 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer player)
-    {
-        return true;
-    }
-
-    @Override
     public void detectAndSendChanges()
     {
         if (this.player.getEntityWorld().isRemote == false)
