@@ -213,7 +213,7 @@ public class ModelBarrelBaked implements IBakedModel
         }
     }
 
-    public static class ModelLoader implements ICustomModelLoader
+    public static class ModelLoaderBarrel implements ICustomModelLoader
     {
         private static final ResourceLocation FAKE_LOCATION_NORMAL   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/barrel_normal");
         private static final ResourceLocation FAKE_LOCATION_CREATIVE = new ResourceLocation(Reference.MOD_ID, "models/block/custom/barrel_creative");

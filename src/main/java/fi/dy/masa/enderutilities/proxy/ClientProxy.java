@@ -309,7 +309,7 @@ public class ClientProxy extends CommonProxy
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
-        ModelLoaderRegistry.registerLoader(new ModelNullifierBaked.ModelLoader());
+        ModelLoaderRegistry.registerLoader(new ModelNullifierBaked.ModelLoaderNullifier());
     }
 
     private void registerItemModel(ItemEnderUtilities item)
@@ -374,10 +374,10 @@ public class ClientProxy extends CommonProxy
     private void registerBlockModels()
     {
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
-        ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoader());
+        ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoaderBarrel());
 
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
-        ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoader());
+        ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoaderInserter());
     }
 
     private void registerItemBlockModels()

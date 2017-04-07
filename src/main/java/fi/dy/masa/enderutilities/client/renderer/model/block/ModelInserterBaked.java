@@ -263,7 +263,7 @@ public class ModelInserterBaked implements IBakedModel
         }
     }
 
-    public static class ModelLoader implements ICustomModelLoader
+    public static class ModelLoaderInserter implements ICustomModelLoader
     {
         private static final ResourceLocation FAKE_LOCATION_NORMAL   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/inserter_normal");
         private static final ResourceLocation FAKE_LOCATION_FILTERED = new ResourceLocation(Reference.MOD_ID, "models/block/custom/inserter_filtered");

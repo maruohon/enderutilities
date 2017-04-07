@@ -1,7 +1,9 @@
 package fi.dy.masa.enderutilities.client.renderer.model;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -13,34 +15,56 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ItemModelMesherForge;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.IRetexturableModel;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.ModelStateComposition;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemNullifier;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.ItemType;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
+@EventBusSubscriber(Side.CLIENT)
 public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
 {
+    //private static Map<RegistryDelegate<Item>, ItemMeshDefinition> CUSTOM_MESH_DEFINITIONS;
+    //private static Map<Pair<RegistryDelegate<Item>, Integer>, ModelResourceLocation> CUSTOM_MODELS;
+    //private static Map<Integer, ModelResourceLocation> SIMPLE_SHAPES;
+    private static ModelLoader MODEL_LOADER;
+    private static Map<ModelResourceLocation, IModel> STATE_MODELS;
+    private static IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> LOCATIONS;
+    private static Map<Item, ItemMeshDefinition> SHAPERS;
+
     private static final Map<NullifierState, IBakedModel> NULLIFIER_MODEL_CACHE = new HashMap<NullifierState, IBakedModel>();
     private static final Map<ItemType, IBakedModel> ITEM_MODEL_CACHE = new HashMap<ItemType, IBakedModel>();
     private static final Map<Integer, IBakedModel>  TEXT_MODEL_CACHE = new HashMap<Integer, IBakedModel>();
@@ -49,6 +73,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
     private final IBakedModel modelLocked;
     private final IModelState modelState;
     private final VertexFormat format;
+    private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     private final TextureAtlasSprite particle;
     private final ImmutableMap<TransformType, TRSRTransformation> transformMap;
     private final Map<EnumFacing, ImmutableList<BakedQuad>> quads = new HashMap<EnumFacing, ImmutableList<BakedQuad>>();
@@ -60,6 +85,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         this.modelBase = baseModel.bake(state, format, bakedTextureGetter);
         this.modelLocked = lockedModel.bake(state, format, bakedTextureGetter);
         this.format = format;
+        this.bakedTextureGetter = bakedTextureGetter;
         this.particle = bakedTextureGetter.apply(new ResourceLocation(ModelNullifier.TEX_BASE));
         this.transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
     }
@@ -70,6 +96,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         this.modelBase = nullifierModel.modelBase;
         this.modelLocked = nullifierModel.modelLocked;
         this.format = nullifierModel.format;
+        this.bakedTextureGetter = nullifierModel.bakedTextureGetter;
         this.particle = nullifierModel.particle;
         this.transformMap = nullifierModel.transformMap;
 
@@ -138,9 +165,24 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
 
             if (itemModel == null)
             {
-                //TRSRTransformation tr = new TRSRTransformation(new Vector3f(mt.tx, mt.ty, mt.tz), null, new Vector3f(mt.sx, mt.sy, mt.sz), null);
-                //new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(tr));
-                itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, null, null);
+                IModel iModel = this.getItemModel(containedStack);
+
+                javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f(0.7f, 0.7f, 0.7f);
+                //Quat4f right = new Quat4f(0f, 0.25f, 0f, 1f);
+                TRSRTransformation tr = new TRSRTransformation(null, null, scale, null);
+
+                /*
+                org.lwjgl.util.vector.Vector3f rot = new org.lwjgl.util.vector.Vector3f(0f, 0f, 0f);
+                org.lwjgl.util.vector.Vector3f tra = new org.lwjgl.util.vector.Vector3f(0f, 0f, 0f);
+                org.lwjgl.util.vector.Vector3f sca = new org.lwjgl.util.vector.Vector3f(0.7f, 0.7f, 0.7f);
+                TRSRTransformation tr = new TRSRTransformation(new ItemTransformVec3f(rot, tra, sca));
+                */
+
+                IModelState state = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(tr));
+                itemModel = iModel.bake(state, this.format, this.bakedTextureGetter);
+
+                //itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, null, null);
+
                 ITEM_MODEL_CACHE.put(type, itemModel);
             }
 
@@ -168,6 +210,95 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         }
     }
 
+    private IModel getItemModel(ItemStack stack)
+    {
+        // Unfortunately this can't be done before the init phase...
+        this.reflectMaps();
+
+        Item item = stack.getItem();
+        ModelResourceLocation mrl = null;
+        //ModelResourceLocation mrl = CUSTOM_MODELS.get(Pair.of(item.delegate, stack.getMetadata()));
+        //System.out.printf("custom model mrl: %s\n", mrl);
+
+        //ModelResourceLocation mrl = SIMPLE_SHAPES.get(Integer.valueOf(Item.getIdFromItem(item) << 16 | stack.getMetadata()));
+        //System.out.printf("simple shapes map: %s\n", SIMPLE_SHAPES);
+
+        TIntObjectHashMap<ModelResourceLocation> map = LOCATIONS.get(item);
+
+        if (map != null)
+        {
+            mrl = map.get(stack.getMetadata());
+            //System.out.printf("ItemModelMesherForge location: %s\n", mrl);
+        }
+
+        if (mrl == null)
+        {
+            ItemMeshDefinition mesh = SHAPERS.get(item);
+
+            if (mesh != null)
+            {
+                mrl = mesh.getModelLocation(stack);
+            }
+        }
+
+        try
+        {
+            return ModelLoaderRegistry.getModel(mrl);
+        }
+        catch (Exception e)
+        {
+            IModel model = STATE_MODELS.get(mrl);
+
+            if (model != null)
+            {
+                return model;
+            }
+        }
+
+        return ModelLoaderRegistry.getMissingModel();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void reflectMaps()
+    {
+        //if (SIMPLE_SHAPES == null || SHAPERS == null)
+        if (LOCATIONS == null || SHAPERS == null)
+        {
+            try
+            {
+                ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+
+                //Field meshes = ReflectionHelper.findField(ModelLoader.class, "customMeshDefinitions");
+                //CUSTOM_MESH_DEFINITIONS = (Map<RegistryDelegate<Item>, ItemMeshDefinition>) meshes.get(null);
+
+                //Field models = ReflectionHelper.findField(ModelLoader.class, "customModels");
+                //CUSTOM_MODELS = (Map<Pair<RegistryDelegate<Item>, Integer>, ModelResourceLocation>) models.get(null);
+
+                //Field simple  = ReflectionHelper.findField(ItemModelMesher.class, "field_178093_a", "simpleShapes");
+                //SIMPLE_SHAPES = (Map<Integer, ModelResourceLocation>) simple.get(mesher);
+
+                Field locs = ReflectionHelper.findField(ItemModelMesherForge.class, "locations");
+                LOCATIONS = (IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>>) locs.get(mesher);
+
+                Field shapers = ReflectionHelper.findField(ItemModelMesher.class, "field_178092_c", "shapers");
+                SHAPERS = (Map<Item, ItemMeshDefinition>) shapers.get(mesher);
+
+                Field models = ReflectionHelper.findField(ModelLoader.class, "stateModels");
+                STATE_MODELS = (Map<ModelResourceLocation, IModel>) models.get(MODEL_LOADER);
+            }
+            catch (Exception e)
+            {
+                EnderUtilities.logger.warn("ModelNullifierBaked: Failed to reflect model maps", e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onModelbakeEvent(ModelBakeEvent event)
+    {
+        MODEL_LOADER = event.getModelLoader();
+    }
+
     private void addQuadsForSide(EnumFacing side, ModelNullifierBaked nullifierModel, IBakedModel itemModel, IBakedModel textModel, boolean locked)
     {
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
@@ -190,7 +321,6 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         }
 
         this.quads.put(side, builder.build());
-        //System.out.printf("ModelNullifierBaked#buildQuadsForSide() - side: %s - count: %d\n", side, this.quads.get(side).size());
     }
 
     private static final class ModelNullifierBakedOverrideHandler extends ItemOverrideList
@@ -211,7 +341,6 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
 
             if (model == null)
             {
-                //System.out.printf("ModelNullifierBakedOverrideHandler#handleItemState() - creating a new model\n");
                 model = new ModelNullifierBaked(originalModel, state.locked, ItemNullifier.getSelectedStack(stack));
                 NULLIFIER_MODEL_CACHE.put(state, model);
             }
@@ -317,12 +446,11 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
                 EnderUtilities.logger.warn("Failed to load a model for the Nullifier!");
             }
 
-            //System.out.printf("ModelNullifier#bake()\n");
             return new ModelNullifierBaked(baseModel, lockedModel, state, format, bakedTextureGetter);
         }
     }
 
-    public static class ModelLoader implements ICustomModelLoader
+    public static class ModelLoaderNullifier implements ICustomModelLoader
     {
         private static final ResourceLocation FAKE_LOCATION = new ResourceLocation(Reference.MOD_ID, "models/block/custom/nullifier");
 
@@ -335,7 +463,6 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         @Override
         public IModel loadModel(ResourceLocation modelLocation) throws Exception
         {
-            //System.out.printf("ModelLoader#loadModel(): %s\n", modelLocation);
             return new ModelNullifier();
         }
 
