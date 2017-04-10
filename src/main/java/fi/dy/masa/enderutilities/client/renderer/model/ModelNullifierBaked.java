@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
@@ -57,9 +58,6 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 @EventBusSubscriber(Side.CLIENT)
 public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
 {
-    //private static Map<RegistryDelegate<Item>, ItemMeshDefinition> CUSTOM_MESH_DEFINITIONS;
-    //private static Map<Pair<RegistryDelegate<Item>, Integer>, ModelResourceLocation> CUSTOM_MODELS;
-    //private static Map<Integer, ModelResourceLocation> SIMPLE_SHAPES;
     private static ModelLoader MODEL_LOADER;
     private static Map<ModelResourceLocation, IModel> STATE_MODELS;
     private static IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> LOCATIONS;
@@ -167,21 +165,14 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
             {
                 IModel iModel = this.getItemModel(containedStack);
 
-                javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f(0.7f, 0.7f, 0.7f);
-                //Quat4f right = new Quat4f(0f, 0.25f, 0f, 1f);
-                TRSRTransformation tr = new TRSRTransformation(null, null, scale, null);
-
-                /*
-                org.lwjgl.util.vector.Vector3f rot = new org.lwjgl.util.vector.Vector3f(0f, 0f, 0f);
-                org.lwjgl.util.vector.Vector3f tra = new org.lwjgl.util.vector.Vector3f(0f, 0f, 0f);
-                org.lwjgl.util.vector.Vector3f sca = new org.lwjgl.util.vector.Vector3f(0.7f, 0.7f, 0.7f);
-                TRSRTransformation tr = new TRSRTransformation(new ItemTransformVec3f(rot, tra, sca));
-                */
+                TRSRTransformation trn = new TRSRTransformation(new javax.vecmath.Vector3f(-0.5f, -0.5f, -0.5f), null, null, null);
+                TRSRTransformation trr = new TRSRTransformation(ModelRotation.X0_Y180);
+                TRSRTransformation trp = new TRSRTransformation(new javax.vecmath.Vector3f( 0.5f,  0.5f,  0.5f), null, null, null);
+                TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.7f, 0.7f, 0.7f), null);
+                TRSRTransformation tr = trn.compose(trr).compose(trp).compose(trs);
 
                 IModelState state = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(tr));
                 itemModel = iModel.bake(state, this.format, this.bakedTextureGetter);
-
-                //itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, null, null);
 
                 ITEM_MODEL_CACHE.put(type, itemModel);
             }
@@ -217,18 +208,11 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
 
         Item item = stack.getItem();
         ModelResourceLocation mrl = null;
-        //ModelResourceLocation mrl = CUSTOM_MODELS.get(Pair.of(item.delegate, stack.getMetadata()));
-        //System.out.printf("custom model mrl: %s\n", mrl);
-
-        //ModelResourceLocation mrl = SIMPLE_SHAPES.get(Integer.valueOf(Item.getIdFromItem(item) << 16 | stack.getMetadata()));
-        //System.out.printf("simple shapes map: %s\n", SIMPLE_SHAPES);
-
         TIntObjectHashMap<ModelResourceLocation> map = LOCATIONS.get(item);
 
         if (map != null)
         {
             mrl = map.get(stack.getMetadata());
-            //System.out.printf("ItemModelMesherForge location: %s\n", mrl);
         }
 
         if (mrl == null)
@@ -261,21 +245,11 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
     @SuppressWarnings("unchecked")
     private void reflectMaps()
     {
-        //if (SIMPLE_SHAPES == null || SHAPERS == null)
         if (LOCATIONS == null || SHAPERS == null)
         {
             try
             {
                 ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-
-                //Field meshes = ReflectionHelper.findField(ModelLoader.class, "customMeshDefinitions");
-                //CUSTOM_MESH_DEFINITIONS = (Map<RegistryDelegate<Item>, ItemMeshDefinition>) meshes.get(null);
-
-                //Field models = ReflectionHelper.findField(ModelLoader.class, "customModels");
-                //CUSTOM_MODELS = (Map<Pair<RegistryDelegate<Item>, Integer>, ModelResourceLocation>) models.get(null);
-
-                //Field simple  = ReflectionHelper.findField(ItemModelMesher.class, "field_178093_a", "simpleShapes");
-                //SIMPLE_SHAPES = (Map<Integer, ModelResourceLocation>) simple.get(mesher);
 
                 Field locs = ReflectionHelper.findField(ItemModelMesherForge.class, "locations");
                 LOCATIONS = (IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>>) locs.get(mesher);
