@@ -150,6 +150,10 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         RenderHelper.enableStandardItemLighting();
         GlStateManager.popMatrix();
 
+        // TileEntitySkullRenderer alters both of these options on, but does not restore them.
+        GlStateManager.enableCull();
+        GlStateManager.disableRescaleNormal();
+
         // GL_POLYGON_OFFSET is used to offset flat icons toward the viewer (-Z) in screen space,
         // so they always appear on top of the drawer's front space.
         GlStateManager.enablePolygonOffset();
@@ -166,11 +170,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         // directly away from the face, which is visible as the block faces having identical
         // (dark) shading.
 
-        GlStateManager.disableRescaleNormal(); // This fixes a render state leak from TileEntitySkullRenderer
         GlStateManager.pushAttrib();
         GlStateManager.enableRescaleNormal();
         GlStateManager.popAttrib();
-        GlStateManager.enableCull();
 
         this.renderItem.renderItemIntoGUI(stack, -8, -7);
 
