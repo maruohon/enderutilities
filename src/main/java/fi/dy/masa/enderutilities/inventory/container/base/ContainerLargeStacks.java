@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory.container;
+package fi.dy.masa.enderutilities.inventory.container.base;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;

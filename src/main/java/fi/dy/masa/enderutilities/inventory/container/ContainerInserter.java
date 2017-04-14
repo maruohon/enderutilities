@@ -5,11 +5,12 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerInserter extends ContainerCustomSlotClick
+public class ContainerInserter extends ContainerTileEntityInventory
 {
     private final TileEntityInserter tef;
     private final IItemHandler invFilters;
@@ -21,7 +22,7 @@ public class ContainerInserter extends ContainerCustomSlotClick
 
     public ContainerInserter(EntityPlayer player, TileEntityInserter te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te);
 
         this.tef = te;
         this.invFilters = te.getFilterInventory();

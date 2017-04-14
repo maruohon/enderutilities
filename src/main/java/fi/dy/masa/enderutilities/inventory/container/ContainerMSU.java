@@ -6,17 +6,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class ContainerMSU extends ContainerLargeStacks
+public class ContainerMSU extends ContainerLargeStacksTile
 {
     protected TileEntityMSU temsu;
 
     public ContainerMSU(EntityPlayer player, TileEntityMSU te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
         this.temsu = te;
 
         this.addCustomInventorySlots();

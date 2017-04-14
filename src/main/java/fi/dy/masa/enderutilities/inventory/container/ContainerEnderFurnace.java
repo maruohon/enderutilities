@@ -6,11 +6,12 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
-public class ContainerEnderFurnace extends ContainerLargeStacks
+public class ContainerEnderFurnace extends ContainerLargeStacksTile
 {
     protected TileEntityEnderFurnace teef;
     public int burnTimeRemaining;
@@ -23,7 +24,7 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
 
     public ContainerEnderFurnace(EntityPlayer player, TileEntityEnderFurnace te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
         this.teef = te;
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 84);
@@ -36,12 +37,6 @@ public class ContainerEnderFurnace extends ContainerLargeStacks
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 1, 34, 53));
         this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.inventory, 2, 88, 35));
         this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
-    }
-
-    @Override
-    public boolean canInteractWith(EntityPlayer player)
-    {
-        return super.canInteractWith(player) && this.teef.isInvalid() == false;
     }
 
     @Override

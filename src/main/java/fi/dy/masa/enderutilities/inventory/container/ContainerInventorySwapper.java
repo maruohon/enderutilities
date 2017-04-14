@@ -8,6 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerCustomSlotClick;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerBaubles;

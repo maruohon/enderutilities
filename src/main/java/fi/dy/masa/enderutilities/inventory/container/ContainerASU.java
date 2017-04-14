@@ -2,17 +2,18 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 
-public class ContainerASU extends ContainerLargeStacks
+public class ContainerASU extends ContainerLargeStacksTile
 {
     protected TileEntityASU teasu;
     private int stackLimitLast;
 
     public ContainerASU(EntityPlayer player, TileEntityASU te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
         this.teasu = te;
 
         this.addCustomInventorySlots();

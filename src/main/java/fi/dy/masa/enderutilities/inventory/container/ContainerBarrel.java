@@ -6,18 +6,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class ContainerBarrel extends ContainerLargeStacks
+public class ContainerBarrel extends ContainerLargeStacksTile
 {
     private final ItemStackHandlerBasic baseInv;
     private final IItemHandler upgradeInv;
 
     public ContainerBarrel(EntityPlayer player, TileEntityBarrel te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
 
         this.baseInv = te.getBaseItemHandler();
         this.upgradeInv = te.getUpgradeInventory();

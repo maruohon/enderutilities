@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 
 public class SlotItemHandlerBaubles extends SlotItemHandlerGeneric
 {

@@ -6,6 +6,7 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -13,7 +14,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
-public class ContainerHandyChest extends ContainerLargeStacks
+public class ContainerHandyChest extends ContainerLargeStacksTile
 {
     protected static final int[] PLAYER_INV_Y = new int[] { 95, 131, 167, 174 };
     protected TileEntityHandyChest tehc;
@@ -24,7 +25,7 @@ public class ContainerHandyChest extends ContainerLargeStacks
 
     public ContainerHandyChest(EntityPlayer player, TileEntityHandyChest te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
         this.tehc = te;
 
         this.addCustomInventorySlots();

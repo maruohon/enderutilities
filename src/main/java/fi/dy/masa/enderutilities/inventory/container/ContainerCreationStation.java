@@ -12,6 +12,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotCraftingWrapper;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
@@ -26,7 +27,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
-public class ContainerCreationStation extends ContainerLargeStacks
+public class ContainerCreationStation extends ContainerLargeStacksTile
 {
     protected final TileEntityCreationStation tecs;
     public int selectionsLast; // action mode and module selection
@@ -45,7 +46,7 @@ public class ContainerCreationStation extends ContainerLargeStacks
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
-        super(player, te.getItemInventory(player));
+        super(player, te.getItemInventory(player), te);
         this.tecs = te;
 
         this.craftMatrixWrappers = new ItemHandlerWrapperPermissions[2];

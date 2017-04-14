@@ -3,10 +3,12 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerScrollable;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
-public class ContainerJSU extends ContainerLargeStacks implements IScrollableInventory
+public class ContainerJSU extends ContainerLargeStacksTile implements IScrollableInventory
 {
     public static final int GUI_ACTION_SCROLL_MOVE  = 0;
     public static final int GUI_ACTION_SCROLL_SET   = 1;
@@ -15,7 +17,7 @@ public class ContainerJSU extends ContainerLargeStacks implements IScrollableInv
 
     public ContainerJSU(EntityPlayer player, TileEntityJSU te)
     {
-        super(player, te.getWrappedInventoryForContainer(player));
+        super(player, te.getWrappedInventoryForContainer(player), te);
         this.tejsu = te;
 
         this.addCustomInventorySlots();

@@ -7,6 +7,7 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacks;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;

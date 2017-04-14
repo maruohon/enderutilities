@@ -7,8 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.inventory.container.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 
 public class SlotItemHandlerArmor extends SlotItemHandlerGeneric
 {

@@ -2,7 +2,7 @@ package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.inventory.container.IScrollableInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
 
 public class SlotItemHandlerScrollable extends SlotItemHandlerGeneric
 {

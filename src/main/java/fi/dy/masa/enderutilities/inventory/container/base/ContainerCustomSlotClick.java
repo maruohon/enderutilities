@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.inventory.container;
+package fi.dy.masa.enderutilities.inventory.container.base;
 
 import java.util.HashSet;
 import java.util.Set;
