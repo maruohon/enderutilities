@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.compat.jei;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
+import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
@@ -30,7 +31,7 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
         registry.addRecipeClickArea(GuiCreationStation.class,  97, 36, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
         registry.addRecipeClickArea(GuiCreationStation.class, 133, 72, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
 
-        registry.getRecipeTransferRegistry().addRecipeTransferHandler(new RecipeHandlerCreationStation());
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(new RecipeHandlerCreationStation<ContainerCreationStation>());
 
         // Creation Station
         registry.addRecipeCategoryCraftingItem(new ItemStack(EnderUtilitiesBlocks.blockMachine_1, 1, 2),
