@@ -847,7 +847,7 @@ public class NBTUtils
      * @param nameBase
      * @return
      */
-    @SideOnly(Side.CLIENT)
+    @SuppressWarnings("deprecation")
     public static String getItemStackDisplayName(ItemStack stack, String nameBase)
     {
         NBTTagCompound wrapper = getCompoundTag(stack, "InvCache", false);
@@ -870,7 +870,7 @@ public class NBTUtils
         }
         else if (totalStacks > 0)
         {
-            nameBase = String.format("%s (%d %s)", nameBase, totalStacks, I18n.format("enderutilities.tooltip.item.stacks"));
+            nameBase = String.format("%s (%d %s)", nameBase, totalStacks, net.minecraft.util.text.translation.I18n.translateToLocal("enderutilities.tooltip.item.stacks"));
         }
 
         return nameBase;
