@@ -18,7 +18,6 @@ import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiScreenBuilderWandTemplate;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
@@ -34,13 +33,11 @@ import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
-    private static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
     private static final TIntObjectHashMap<Long> KEY_PRESS_TIMES = new TIntObjectHashMap<Long>(16);
     private final Minecraft mc;
     /** Has the active mouse scroll modifier mask, if any */
@@ -87,9 +84,9 @@ public class InputEventHandler
         boolean keyState = Keyboard.getEventKeyState();
 
         // One of our supported modifier keys was pressed or released
-        if (KEY_CODE_MAPPINGS.containsKey(eventKey))
+        if (HotKeys.isModifierKey(eventKey))
         {
-            int mask = KEY_CODE_MAPPINGS.get(eventKey);
+            int mask = HotKeys.getModifierMask(eventKey);
 
             // Key was pressed
             if (keyState)
@@ -164,20 +161,17 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    public void onKeyInputEventGui(GuiScreenEvent.KeyboardInputEvent.Pre event)
+    public void onGuiKeyInputEventPre(GuiScreenEvent.KeyboardInputEvent.Pre event)
     {
-        if (event.getGui() instanceof GuiEnderUtilities)
+        if (event.getGui() instanceof GuiHandyBag)
         {
-            int eventKey = Keyboard.getEventKey();
+            int key = Keyboard.getEventKey();
 
-            // One of our supported modifier keys was pressed
-            if (KEY_CODE_MAPPINGS.containsKey(eventKey) && Keyboard.getEventKeyState() && this.checkForDoubleTap(eventKey))
+            // Double-tap shift
+            if (Keyboard.getEventKeyState() && (key == Keyboard.KEY_LSHIFT || key == Keyboard.KEY_RSHIFT) && this.checkForDoubleTap(key))
             {
-                if (event.getGui() instanceof GuiHandyBag)
-                {
-                    PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                        ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP, 0));
-                }
+                PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
+                    ReferenceGuiIds.GUI_ID_HANDY_BAG, ItemHandyBag.GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP, 0));
             }
         }
     }
@@ -251,15 +245,5 @@ public class InputEventHandler
         }
 
         return false;
-    }
-
-    static
-    {
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LSHIFT,      HotKeys.KEYBIND_MODIFIER_SHIFT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RSHIFT,      HotKeys.KEYBIND_MODIFIER_SHIFT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LCONTROL,    HotKeys.KEYBIND_MODIFIER_CONTROL);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RCONTROL,    HotKeys.KEYBIND_MODIFIER_CONTROL);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_LMENU,       HotKeys.KEYBIND_MODIFIER_ALT);
-        KEY_CODE_MAPPINGS.put(Keyboard.KEY_RMENU,       HotKeys.KEYBIND_MODIFIER_ALT);
     }
 }

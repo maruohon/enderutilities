@@ -4,6 +4,7 @@ public class ReferenceGuiIds
 {
     public static final int GUI_ID_TILE_ENTITY_GENERIC  = 0;
     public static final int GUI_ID_CONTAINER_GENERIC    = 1;
+    public static final int GUI_ID_CONTAINER_SLOT_CLICK = 2;
 
     //public static final int GUI_ID_ENDER_FURNACE = 1;
     //public static final int GUI_ID_TOOL_WORKSTATION = 2;
