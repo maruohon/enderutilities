@@ -33,7 +33,7 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
         super(container, 176, 175, "gui.container.barrel");
 
         this.tebarrel = te;
-        this.infoArea = new InfoArea(153, 21, 17, 17, "enderutilities.gui.infoarea.barrel", Integer.valueOf(Configs.barrelCapacityUpgradeStacksPer));
+        this.infoArea = new InfoArea(160, 17, 11, 11, "enderutilities.gui.infoarea.barrel", Integer.valueOf(Configs.barrelCapacityUpgradeStacksPer));
 
         this.upgradeInv = te.getUpgradeInventory();
         this.scaledStackSizeTextInventories.add(container.inventory);
@@ -62,20 +62,24 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        // Draw the Creative mode button highlight when it's active
-        if (this.tebarrel.isCreative())
-        {
-            this.drawTexturedModalRect(x + 161, y + 5, 176, 0, 10, 10);
-        }
-
         for (int i = 0; i < 3; i++)
         {
             // Draw the upgrade slot backgrounds for empty slots
             if (this.upgradeInv.getStackInSlot(i) == null)
             {
-                this.drawTexturedModalRect(x + 62 + i * 18, y + 59, 176, 10 + i * 16, 16, 16);
+                this.drawTexturedModalRect(x + 62 + i * 18, y + 59, 176, i * 16, 16, 16);
             }
         }
+
+        // Draw the Creative mode button highlight when it's active
+        if (this.tebarrel.isCreative())
+        {
+            this.bindTexture(this.guiTextureWidgets);
+            this.drawTexturedModalRect(x + 161, y + 5, 120, 24, 10, 10);
+        }
+
+        this.drawLockedSlotBackgrounds(this.tebarrel.getInventoryBarrel());
+        this.drawTemplateStacks(this.tebarrel.getInventoryBarrel());
     }
 
     protected void createButtons()

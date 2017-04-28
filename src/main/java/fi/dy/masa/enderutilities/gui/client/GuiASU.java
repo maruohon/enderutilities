@@ -4,7 +4,6 @@ import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.inventory.Slot;
 import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
@@ -24,7 +23,7 @@ public class GuiASU extends GuiContainerLargeStacks
 
         this.teasu = te;
         this.tier = te.getStorageTier();
-        this.infoArea = new InfoArea(153, 5, 17, 17, "enderutilities.gui.infoarea.asu");
+        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.asu");
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
 
@@ -57,14 +56,8 @@ public class GuiASU extends GuiContainerLargeStacks
         // Draw the slot backgrounds according to how many slots this tier has
         this.drawTexturedModalRect(x + 7, y + 26, 7, 56, this.tier * 18, 18);
 
-        int selectedSlot = ((ContainerASU) this.container).getSelectedSlot();
-
-        if (selectedSlot != -1)
-        {
-            this.bindTexture(this.guiTextureWidgets);
-            Slot slot = this.container.getSlot(selectedSlot);
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
-        }
+        this.drawLockedSlotBackgrounds(this.teasu.getInventoryASU());
+        this.drawTemplateStacks(this.teasu.getInventoryASU());
     }
 
     protected void createButtons()

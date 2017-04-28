@@ -29,6 +29,7 @@ import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiBarrel;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
@@ -42,6 +43,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
+    private ItemStackHandlerLockable itemHandlerLockable;
     private ItemHandlerBarrelUpgrades itemHandlerUpgrades;
     private Map<UUID, Long> rightClickTimes = new HashMap<UUID, Long>();
     private List<EnumFacing> labels = new ArrayList<EnumFacing>();
@@ -61,9 +63,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private void initStorage()
     {
         int maxUpgrades = Configs.barrelMaxCapacityUpgrades;
-        this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, 1, 4096, true, "Items", this);
+        this.itemHandlerLockable    = new ItemStackHandlerLockable(0, 1, 4096, true, "Items", this);
+        this.itemHandlerBase        = this.itemHandlerLockable;
         this.itemHandlerUpgrades    = new ItemHandlerBarrelUpgrades(1, 3, maxUpgrades, true, "ItemsUpgrades", this);
         this.itemHandlerExternal    = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+    }
+
+    public ItemStackHandlerLockable getInventoryBarrel()
+    {
+        return this.itemHandlerLockable;
     }
 
     public IItemHandler getUpgradeInventory()

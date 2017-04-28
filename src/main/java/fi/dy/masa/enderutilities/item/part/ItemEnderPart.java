@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.item.part;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -26,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -342,6 +344,29 @@ public class ItemEnderPart extends ItemModule
         }
 
         return -1; // Invalid item (= non-module)
+    }
+
+    public static boolean itemMatches(@Nullable ItemStack stack, ItemPartType type)
+    {
+        return stack != null && stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == type.getMeta();
+    }
+
+    public enum ItemPartType
+    {
+        STORAGE_KEY         (80),
+        STORAGE_STACK_TOOL  (81);
+
+        private final int meta;
+
+        private ItemPartType(int meta)
+        {
+            this.meta = meta;
+        }
+
+        public int getMeta()
+        {
+            return this.meta;
+        }
     }
 
     @SideOnly(Side.CLIENT)

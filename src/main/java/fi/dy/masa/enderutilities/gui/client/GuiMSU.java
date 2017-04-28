@@ -34,6 +34,7 @@ public class GuiMSU extends GuiContainerLargeStacks implements IButtonStateCallb
 
         this.temsu = te;
         this.tier = te.getStorageTier();
+        this.infoArea = new InfoArea(148, 5, 11, 11, "enderutilities.gui.infoarea.msu");
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
 
@@ -63,23 +64,30 @@ public class GuiMSU extends GuiContainerLargeStacks implements IButtonStateCallb
         // Draw the bundle variant's slot background
         if (this.tier == 1)
         {
-            this.drawTexturedModalRect(x + 3, y + 18, 0, 139, 170, 26);
+            this.drawTexturedModalRect(x + 7, y + 22, 7, 56, 9 * 18, 18);
         }
+
+        this.bindTexture(this.guiTextureWidgets);
 
         // Draw the Creative mode button highlight when it's active
         if (this.temsu.isCreative())
         {
-            this.drawTexturedModalRect(x + 161, y + 5, 0, 165, 10, 10);
+            this.drawTexturedModalRect(x + 161, y + 5, 120, 24, 10, 10);
         }
 
+        this.drawLockedSlotBackgrounds(this.temsu.getInventoryMSU());
+        this.drawTemplateStacks(this.temsu.getInventoryMSU());
+
+        /* The selected slot index isn't currently synced to the client... And it's probably too minor a feature to bother with anyway.
         int selectedSlot = ((ContainerMSU) this.container).getSelectedSlot();
 
         if (selectedSlot != -1)
         {
-            this.bindTexture(this.guiTextureWidgets);
             Slot slot = this.container.getSlot(selectedSlot);
+            this.bindTexture(this.guiTextureWidgets);
             this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
+        */
     }
 
     protected void createButtons()

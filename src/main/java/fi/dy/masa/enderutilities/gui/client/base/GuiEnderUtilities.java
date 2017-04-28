@@ -4,19 +4,41 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.base.ScrollBar.ScrollbarAction;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
+import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class GuiEnderUtilities extends GuiContainer
 {
+    protected static final int GUI_ACTION_SLOT_MIDDLE_CLICK = 1;
     protected final ContainerEnderUtilities container;
     protected final EntityPlayer player;
     protected final ResourceLocation guiTextureWidgets;
@@ -36,6 +58,37 @@ public class GuiEnderUtilities extends GuiContainer
         this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
     }
 
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onMouseInputEventPre(MouseInputEvent.Pre event)
+    {
+        // Handle the mouse input inside all of the mod's GUIs via the event and then cancel the event,
+        // so that some mods like Inventory Sorter don't try to sort the Ender Utilities inventories.
+        // Using priority LOW should still allow even older versions of Item Scroller to work,
+        // since it uses normal priority.
+        if (event.getGui() instanceof GuiEnderUtilities)
+        {
+            try
+            {
+                event.getGui().handleMouseInput();
+                event.setCanceled(true);
+            }
+            catch (IOException e)
+            {
+                EnderUtilities.logger.warn("Exception while executing handleMouseInput() on {}", event.getGui().getClass().getName());
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPotionShiftEvent(GuiScreenEvent.PotionShiftEvent event)
+    {
+        // Disable the potion shift in all my GUIs
+        if (event.getGui() instanceof GuiEnderUtilities)
+        {
+            event.setCanceled(true);
+        }
+    }
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
@@ -49,6 +102,13 @@ public class GuiEnderUtilities extends GuiContainer
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.bindTexture(this.guiTexture);
         this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
+
+        if (this.infoArea != null)
+        {
+            this.infoArea.render(this, this.guiTextureWidgets);
+        }
+
+        this.bindTexture(this.guiTexture);
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
@@ -123,7 +183,38 @@ public class GuiEnderUtilities extends GuiContainer
         }
     }
 
-    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException { }
+    @Override
+    protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type)
+    {
+        // Custom: middle click on a slot, with a modifier key active
+        if (type == ClickType.CLONE && (isShiftKeyDown() || isCtrlKeyDown() || isAltKeyDown()))
+        {
+            if (slotIn != null)
+            {
+                slotId = slotIn.slotNumber;
+            }
+
+            int modifier = 0;
+
+            if (isShiftKeyDown()) { modifier |= HotKeys.MOD_SHIFT; }
+            if (isCtrlKeyDown())  { modifier |= HotKeys.MOD_CTRL;  }
+            if (isAltKeyDown())   { modifier |= HotKeys.MOD_ALT;   }
+
+            int action = HotKeys.KEYCODE_MIDDLE_CLICK | modifier;
+
+            // Send a packet to the server
+            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, BlockPos.ORIGIN,
+                    ReferenceGuiIds.GUI_ID_CONTAINER_GENERIC, action, slotId));
+        }
+        else
+        {
+            super.handleMouseClick(slotIn, slotId, mouseButton, type);
+        }
+    }
+
+    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException
+    {
+    }
 
     public void scrollbarAction(int scrollbarId, ScrollbarAction action, int position)
     {
@@ -134,6 +225,92 @@ public class GuiEnderUtilities extends GuiContainer
         this.mc.getTextureManager().bindTexture(rl);
     }
 
+    /**
+     * Draw the background colors/icons for locked slots from a "lockable inventory"
+     * @param inv
+     */
+    protected void drawLockedSlotBackgrounds(ItemStackHandlerLockable inv)
+    {
+        this.bindTexture(this.guiTextureWidgets);
+
+        int invSize = inv.getSlots();
+
+        // Draw the colored background icon for locked/"templated" slots
+        for (int slotNum = 0; slotNum < invSize; slotNum++)
+        {
+            Slot slot = this.inventorySlots.getSlot(slotNum);
+
+            if (inv.isSlotLocked(slotNum))
+            {
+                int x = this.guiLeft + slot.xPos;
+                int y = this.guiTop + slot.yPos;
+                int v = 18;
+                ItemStack stackSlot = inv.getStackInSlot(slotNum);
+
+                // Empty locked slots are in a different color
+                if (stackSlot == null)
+                {
+                    v = 36;
+                }
+                // Non-matching item in a locked slot
+                else if (InventoryUtils.areItemStacksEqual(stackSlot, inv.getTemplateStackInSlot(slotNum)) == false)
+                {
+                    v = 72;
+                }
+
+                this.drawTexturedModalRect(x - 1, y - 1, 102, v, 18, 18);
+            }
+        }
+    }
+
+    /**
+     * Draw the template stacks from a "lockable inventory" for otherwise empty slots
+     * @param inv
+     */
+    protected void drawTemplateStacks(ItemStackHandlerLockable inv)
+    {
+        // Draw a faint version of the template item for empty locked slots
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableRescaleNormal();
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+        this.zLevel = 100.0F;
+        this.itemRender.zLevel = 100.0F;
+        int invSize = inv.getSlots();
+
+        for (int slotNum = 0; slotNum < invSize; slotNum++)
+        {
+            Slot slot = this.inventorySlots.getSlot(slotNum);
+
+            if (inv.isSlotLocked(slotNum))
+            {
+                if (inv.getStackInSlot(slotNum) == null)
+                {
+                    ItemStack stack = inv.getTemplateStackInSlot(slotNum);
+
+                    if (stack != null)
+                    {
+                        int x = this.guiLeft + slot.xPos;
+                        int y = this.guiTop + slot.yPos;
+                        GlStateManager.enableLighting();
+                        GlStateManager.enableDepth();
+                        GlStateManager.enableBlend();
+                        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+                        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                        this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+                    }
+                }
+            }
+        }
+
+        this.itemRender.zLevel = 0.0F;
+        this.zLevel = 0.0F;
+        GlStateManager.disableBlend();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
+    }
+
     public static class InfoArea
     {
         private final int posX;
@@ -142,6 +319,8 @@ public class GuiEnderUtilities extends GuiContainer
         private final int height;
         private final String infoText;
         private final Object[] args;
+        private int u;
+        private int v;
 
         public InfoArea(int x, int y, int width, int height, String infoTextKey, Object... args)
         {
@@ -151,6 +330,24 @@ public class GuiEnderUtilities extends GuiContainer
             this.height = height;
             this.infoText = infoTextKey;
             this.args = args;
+
+            // Default texture locations on the widgets sheet
+            this.u = 134;
+
+            if (width == 11)
+            {
+                this.v = 66;
+            }
+            else if (width == 17)
+            {
+                this.v = 48;
+            }
+        }
+
+        public void setUV(int u, int v)
+        {
+            this.u = u;
+            this.v = v;
         }
 
         public List<String> getInfoLines()
@@ -164,6 +361,13 @@ public class GuiEnderUtilities extends GuiContainer
         {
             return mouseX >= guiLeft + this.posX && mouseX <= guiLeft + this.posX + this.width &&
                    mouseY >= guiTop + this.posY && mouseY <= guiTop + this.posY + this.height;
+        }
+
+        public void render(GuiEnderUtilities gui, ResourceLocation texture)
+        {
+            gui.bindTexture(texture);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            gui.drawTexturedModalRect(gui.guiLeft + this.posX, gui.guiTop + this.posY, this.u, this.v, this.width, this.height);
         }
     }
 }

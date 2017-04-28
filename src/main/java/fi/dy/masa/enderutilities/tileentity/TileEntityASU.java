@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiASU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSize;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
     public static final int MAX_STACK_SIZE = 1024;
-    private ItemHandlerWrapperASU itemHandlerASU;
+    private ItemStackHandlerLockable itemHandlerLockable;
     private int tier = 1;
 
     public TileEntityASU()
@@ -36,9 +36,14 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
 
     private void initStorage()
     {
-        this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, this.getInvSize(), 0, true, "Items", this);
-        this.itemHandlerASU         = new ItemHandlerWrapperASU(this.itemHandlerBase);
-        this.itemHandlerExternal    = this.itemHandlerASU;
+        this.itemHandlerLockable    = new ItemStackHandlerLockable(0, this.getInvSize(), 0, true, "Items", this);
+        this.itemHandlerBase        = this.itemHandlerLockable;
+        this.itemHandlerExternal    = new ItemHandlerWrapperSize(this.itemHandlerLockable);
+    }
+
+    public ItemStackHandlerLockable getInventoryASU()
+    {
+        return this.itemHandlerLockable;
     }
 
     @Override
@@ -109,30 +114,6 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         this.initStorage();
 
         super.handleUpdateTag(tag);
-    }
-
-    private class ItemHandlerWrapperASU extends ItemHandlerWrapperSize
-    {
-        private final ItemStackHandlerTileEntity asuBaseHandler;
-
-        public ItemHandlerWrapperASU(ItemStackHandlerTileEntity baseHandler)
-        {
-            super(baseHandler);
-
-            this.asuBaseHandler = baseHandler;
-        }
-
-        @Override
-        public int getInventoryStackLimit()
-        {
-            return this.asuBaseHandler.getInventoryStackLimit();
-        }
-
-        @Override
-        public int getItemStackLimit(ItemStack stack)
-        {
-            return this.asuBaseHandler.getInventoryStackLimit();
-        }
     }
 
     @Override

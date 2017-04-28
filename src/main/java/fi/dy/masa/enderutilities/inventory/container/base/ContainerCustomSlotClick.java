@@ -4,10 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart.ItemPartType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
@@ -308,6 +313,11 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
     protected void middleClickSlot(int slotNum, EntityPlayer player)
     {
+        this.swapSlots(slotNum, player);
+    }
+
+    protected void swapSlots(int slotNum, EntityPlayer player)
+    {
         SlotItemHandlerGeneric slot1 = this.getSlotItemHandler(slotNum);
 
         // Only allow swapping in this inventory (which supports the large stacks)
@@ -333,6 +343,110 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 this.selectedSlot = slotNum;
             }
         }
+    }
+
+    /**
+     * Toggles the locked state for the given slot and sets the template stack
+     * to the one in the cursor.<br>
+     * If <b>requireStorageKey</b> is true, then a "storage key"
+     * item needs to be held in the cursor for this to do anything.<br>
+     * If <b>requireStorageKey</b> is false, then the template stack is set to
+     * whatever is currently in the cursor, and the locked status is toggled.
+     * @param slotNum
+     * @param inv
+     * @return true if the slot locked status was toggled, false if the conditions weren't met
+     */
+    protected boolean toggleSlotLocked(int slotNum, ItemStackHandlerLockable inv, boolean requireStorageKey)
+    {
+        Slot slot = this.getSlot(slotNum);
+        int slotIndex = slot != null ? slot.getSlotIndex() : -1;
+        ItemStack stackCursor = this.player.inventory.getItemStack();
+
+        if (slotIndex != -1 &&
+            (requireStorageKey == false || ItemEnderPart.itemMatches(stackCursor, ItemPartType.STORAGE_KEY)))
+        {
+            if (stackCursor != null)
+            {
+                inv.setTemplateStackInSlot(slotIndex, stackCursor);
+            }
+            else
+            {
+                inv.setTemplateStackInSlot(slotIndex, slot.getStack());
+            }
+
+            inv.toggleSlotLocked(slotIndex);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * When there is a single, identical item in the cursor as in the slot,
+     * then the slot's stack size is incremented by times 10 on each click.
+     * If there are more than one item in the cursor, then the stack size is
+     * set to the maximum, or cleared if it's already at the maximum.
+     * If the items in the cursor are different than the items in the slot,
+     * then the cursor stack is copied to the slot.
+     * @param slotNum
+     * @param inv
+     * @return
+     */
+    protected boolean cycleStackSize(int slotNum, ItemStackHandlerBasic inv)
+    {
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        ItemStack stackCursor = player.inventory.getItemStack();
+
+        if (slot != null && stackCursor != null)
+        {
+            ItemStack stackSlot = slot.getStack();
+
+            if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot))
+            {
+                int max = inv.getItemStackLimit(stackCursor);
+
+                // When middle clicked with an identical single item in cursor, cycle the stack size in x10 increments
+                if (stackCursor.stackSize == 1)
+                {
+                    long newSize = (long) stackSlot.stackSize * 10L;
+
+                    if (newSize >= 0 && newSize <= max)
+                    {
+                        stackSlot = stackSlot.copy();
+                        stackSlot.stackSize = (int) newSize;
+                        slot.putStack(stackSlot);
+                    }
+                    else
+                    {
+                        slot.putStack(null);
+                    }
+                }
+                // When middle clicked with an identical item in cursor (when holding more than one),
+                // fill the stack to the maximum size in one go, or clear the slot.
+                else
+                {
+                    if (stackSlot.stackSize < max)
+                    {
+                        stackSlot = stackSlot.copy();
+                        stackSlot.stackSize = max;
+                        slot.putStack(stackSlot);
+                    }
+                    else
+                    {
+                        slot.putStack(null);
+                    }
+                }
+            }
+            // Different items in cursor, copy the stack from the cursor to the slot
+            else
+            {
+                slot.putStack(stackCursor.copy());
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     protected void leftDoubleClickSlot(int slotNum, EntityPlayer player)

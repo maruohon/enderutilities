@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiMSU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMSU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
 {
     public static final int GUI_ACTION_TOGGLE_CREATIVE = 1;
+    private ItemStackHandlerLockable itemHandlerLockable;
     private int tier;
 
     public TileEntityMSU()
@@ -32,8 +33,14 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
 
     private void initStorage()
     {
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, this.getInvSize(), Configs.msuMaxItems, true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperCreative(this.getBaseItemHandler(), this);
+        this.itemHandlerLockable    = new ItemStackHandlerLockable(0, this.getInvSize(), Configs.msuMaxItems, true, "Items", this);
+        this.itemHandlerBase        = this.itemHandlerLockable;
+        this.itemHandlerExternal    = new ItemHandlerWrapperCreative(this.itemHandlerLockable, this);
+    }
+
+    public ItemStackHandlerLockable getInventoryMSU()
+    {
+        return this.itemHandlerLockable;
     }
 
     @Override

@@ -55,7 +55,7 @@ public class MessageGuiAction implements IMessage
         this.posY = buf.readInt();
         this.posZ = buf.readInt();
         this.guiId = buf.readInt();
-        this.action = buf.readShort();
+        this.action = buf.readInt();
         this.elementId = buf.readInt();
     }
 
@@ -67,7 +67,7 @@ public class MessageGuiAction implements IMessage
         buf.writeInt(this.posY);
         buf.writeInt(this.posZ);
         buf.writeInt(this.guiId);
-        buf.writeShort(this.action);
+        buf.writeInt(this.action);
         buf.writeInt(this.elementId);
     }
 
