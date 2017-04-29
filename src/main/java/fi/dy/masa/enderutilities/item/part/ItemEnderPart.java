@@ -107,6 +107,9 @@ public class ItemEnderPart extends ItemModule
             case 71: // Barrel Structural Upgrade
             case 72: // Barrel Capacity Upgrade
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_BARREL_UPGRADE + "_" + (damage - 70);
+
+            case 80: // Storage Key
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY;
         }
 
         return super.getUnlocalizedName();
@@ -353,8 +356,7 @@ public class ItemEnderPart extends ItemModule
 
     public enum ItemPartType
     {
-        STORAGE_KEY         (80),
-        STORAGE_STACK_TOOL  (81);
+        STORAGE_KEY         (80);
 
         private final int meta;
 
@@ -404,6 +406,7 @@ public class ItemEnderPart extends ItemModule
         list.add(new ItemStack(this, 1, 70)); // Barrel Label
         list.add(new ItemStack(this, 1, 71)); // Barrel Structural Upgrade
         list.add(new ItemStack(this, 1, 72)); // Barrel Capacity Upgrade
+        list.add(new ItemStack(this, 1, 80)); // Storage Key
     }
 
     @SideOnly(Side.CLIENT)
@@ -434,7 +437,8 @@ public class ItemEnderPart extends ItemModule
                 new ModelResourceLocation(rl, "tex=memorycard_items_12b"),
                 new ModelResourceLocation(rl, "tex=barrel_label"),
                 new ModelResourceLocation(rl, "tex=barrel_structure"),
-                new ModelResourceLocation(rl, "tex=barrel_capacity")
+                new ModelResourceLocation(rl, "tex=barrel_capacity"),
+                new ModelResourceLocation(rl, "tex=storage_key")
         };
     }
 }

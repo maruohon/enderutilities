@@ -321,6 +321,10 @@ public class EnderUtilitiesItems
         {
             GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(enderPart, 2, 20), "stickWood", "stickWood", "stickWood", "stickWood", pearl));
         }
+        if (Configs.disableRecipePartStorageKey == false && Configs.disableItemCraftingPart == false)
+        {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(enderPart, 1, 80), "AS ", "AS ", " S ", 'A', alloy0, 'S', "stickWood"));
+        }
         if (Configs.disableRecipePartBarrelLabel == false && Configs.disableItemCraftingPart == false)
         {
             GameRegistry.addRecipe(new ItemStack(enderPart, 1, 70), "SSS", "SIS", "SSS", 'S', Items.STICK, 'I', alloy0);

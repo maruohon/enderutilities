@@ -22,6 +22,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD      = "memorycard"; // Not actual item, used for all memory cards in places
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_MISC = "memorycard_misc";
     public static final String NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS  = "memorycard_items";
+    public static final String NAME_ITEM_ENDERPART_STORAGE_KEY      = "storage_key";
 
     public static final String NAME_ITEM_BUILDERS_WAND          = "builderswand";
     public static final String NAME_ITEM_CHAIR_WAND             = "chairwand";

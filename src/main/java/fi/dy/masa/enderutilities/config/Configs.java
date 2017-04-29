@@ -187,6 +187,7 @@ public class Configs
     public static boolean disableRecipePartEnderRelic;
     public static boolean disableRecipePartEnderRope;
     public static boolean disableRecipePartEnderStick;
+    public static boolean disableRecipePartStorageKey;
 
     // Modules
     public static boolean disableRecipeModuleEnderCapacitor0;

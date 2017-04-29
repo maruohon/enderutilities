@@ -59,21 +59,34 @@ public class MessageSyncTileEntity implements IMessage
         this.stacks = new ItemStack[] { stack };
     }
 
+    /**
+     * Sends up to 15 integers and up to 15 ItemStacks
+     * @param pos
+     * @param intValues
+     * @param stacks
+     */
+    public MessageSyncTileEntity(BlockPos pos, int[] intValues, ItemStack[] stacks)
+    {
+        this.pos = pos;
+        this.intValues = intValues;
+        this.stacks = stacks;
+    }
+
     @Override
     public void toBytes(ByteBuf buf)
     {
-        buf.writeByte(this.stacks.length << 4 | this.intValues.length);
+        buf.writeByte((this.stacks.length & 0xF) << 4 | (this.intValues.length & 0xF));
 
         buf.writeInt(this.pos.getX());
         buf.writeByte((byte) (this.pos.getY() & 0xFF));
         buf.writeInt(this.pos.getZ());
 
-        for (int i = 0; i < this.intValues.length; i++)
+        for (int i = 0; i < (this.intValues.length & 0xF); i++)
         {
             buf.writeInt(this.intValues[i]);
         }
 
-        for (int i = 0; i < this.stacks.length; i++)
+        for (int i = 0; i < (this.stacks.length & 0xF); i++)
         {
             ByteBufUtilsEU.writeItemStackToBuffer(buf, this.stacks[i]);
         }

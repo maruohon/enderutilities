@@ -49,6 +49,8 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
         {
             this.locked.clear(slot);
         }
+
+        this.onContentsChanged(slot);
     }
 
     @Nullable
@@ -65,6 +67,13 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     public void setTemplateStackInSlot(int slot, @Nullable ItemStack stack)
     {
         this.templateStacks[slot] = ItemStack.copyItemStack(stack);
+
+        if (this.templateStacks[slot] != null)
+        {
+            this.templateStacks[slot].stackSize = 0;
+        }
+
+        this.onContentsChanged(slot);
     }
 
     @Override

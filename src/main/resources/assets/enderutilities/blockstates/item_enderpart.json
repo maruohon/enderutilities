@@ -115,6 +115,11 @@
                 "textures": {
                     "layer0": "enderutilities:items/enderpart_creative_breaking"
                 }
+            },
+            "storage_key": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_storage_key"
+                }
             }
         }
     }
