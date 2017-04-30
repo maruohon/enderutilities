@@ -36,7 +36,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     {
         super(container, 176, 256, "gui.container.pickupmanager");
 
-        this.infoArea = new InfoArea(153, 87, 17, 17, "enderutilities.gui.infoarea.pickupmanager");
+        this.infoArea = new InfoArea(153, 87, 18, 18, "enderutilities.gui.infoarea.pickupmanager");
         this.containerPickupManager = container;
         this.inventoryItemTransmit = container.inventoryItemTransmit;
         this.inventoryItemModules = container.inventoryItemModules;

@@ -26,7 +26,7 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities implements IButto
     {
         super(container, 192, 256, "gui.container.quickstacker.advanced");
 
-        this.infoArea = new InfoArea(4, 16, 17, 17, "enderutilities.gui.infoarea.quickstackeradvanced");
+        this.infoArea = new InfoArea(176, 4, 11, 11, "enderutilities.gui.infoarea.quickstackeradvanced");
         this.teqsa = te;
     }
 

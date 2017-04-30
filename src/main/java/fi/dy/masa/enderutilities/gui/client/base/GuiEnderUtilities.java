@@ -355,7 +355,7 @@ public class GuiEnderUtilities extends GuiContainer
             {
                 this.v = 66;
             }
-            else if (width == 17)
+            else if (width == 18)
             {
                 this.v = 48;
             }
@@ -376,8 +376,8 @@ public class GuiEnderUtilities extends GuiContainer
 
         public boolean isMouseOver(int mouseX, int mouseY, int guiLeft, int guiTop)
         {
-            return mouseX >= guiLeft + this.posX && mouseX <= guiLeft + this.posX + this.width &&
-                   mouseY >= guiTop + this.posY && mouseY <= guiTop + this.posY + this.height;
+            return mouseX >= guiLeft + this.posX && mouseX < guiLeft + this.posX + this.width &&
+                   mouseY >= guiTop + this.posY && mouseY < guiTop + this.posY + this.height;
         }
 
         public void render(GuiEnderUtilities gui, ResourceLocation texture)

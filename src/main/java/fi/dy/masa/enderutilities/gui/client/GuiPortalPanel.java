@@ -30,7 +30,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
     {
         super(container, 176, 251, "gui.container." + te.getTEName());
         this.tepp = te;
-        this.infoArea = new InfoArea(151, 5, 17, 17, "enderutilities.gui.infoarea.portalpanel");
+        this.infoArea = new InfoArea(153, 5, 18, 18, "enderutilities.gui.infoarea.portalpanel");
     }
 
     @Override

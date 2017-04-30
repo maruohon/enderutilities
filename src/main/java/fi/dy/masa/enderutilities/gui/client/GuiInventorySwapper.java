@@ -58,9 +58,12 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
         {
             this.xSize = 243;
             this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.inventoryswapper.baubles");
+            this.infoArea = new InfoArea(227, 5, 11, 11, "enderutilities.gui.infoarea.inventoryswapper");
         }
-
-        this.infoArea = new InfoArea(this.baublesLoaded ? 27 : 7, 36, 17, 17, "enderutilities.gui.infoarea.inventoryswapper");
+        else
+        {
+            this.infoArea = new InfoArea(7, 43, 11, 11, "enderutilities.gui.infoarea.inventoryswapper");
+        }
     }
 
     @Override

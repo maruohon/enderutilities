@@ -43,7 +43,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     {
         super(container, 240, 256, "gui.container.creationstation");
 
-        this.infoArea = new InfoArea(7, 89, 17, 17, "enderutilities.gui.infoarea.creationstation");
+        this.infoArea = new InfoArea(223, 88, 11, 11, "enderutilities.gui.infoarea.creationstation");
         this.tecs = te;
         this.containerCS = container;
         this.invSize = container.inventory.getSlots();

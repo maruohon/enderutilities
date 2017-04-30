@@ -8,8 +8,8 @@ import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -24,15 +24,7 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
         super(container, 176, te.isFiltered() ? 197 : 141, "gui.container.inserter_" + (te.isFiltered() ? "filtered" : "normal"));
 
         this.tef = te;
-
-        if (te.isFiltered())
-        {
-            this.infoArea = new InfoArea(151, 7, 17, 17, "enderutilities.gui.infoarea.inserter_filtered");
-        }
-        else
-        {
-            this.infoArea = new InfoArea(153, 5, 17, 17, "enderutilities.gui.infoarea.inserter_normal");
-        }
+        this.infoArea = new InfoArea(158, 15, 11, 11, "enderutilities.gui.infoarea.inserter_" + (te.isFiltered() ? "filtered" : "normal"));
     }
 
     @Override
@@ -58,9 +50,9 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
         }
 
         String str = String.valueOf(this.tef.getBaseItemHandler().getInventoryStackLimit());
-        this.fontRendererObj.drawString(str, 106 - this.fontRendererObj.getStringWidth(str) / 2, 24, 0x404040);
+        this.fontRendererObj.drawString(str, 134 - this.fontRendererObj.getStringWidth(str), 22, 0x404040);
         str = String.valueOf(this.tef.getUpdateDelay());
-        this.fontRendererObj.drawString(str, 133 - this.fontRendererObj.getStringWidth(str) / 2, 24, 0x404040);
+        this.fontRendererObj.drawString(str, 134 - this.fontRendererObj.getStringWidth(str), 36, 0x404040);
     }
 
     protected void createButtons()
@@ -70,9 +62,9 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        this.buttonList.add(new GuiButtonHoverText(0, x + 102, y + 35, 8, 8, 0, 120,
+        this.buttonList.add(new GuiButtonHoverText(0, x + 138, y + 21, 8, 8, 0, 120,
                 this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.stacklimit"));
-        this.buttonList.add(new GuiButtonHoverText(1, x + 129, y + 35, 8, 8, 0, 120,
+        this.buttonList.add(new GuiButtonHoverText(1, x + 138, y + 35, 8, 8, 0, 120,
                 this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.delay.inserter"));
 
         this.buttonList.add(new GuiButtonStateCallback(2, x + 153, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
@@ -113,8 +105,15 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
 
         if (button.id == 0)
         {
-            if (GuiScreen.isShiftKeyDown()) { amount *= 16; }
-            else if (GuiScreen.isCtrlKeyDown()) { amount *= 64; }
+            if (mouseButton == 2)
+            {
+                amount = GuiScreen.isShiftKeyDown() ? 64 : -64;
+            }
+            else
+            {
+                if (GuiScreen.isShiftKeyDown()) { amount *= 16; }
+                else if (GuiScreen.isCtrlKeyDown()) { amount *= 64; }
+            }
 
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityInserter.GuiAction.CHANGE_STACK_LIMIT.ordinal(), amount));

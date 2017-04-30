@@ -28,7 +28,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
     {
         super(container, 192, 126, "gui.container.quickstacker");
 
-        this.infoArea = new InfoArea(6, 6, 17, 17, "enderutilities.gui.infoarea.quickstacker");
+        this.infoArea = new InfoArea(177, 4, 11, 11, "enderutilities.gui.infoarea.quickstacker");
         this.containerQS = container;
     }
 
@@ -46,7 +46,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker"), 28, 5, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker"), 6, 6, 0x404040);
         this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 60, 135, 0x404040);
     }
 
