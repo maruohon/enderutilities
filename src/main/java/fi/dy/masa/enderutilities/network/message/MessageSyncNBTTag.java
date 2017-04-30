@@ -61,12 +61,18 @@ public class MessageSyncNBTTag implements IMessage
                 return null;
             }
 
-            Minecraft mc = FMLClientHandler.instance().getClient();
+            final Minecraft mc = FMLClientHandler.instance().getClient();
             final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
 
-            if (mc == null || player == null)
+            if (mc == null)
             {
-                EnderUtilities.logger.error("Minecraft or player was null in MessageSyncNBTTag");
+                EnderUtilities.logger.error("Minecraft was null in MessageSyncNBTTag");
+                return null;
+            }
+
+            if (player == null)
+            {
+                EnderUtilities.logger.error("Player was null in MessageSyncNBTTag");
                 return null;
             }
 
@@ -81,7 +87,7 @@ public class MessageSyncNBTTag implements IMessage
             return null;
         }
 
-        protected void processMessage(final MessageSyncNBTTag message, EntityPlayer player)
+        protected void processMessage(final MessageSyncNBTTag message, final EntityPlayer player)
         {
             if (message.type == Type.PLACEMENT_PROPERTIES_FULL)
             {
