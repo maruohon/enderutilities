@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.gui.client;
 import java.io.IOException;
 import org.lwjgl.input.Mouse;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.gui.client.base.GuiArea;
 import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
@@ -19,14 +18,14 @@ public class GuiJSU extends GuiContainerLargeStacks
 {
     private final ContainerJSU containerJSU;
     private final ScrollBar scrollBar;
-    private final GuiArea areaBlockInventory;
+    private final GuiArea areaInventory;
 
     public GuiJSU(ContainerJSU container, TileEntityJSU te)
     {
         super(container, 192, 220, "gui.container.jsu");
 
         this.containerJSU = container;
-        this.areaBlockInventory = new GuiArea(7, 16, 177, 108);
+        this.areaInventory = new GuiArea(7, 16, 177, 108);
         this.scrollBar = new ScrollBar(0, 172, 17, 192, 0, 12, 106, ((TileEntityJSU.INV_SIZE / 9) - 5), this);
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
@@ -48,15 +47,6 @@ public class GuiJSU extends GuiContainerLargeStacks
 
         // Draw the scroll bar
         this.scrollBar.render(x, y, mouseX, mouseY);
-
-        int selectedSlot = this.containerJSU.getSelectedSlot();
-
-        if (selectedSlot != -1)
-        {
-            this.bindTexture(this.guiTextureWidgets);
-            Slot slot = this.container.getSlot(selectedSlot);
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
-        }
     }
 
     @Override
@@ -65,15 +55,12 @@ public class GuiJSU extends GuiContainerLargeStacks
         int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth - this.guiLeft;
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1 - this.guiTop;
 
-        if (Mouse.getEventDWheel() != 0 && this.areaBlockInventory.isMouseOver(mouseX, mouseY))
+        if (Mouse.getEventDWheel() != 0 && this.areaInventory.isMouseOver(mouseX, mouseY))
         {
             this.scrollBar.handleMouseInput(mouseX, mouseY);
         }
-        else if (Mouse.getEventButton() != 0 && Mouse.isButtonDown(0) == false)
-        {
-            super.handleMouseInput();
-        }
-        else if (this.scrollBar.handleMouseInput(mouseX, mouseY) == false)
+        else if ((Mouse.getEventButton() != 0 && Mouse.isButtonDown(0) == false) ||
+                this.scrollBar.handleMouseInput(mouseX, mouseY) == false)
         {
             super.handleMouseInput();
         }

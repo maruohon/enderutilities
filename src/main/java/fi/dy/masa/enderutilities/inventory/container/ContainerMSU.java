@@ -1,25 +1,29 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
+import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.enderutilities.reference.HotKeys;
-import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 
-public class ContainerMSU extends ContainerLargeStacksTile
+public class ContainerMSU extends ContainerLargeStacksTile implements ICustomSlotSync
 {
     protected final TileEntityMSU temsu;
+    private final boolean[] lockedLast;
+    private final ItemStack[] templateStacksLast;
 
     public ContainerMSU(EntityPlayer player, TileEntityMSU te)
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.temsu = te;
+        this.itemHandlerLargeStacks = te.getInventoryMSU();
+
+        int numSlots = this.itemHandlerLargeStacks.getSlots();
+        this.lockedLast = new boolean[numSlots];
+        this.templateStacksLast = new ItemStack[numSlots];
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 57);
@@ -44,37 +48,27 @@ public class ContainerMSU extends ContainerLargeStacksTile
     }
 
     @Override
-    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    public void detectAndSendChanges()
     {
-        ItemStackHandlerLockable inv = this.temsu.getInventoryMSU();
+        this.syncLockableSlots(this.temsu.getInventoryMSU(), 0, 0, this.lockedLast, this.templateStacksLast);
 
-        // Middle click or middle click drag
-        if (((clickType == ClickType.CLONE && dragType == 2) ||
-            (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
-            slotNum >= 0 && slotNum < inv.getSlots())
-        {
-            this.toggleSlotLocked(slotNum, inv, false);
-            return null;
-        }
-
-        return super.slotClick(slotNum, dragType, clickType, player);
+        super.detectAndSendChanges();
     }
 
     @Override
-    public void performGuiAction(EntityPlayer player, int action, int element)
+    public void updateProgressBar(int id, int data)
     {
-        // Shift + Middle click: Cycle the stack size in creative mode
-        if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
+        super.updateProgressBar(id, data);
+
+        if (id == 0)
         {
-            if (player.capabilities.isCreativeMode)
-            {
-                this.cycleStackSize(element, this.temsu.getInventoryMSU());
-            }
+            this.temsu.getInventoryMSU().setSlotLocked(data & 0xF, (data & 0x8000) != 0);
         }
-        // Alt + Middle click: Swap two stacks
-        else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_ALT))
-        {
-            this.swapSlots(element, player);
-        }
+    }
+
+    @Override
+    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
+    {
+        this.temsu.getInventoryMSU().setTemplateStackInSlot(slotNum, stack);
     }
 }

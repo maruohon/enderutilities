@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.base.ScrollBar.ScrollbarAction;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerCustomSlotClick;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -121,6 +122,22 @@ public class GuiEnderUtilities extends GuiContainer
             if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY))
             {
                 this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
+            }
+        }
+
+        // Draw the colored background for the selected slot (for swapping), if any
+        // FIXME this renders on top of ItemStack tool tips here...
+        // but inside drawGuiContainerBackgroundLayer() some child GUIs would render empty slots over this...
+        if (this.container instanceof ContainerCustomSlotClick)
+        {
+            int selectedSlot = ((ContainerCustomSlotClick) this.container).getSelectedSlot();
+
+            if (selectedSlot != -1)
+            {
+                GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                this.bindTexture(this.guiTextureWidgets);
+                Slot slot = this.container.getSlot(selectedSlot);
+                this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 90, 18, 18);
             }
         }
 

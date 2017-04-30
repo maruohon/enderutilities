@@ -225,7 +225,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         super.handleUpdateTag(tag);
     }
 
-    public IItemHandler getItemInventory(EntityPlayer player)
+    public ItemHandlerWrapperPermissions getItemInventory(EntityPlayer player)
     {
         return new ItemHandlerWrapperPermissions(this.itemInventory, player);
     }

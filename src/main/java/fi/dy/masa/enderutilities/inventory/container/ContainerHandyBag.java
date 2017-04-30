@@ -44,6 +44,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         this.inventoryItemModular.setHostInventory(this.playerInv);
         this.craftMatrix = new InventoryCrafting(this, 2, 2);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
+        this.itemHandlerLargeStacks = (InventoryItemModular) this.inventory;
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 174);

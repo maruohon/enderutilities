@@ -29,7 +29,6 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     };
 
     private final TileEntityHandyChest tehc;
-    private final ContainerHandyChest containerHC;
     private final int chestTier;
     private final int invSize;
 
@@ -37,7 +36,6 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     {
         super(container, 176, 256, "gui.container.handychest." + te.getStorageTier());
         this.tehc = te;
-        this.containerHC = container;
         this.chestTier = te.getStorageTier();
         this.invSize = container.inventory.getSlots();
         this.scaledStackSizeTextInventories.add(container.inventory);
@@ -116,12 +114,6 @@ public class GuiHandyChest extends GuiContainerLargeStacks
                 y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
-        }
-        // Draw the colored background for the selected slot (for swapping), if any
-        else if (this.containerHC.getSelectedSlot() != -1)
-        {
-            slot = this.container.getSlot(this.containerHC.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
 
         int mask = this.tehc.getLockMask();

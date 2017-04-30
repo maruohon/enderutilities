@@ -155,12 +155,6 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
                 this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 0, 18, 18);
             }
         }
-        // Draw the colored background for the selected slot (for swapping), if any
-        else if (this.containerHB.getSelectedSlot() != -1)
-        {
-            Slot slot = this.containerHB.getSlot(this.containerHB.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
-        }
 
         // Memory Card slots are not accessible, because the opened bag isn't currently available
         // Draw the dark background icon over the disabled slots

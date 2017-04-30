@@ -7,7 +7,7 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -21,6 +21,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
     protected int selectedSlot = -1;
+    private int selectedSlotLast = -1;
 
     public ContainerCustomSlotClick(EntityPlayer player, IItemHandler inventory)
     {
@@ -30,6 +31,39 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     public int getSelectedSlot()
     {
         return this.selectedSlot;
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        if (this.isClient == false)
+        {
+            for (int i = 0; i < this.listeners.size(); i++)
+            {
+                if (this.selectedSlot != this.selectedSlotLast)
+                {
+                    this.listeners.get(i).sendProgressBarUpdate(this, 0x0100, this.selectedSlot & 0xFFFF);
+                }
+            }
+
+            this.selectedSlotLast = this.selectedSlot;
+        }
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
+    public void updateProgressBar(int id, int data)
+    {
+        if (id == 0x0100)
+        {
+            // Convert from a short back to int
+            this.selectedSlot = (int) ((short) data);
+        }
+        else
+        {
+            super.updateProgressBar(id, data);
+        }
     }
 
     protected void startDragging(boolean isRightClick)
@@ -392,7 +426,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
      * @param inv
      * @return
      */
-    protected boolean cycleStackSize(int slotNum, ItemStackHandlerBasic inv)
+    protected boolean cycleStackSize(int slotNum, IItemHandlerSize inv)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
         ItemStack stackCursor = player.inventory.getItemStack();
@@ -659,7 +693,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             this.middleClickSlot(slotNum, player);
         }
 
-        this.detectAndSendChanges();
+        if (this.isClient == false)
+        {
+            this.detectAndSendChanges();
+        }
 
         return null;
     }

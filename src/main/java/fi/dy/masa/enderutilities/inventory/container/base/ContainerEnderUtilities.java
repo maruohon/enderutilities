@@ -15,13 +15,16 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.wrapper.PlayerInvWrapperNoSync;
 import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
@@ -413,5 +416,55 @@ public class ContainerEnderUtilities extends Container
 
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
+    }
+
+    /**
+     * Syncs the locked status and the current template ItemStack in a lockable inventory.
+     * The current values are cached into the provided boolean and ItemStack arrays.
+     * The locked status is sent via a sendProgressBarUpdate, using the id <b>progressBarId</b>.
+     * The value for that is in the form '(locked ? 0x8000 : 0) | slot'.
+     *
+     * @param inv the lockable inventory to sync the locked status and template stacks from
+     * @param typeId The id that is used in the MessageSyncCustomSlot packet
+     * @param progressBarId The id to use in the sendProgressBarUpdate for the locked status
+     * @param lockedLast an array for caching the locked status
+     * @param templateStacksLast an array for caching the template stacks
+     */
+    protected void syncLockableSlots(ItemStackHandlerLockable inv, int typeId, int progressBarId, boolean[] lockedLast, ItemStack[] templateStacksLast)
+    {
+        int numSlots = inv.getSlots();
+
+        for (int slot = 0; slot < numSlots; slot++)
+        {
+            boolean locked = inv.isSlotLocked(slot);
+
+            if (lockedLast[slot] != locked)
+            {
+                for (int i = 0; i < this.listeners.size(); i++)
+                {
+                    this.listeners.get(i).sendProgressBarUpdate(this, progressBarId, (locked ? 0x8000 : 0) | slot);
+                }
+
+                lockedLast[slot] = locked;
+            }
+
+            ItemStack templateStack = inv.getTemplateStackInSlot(slot);
+
+            if (InventoryUtils.areItemStacksEqual(templateStacksLast[slot], templateStack) == false)
+            {
+                for (int i = 0; i < this.listeners.size(); i++)
+                {
+                    IContainerListener listener = this.listeners.get(i);
+
+                    if (listener instanceof EntityPlayerMP)
+                    {
+                        PacketHandler.INSTANCE.sendTo(
+                            new MessageSyncCustomSlot(this.windowId, typeId, slot, templateStack), (EntityPlayerMP) listener);
+                    }
+                }
+
+                templateStacksLast[slot] = ItemStack.copyItemStack(templateStack);
+            }
+        }
     }
 }

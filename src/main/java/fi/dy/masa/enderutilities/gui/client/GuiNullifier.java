@@ -56,7 +56,7 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
 
         this.bindTexture(this.guiTextureWidgets);
 
-        // The inventory is not accessible (because there is no valid Memory Card selected, or the item is not accessible)
+        // The inventory is not accessible (because the item is not accessible)
         if (this.inventoryItem.isAccessibleBy(this.player) == false)
         {
             // Draw the dark background icon over the disabled inventory slots
@@ -69,18 +69,11 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
 
         ItemStack stack = this.containerN.getContainerItem();
 
+        // Draw the selection around the selected slot's button
         if (stack != null)
         {
             int slot =  NBTUtils.getByte(stack, ItemNullifier.TAG_NAME_CONTAINER, ItemNullifier.TAG_NAME_SLOT_SELECTION);
             this.drawTexturedModalRect(this.guiLeft + 11 + slot * 18, this.guiTop + 42, 120, 24, 10, 10);
-        }
-
-        int selectedSlot = ((ContainerNullifier) this.container).getSelectedSlot();
-
-        if (selectedSlot != -1)
-        {
-            Slot slot = this.container.getSlot(selectedSlot);
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
         }
     }
 

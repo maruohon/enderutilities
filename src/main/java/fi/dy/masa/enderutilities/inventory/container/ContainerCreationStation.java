@@ -61,6 +61,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         this.recipeStacks = new ItemStack[18];
 
         this.furnaceInventory = this.tecs.getFurnaceInventory();
+        this.itemHandlerLargeStacks = (ItemHandlerWrapperPermissions) this.inventory;
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(40, 174);

@@ -24,6 +24,7 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
         this.containerUUID = NBTUtils.getUUIDFromItemStack(containerStack, "UUID", true);
         this.inventoryItem = (ItemHandlerNullifier) this.inventory;
         this.inventoryItem.setHostInventory(this.playerInv, this.containerUUID);
+        this.itemHandlerLargeStacks = this.inventoryItem;
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 69);

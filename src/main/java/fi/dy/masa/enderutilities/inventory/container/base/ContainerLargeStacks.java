@@ -2,17 +2,24 @@ package fi.dy.masa.enderutilities.inventory.container.base;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
+    protected IItemHandlerSize itemHandlerLargeStacks;
+
     public ContainerLargeStacks(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
@@ -60,6 +67,44 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
             ItemStack stack = this.inventorySlots.get(slot).getStack();
             this.inventoryItemStacks.set(slot, ItemStack.copyItemStack(stack));
             PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, stack), player);
+        }
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    {
+        if (this.itemHandlerLargeStacks instanceof ItemStackHandlerLockable)
+        {
+            ItemStackHandlerLockable inv = (ItemStackHandlerLockable) this.itemHandlerLargeStacks;
+
+            // Middle click or middle click drag
+            if (((clickType == ClickType.CLONE && dragType == 2) ||
+                (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
+                slotNum >= 0 && slotNum < inv.getSlots())
+            {
+                this.toggleSlotLocked(slotNum, inv, false);
+                return null;
+            }
+        }
+
+        return super.slotClick(slotNum, dragType, clickType, player);
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        // Shift + Middle click: Cycle the stack size in creative mode
+        if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
+        {
+            if (player.capabilities.isCreativeMode && this.itemHandlerLargeStacks != null)
+            {
+                this.cycleStackSize(element, this.itemHandlerLargeStacks);
+            }
+        }
+        // Alt + Middle click: Swap two stacks
+        else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_ALT))
+        {
+            this.swapSlots(element, player);
         }
     }
 }

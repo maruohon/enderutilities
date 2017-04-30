@@ -6,6 +6,8 @@ import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerScrollable;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
 public class ContainerJSU extends ContainerLargeStacksTile implements IScrollableInventory
@@ -19,6 +21,7 @@ public class ContainerJSU extends ContainerLargeStacksTile implements IScrollabl
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.tejsu = te;
+        this.itemHandlerLargeStacks = te.getBaseItemHandler();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 139);
@@ -60,7 +63,20 @@ public class ContainerJSU extends ContainerLargeStacksTile implements IScrollabl
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
-        if (action == GUI_ACTION_SCROLL_MOVE)
+        // Shift + Middle click: Cycle the stack size in creative mode
+        if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
+        {
+            if (player.capabilities.isCreativeMode)
+            {
+                this.cycleStackSize(element, this.tejsu.getBaseItemHandler());
+            }
+        }
+        // Alt + Middle click: Swap two stacks
+        else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_ALT))
+        {
+            this.swapSlots(element, player);
+        }
+        else if (action == GUI_ACTION_SCROLL_MOVE)
         {
             this.setStartRow(this.startRow + element);
         }

@@ -141,12 +141,6 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
         }
-        // Draw the colored background for the selected slot (for swapping), if any
-        else if (this.containerCS.getSelectedSlot() != -1)
-        {
-            Slot slot = this.container.getSlot(this.containerCS.getSelectedSlot());
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
-        }
 
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.tecs.getMemoryCardInventory().getSlots(); i++)

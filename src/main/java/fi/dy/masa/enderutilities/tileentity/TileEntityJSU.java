@@ -15,7 +15,6 @@ public class TileEntityJSU extends TileEntityEnderUtilitiesInventory
 {
     public static final int INV_SIZE = 270;
     public static final int MAX_STACK_SIZE = 256;
-    private ItemHandlerWrapperJSU itemHandlerJSU;
 
     public TileEntityJSU()
     {
@@ -32,8 +31,7 @@ public class TileEntityJSU extends TileEntityEnderUtilitiesInventory
     private void initStorage()
     {
         this.itemHandlerBase        = new ItemStackHandlerTileEntity(0, this.getInvSize(), MAX_STACK_SIZE, true, "Items", this);
-        this.itemHandlerJSU         = new ItemHandlerWrapperJSU(this.itemHandlerBase);
-        this.itemHandlerExternal    = this.itemHandlerJSU;
+        this.itemHandlerExternal    = new ItemHandlerWrapperJSU(this.itemHandlerBase);
     }
 
     private class ItemHandlerWrapperJSU extends ItemHandlerWrapperSelective
