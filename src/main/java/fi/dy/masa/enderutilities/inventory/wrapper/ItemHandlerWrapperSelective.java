@@ -36,12 +36,22 @@ public class ItemHandlerWrapperSelective extends ItemHandlerWrapperSize implemen
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
+        if (this.baseHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective) this.baseHandler).isItemValidForSlot(slot, stack);
+        }
+
         return true;
     }
 
     @Override
     public boolean canExtractFromSlot(int slot)
     {
+        if (this.baseHandler instanceof IItemHandlerSelective)
+        {
+            return ((IItemHandlerSelective) this.baseHandler).canExtractFromSlot(slot);
+        }
+
         return true;
     }
 }

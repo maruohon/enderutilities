@@ -40,6 +40,6 @@ public class ItemHandlerWrapperCreative extends ItemHandlerWrapperSelective
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
-        return this.te.isCreative() == false;
+        return super.isItemValidForSlot(slot, stack) && this.te.isCreative() == false;
     }
 }

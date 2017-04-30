@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.gui.client.GuiASU;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSize;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
@@ -38,7 +38,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     {
         this.itemHandlerLockable    = new ItemStackHandlerLockable(0, this.getInvSize(), 0, true, "Items", this);
         this.itemHandlerBase        = this.itemHandlerLockable;
-        this.itemHandlerExternal    = new ItemHandlerWrapperSize(this.itemHandlerLockable);
+        this.itemHandlerExternal    = new ItemHandlerWrapperSelective(this.itemHandlerLockable);
     }
 
     public ItemStackHandlerLockable getInventoryASU()

@@ -79,12 +79,18 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        if (this.locked.get(slot) && InventoryUtils.areItemStacksEqual(this.templateStacks[slot], stack) == false)
+        if (this.isItemValidForSlot(slot, stack) == false)
         {
             return stack;
         }
 
         return super.insertItem(slot, stack, simulate);
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack)
+    {
+        return this.locked.get(slot) == false || InventoryUtils.areItemStacksEqual(this.templateStacks[slot], stack);
     }
 
     @Override
