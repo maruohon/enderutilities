@@ -574,9 +574,9 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     {
         //System.out.println("onBlockDestroyed(): living: " + living + " remote: " + living.worldObj.isRemote);
 
-        if ((livingBase instanceof EntityPlayer) && this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+        if ((livingBase instanceof EntityPlayer) && this.isCreativeLikeBreakingEnabled(stack))
         {
-            ((EntityPlayer) livingBase).getCooldownTracker().setCooldown(this, 5);
+            ((EntityPlayer) livingBase).getCooldownTracker().setCooldown(this, 6);
         }
 
         // Don't use durability for breaking leaves with an axe
@@ -589,9 +589,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         if (this.isToolBroken(stack) == false && state.getBlockHardness(world, pos) > 0.0f)
         {
             // Fast mode uses double the durability, but not while using the Creative Breaking upgrade
-            int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED &&
-                    this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) == 0 ? 2 : 1);
-
+            int dmg = (PowerStatus.fromStack(stack) == PowerStatus.POWERED && this.isCreativeLikeBreakingEnabled(stack) == false ? 2 : 1);
             this.addToolDamage(stack, dmg, livingBase, livingBase);
             return true;
         }
@@ -760,8 +758,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
         ToolType tool = ToolType.fromStack(stack);
 
-        if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0 &&
-            tool.getToolClass().equals(state.getBlock().getHarvestTool(state)))
+        if (this.isCreativeLikeBreakingEnabled(stack) &&  this.canHarvestBlock(state, stack))
         {
             return 1600f;
         }
@@ -816,12 +813,14 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         ToolType tool = ToolType.fromStack(stack);
+
         if (tool.equals(ToolType.PICKAXE)) // Ender Pickaxe
         {
             if (state.getMaterial() == Material.ROCK
                 || state.getMaterial() == Material.GLASS
                 || state.getMaterial() == Material.ICE
                 || state.getMaterial() == Material.PACKED_ICE
+                || state.getMaterial() == Material.REDSTONE_LIGHT
                 || state.getMaterial() == Material.PISTON
                 || state.getMaterial() == Material.IRON
                 || state.getMaterial() == Material.ANVIL)
@@ -912,11 +911,28 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         NBTUtils.cycleByteValue(stack, null, "Powered", 1);
     }
 
+    public void cycleCreativeBreakingMode(ItemStack stack)
+    {
+        if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+        {
+            NBTUtils.cycleByteValue(stack, null, "CreativeBreaking", 1);
+        }
+        else
+        {
+            NBTUtils.setByte(stack, null, "CreativeBreaking", (byte) 0);
+        }
+    }
+
     public void cycleDropsMode(ItemStack stack)
     {
         NBTUtils.cycleByteValue(stack, null, "DropsMode", 2);
     }
 
+    public boolean isCreativeLikeBreakingEnabled(ItemStack stack)
+    {
+        return this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0 &&
+               CreativeBreaking.fromStack(stack) == CreativeBreaking.ENABLED;
+    }
     @Override
     public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
@@ -929,6 +945,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleDropsMode(stack);
+        }
+        // Ctrl + Shift + Toggle mode: Toggle the creative-like breaking mode on/off
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL))
+        {
+            this.cycleCreativeBreakingMode(stack);
         }
         else
         {
@@ -1064,6 +1085,17 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
         list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_installed", str));
 
+        if (this.isCreativeLikeBreakingEnabled(stack))
+        {
+            str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
+        }
+        else
+        {
+            str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
+        }
+
+        list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_enabled", str));
+
         // Link Crystals installed
         if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
         {
@@ -1152,6 +1184,22 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         public static PowerStatus fromStack(ItemStack stack)
         {
             int mode = MathHelper.clamp(NBTUtils.getByte(stack, null, "Powered"), 0, 1);
+            return values()[mode];
+        }
+    }
+
+    public enum CreativeBreaking
+    {
+        DISABLED,
+        ENABLED;
+
+        private CreativeBreaking()
+        {
+        }
+
+        public static CreativeBreaking fromStack(ItemStack stack)
+        {
+            int mode = MathHelper.clamp(NBTUtils.getByte(stack, null, "CreativeBreaking"), 0, 1);
             return values()[mode];
         }
     }

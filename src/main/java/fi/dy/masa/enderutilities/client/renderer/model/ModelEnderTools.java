@@ -59,14 +59,14 @@ public class ModelEnderTools implements IModel, IModelCustomData
 
     public ModelEnderTools()
     {
-        this(null, false, false, 0, 0, 0, 0);
+        this(null, false, false, false, 0, 0, 0, 0);
     }
 
-    public ModelEnderTools(String toolClass, boolean powered, boolean broken, int mode, int core, int capacitor, int linkCrystal)
+    public ModelEnderTools(String toolClass, boolean powered, boolean creative, boolean broken, int mode, int core, int capacitor, int linkCrystal)
     {
         this.tool = toolClass;
         String strHead = toolClass + "_head_" + (broken ? "broken_" : "") + (powered ? "glow_" : "normal_") + mode;
-        this.resourceRod = ReferenceTextures.getItemTexture("endertool_" + toolClass + "_rod");
+        this.resourceRod = ReferenceTextures.getItemTexture("endertool_" + toolClass + "_rod" + (creative ? "_2" : ""));
         this.resourceHead = ReferenceTextures.getItemTexture("endertool_" + strHead);
         this.resourceCore = core >= 1 && core <= 3 ? ReferenceTextures.getItemTexture("endertool_module_core_" + core) : null;
         this.resourceCapacitor = capacitor >= 1 && capacitor <= 4 ? ReferenceTextures.getItemTexture("endertool_module_capacitor_" + capacitor) : null;
@@ -90,10 +90,13 @@ public class ModelEnderTools implements IModel, IModelCustomData
     {
         ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 
-        builder.add(ReferenceTextures.getItemTexture("endertool_axe_rod"));
         builder.add(ReferenceTextures.getItemTexture("endertool_hoe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_axe_rod_2"));
         builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_pickaxe_rod_2"));
         builder.add(ReferenceTextures.getItemTexture("endertool_shovel_rod"));
+        builder.add(ReferenceTextures.getItemTexture("endertool_shovel_rod_2"));
 
         builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_normal_1"));
         builder.add(ReferenceTextures.getItemTexture("endertool_axe_head_normal_2"));
@@ -202,6 +205,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         String toolClass = customData.get("toolClass");
         boolean broken = (customData.get("broken") != null ? customData.get("broken").equals("true") : false);
         boolean powered = (customData.get("powered") != null ? customData.get("powered").equals("true") : false);
+        boolean creative = (customData.get("creative") != null ? customData.get("creative").equals("true") : false);
         int mode = 1;
         int core = 0;
         int capacitor = 0;
@@ -222,7 +226,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
             }
         }
 
-        return new ModelEnderTools(toolClass, powered, broken, mode, core, capacitor, linkCrystal);
+        return new ModelEnderTools(toolClass, powered, creative, broken, mode, core, capacitor, linkCrystal);
     }
 
     @Override
@@ -348,17 +352,19 @@ public class ModelEnderTools implements IModel, IModelCustomData
             String toolClass;
             String broken;
             String powered;
+            String creative;
             String mode;
             String key;
 
-            if (isTool == true)
+            if (isTool)
             {
                 ItemEnderTool itemTool = (ItemEnderTool)stack.getItem();
                 toolClass = ItemEnderTool.ToolType.fromStack(stack).getToolClass();
                 broken = String.valueOf(itemTool.isToolBroken(stack));
                 powered = String.valueOf(ItemEnderTool.PowerStatus.fromStack(stack) == ItemEnderTool.PowerStatus.POWERED);
+                creative = String.valueOf(itemTool.isCreativeLikeBreakingEnabled(stack));
                 mode = String.valueOf(ItemEnderTool.DropsMode.fromStack(stack).ordinal());
-                key = toolClass + broken + powered + mode + core + cap + lc;
+                key = toolClass + broken + powered + creative + mode + core + cap + lc;
             }
             else
             {
@@ -366,8 +372,9 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 toolClass = "sword";
                 broken = String.valueOf(itemSword.isToolBroken(stack));
                 powered = "false";
+                creative = "false";
                 mode = String.valueOf(ItemEnderSword.SwordMode.fromStack(stack).ordinal());
-                key = broken + powered + mode + core + cap + lc;
+                key = broken + powered + creative + mode + core + cap + lc;
             }
 
             BakedEnderTool originalModel = (BakedEnderTool) originalModelIn;
@@ -378,6 +385,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
                 map.put("toolClass", toolClass);
                 map.put("broken", broken);
                 map.put("powered", powered);
+                map.put("creative", creative);
                 map.put("mode", mode);
                 map.put("core", core);
                 map.put("capacitor", cap);
