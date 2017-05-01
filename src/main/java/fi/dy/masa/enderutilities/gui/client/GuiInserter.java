@@ -75,14 +75,18 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
         if (this.tef.isFiltered())
         {
             this.buttonList.add(new GuiButtonStateCallback(10, x +  9, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                    ButtonState.createTranslate(60, 56, "enderutilities.gui.label.inserter.filter.output"),
+                    ButtonState.createTranslate(60, 42, "enderutilities.gui.label.inserter.filter.input")));
+
+            this.buttonList.add(new GuiButtonStateCallback(11, x + 27, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(60, 70, "enderutilities.gui.label.blacklist"),
                     ButtonState.createTranslate(60, 84, "enderutilities.gui.label.whitelist")));
 
-            this.buttonList.add(new GuiButtonStateCallback(11, x + 27, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
+            this.buttonList.add(new GuiButtonStateCallback(12, x + 45, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(60, 126, "enderutilities.gui.label.meta.ignore"),
                     ButtonState.createTranslate(60, 112, "enderutilities.gui.label.meta.match")));
 
-            this.buttonList.add(new GuiButtonStateCallback(12, x + 45, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
+            this.buttonList.add(new GuiButtonStateCallback(13, x + 63, y + 30, 14, 14, 14, 0, this.guiTextureWidgets, this,
                     ButtonState.createTranslate(60, 154, "enderutilities.gui.label.nbt.ignore"),
                     ButtonState.createTranslate(60, 140, "enderutilities.gui.label.nbt.match")));
         }
@@ -139,7 +143,7 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityInserter.GuiAction.CHANGE_REDSTONE_MODE.ordinal(), amount));
         }
-        else if (button.id >= 10 && button.id <= 12)
+        else if (button.id >= 10 && button.id <= 13)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tef.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityInserter.GuiAction.CHANGE_FILTERS.ordinal(), 1 << (button.id - 10)));
@@ -151,17 +155,21 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
     {
         if (callbackId == 2)
         {
-            return this.tef.getRedstoneModeOrdinal();
+            return this.tef.getRedstoneModeIntValue();
         }
         else if (callbackId == 10)
         {
-            return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.IS_WHITELIST) ? 1 : 0;
+            return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.IS_INPUT_FILTER) ? 1 : 0;
         }
         else if (callbackId == 11)
         {
-            return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.MATCH_META) ? 1 : 0;
+            return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.IS_WHITELIST) ? 1 : 0;
         }
         else if (callbackId == 12)
+        {
+            return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.MATCH_META) ? 1 : 0;
+        }
+        else if (callbackId == 13)
         {
             return this.tef.isFilterSettingEnabled(TileEntityInserter.FilterSetting.MATCH_NBT) ? 1 : 0;
         }

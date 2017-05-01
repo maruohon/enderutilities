@@ -3,6 +3,8 @@ package fi.dy.masa.enderutilities.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -84,7 +86,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public boolean isFilterSettingEnabled(FilterSetting setting)
     {
-        return setting.getFromBitmask(this.filterMask);
+        return setting.isEnabledInBitmask(this.filterMask);
     }
 
     public int getFilterMask()
@@ -97,14 +99,14 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         this.filterMask = mask;
     }
 
-    public int getRedstoneModeOrdinal()
+    public int getRedstoneModeIntValue()
     {
-        return this.redstoneMode.ordinal();
+        return this.redstoneMode.getIntValue();
     }
 
-    public void setRedstoneModeFromOrdinal(int ordinal)
+    public void setRedstoneModeFromInteger(int ordinal)
     {
-        this.redstoneMode = RedstoneMode.fromOrdinal(ordinal);
+        this.redstoneMode = RedstoneMode.fromInt(ordinal);
     }
 
     public IItemHandler getFilterInventory()
@@ -274,7 +276,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
         if (tag.hasKey("inserter.redstone_mode", Constants.NBT.TAG_BYTE))
         {
-            this.setRedstoneModeFromOrdinal(tag.getByte("inserter.redstone_mode"));
+            this.setRedstoneModeFromInteger(tag.getByte("inserter.redstone_mode"));
         }
 
         this.markDirty();
@@ -286,24 +288,30 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         super.readFromNBTCustom(nbt);
 
         this.setSidesFromCombinedMask(nbt.getShort("Sides"));
-        this.filterMask = nbt.getByte("FilterMask");
-        this.isFiltered = (this.filterMask & 0x80) != 0;
-        this.setRedstoneModeFromOrdinal(nbt.getByte("RSMode"));
-        this.outputSideIndex = nbt.getByte("OutputIndex");
         this.delay = nbt.getInteger("Delay");
-        this.facingOpposite = this.getFacing().getOpposite();
         this.setStackLimit(nbt.getByte("StackLimit"));
+        int mask = nbt.getShort("SettingsMask");
+
+        this.filterMask      =  mask & 0x0F;
+        this.isFiltered      = (mask & 0x80) != 0;
+        this.outputSideIndex = (mask >>> 8) & 0x7;
+        this.setRedstoneModeFromInteger((mask >>> 12) & 0x3);
+
+        this.facingOpposite = this.getFacing().getOpposite();
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setShort("Sides", (short) this.getCombinesSideMask());
-        nbt.setByte("FilterMask", (byte) (this.filterMask | (this.isFiltered ? 0x80 : 0x00)));
-        nbt.setByte("RSMode", (byte) this.redstoneMode.ordinal());
-        nbt.setByte("OutputIndex", (byte) this.outputSideIndex);
         nbt.setInteger("Delay", this.delay);
         nbt.setByte("StackLimit", (byte) this.itemHandlerBase.getInventoryStackLimit());
+
+        int mask = this.filterMask;
+        if (this.isFiltered) { mask |= 0x80; }
+        mask |= (this.outputSideIndex << 8);
+        mask |= (this.redstoneMode.getIntValue() << 12);
+        nbt.setShort("SettingsMask", (short) mask);
 
         super.writeToNBT(nbt);
 
@@ -414,7 +422,16 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
             if (inv != null)
             {
-                ItemStack stack = InventoryUtils.getItemsFromFirstNonEmptySlot(inv, this.itemHandlerBase.getInventoryStackLimit(), false);
+                ItemStack stack;
+
+                if (this.isFiltered && this.isFilterSettingEnabled(FilterSetting.IS_INPUT_FILTER))
+                {
+                    stack = this.tryPullInItemsThatPassFilters(inv);
+                }
+                else
+                {
+                    stack = InventoryUtils.getItemsFromFirstNonEmptySlot(inv, this.itemHandlerBase.getInventoryStackLimit(), false);
+                }
 
                 if (stack != null)
                 {
@@ -425,6 +442,34 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         }
 
         return false;
+    }
+
+    @Nullable
+    private ItemStack tryPullInItemsThatPassFilters(IItemHandler inv)
+    {
+        int slots = inv.getSlots();
+
+        for (int slot = 0; slot < slots; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (stack != null && this.itemAllowedByFilters(stack))
+            {
+                return inv.extractItem(slot, this.itemHandlerBase.getInventoryStackLimit(), false);
+            }
+        }
+
+        return null;
+    }
+
+    private boolean itemAllowedByFilters(@Nonnull ItemStack stack)
+    {
+        boolean match = InventoryUtils.matchingStackFoundInArray(
+                this.cachedFilterStacks, stack,
+                this.isFilterSettingEnabled(FilterSetting.MATCH_META) == false,
+                this.isFilterSettingEnabled(FilterSetting.MATCH_NBT) == false);
+
+        return match == this.isFilterSettingEnabled(FilterSetting.IS_WHITELIST);
     }
 
     /**
@@ -438,14 +483,9 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         //System.out.printf("tryPushOutItems() @ %s\n", posSelf);
         boolean shouldPushToSides = true;
 
-        if (this.isFiltered)
+        if (this.isFiltered && this.isFilterSettingEnabled(FilterSetting.IS_INPUT_FILTER) == false)
         {
-            boolean match = InventoryUtils.matchingStackFoundInArray(
-                this.cachedFilterStacks, this.itemHandlerBase.getStackInSlot(0),
-                this.isFilterSettingEnabled(FilterSetting.MATCH_META) == false,
-                this.isFilterSettingEnabled(FilterSetting.MATCH_NBT) == false);
-
-            shouldPushToSides = (match == this.isFilterSettingEnabled(FilterSetting.IS_WHITELIST));
+            shouldPushToSides = this.itemAllowedByFilters(this.itemHandlerBase.getStackInSlot(0));
         }
 
         if (shouldPushToSides)
@@ -513,6 +553,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         if (inventoryId == 1)
         {
             this.cachedFilterStacks = InventoryUtils.createInventorySnapshotOfNonEmptySlots(this.itemHandlerFilters);
+            this.scheduleBlockUpdate(this.delay, false);
         }
     }
 
@@ -563,7 +604,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         switch (action)
         {
             case CHANGE_REDSTONE_MODE:
-                int ord = this.redstoneMode.ordinal() + element;
+                int ord = this.redstoneMode.getIntValue() + element;
 
                 if (ord >= RedstoneMode.values().length)
                 {
@@ -574,7 +615,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                     ord = RedstoneMode.values().length - 1;
                 }
 
-                this.setRedstoneModeFromOrdinal(ord);
+                this.setRedstoneModeFromInteger(ord);
                 this.scheduleBlockUpdate(this.delay, false);
                 break;
 
@@ -587,7 +628,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 break;
 
             case CHANGE_FILTERS:
-                this.filterMask = (this.filterMask ^ element) & 0x7;
+                this.filterMask = (this.filterMask ^ element) & 0xF;
+                this.scheduleBlockUpdate(this.delay, false);
                 break;
         }
 
@@ -609,9 +651,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public enum FilterSetting
     {
-        IS_WHITELIST    (0x01),
-        MATCH_META      (0x02),
-        MATCH_NBT       (0x04);
+        IS_INPUT_FILTER (0x01),
+        IS_WHITELIST    (0x02),
+        MATCH_META      (0x04),
+        MATCH_NBT       (0x08);
 
         private final int bitMask;
 
@@ -620,7 +663,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
             this.bitMask = bitMask;
         }
 
-        public boolean getFromBitmask(int mask)
+        public boolean isEnabledInBitmask(int mask)
         {
             return (mask & this.bitMask) != 0;
         }
@@ -633,14 +676,16 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public enum RedstoneMode
     {
-        IGNORED (true),
-        LOW     (false),
-        HIGH    (true);
+        IGNORED (0, true),
+        LOW     (1, false),
+        HIGH    (2, true);
 
+        private final int intValue;
         private final boolean operateWhenPowered;
 
-        private RedstoneMode(boolean operateWhenPowered)
+        private RedstoneMode(int intValue, boolean operateWhenPowered)
         {
+            this.intValue = intValue;
             this.operateWhenPowered = operateWhenPowered;
         }
 
@@ -649,9 +694,22 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
             return this == IGNORED || this.operateWhenPowered == isPowered;
         }
 
-        public static RedstoneMode fromOrdinal(int intValue)
+        public int getIntValue()
         {
-            return values()[intValue % values().length];
+            return this.intValue;
+        }
+
+        public static RedstoneMode fromInt(int intValue)
+        {
+            for (RedstoneMode mode : values())
+            {
+                if (mode.getIntValue() == intValue)
+                {
+                    return mode;
+                }
+            }
+
+            return IGNORED;
         }
     }
 

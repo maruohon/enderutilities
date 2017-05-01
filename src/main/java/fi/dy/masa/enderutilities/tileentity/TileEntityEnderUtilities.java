@@ -131,10 +131,12 @@ public class TileEntityEnderUtilities extends TileEntity
 
     public void scheduleBlockUpdate(int delay, boolean force)
     {
-        if (force || this.getWorld().isUpdateScheduled(this.getPos(), this.getBlockType()) == false)
+        World world = this.getWorld();
+
+        if (world != null && (force || world.isUpdateScheduled(this.getPos(), this.getBlockType()) == false))
         {
             //System.out.printf("scheduleBlockUpdate(), actually scheduling for %s\n", this.getPos());
-            this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), delay);
+            world.scheduleUpdate(this.getPos(), this.getBlockType(), delay);
         }
     }
 

@@ -59,7 +59,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
         int delay = this.tef.getUpdateDelay();
         int stackLimit = this.tef.getBaseItemHandler().getInventoryStackLimit();
         int filters = this.tef.getFilterMask();
-        int redstone = this.tef.getRedstoneModeOrdinal();
+        int redstone = this.tef.getRedstoneModeIntValue();
 
         for (int i = 0; i < this.listeners.size(); i++)
         {
@@ -115,7 +115,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
                 this.tef.setFilterMask(data);
                 break;
             case 4:
-                this.tef.setRedstoneModeFromOrdinal(data);
+                this.tef.setRedstoneModeFromInteger(data);
                 break;
         }
     }
