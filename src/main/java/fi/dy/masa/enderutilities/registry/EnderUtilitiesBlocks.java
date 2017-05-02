@@ -18,7 +18,7 @@ import fi.dy.masa.enderutilities.block.BlockFloor;
 import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.block.BlockMSU;
 import fi.dy.masa.enderutilities.block.BlockMachine1;
-import fi.dy.masa.enderutilities.block.BlockMachine2;
+import fi.dy.masa.enderutilities.block.BlockMolecularExciter;
 import fi.dy.masa.enderutilities.block.BlockPhasing;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
 import fi.dy.masa.enderutilities.block.BlockStorage;
@@ -40,7 +40,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockEnergyBridge   = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
     public static final BlockEnderUtilities blockMachine_0      = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities blockMachine_1      = new BlockMachine1(ReferenceNames.NAME_TILE_MACHINE_1,         6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities blockMachine_2      = new BlockMachine2(ReferenceNames.NAME_TILE_MACHINE_2,         6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities MOLECULAR_EXCITER   = new BlockMolecularExciter(ReferenceNames.NAME_TILE_MOLECULAR_EXCITER, 3.0f, 20f, 1, Material.IRON);
     public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_ENTITY_MSU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,            2.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
@@ -61,7 +61,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockEnergyBridge,    Configs.disableBlockEnergyBridge);
         registerBlock(blockMachine_0,       Configs.disableBlockMachine_0);
         registerBlock(blockMachine_1,       Configs.disableBlockMachine_1);
-        registerBlock(blockMachine_2,       Configs.disableBlockMachine_2);
+        registerBlock(MOLECULAR_EXCITER,    Configs.disableBlockMolecularExciter, true, false);
         registerBlock(MSU,                  Configs.disableBlockMSU);
         registerBlock(PHASING,              Configs.disableBlockPhasing);
         registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
@@ -148,9 +148,9 @@ public class EnderUtilitiesBlocks
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_1, 1, 3), "PAP", "AQA", "PAP", 'P', piston, 'A', alloy0, 'Q', EnderUtilitiesItems.quickStacker));
         }
-        if (Configs.disableRecipeMolecularExciter == false && Configs.disableBlockMachine_2 == false)
+        if (Configs.disableRecipeMolecularExciter == false && Configs.disableBlockMolecularExciter == false)
         {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockMachine_2, 1, 0), "AAA", "GCR", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', core1, 'R', Items.REDSTONE));
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(MOLECULAR_EXCITER, 1, 0), "AAA", "GCR", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', core1, 'R', Items.REDSTONE));
         }
 
         if (Configs.disableRecipeEnergyBridgeResonator == false && Configs.disableBlockEnergyBridge == false)

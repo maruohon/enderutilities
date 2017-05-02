@@ -32,12 +32,11 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
+import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityMolecularExciter;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
@@ -128,7 +127,6 @@ public class CommonProxy implements IProxy
         this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
         this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
-        this.registerTileEntity(TileEntityMolecularExciter.class,       ReferenceNames.NAME_TILE_ENTITY_MOLECULAR_EXCITER);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);
     }
 

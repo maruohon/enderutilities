@@ -398,7 +398,6 @@ public class ClientProxy extends CommonProxy
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_2,    "facing=north,powered=false,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU,               "type=", "");
 
@@ -406,6 +405,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 1, "half=bottom,type=cracked");
         this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 0, "type=normal");
         this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 1, "type=filtered");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.MOLECULAR_EXCITER, 0, "facing=north,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");

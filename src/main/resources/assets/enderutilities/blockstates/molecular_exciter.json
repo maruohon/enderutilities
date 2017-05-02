@@ -1,0 +1,28 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:cube_directional_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "top":    "enderutilities:blocks/molecular_exciter_side",
+            "bottom": "enderutilities:blocks/molecular_exciter_side",
+            "left":   "enderutilities:blocks/molecular_exciter_side",
+            "right":  "enderutilities:blocks/molecular_exciter_side",
+            "back":   "enderutilities:blocks/molecular_exciter_back"
+        }
+    },
+    "variants": {
+        "powered": {
+            "false": { "textures": { "front": "enderutilities:blocks/molecular_exciter_front" } },
+            "true":  { "textures": { "front": "enderutilities:blocks/molecular_exciter_front_active" } }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 },
+            "up":    { "x": 270 },
+            "down":  { "x":  90 }
+        }
+    }
+}

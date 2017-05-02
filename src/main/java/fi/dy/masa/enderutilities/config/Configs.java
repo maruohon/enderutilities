@@ -59,7 +59,7 @@ public class Configs
     public static boolean disableBlockInserter;
     public static boolean disableBlockMachine_0;
     public static boolean disableBlockMachine_1;
-    public static boolean disableBlockMachine_2;
+    public static boolean disableBlockMolecularExciter;
     public static boolean disableBlockMSU;
     public static boolean disableBlockPhasing;
     public static boolean disableBlockPortal;

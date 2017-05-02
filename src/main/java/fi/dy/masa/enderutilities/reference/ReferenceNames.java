@@ -65,7 +65,7 @@ public class ReferenceNames
     public static final String NAME_TILE_INSERTER               = "inserter";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";
     public static final String NAME_TILE_MACHINE_1              = "machine_1";
-    public static final String NAME_TILE_MACHINE_2              = "machine_2";
+    public static final String NAME_TILE_MOLECULAR_EXCITER      = "molecular_exciter";
     public static final String NAME_TILE_PHASING                = "phasing";
     public static final String NAME_TILE_PORTAL                 = "portal";
     public static final String NAME_TILE_PORTAL_PANEL           = "portal_panel";
@@ -86,7 +86,6 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_JSU                  = "jsu";
     public static final String NAME_TILE_ENTITY_MSU                  = "msu";
     public static final String NAME_TILE_ENTITY_MEMORY_CHEST         = "memorychest";
-    public static final String NAME_TILE_ENTITY_MOLECULAR_EXCITER    = "molecular_exciter";
     public static final String NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED = "quickstackeradvanced";
     public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
 

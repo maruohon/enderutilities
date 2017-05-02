@@ -252,6 +252,7 @@ public class ConfigReader
         Configs.disableBlockEnderElevator = getProp("disableBlockEnderElevator", false).getBoolean();
         Configs.disableBlockFloor         = getProp("disableBlockFloor", false).getBoolean();
         Configs.disableBlockInserter      = getProp("disableBlockInserter", false).getBoolean();
+        Configs.disableBlockMolecularExciter = getProp("disableBlockMolecularExciter", false).getBoolean();
         Configs.disableBlockPhasing       = getProp("disableBlockPhasing", false).getBoolean();
         Configs.disableBlockPortal        = getProp("disableBlockPortal", false).getBoolean();
         Configs.disableBlockPortalFrame   = getProp("disableBlockPortalFrame", false).getBoolean();
@@ -268,10 +269,6 @@ public class ConfigReader
         prop = getProp("disableBlockMachine_1", false);
         prop.setComment("Info: Machine_1 meta values: 0 = Ender Infuser; 1 = Tool Workstation, 2 = Creation Station");
         Configs.disableBlockMachine_1 = prop.getBoolean();
-
-        prop = getProp("disableBlockMachine_2", false);
-        prop.setComment("Info: Machine_2 meta values: 0 = Molecular Exciter");
-        Configs.disableBlockMachine_2 = prop.getBoolean();
 
         prop = getProp("disableBlockStorage_0", false);
         prop.setComment("Meta values: 0..2 = Memory Chests, 3..6 = Handy Chests, 7 = Junk Storage Unit");

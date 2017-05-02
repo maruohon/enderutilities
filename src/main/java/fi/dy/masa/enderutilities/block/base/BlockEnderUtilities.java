@@ -122,6 +122,14 @@ public class BlockEnderUtilities extends Block
         }
     }
 
+    public void scheduleBlockUpdate(World world, BlockPos pos, IBlockState state, int delay, boolean force)
+    {
+        if (force || world.isUpdateScheduled(pos, state.getBlock()) == false)
+        {
+            world.scheduleUpdate(pos, state.getBlock(), delay);
+        }
+    }
+
     @Override
     public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
