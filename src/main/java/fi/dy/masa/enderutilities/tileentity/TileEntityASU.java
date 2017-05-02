@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,11 +17,11 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
-public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
+public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 {
     public static final int MAX_STACK_SIZE = 1024;
     private ItemStackHandlerLockable itemHandlerLockable;
-    private int tier = 1;
+    private int inventorySize = 1;
 
     public TileEntityASU()
     {
@@ -29,14 +30,9 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         this.initStorage();
     }
 
-    private int getInvSize()
-    {
-        return this.tier;
-    }
-
     private void initStorage()
     {
-        this.itemHandlerLockable    = new ItemStackHandlerLockable(0, this.getInvSize(), 0, true, "Items", this);
+        this.itemHandlerLockable    = new ItemStackHandlerASU(0, 9, 1, true, "Items", this);
         this.itemHandlerBase        = this.itemHandlerLockable;
         this.itemHandlerExternal    = new ItemHandlerWrapperSelective(this.itemHandlerLockable);
     }
@@ -46,18 +42,14 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         return this.itemHandlerLockable;
     }
 
-    @Override
-    public void setStorageTier(int tier)
+    public int getInvSize()
     {
-        this.tier = MathHelper.clamp(tier, 1, 9);
-
-        this.initStorage();
+        return this.inventorySize;
     }
 
-    @Override
-    public int getStorageTier()
+    public void setInvSize(int size)
     {
-        return this.tier;
+        this.inventorySize = MathHelper.clamp(size, 1, 9);
     }
 
     public void setStackLimit(int limit)
@@ -73,13 +65,18 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
             this.setStackLimit(tag.getInteger("asu.stack_limit"));
         }
 
+        if (tag.hasKey("asu.slots", Constants.NBT.TAG_BYTE))
+        {
+            this.setInvSize(tag.getByte("asu.slots"));
+        }
+
         this.markDirty();
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.setStorageTier(nbt.getByte("Tier"));
+        this.setInvSize(nbt.getByte("Tier"));
         this.setStackLimit(nbt.getInteger("StackLimit"));
 
         super.readFromNBTCustom(nbt);
@@ -88,7 +85,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        nbt.setByte("Tier", (byte) this.tier);
+        nbt.setByte("Tier", (byte) this.inventorySize);
         nbt.setInteger("StackLimit", this.getBaseItemHandler().getInventoryStackLimit());
 
         super.writeToNBT(nbt);
@@ -101,7 +98,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     {
         nbt = super.getUpdatePacketTag(nbt);
 
-        nbt.setByte("tier", (byte) this.tier);
+        nbt.setByte("tier", (byte) this.inventorySize);
 
         return nbt;
     }
@@ -109,11 +106,42 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.tier = tag.getByte("tier");
-
-        this.initStorage();
+        this.setInvSize(tag.getByte("tier"));
 
         super.handleUpdateTag(tag);
+    }
+
+    private void changeInventorySize(int changeAmount)
+    {
+        int newSize = MathHelper.clamp(this.getInvSize() + changeAmount, 1, 9);
+
+        // Shrinking the inventory, only allowed if there are no items in the slots-to-be-removed
+        if (changeAmount < 0)
+        {
+            int changeFinal = 0;
+
+            for (int slot = this.getInvSize() - 1; slot >= newSize && slot >= 1; slot--)
+            {
+                if (this.itemHandlerLockable.getStackInSlot(slot) == null)
+                {
+                    changeFinal--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            newSize = MathHelper.clamp(this.getInvSize() + changeFinal, 1, 9);
+        }
+
+        if (newSize >= 1 && newSize <= 9)
+        {
+            this.setInvSize(newSize);
+
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+        }
     }
 
     @Override
@@ -122,6 +150,25 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory implements 
         if (action == 0)
         {
             this.setStackLimit(this.getBaseItemHandler().getInventoryStackLimit() + element);
+        }
+        else if (action == 1)
+        {
+            this.changeInventorySize(element);
+        }
+    }
+
+    private class ItemStackHandlerASU extends ItemStackHandlerLockable
+    {
+        public ItemStackHandlerASU(int inventoryId, int invSize, int stackLimit, boolean allowCustomStackSizes,
+                String tagName, TileEntityEnderUtilitiesInventory te)
+        {
+            super(inventoryId, invSize, stackLimit, allowCustomStackSizes, tagName, te);
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return TileEntityASU.this.getInvSize();
         }
     }
 

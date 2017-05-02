@@ -202,21 +202,7 @@ public class EnderUtilitiesBlocks
 
         if (Configs.disableRecipeAdjustableStorageUnit == false && Configs.disableBlockASU == false)
         {
-            GameRegistry.addRecipe(new ItemStack(ASU, 9, 0), "ARA", "AHA", "ACA", 'A', alloy0, 'R', Items.REPEATER, 'H', Blocks.CHEST, 'C', Items.COMPARATOR);
-
-            // Split higher tiers into tier 1s
-            for (int i = 1; i <= 8; i++)
-            {
-                GameRegistry.addShapelessRecipe(new ItemStack(ASU, i + 1, 0), new ItemStack(ASU, 1, i));
-            }
-
-            // Combine tier 1s into higher tiers
-            for (int i = 1; i <= 8; i++)
-            {
-                Object[] arr = new Object[i + 1];
-                for (int j = 0; j < arr.length; j++) { arr[j] = new ItemStack(ASU, 1, 0); }
-                GameRegistry.addShapelessRecipe(new ItemStack(ASU, 1, i), arr);
-            }
+            GameRegistry.addRecipe(new ItemStack(ASU, 1, 0), "ARA", "AEA", "ACA", 'A', alloy0, 'R', Items.REPEATER, 'E', Blocks.ENDER_CHEST, 'C', Items.COMPARATOR);
         }
 
         if (Configs.disableRecipeBarrel == false && Configs.disableBlockBarrel == false)

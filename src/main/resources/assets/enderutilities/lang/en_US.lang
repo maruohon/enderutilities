@@ -290,6 +290,7 @@ tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules
 # Placement Properties HUD:
 ###################################
 enderutilities.placement_properties.title=Placement Properties
+enderutilities.placement_properties.asu.slots=Number of slots
 enderutilities.placement_properties.asu.stack_limit=Stack Limit
 enderutilities.placement_properties.inserter.delay=Delay
 enderutilities.placement_properties.inserter.redstone_mode=Redstone Mode
@@ -381,6 +382,7 @@ enderutilities.gui.label.restockmode.disabled=Restock mode: disabled
 enderutilities.gui.label.restockmode.hotbar=Restock mode: hotbar-only
 enderutilities.gui.label.setname=Set name
 enderutilities.gui.label.settargetname=Set target name
+enderutilities.gui.label.slot.amount=Number of slots
 enderutilities.gui.label.slotpresets=Slot presets
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.sortitems=Sort items

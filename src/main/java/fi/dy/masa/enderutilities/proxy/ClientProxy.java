@@ -382,11 +382,7 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
-        for (int i = 0; i < 9; i++)
-        {
-            this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, i, "tier=" + (i + 1));
-        }
-
+        this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, 0, "tier=1");
         this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "creative=false");
 
         for (int i = 0; i < 16; i++)

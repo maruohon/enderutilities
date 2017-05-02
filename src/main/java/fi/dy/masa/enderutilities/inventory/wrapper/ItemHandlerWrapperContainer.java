@@ -38,13 +38,13 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public int getSlots()
     {
-        return this.baseHandlerModifiable.getSlots();
+        return this.wrapperHandler.getSlots();
     }
 
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return this.baseHandlerModifiable.getStackInSlot(slot);
+        return this.wrapperHandler.getStackInSlot(slot);
     }
 
     @Override

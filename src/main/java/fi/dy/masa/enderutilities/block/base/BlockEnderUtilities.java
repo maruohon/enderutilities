@@ -109,11 +109,16 @@ public class BlockEnderUtilities extends Block
 
     public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
     {
-        TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
-
-        if (te != null)
+        // Only apply the properties if the stack doesn't have NBT data
+        // (in case of a BlockEntityTag from an already placed and configured block)
+        if (stack.getTagCompound() == null)
         {
-            te.setPlacementProperties(world, pos, stack, tag);
+            TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+            if (te != null)
+            {
+                te.setPlacementProperties(world, pos, stack, tag);
+            }
         }
     }
 

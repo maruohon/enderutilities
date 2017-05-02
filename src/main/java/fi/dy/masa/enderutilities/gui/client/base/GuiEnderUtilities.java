@@ -229,6 +229,12 @@ public class GuiEnderUtilities extends GuiContainer
         }
     }
 
+    /**
+     * Called when a mouse action is performed. Wheel actions have a value (dWheel / 120) + 10.
+     * @param guiButton
+     * @param mouseButton
+     * @throws IOException
+     */
     protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException
     {
     }

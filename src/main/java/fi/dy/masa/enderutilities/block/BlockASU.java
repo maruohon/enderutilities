@@ -8,9 +8,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -25,7 +23,6 @@ import fi.dy.masa.enderutilities.item.block.ItemBlockASU;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.ItemUtils;
@@ -54,6 +51,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
         ItemBlockEnderUtilities item = new ItemBlockASU(this);
         item.setHasPlacementProperties(true);
         item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".stack_limit", Constants.NBT.TAG_INT, 0, TileEntityASU.MAX_STACK_SIZE);
+        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".slots", Constants.NBT.TAG_BYTE, 1, 9);
         return item;
     }
 
@@ -61,20 +59,6 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityASU();
-    }
-
-    @Override
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
-    {
-        if (world.isRemote == false)
-        {
-            TileEntity te = getTileEntitySafely(world, pos, TileEntity.class);
-
-            if (te instanceof ITieredStorage)
-            {
-                ((ITieredStorage) te).setStorageTier(state.getValue(TIER));
-            }
-        }
     }
 
     @Override
@@ -111,7 +95,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     protected ItemStack getDroppedItemWithNBT(IBlockAccess worldIn, BlockPos pos, IBlockState state, boolean addNBTLore)
     {
         Random rand = worldIn instanceof World ? ((World) worldIn).rand : RANDOM;
-        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, state.getValue(TIER) - 1);
+        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
         TileEntityASU te = getTileEntitySafely(worldIn, pos, TileEntityASU.class);
 
         if (te != null)
@@ -132,18 +116,25 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, (meta % 9) + 1);
+        return this.getDefaultState();
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER) - 1;
+        return 0;
     }
 
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        TileEntityASU te = getTileEntitySafely(world, pos, TileEntityASU.class);
+
+        if (te != null)
+        {
+            state = state.withProperty(TIER, te.getInvSize());
+        }
+
         return state;
     }
 
@@ -157,14 +148,5 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     public IBlockState withMirror(IBlockState state, Mirror mirror)
     {
         return state;
-    }
-
-    @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
-    {
-        for (int meta = 0; meta < 9; meta++)
-        {
-            list.add(new ItemStack(item, 1, meta));
-        }
     }
 }
