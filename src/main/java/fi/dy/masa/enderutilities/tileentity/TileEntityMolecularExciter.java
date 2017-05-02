@@ -53,7 +53,8 @@ public class TileEntityMolecularExciter extends TileEntityEnderUtilities
 
     private void convertBlockToFallingBlockEntity(World worldIn, BlockPos pos)
     {
-        if (worldIn.isAirBlock(pos) == false && worldIn.getBlockState(pos).getBlockHardness(worldIn, pos) >= 0F)
+        if (worldIn.getWorldBorder().contains(pos) && worldIn.isAirBlock(pos) == false &&
+            worldIn.getBlockState(pos).getBlockHardness(worldIn, pos) >= 0F)
         {
             worldIn.spawnEntity(EntityFallingBlockEU.convertBlockToEntity(worldIn, pos));
             worldIn.playSound(null, pos, Sounds.MOLECULAR_EXCITER, SoundCategory.BLOCKS, 1f, 1f);

@@ -240,7 +240,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     public boolean isTargetUsable(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)
     {
         // Spawn safe zone checks etc.
-        return world.canMineBlockBody(player, pos) && player.canPlayerEdit(pos, side, stack);
+        return world.isBlockModifiable(player, pos) && player.canPlayerEdit(pos, side, stack);
     }
 
     public EnumActionResult useBucketOnTank(World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack)

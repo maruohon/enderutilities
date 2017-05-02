@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -55,19 +54,12 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
-    {
-        // TODO remove?
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
-    }
-
-    @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack useStack = this.getItemForUse(stack, player);
 
-        if (useStack != null)
+        if (useStack != null && world.isBlockModifiable(player, pos.offset(facing)))
         {
             EnumActionResult result = useStack.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 

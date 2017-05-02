@@ -133,15 +133,20 @@ public class ItemDolly extends ItemEnderUtilities
         return null;
     }
 
-    private boolean shouldTryToPickUpBlock(World world, BlockPos pos, EnumFacing side)
+    private boolean shouldTryToPickUpBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
+        if (world.isBlockModifiable(player, pos) == false)
+        {
+            return false;
+        }
+
         TileEntity te = world.getTileEntity(pos);
         return te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te instanceof IInventory);
     }
 
     private boolean tryPickUpBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side)
     {
-        if (this.isCarryingBlock(stack) || this.shouldTryToPickUpBlock(world, pos, side) == false)
+        if (this.isCarryingBlock(stack) || this.shouldTryToPickUpBlock(world, pos, side, player) == false)
         {
             return false;
         }
@@ -183,17 +188,17 @@ public class ItemDolly extends ItemEnderUtilities
 
     private boolean tryPlaceDownBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side)
     {
-        if (this.isCarryingBlock(stack) == false)
+        pos = pos.offset(side);
+
+        if (this.isCarryingBlock(stack) == false || world.isBlockModifiable(player, pos))
         {
             return false;
         }
 
         NBTTagCompound tagCarrying = NBTUtils.getCompoundTag(stack, "Carrying", false);
-
         String name = tagCarrying.getString("Block");
         int meta = tagCarrying.getByte("Meta");
         Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(name));
-        pos = pos.offset(side);
 
         try
         {

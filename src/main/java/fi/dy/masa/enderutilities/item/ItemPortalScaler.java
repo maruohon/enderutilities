@@ -67,7 +67,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         // When right clicking on a Nether Portal block, shut down the portal
         if (block == Blocks.PORTAL)
         {
-            if (world.isRemote == false)
+            if (world.isRemote == false && world.isBlockModifiable(player, pos))
             {
                 world.destroyBlock(pos, false);
             }
@@ -81,7 +81,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         // When right clicking on Obsidian, try to light a Nether Portal
-        if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) &&
+        if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) && world.isBlockModifiable(player, pos.offset(side)) &&
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) &&
             Blocks.PORTAL.trySpawnPortal(world, pos.offset(side)))
         {

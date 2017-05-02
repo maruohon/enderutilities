@@ -45,7 +45,7 @@ public class ItemIceMelter extends ItemEnderUtilities
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.getBlockState(pos).getBlock() == Blocks.ICE)
+        if (worldIn.getBlockState(pos).getBlock() == Blocks.ICE && worldIn.isBlockModifiable(playerIn, pos))
         {
             if (worldIn.isRemote == false)
             {

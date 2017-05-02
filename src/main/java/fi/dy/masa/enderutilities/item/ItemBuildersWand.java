@@ -770,7 +770,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
             BlockPos pos, EnumFacing side, IBlockState newState, int setBlockStateFlags, boolean requireItems, boolean dropItems)
     {
-        if (newState.getMaterial() == Material.AIR || world.getBlockState(pos) == newState)
+        if (newState.getMaterial() == Material.AIR || world.getBlockState(pos) == newState ||
+            (player.capabilities.isCreativeMode == false && world.isBlockModifiable(player, pos) == false))
         {
             return false;
         }
