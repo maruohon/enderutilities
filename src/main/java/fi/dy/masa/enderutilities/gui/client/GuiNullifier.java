@@ -84,13 +84,13 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < this.inventoryItem.getSlots(); i++)
         {
             this.buttonList.add(new GuiButtonIcon(i, x + 12 + i * 18, y + 43, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         // Locked mode toggle
-        this.buttonList.add(new GuiButtonStateCallback(5, x + 102, y + 32, 8, 8, 8, 0, this.guiTextureWidgets, this,
+        this.buttonList.add(new GuiButtonStateCallback(20, x + 138, y + 12, 8, 8, 8, 0, this.guiTextureWidgets, this,
                 ButtonState.createTranslate(0,  0, "enderutilities.gui.label.item.enabled"),
                 ButtonState.createTranslate(0, 48, "enderutilities.gui.label.item.disabled")));
     }
@@ -100,12 +100,12 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
     {
         super.actionPerformed(button);
 
-        if (button.id >= 0 && button.id <= 4)
+        if (button.id >= 0 && button.id < this.inventoryItem.getSlots())
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_NULLIFIER, ItemNullifier.GUI_ACTION_SELECT_SLOT, button.id));
         }
-        else if (button.id == 5)
+        else if (button.id == 20)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
                 ReferenceGuiIds.GUI_ID_NULLIFIER, ItemNullifier.GUI_ACTION_TOGGLE_DISABLED, 0));
@@ -115,11 +115,9 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
     @Override
     public int getButtonStateIndex(int callbackId)
     {
-        if (callbackId == 5)
+        if (callbackId == 20)
         {
             ItemStack stack = this.containerN.getContainerItem();
-            //System.out.printf("stack: %s - %s\n", stack, stack.getTagCompound());
-
             return stack != null && NBTUtils.getBoolean(stack, ItemNullifier.TAG_NAME_CONTAINER, ItemNullifier.TAG_NAME_DISABLED) ? 1 : 0;
         }
 

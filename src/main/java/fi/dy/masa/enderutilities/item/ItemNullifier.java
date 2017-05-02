@@ -43,6 +43,8 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     public static final String TAG_NAME_SLOT_SELECTION = "Slot";
     public static final int GUI_ACTION_SELECT_SLOT      = 0;
     public static final int GUI_ACTION_TOGGLE_DISABLED  = 1;
+    public static final int NUM_SLOTS = 9;
+    public static final int MAX_STACK_SIZE = 1024;
 
     public ItemNullifier()
     {
@@ -130,7 +132,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
 
     public static ItemHandlerNullifier createInventoryForItem(ItemStack stack, boolean isRemote)
     {
-        ItemHandlerNullifier inv = new ItemHandlerNullifier(stack, 5, 1024, true, isRemote);
+        ItemHandlerNullifier inv = new ItemHandlerNullifier(stack, NUM_SLOTS, MAX_STACK_SIZE, true, isRemote);
         inv.readFromContainerItemStack();
         return inv;
     }
@@ -313,7 +315,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
             {
                 if (action == GUI_ACTION_SELECT_SLOT)
                 {
-                    NBTUtils.setByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION, (byte) MathHelper.clamp(element, 0, 4));
+                    NBTUtils.setByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION, (byte) MathHelper.clamp(element, 0, NUM_SLOTS - 1));
                 }
                 else if (action == GUI_ACTION_TOGGLE_DISABLED)
                 {
@@ -338,7 +340,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         }
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL) || EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL))
         {
-            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION, 4,
+            NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION, NUM_SLOTS - 1,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
         }
     }
@@ -348,7 +350,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     {
         String name = super.getItemStackDisplayName(stack);
         int slot = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION) + 1;
-        return name + " - " + slot + " / 5";
+        return name + " - " + slot + " / 9";
     }
 
     @Override

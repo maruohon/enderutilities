@@ -36,9 +36,9 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
         int xOff = 8;
         int yOff = 24;
 
-        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), 5);
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), this.inventory.getSlots());
 
-        for (int slot = 0; slot < 5; slot++)
+        for (int slot = 0; slot < this.inventory.getSlots(); slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, slot, xOff + slot * 18, yOff));
         }
