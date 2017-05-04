@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import com.google.common.collect.Sets;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -23,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModular;
@@ -85,9 +87,9 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return this.captureEntity(stack, player, livingBase);
     }
 
-    public EnumActionResult captureEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
+    private EnumActionResult captureEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase)
     {
-        if (livingBase == null || livingBase instanceof EntityPlayer || livingBase.isNonBoss() == false)
+        if (livingBase == null || livingBase instanceof EntityPlayer)
         {
             return EnumActionResult.PASS;
         }
@@ -103,7 +105,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.FAIL;
     }
 
-    public EnumActionResult releaseEntity(ItemStack containerStack, World world, BlockPos pos, double x, double y, double z, EnumFacing side)
+    private EnumActionResult releaseEntity(ItemStack containerStack, World world, BlockPos pos, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
@@ -185,10 +187,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.SUCCESS;
     }
 
-    public EnumActionResult storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
+    private EnumActionResult storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
+
+        if (this.canStoreEntity(livingBase) == false || moduleStack == null)
         {
             return EnumActionResult.PASS;
         }
@@ -215,7 +218,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.SUCCESS;
     }
 
-    public int getStoredEntityCount(ItemStack containerStack)
+    private int getStoredEntityCount(ItemStack containerStack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
@@ -230,7 +233,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     /**
      * Gets the current index in the currently selected Memory Card
      */
-    public int getCurrentIndex(ItemStack containerStack)
+    private int getCurrentIndex(ItemStack containerStack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
@@ -241,6 +244,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
     }
 
+    /*
     public void setCurrentIndex(ItemStack containerStack, byte index)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
@@ -252,6 +256,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", index);
         this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
     }
+    */
 
     @Nullable
     private String getEntityName(ItemStack containerStack, int index, boolean useDisplayNameFormatting)
@@ -307,7 +312,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return null;
     }
 
-    public void changeEntitySelection(ItemStack containerStack, boolean reverse)
+    private void changeEntitySelection(ItemStack containerStack, boolean reverse)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
         if (moduleStack == null)
@@ -335,6 +340,18 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", (byte)current);
         this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
+    }
+
+    private boolean canStoreEntity(Entity entity)
+    {
+        if (Configs.lmmListIsWhitelist)
+        {
+            return Sets.newHashSet(Configs.lmmWhitelist).contains(EntityList.getEntityString(entity));
+        }
+        else
+        {
+            return Sets.newHashSet(Configs.lmmBlacklist).contains(EntityList.getEntityString(entity)) == false;
+        }
     }
 
     @Override

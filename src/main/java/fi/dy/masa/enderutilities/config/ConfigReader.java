@@ -438,6 +438,22 @@ public class ConfigReader
         prop.setComment("Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!");
         Configs.enderBagWhitelist = prop.getStringList();
 
+        prop = getProp(currentCategory, "livingMatterManipulatorListType", "blacklist", false);
+        prop.setComment("The list type used for the Living Matter Manipulator. Allowed values: blacklist, whitelist.");
+        Configs.lmmListIsWhitelist = prop.getString().equalsIgnoreCase("whitelist");
+
+        prop = getProp(currentCategory, "livingMatterManipulatorBlackList",
+                new String[] {
+                        "EnderDragon",
+                        "WitherBoss"
+                        }, false);
+        prop.setComment("List of entity names the LMM is not allowed to store, if 'livingMatterManipulatorListType' is 'blacklist'.");
+        Configs.lmmBlacklist = prop.getStringList();
+
+        prop = getProp(currentCategory, "livingMatterManipulatorWhiteList", new String[] {}, false);
+        prop.setComment("List of entity names the LMM is only allowed to store, if 'livingMatterManipulatorListType' is 'whitelist'.");
+        Configs.lmmWhitelist = prop.getStringList();
+
         prop = getProp(currentCategory, "teleportBlackList",
                 new String[] {
                         "EnderDragon",

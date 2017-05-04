@@ -46,8 +46,11 @@ public class Configs
 
     // Black lists and white lists
     public static boolean enderBagListTypeIsWhitelist;
+    public static boolean lmmListIsWhitelist;
     public static String[] enderBagBlacklist;
     public static String[] enderBagWhitelist;
+    public static String[] lmmBlacklist;
+    public static String[] lmmWhitelist;
     public static String[] teleportBlacklist;
 
     // Block disable
