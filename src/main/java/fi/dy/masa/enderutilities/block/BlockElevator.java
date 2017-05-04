@@ -1,12 +1,15 @@
 package fi.dy.masa.enderutilities.block;
 
+import java.util.Arrays;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
@@ -14,6 +17,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -21,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
+import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -50,13 +55,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     protected String[] generateUnlocalizedNames()
     {
         String[] names = new String[EnumDyeColor.values().length];
-
-        int i = 0;
-        for (EnumDyeColor color : EnumDyeColor.values())
-        {
-            names[i++] = this.blockName + "_" + color.getName();
-        }
-
+        Arrays.fill(names, this.blockName);
         return names;
     }
 
@@ -71,6 +70,20 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityEnderElevator();
+    }
+
+    @Override
+    public ItemBlock createItemBlock()
+    {
+        return new ItemBlockEnderUtilities(this)
+        {
+            @Override
+            public String getItemStackDisplayName(ItemStack stack)
+            {
+                String name = super.getItemStackDisplayName(stack);
+                return name.replace("{COLOR}", EnumDyeColor.byMetadata(stack.getMetadata()).getName());
+            }
+        };
     }
 
     @Override
@@ -113,6 +126,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
                 if (worldIn.isRemote == false)
                 {
                     worldIn.setBlockState(pos, state.withProperty(COLOR, stackColor), 3);
+                    worldIn.playSound(null, pos, SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
 
                     if (playerIn.capabilities.isCreativeMode == false)
                     {

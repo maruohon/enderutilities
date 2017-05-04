@@ -385,6 +385,8 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, 0, "tier=1");
         this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "creative=false");
 
+        // The Elevators don't have getSubBlocks() overridden, to cut down on JEI item list clutter.
+        // And thus registerAllItemBlockModels() can't be used for them.
         for (int i = 0; i < 16; i++)
         {
             this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevator, i, "inventory");
