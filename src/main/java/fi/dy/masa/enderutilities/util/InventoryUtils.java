@@ -699,6 +699,30 @@ public class InventoryUtils
      */
     public static ItemStack extractItemsFromSlot(IItemHandler inv, int slot, int amount)
     {
+        if (inv instanceof IItemHandlerModifiable)
+        {
+            ItemStack stackSlot = inv.getStackInSlot(slot);
+            ItemStack stackExtract = null;
+
+            if (stackSlot != null)
+            {
+                if (stackSlot.stackSize <= amount)
+                {
+                    ((IItemHandlerModifiable) inv).setStackInSlot(slot, null);
+                    return stackSlot;
+                }
+
+                stackExtract = stackSlot.copy();
+                stackExtract.stackSize = Math.min(stackSlot.stackSize, amount);
+
+                stackSlot = stackSlot.copy();
+                stackSlot.stackSize -= stackExtract.stackSize;
+                ((IItemHandlerModifiable) inv).setStackInSlot(slot, stackSlot);
+            }
+
+            return stackExtract;
+        }
+
         ItemStack stack = inv.extractItem(slot, amount, false);
         int loops = 0;
 
@@ -717,6 +741,7 @@ public class InventoryUtils
             }
         }
 
+        //System.out.printf("extractItemsFromSlot(): slot: %d, requested amount: %d, loops %d, extracted: %s\n", slot, amount, loops, stack);
         return stack;
     }
 
@@ -774,6 +799,8 @@ public class InventoryUtils
             if (areItemStacksEqual(stackTmp, stackTemplate))
             {
                 stackTmp = extractItemsFromSlot(inv, slot, amount - stack.stackSize);
+                //System.out.printf("extracted %s from slot %d\n", stackTmp, slot);
+
                 if (stackTmp != null)
                 {
                     stack.stackSize += stackTmp.stackSize;
@@ -790,6 +817,7 @@ public class InventoryUtils
                 }
 
                 stackTmp = extractItemsFromSlot(inv, slot, amount - stack.stackSize);
+
                 if (stackTmp != null)
                 {
                     stack.stackSize += stackTmp.stackSize;
