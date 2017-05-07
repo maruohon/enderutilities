@@ -1,12 +1,18 @@
 package fi.dy.masa.enderutilities.effects;
 
 import java.util.Random;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound.AttenuationType;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 
@@ -25,6 +31,27 @@ public class Effects
     public static void playSoundClient(World world, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch)
     {
         world.playSound(x, y, z, soundIn, category, volume, pitch, false);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void playPositionedSoundOnClient(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
+    {
+        SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();
+        SoundEvent sound = SoundEvent.REGISTRY.getObjectById(soundId);
+
+        if (sound != null)
+        {
+            if (stop)
+            {
+                soundHandler.stop(sound.getRegistryName().toString(), null);
+            }
+            else
+            {
+                PositionedSoundRecord positionedSound = new PositionedSoundRecord(sound.getSoundName(),
+                        SoundCategory.RECORDS, volume, pitch, repeat, 0, AttenuationType.LINEAR, x, y, z);
+                soundHandler.playSound(positionedSound);
+            }
+        }
     }
 
     public static void spawnParticles(World world, EnumParticleTypes type, double x, double y, double z, int count, double offset, double velocity)

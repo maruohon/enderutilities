@@ -100,4 +100,10 @@ public class TileEntityPortal extends TileEntityEnderUtilities
 
         super.handleUpdateTag(tag);
     }
+
+    @Override
+    public boolean hasGui()
+    {
+        return false;
+    }
 }

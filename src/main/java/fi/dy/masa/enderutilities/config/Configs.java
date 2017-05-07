@@ -68,6 +68,7 @@ public class Configs
     public static boolean disableBlockPortal;
     public static boolean disableBlockPortalFrame;
     public static boolean disableBlockPortalPanel;
+    public static boolean disableBlockSoundBlock;
     public static boolean disableBlockStorage_0;
 
     // Item disable
@@ -117,6 +118,7 @@ public class Configs
     public static boolean disableRecipePhasingBlock;
     public static boolean disableRecipePortalFrame;
     public static boolean disableRecipePortalPanel;
+    public static boolean disableRecipeSoundBlock;
     public static boolean disableRecipeToolWorkstation;
 
     public static boolean disableRecipeEnderFurnace;

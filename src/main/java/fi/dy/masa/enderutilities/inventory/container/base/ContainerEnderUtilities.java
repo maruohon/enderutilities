@@ -29,6 +29,8 @@ import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerEnderUtilities extends Container
 {
+    public static final int GUI_ACTION_SCROLL_MOVE  = 0;
+    public static final int GUI_ACTION_SCROLL_SET   = 1;
     public final EntityPlayer player;
     protected final boolean isClient;
     protected final InventoryPlayer inventoryPlayer;

@@ -21,6 +21,7 @@ import fi.dy.masa.enderutilities.block.BlockMachine1;
 import fi.dy.masa.enderutilities.block.BlockMolecularExciter;
 import fi.dy.masa.enderutilities.block.BlockPhasing;
 import fi.dy.masa.enderutilities.block.BlockPortalPanel;
+import fi.dy.masa.enderutilities.block.BlockSound;
 import fi.dy.masa.enderutilities.block.BlockStorage;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -46,6 +47,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities blockPortal         = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
     public static final BlockEnderUtilities blockPortalFrame    = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities blockPortalPanel    = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities SOUND_BLOCK         = new BlockSound(ReferenceNames.NAME_TILE_SOUND_BLOCK,          4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockStorage_0      = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f,   60f, 1, Material.ROCK);
 
     public static void registerBlocks()
@@ -67,6 +69,7 @@ public class EnderUtilitiesBlocks
         registerBlock(blockPortal,          Configs.disableBlockPortal, false, false);
         registerBlock(blockPortalFrame,     Configs.disableBlockPortalFrame, true, false);
         registerBlock(blockPortalPanel,     Configs.disableBlockPortalPanel, true, false);
+        registerBlock(SOUND_BLOCK,          Configs.disableBlockSoundBlock);
         registerBlock(blockStorage_0,       Configs.disableBlockStorage_0);
     }
 
@@ -234,6 +237,11 @@ public class EnderUtilitiesBlocks
         if (Configs.disableRecipePortalPanel == false && Configs.disableBlockPortalPanel == false && Configs.disableBlockPortal == false)
         {
             GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(blockPortalPanel, 2, 0), "FRF", "FCF", "FRF", 'F', blockPortalFrame, 'C', active_core1, 'R', repeater));
+        }
+
+        if (Configs.disableRecipeSoundBlock == false && Configs.disableBlockSoundBlock == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(SOUND_BLOCK, 4, 0), "ANA", "N N", "ANA", 'A', alloy0, 'N', Blocks.NOTEBLOCK);
         }
     }
 

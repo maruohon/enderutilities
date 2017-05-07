@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.item.ItemNullifier;
 import fi.dy.masa.enderutilities.item.ItemPickupManager;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import io.netty.buffer.ByteBuf;
 
 public class MessageGuiAction implements IMessage
@@ -121,9 +121,9 @@ public class MessageGuiAction implements IMessage
                         if (world.isBlockLoaded(pos))
                         {
                             TileEntity te = world.getTileEntity(pos);
-                            if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+                            if (te != null && te instanceof TileEntityEnderUtilities)
                             {
-                                ((TileEntityEnderUtilitiesInventory) te).performGuiAction(player, message.action, message.elementId);
+                                ((TileEntityEnderUtilities) te).performGuiAction(player, message.action, message.elementId);
                             }
                         }
                         break;

@@ -69,6 +69,7 @@ public class ReferenceNames
     public static final String NAME_TILE_PHASING                = "phasing";
     public static final String NAME_TILE_PORTAL                 = "portal";
     public static final String NAME_TILE_PORTAL_PANEL           = "portal_panel";
+    public static final String NAME_TILE_SOUND_BLOCK            = "sound_block";
     public static final String NAME_TILE_STORAGE_0              = "storage_0";
 
     public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge_transmitter";

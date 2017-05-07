@@ -40,6 +40,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
+import fi.dy.masa.enderutilities.tileentity.TileEntitySoundBlock;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
@@ -56,6 +57,11 @@ public class CommonProxy implements IProxy
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
         }
+    }
+
+    @Override
+    public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
+    {
     }
 
     @Override
@@ -128,6 +134,7 @@ public class CommonProxy implements IProxy
         this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);
+        this.registerTileEntity(TileEntitySoundBlock.class,             ReferenceNames.NAME_TILE_SOUND_BLOCK);
     }
 
     @Override

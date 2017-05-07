@@ -168,7 +168,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     private void syncSideConfigs()
     {
-        this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.getCombinesSideMask()));
+        this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.getCombinesSideMask()));
     }
 
     public ImmutableList<EnumFacing> getEnabledOutputSides()

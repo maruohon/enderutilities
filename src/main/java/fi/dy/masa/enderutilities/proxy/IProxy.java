@@ -7,6 +7,8 @@ public interface IProxy
 {
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);
 
+    public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z);
+
     public void registerColorHandlers();
 
     public void registerEntities();

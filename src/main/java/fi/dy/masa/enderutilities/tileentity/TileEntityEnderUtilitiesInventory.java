@@ -5,14 +5,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -169,20 +165,5 @@ public class TileEntityEnderUtilitiesInventory extends TileEntityEnderUtilities
         }
 
         return super.isUseableByPlayer(player);
-    }
-
-    public void performGuiAction(EntityPlayer player, int action, int element)
-    {
-    }
-
-    public ContainerEnderUtilities getContainer(EntityPlayer player)
-    {
-        return null;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
-    {
-        return null;
     }
 }

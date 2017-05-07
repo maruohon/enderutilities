@@ -1,0 +1,17 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "enderutilities:orientable_ftbs",
+        "transform": "forge:default-block",
+        "textures": {
+            "top":      "enderutilities:blocks/sound_block_top",
+            "bottom":   "enderutilities:blocks/sound_block_top",
+            "front":    "enderutilities:blocks/sound_block_front",
+            "side":     "enderutilities:blocks/sound_block_front"
+        }
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}]
+    }
+}

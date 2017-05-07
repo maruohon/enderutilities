@@ -12,8 +12,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
 public class ContainerJSU extends ContainerLargeStacksTile implements IScrollableInventory
 {
-    public static final int GUI_ACTION_SCROLL_MOVE  = 0;
-    public static final int GUI_ACTION_SCROLL_SET   = 1;
     protected final TileEntityJSU tejsu;
     private int startRow;
 

@@ -68,6 +68,7 @@ tile.enderutilities.phasing_inverted.name=Phasing Block (inverted)
 tile.enderutilities.portal.name=Portal
 tile.enderutilities.portal_panel.name=Portal Control Panel
 tile.enderutilities.quickstackeradvanced.name=Advanced Quick Stacker
+tile.enderutilities.sound_block.name=Sound Block
 tile.enderutilities.toolworkstation.name=Tool Workstation
 
 
@@ -240,6 +241,7 @@ tile.enderutilities.molecular_exciter.tooltips=- Turns blocks infront of itself 
 tile.enderutilities.phasing.tooltips=- Changes state between solid and non-solid based on redstone signal
 tile.enderutilities.phasing_inverted.tooltips=- Changes state between solid and non-solid based on redstone signal
 tile.enderutilities.quickstackeradvanced.tooltips=- A more configurable, stationary version of Quick Stacker
+tile.enderutilities.sound_block.tooltips=- Yes, it plays sounds...|lf- Select any sound from the registered sounds|lf- Adjustable pitch and volume
 tile.enderutilities.toolworkstation.tooltips=- Used to access/change the modules in modular items|lf- Can also rename any item for free
 
 
@@ -344,6 +346,14 @@ enderutilities.gui.label.slotpresets=Slot presets
 enderutilities.gui.label.slowfasttoggle=Toggle slow/fast mode
 enderutilities.gui.label.sortitems=Sort items
 enderutilities.gui.label.sortitems.player=Sort player inventory
+enderutilities.gui.label.soundblock.clear=Clear (or right click the field)
+enderutilities.gui.label.soundblock.pause=Pause
+enderutilities.gui.label.soundblock.play=Play
+enderutilities.gui.label.soundblock.stop=Stop
+enderutilities.gui.label.soundblock.repeat.disabled=Repeat: disabled
+enderutilities.gui.label.soundblock.repeat.enabled=Repeat: enabled
+enderutilities.gui.label.soundblock.pitch=Pitch
+enderutilities.gui.label.soundblock.volume=Volume
 enderutilities.gui.label.stacklimit=Stack limit
 enderutilities.gui.label.toolworkstation.tool=Tool or item to modify
 enderutilities.gui.label.toolworkstation.itemtorename=Item to rename

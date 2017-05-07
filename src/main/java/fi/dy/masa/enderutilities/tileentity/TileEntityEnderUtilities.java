@@ -23,9 +23,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
@@ -246,7 +250,11 @@ public class TileEntityEnderUtilities extends TileEntity
         this.handleUpdateTag(packet.getNbtCompound());
     }
 
-    protected void sendSyncPacket(MessageSyncTileEntity message)
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+    }
+
+    protected void sendPacketToWatchers(IMessage message)
     {
         World world = this.getWorld();
 
@@ -276,5 +284,16 @@ public class TileEntityEnderUtilities extends TileEntity
     public boolean hasGui()
     {
         return true;
+    }
+
+    public ContainerEnderUtilities getContainer(EntityPlayer player)
+    {
+        return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public GuiEnderUtilities getGui(EntityPlayer player)
+    {
+        return null;
     }
 }

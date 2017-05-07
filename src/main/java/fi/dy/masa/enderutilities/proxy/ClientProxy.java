@@ -45,6 +45,7 @@ import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
+import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
@@ -78,6 +79,12 @@ public class ClientProxy extends CommonProxy
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
         }
+    }
+
+    @Override
+    public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
+    {
+        Effects.playPositionedSoundOnClient(soundId, pitch, volume, repeat, stop, x, y, z);
     }
 
     @Override
@@ -413,6 +420,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0,    0, "facing=north,mode=off");
         this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalPanel,  0, "facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.SOUND_BLOCK, 0, "inventory");
     }
 
     private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)

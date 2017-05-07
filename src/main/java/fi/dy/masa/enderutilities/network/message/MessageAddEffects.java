@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
@@ -24,15 +25,21 @@ public class MessageAddEffects implements IMessage
     public static final int EFFECT_TELEPORT = 1;
     public static final int EFFECT_ENDER_TOOLS = 2;
     public static final int EFFECT_PARTICLES = 100;
+    public static final int EFFECT_SOUND_EVENT = 110;
 
     private int effectType;
     private int flags;
-    private double x;
-    private double y;
-    private double z;
+    private float x;
+    private float y;
+    private float z;
     private int particleCount;
     private double offset;
     private double velocity;
+
+    private int soundEventId;
+    private float pitch;
+    private float volume;
+    private boolean repeat;
 
     public MessageAddEffects()
     {
@@ -52,25 +59,25 @@ public class MessageAddEffects implements IMessage
     {
         this.effectType = id;
         this.flags = flags;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = (float) x;
+        this.y = (float) y;
+        this.z = (float) z;
         this.particleCount = particleCount;
         this.offset = offset;
         this.velocity = velocity;
     }
 
-    @Override
-    public void fromBytes(ByteBuf buf)
+    public MessageAddEffects(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
     {
-        this.effectType = buf.readByte();
-        this.flags = buf.readByte();
-        this.x = buf.readDouble();
-        this.y = buf.readDouble();
-        this.z = buf.readDouble();
-        this.particleCount = buf.readShort();
-        this.offset = buf.readFloat();
-        this.velocity = buf.readFloat();
+        this.effectType = EFFECT_SOUND_EVENT;
+        this.soundEventId = soundId;
+        this.flags = stop ? 1 : 0;
+        this.pitch = pitch;
+        this.volume = volume;
+        this.repeat = repeat;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     @Override
@@ -78,12 +85,47 @@ public class MessageAddEffects implements IMessage
     {
         buf.writeByte(this.effectType);
         buf.writeByte(this.flags);
-        buf.writeDouble(this.x);
-        buf.writeDouble(this.y);
-        buf.writeDouble(this.z);
-        buf.writeShort(this.particleCount);
-        buf.writeFloat((float)this.offset);
-        buf.writeFloat((float)this.velocity);
+        buf.writeFloat((float) this.x);
+        buf.writeFloat((float) this.y);
+        buf.writeFloat((float) this.z);
+
+        if (this.effectType == EFFECT_SOUND_EVENT)
+        {
+            buf.writeShort((short) this.soundEventId);
+            buf.writeFloat(this.pitch);
+            buf.writeFloat(this.volume);
+            buf.writeBoolean(this.repeat);
+        }
+        else
+        {
+            buf.writeShort(this.particleCount);
+            buf.writeFloat((float) this.offset);
+            buf.writeFloat((float) this.velocity);
+        }
+    }
+
+    @Override
+    public void fromBytes(ByteBuf buf)
+    {
+        this.effectType = buf.readByte();
+        this.flags = buf.readByte();
+        this.x = buf.readFloat();
+        this.y = buf.readFloat();
+        this.z = buf.readFloat();
+
+        if (this.effectType == EFFECT_SOUND_EVENT)
+        {
+            this.soundEventId = buf.readShort();
+            this.pitch = buf.readFloat();
+            this.volume = buf.readFloat();
+            this.repeat = buf.readBoolean();
+        }
+        else
+        {
+            this.particleCount = buf.readShort();
+            this.offset = buf.readFloat();
+            this.velocity = buf.readFloat();
+        }
     }
 
     public static class Handler implements IMessageHandler<MessageAddEffects, IMessage>
@@ -109,14 +151,14 @@ public class MessageAddEffects implements IMessage
             {
                 public void run()
                 {
-                    processMessage(message, player, player.getEntityWorld());
+                    processMessage(message, player, player.getEntityWorld(), mc.getSoundHandler());
                 }
             });
 
             return null;
         }
 
-        protected void processMessage(final MessageAddEffects message, EntityPlayer player, World world)
+        protected void processMessage(final MessageAddEffects message, EntityPlayer player, World world, SoundHandler soundHandler)
         {
             if (message.effectType == EFFECT_TELEPORT)
             {
@@ -144,6 +186,11 @@ public class MessageAddEffects implements IMessage
             else if (message.effectType == EFFECT_PARTICLES)
             {
                 Effects.spawnParticles(world, EnumParticleTypes.getParticleFromId(message.flags), message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+            }
+            else if (message.effectType == EFFECT_SOUND_EVENT)
+            {
+                Effects.playPositionedSoundOnClient(message.soundEventId, message.pitch, message.volume,
+                        message.repeat, message.flags != 0, message.x, message.y, message.z);
             }
         }
     }

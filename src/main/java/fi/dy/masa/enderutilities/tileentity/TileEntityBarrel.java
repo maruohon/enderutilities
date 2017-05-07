@@ -396,7 +396,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             int[] ints = new int[] { this.itemHandlerLockable.isSlotLocked(0) ? 1 : 0 };
             ItemStack[] stacks = new ItemStack[] { this.itemHandlerLockable.getTemplateStackInSlot(0) };
-            this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), ints, stacks));
+            this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), ints, stacks));
 
             return true;
         }
@@ -512,12 +512,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.updateMaxStackSize();
                 this.cachedStack = ItemStack.copyItemStack(stack);
 
-                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
+                this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
             }
             else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
             {
                 this.cachedStack.stackSize = stack.stackSize;
-                this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize, this.maxStacks));
+                this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize, this.maxStacks));
             }
         }
         // Upgrades changed
@@ -525,7 +525,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             this.updateBarrelProperties(true);
             int stackSize = this.cachedStack != null ? this.cachedStack.stackSize : 0;
-            this.sendSyncPacket(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
+            this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
         }
     }
 

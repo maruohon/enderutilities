@@ -60,7 +60,12 @@ public class ScrollBar extends GuiArea
 
     public int getPosition()
     {
-        return this.position;
+        return Math.min(this.position, this.positionMax);
+    }
+
+    public void setPositionCount(int count)
+    {
+        this.positionMax = Math.max(0, count - 1);
     }
 
     public int getMaxPosition()
@@ -122,7 +127,7 @@ public class ScrollBar extends GuiArea
         }
 
         // 16 is the height of the scroll bar texture
-        int offY = (h - 16 - 2 * w) * this.position / this.positionMax;
+        int offY = this.positionMax > 0 ? (h - 16 - 2 * w) * this.position / this.positionMax : 0;
         this.parent.drawTexturedModalRect(x, y + w + offY, this.u + offsetU, this.v + offsetV + 2 * w, w, h - 2 * w);
     }
 

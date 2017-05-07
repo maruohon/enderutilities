@@ -20,7 +20,7 @@ import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.ItemQuickStacker;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class EnderUtilitiesGUIHandler implements IGuiHandler
@@ -40,9 +40,10 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
                 TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-                if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+
+                if (te != null && te instanceof TileEntityEnderUtilities)
                 {
-                    return ((TileEntityEnderUtilitiesInventory)te).getContainer(player);
+                    return ((TileEntityEnderUtilities) te).getContainer(player);
                 }
                 break;
 
@@ -112,9 +113,10 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
                 TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-                if (te != null && te instanceof TileEntityEnderUtilitiesInventory)
+
+                if (te != null && te instanceof TileEntityEnderUtilities)
                 {
-                    return ((TileEntityEnderUtilitiesInventory)te).getGui(player);
+                    return ((TileEntityEnderUtilities) te).getGui(player);
                 }
                 break;
 
