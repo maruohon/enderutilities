@@ -34,7 +34,6 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
     /** Current filter string in the GUI */
     @SideOnly(Side.CLIENT)
     public String filter = "";
-    @SideOnly(Side.CLIENT)
     public int selectedSound = -1;
 
     public TileEntitySoundBlock()
@@ -112,7 +111,8 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
         nbt = super.getUpdatePacketTag(nbt);
 
         nbt.setInteger("sb1", this.getPitchVolumeForSync());
-        nbt.setInteger("sb2", this.getRepeatAndSoundIdForSync(false));
+        boolean play = this.getWorld() != null && this.getWorld().isBlockPowered(this.getPos());
+        nbt.setInteger("sb2", this.getRepeatAndSoundIdForSync(play));
 
         return nbt;
     }
@@ -124,7 +124,7 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
         this.syncTile(new int[] { tag.getInteger("sb1"), tag.getInteger("sb2") }, null);
     }
 
-    private void sendPlaySoundPacket(boolean stop)
+    public void sendPlaySoundPacket(boolean stop)
     {
         if (this.soundName != null)
         {
@@ -165,6 +165,7 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
     @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
+        this.sendPlaySoundPacket(true);
         this.sendPlaySoundPacket(false);
     }
 
@@ -177,6 +178,7 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
         {
             if (powered)
             {
+                this.sendPlaySoundPacket(true);
                 this.sendPlaySoundPacket(false);
             }
 
@@ -205,10 +207,13 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
                 this.sendPlaySoundPacket(true);
                 return;
             case 1000:
+                // Stop a previously playing sound before setting the new sound
+                this.sendPlaySoundPacket(true);
                 this.setSoundFromID(element);
                 break;
         }
 
+        this.markDirty();
         this.sendSyncPacket(action == 1000);
     }
 
@@ -284,7 +289,9 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
 
     private void setSoundFromID(int id)
     {
-        if (id > 0)
+        this.selectedSound = id;
+
+        if (id >= 0)
         {
             SoundEvent sound = SoundEvent.REGISTRY.getObjectById(id);
             this.soundName = sound != null ? sound.getRegistryName().toString() : null;

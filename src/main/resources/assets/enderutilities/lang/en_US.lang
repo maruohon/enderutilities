@@ -29,6 +29,7 @@ enderutilities.container.pickupmanager=Pickup Manager
 enderutilities.container.portal_panel=Portal Panel
 enderutilities.container.quickstacker=Quick Stacker
 enderutilities.container.quickstacker.advanced=Advanced Quick Stacker
+enderutilities.container.sound_block=Sound Block
 enderutilities.container.toolworkstation=Tool Workstation
 
 

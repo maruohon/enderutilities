@@ -52,6 +52,23 @@ public class BlockSound extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
+    {
+        if (world.isRemote == false)
+        {
+            TileEntitySoundBlock te = getTileEntitySafely(world, pos, TileEntitySoundBlock.class);
+
+            if (te != null)
+            {
+                // Stop a playing sound when the block is broken
+                te.sendPlaySoundPacket(true);
+            }
+        }
+
+        super.breakBlock(world, pos, state);
+    }
+
+    @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {

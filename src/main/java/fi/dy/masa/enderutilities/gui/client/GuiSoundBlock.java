@@ -68,6 +68,8 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
+        this.fontRendererObj.drawString(I18n.format("enderutilities.container.sound_block"), 8, 6, 0x404040);
+
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
         this.searchField.drawTextBox();
@@ -89,10 +91,10 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
         }
 
         String str = I18n.format("enderutilities.gui.label.soundblock.pitch") + String.format(": %.3f", this.tesb.getPitch());
-        this.fontRendererObj.drawString(str, 60, 151, 0x404040);
+        this.fontRendererObj.drawString(str, 60, 152, 0x404040);
 
         str = I18n.format("enderutilities.gui.label.soundblock.volume") + String.format(": %.3f", this.tesb.getVolume());
-        this.fontRendererObj.drawString(str, 60, 162, 0x404040);
+        this.fontRendererObj.drawString(str, 60, 163, 0x404040);
     }
 
     @Override
@@ -168,11 +170,12 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
 
     private void updateScrollbarScaling(int listSize)
     {
-        this.scrollBar.setPositionCount(listSize - 11);
+        this.scrollBar.setPositionCount(listSize - 9);
+        this.scrollBar.handleMouseInput(0, 0);
         this.startIndex = this.scrollBar.getPosition();
 
         // Reset the position if the list has shrunk so that the scroll position is "over the end"
-        if (this.startIndex >= this.filteredSounds.size() - 10)
+        if (this.startIndex >= this.filteredSounds.size() - 9)
         {
             this.startIndex = 0;
         }
@@ -230,7 +233,8 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
         int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth - this.guiLeft;
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1 - this.guiTop;
 
-        if (Mouse.getEventDWheel() != 0 && this.areaSoundList.isMouseOver(mouseX, mouseY))
+        if (Mouse.getEventDWheel() != 0 &&
+            (this.areaSoundList.isMouseOver(mouseX, mouseY) || this.scrollBar.isMouseOver(mouseX, mouseY)))
         {
             this.scrollBar.handleMouseInput(mouseX, mouseY);
         }
@@ -245,17 +249,6 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
     public void scrollbarAction(int scrollbarId, ScrollbarAction action, int position)
     {
         this.startIndex = this.scrollBar.getPosition();
-        /*
-        int row = ((TileEntityJSU.INV_SIZE / 9) - 6) * this.scrollBar.getPosition() / this.scrollBar.getMaxPosition();
-
-        // Change the scroll position locally
-        this.container.performGuiAction(this.player, ContainerJSU.GUI_ACTION_SCROLL_SET, row);
-
-        // Send a packet to the server
-        PacketHandler.INSTANCE.sendToServer(
-            new MessageGuiAction(0, BlockPos.ORIGIN,
-                ReferenceGuiIds.GUI_ID_CONTAINER_GENERIC, ContainerJSU.GUI_ACTION_SCROLL_SET, row));
-        */
     }
 
     private String getSoundName(int id)
@@ -280,29 +273,10 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
         int y = mouseY - this.areaSoundList.getY();
         // There are at maximum 10 entries on the list
         int index = (10 * y / this.areaSoundList.getHeight()) + this.startIndex;
-
-        System.out.printf("mouseX: %d mouseY: %d, ay: %d index: %d\n", mouseX, mouseY, this.areaSoundList.getY(), index);
-        if (index < this.filteredSounds.size())
-        {
-            this.tesb.selectedSound = this.getSoundId(index);
-
-            if (this.tesb.selectedSound >= 0)
-            {
-                this.selectedName = this.getSoundName(this.tesb.selectedSound);
-            }
-            else
-            {
-                this.selectedName = "";
-            }
-        }
-        else
-        {
-            this.tesb.selectedSound = -1;
-            this.selectedName = "";
-        }
+        this.tesb.selectedSound = this.getSoundId(index);
+        this.selectedName = this.tesb.selectedSound >= 0 ? this.getSoundName(this.tesb.selectedSound) : "";
 
         int dim = this.player.getEntityWorld().provider.getDimension();
-
         PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.tesb.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, 1000, this.tesb.selectedSound));
     }

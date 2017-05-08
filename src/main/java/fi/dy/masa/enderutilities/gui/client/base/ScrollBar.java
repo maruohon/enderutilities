@@ -66,6 +66,11 @@ public class ScrollBar extends GuiArea
     public void setPositionCount(int count)
     {
         this.positionMax = Math.max(0, count - 1);
+
+        if (this.position > this.positionMax)
+        {
+            this.position = this.positionMax;
+        }
     }
 
     public int getMaxPosition()
