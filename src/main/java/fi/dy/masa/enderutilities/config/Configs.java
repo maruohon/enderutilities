@@ -56,6 +56,7 @@ public class Configs
     // Block disable
     public static boolean disableBlockASU;
     public static boolean disableBlockBarrel;
+    public static boolean disableBlockDrawbridge;
     public static boolean disableBlockEnderElevator;
     public static boolean disableBlockEnergyBridge;
     public static boolean disableBlockFloor;
@@ -107,6 +108,7 @@ public class Configs
     public static boolean disableRecipeAdvancedQuickStacker;
     public static boolean disableRecipeBarrel;
     public static boolean disableRecipeCreationStation;
+    public static boolean disableRecipeDrawbridge;
     public static boolean disableRecipeEnderElevator;
     public static boolean disableRecipeEnderInfuser;
     public static boolean disableRecipeFloor;

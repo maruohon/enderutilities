@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
+import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 
 /**
  * Wraps the "base" IItemHandler (which has no slot-specific insert or extract restrictions),
@@ -17,7 +18,7 @@ import fi.dy.masa.enderutilities.inventory.IItemHandlerSelective;
  * 
  * @author masa
  */
-public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IItemHandlerSelective
+public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IItemHandlerSelective, IItemHandlerSize
 {
     protected final IItemHandlerModifiable baseHandlerModifiable;
     protected final IItemHandler wrapperHandler;
@@ -92,5 +93,27 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
         }
 
         return true;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+        if (this.wrapperHandler instanceof IItemHandlerSize)
+        {
+            return ((IItemHandlerSize) this.wrapperHandler).getInventoryStackLimit();
+        }
+
+        return 64;
+    }
+
+    @Override
+    public int getItemStackLimit(ItemStack stack)
+    {
+        if (this.wrapperHandler instanceof IItemHandlerSize)
+        {
+            return ((IItemHandlerSize) this.wrapperHandler).getItemStackLimit(stack);
+        }
+
+        return this.getInventoryStackLimit();
     }
 }

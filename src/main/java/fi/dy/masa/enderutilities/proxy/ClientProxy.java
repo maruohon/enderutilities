@@ -410,6 +410,8 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU,               "type=", "");
 
+        this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 1, "advanced=true,facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 0, "half=bottom,type=normal");
         this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 1, "half=bottom,type=cracked");
         this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 0, "type=normal");

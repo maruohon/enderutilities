@@ -85,7 +85,8 @@ public class BlockUtils
 
         float hardness = state.getBlockHardness(world, pos);
 
-        return hardness >= 0 && hardness <= maxHardness && (allowTileEntities || world.getTileEntity(pos) == null);
+        return world.isBlockModifiable(player, pos) && hardness >= 0 && hardness <= maxHardness &&
+               (allowTileEntities || world.getTileEntity(pos) == null);
     }
 
     public static void getDropAndSetToAir(World world, EntityPlayer player, BlockPos pos, EnumFacing side, boolean addToInventory)
@@ -126,15 +127,21 @@ public class BlockUtils
     }
 
     /**
-     * Sets the block state in the world and plays the placement sound
+     * Sets the block state in the world and plays the placement sound.
+     * @return true if setting the block state succeeded
      */
-    public static void placeBlock(World world, BlockPos pos, IBlockState newState, int setBlockStateFlags)
+    public static boolean setBlockStateWithPlaceSound(World world, BlockPos pos, IBlockState newState, int setBlockStateFlags)
     {
-        world.setBlockState(pos, newState, setBlockStateFlags);
+        boolean success = world.setBlockState(pos, newState, setBlockStateFlags);
 
-        SoundType soundtype = newState.getBlock().getSoundType(newState, world, pos, null);
-        world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
-                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+        if (success)
+        {
+            SoundType soundtype = newState.getBlock().getSoundType(newState, world, pos, null);
+            world.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS,
+                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+        }
+
+        return success;
     }
 
     public static ItemStack getPickBlockItemStack(World world, BlockPos pos, EntityPlayer player, EnumFacing side)

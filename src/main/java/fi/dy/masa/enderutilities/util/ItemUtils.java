@@ -13,7 +13,11 @@ public class ItemUtils
 {
     public static ItemStack storeTileEntityInStack(ItemStack stack, TileEntity te, boolean addNBTLore)
     {
-        NBTTagCompound nbt = te.writeToNBT(new NBTTagCompound());
+        return storeTileEntityNBTInStack(stack, te.writeToNBT(new NBTTagCompound()), addNBTLore);
+    }
+
+    public static ItemStack storeTileEntityNBTInStack(ItemStack stack, NBTTagCompound nbt, boolean addNBTLore)
+    {
         nbt.removeTag("x");
         nbt.removeTag("y");
         nbt.removeTag("z");

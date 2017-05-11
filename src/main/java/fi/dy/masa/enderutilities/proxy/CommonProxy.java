@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
+import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
@@ -131,6 +132,7 @@ public class CommonProxy implements IProxy
 
         this.registerTileEntity(TileEntityASU.class,                    ReferenceNames.NAME_TILE_ENTITY_ASU);
         this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        this.registerTileEntity(TileEntityDrawbridge.class,             ReferenceNames.NAME_TILE_DRAWBRIDGE);
         this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);

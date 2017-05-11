@@ -783,7 +783,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (replace || isAir)
             {
-                BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
+                BlockUtils.setBlockStateWithPlaceSound(world, pos, newState, setBlockStateFlags);
                 return true;
             }
 
@@ -838,7 +838,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                     getAndConsumeBuildItem(wandStack, world, pos, newState, player, false);
                 }
 
-                BlockUtils.placeBlock(world, pos, newState, setBlockStateFlags);
+                BlockUtils.setBlockStateWithPlaceSound(world, pos, newState, setBlockStateFlags);
 
                 if (player.capabilities.isCreativeMode == false)
                 {

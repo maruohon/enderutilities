@@ -56,6 +56,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_VOID_PICKAXE           = "void_pickaxe";
 
 
+    public static final String NAME_TILE_DRAWBRIDGE             = "drawbridge";
     public static final String NAME_TILE_ENDER_ELEVATOR         = "enderelevator";
     public static final String NAME_TILE_ENDER_ELEVATOR_SLAB    = "enderelevator_slab";
     public static final String NAME_TILE_ENDER_ELEVATOR_LAYER   = "enderelevator_layer";

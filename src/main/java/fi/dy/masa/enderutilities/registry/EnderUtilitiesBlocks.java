@@ -10,6 +10,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.BlockASU;
 import fi.dy.masa.enderutilities.block.BlockBarrel;
+import fi.dy.masa.enderutilities.block.BlockDrawbridge;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.BlockEnderFurnace;
 import fi.dy.masa.enderutilities.block.BlockEnderUtilitiesPortal;
@@ -33,6 +34,7 @@ public class EnderUtilitiesBlocks
 {
     public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ENTITY_ASU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_ENTITY_BARREL,       4.0f,   10f, 1, Material.IRON);
+    public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAWBRIDGE,      4.0f,   10f, 1, Material.IRON);
     public static final BlockEnderUtilities blockElevator       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorSlab   = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities blockElevatorLayer  = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
@@ -55,6 +57,7 @@ public class EnderUtilitiesBlocks
         // Register blocks
         registerBlock(ASU,                  Configs.disableBlockASU);
         registerBlock(BARREL,               Configs.disableBlockBarrel);
+        registerBlock(DRAWBRIDGE,           Configs.disableBlockDrawbridge);
         registerBlock(blockElevator,        Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorSlab,    Configs.disableBlockEnderElevator);
         registerBlock(blockElevatorLayer,   Configs.disableBlockEnderElevator);
@@ -96,6 +99,12 @@ public class EnderUtilitiesBlocks
         //ItemStack rope = new ItemStack(EnderUtilitiesItems.enderPart, 1, 21);
 
         // Register block recipes
+        if (Configs.disableRecipeDrawbridge == false && Configs.disableBlockDrawbridge == false)
+        {
+            GameRegistry.addRecipe(new ItemStack(DRAWBRIDGE, 1, 0), "ASA", "ASA", "ARA", 'A', alloy0, 'S', Blocks.STICKY_PISTON, 'R', Items.REDSTONE);
+            GameRegistry.addRecipe(new ItemStack(DRAWBRIDGE, 1, 1), "ASA", "ASA", "ACA", 'A', alloy0, 'S', Blocks.STICKY_PISTON, 'C', Items.COMPARATOR);
+        }
+
         if (Configs.disableRecipeEnderElevator == false && Configs.disableBlockEnderElevator == false)
         {
             RecipeSorter.register(Reference.MOD_ID + ":shapedmetadataore", ShapedMetadataOreRecipe.class, RecipeSorter.Category.SHAPED, "");

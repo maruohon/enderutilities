@@ -249,6 +249,7 @@ public class ConfigReader
         // Block disable
         Configs.disableBlockASU           = getProp("disableBlockAdjustableStorageUnit", false).getBoolean();
         Configs.disableBlockBarrel        = getProp("disableBlockBarrel", false).getBoolean();
+        Configs.disableBlockDrawbridge    = getProp("disableBlockDrawbridge", false).getBoolean();
         Configs.disableBlockEnderElevator = getProp("disableBlockEnderElevator", false).getBoolean();
         Configs.disableBlockFloor         = getProp("disableBlockFloor", false).getBoolean();
         Configs.disableBlockInserter      = getProp("disableBlockInserter", false).getBoolean();
@@ -257,6 +258,7 @@ public class ConfigReader
         Configs.disableBlockPortal        = getProp("disableBlockPortal", false).getBoolean();
         Configs.disableBlockPortalFrame   = getProp("disableBlockPortalFrame", false).getBoolean();
         Configs.disableBlockPortalPanel   = getProp("disableBlockPortalPanel", false).getBoolean();
+        Configs.disableBlockSoundBlock    = getProp("disableBlockSoundBlock", false).getBoolean();
 
         prop = getProp("disableBlockEnergyBridge", false);
         prop.setComment("Meta values: 0 = Energy Bridge Resonator; 1 = Energy Bridge Receiver; 2 = Energy Bridge Transmitter");
@@ -319,6 +321,7 @@ public class ConfigReader
         Configs.disableRecipeAdvancedQuickStacker = getProp("disableRecipeAdvancedQuickStacker", false).getBoolean();
         Configs.disableRecipeCreationStation      = getProp("disableRecipeCreationStation", false).getBoolean();
         Configs.disableRecipeBarrel               = getProp("disableRecipeBarrel", false).getBoolean();
+        Configs.disableRecipeDrawbridge           = getProp("disableRecipeDrawbridge", false).getBoolean();
         Configs.disableRecipeEnderElevator        = getProp("disableRecipeEnderElevator", false).getBoolean();
         Configs.disableRecipeEnderFurnace         = getProp("disableRecipeEnderFurnace", false).getBoolean();
         Configs.disableRecipeEnderInfuser         = getProp("disableRecipeEnderInfuser", false).getBoolean();
@@ -328,6 +331,7 @@ public class ConfigReader
         Configs.disableRecipePhasingBlock         = getProp("disableRecipePhasingBlock", false).getBoolean();
         Configs.disableRecipePortalFrame          = getProp("disableRecipeFrame", false).getBoolean();
         Configs.disableRecipePortalPanel          = getProp("disableRecipePortalPanel", false).getBoolean();
+        Configs.disableRecipeSoundBlock           = getProp("disableRecipeSoundBlock", false).getBoolean();
         Configs.disableRecipeToolWorkstation      = getProp("disableRecipeToolWorkstation", false).getBoolean();
 
         Configs.disableRecipeEnergyBridgeTransmitter = getProp("disableRecipeEnergyBridgeTransmitter", false).getBoolean();

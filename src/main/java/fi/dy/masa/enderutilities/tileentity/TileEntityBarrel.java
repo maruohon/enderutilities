@@ -28,7 +28,6 @@ import fi.dy.masa.enderutilities.block.BlockBarrel;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiBarrel;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
@@ -608,7 +607,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return new Vec3d(x, y, z);
     }
 
-    private class ItemHandlerWrapperContainerBarrelUpgrades extends ItemHandlerWrapperContainer implements IItemHandlerSize
+    private class ItemHandlerWrapperContainerBarrelUpgrades extends ItemHandlerWrapperContainer
     {
         private final ItemHandlerBarrelUpgrades barrelUpgrades;
 
