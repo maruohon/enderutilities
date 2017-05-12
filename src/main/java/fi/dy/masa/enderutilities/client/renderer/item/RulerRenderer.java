@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.resources.I18n;
@@ -13,9 +12,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
+import fi.dy.masa.enderutilities.event.RenderEventHandler;
+import fi.dy.masa.enderutilities.event.RenderEventHandler.HudAlignment;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
@@ -29,36 +31,44 @@ public class RulerRenderer
     protected final Minecraft mc;
     protected final Map<Integer, List<BlockPosEU>> positions;
     public float partialTicksLast;
-    public String modeStrDimensions;
-    public String modeStrDifference;
 
     public RulerRenderer()
     {
         this.mc = Minecraft.getMinecraft();
         this.positions = new HashMap<Integer, List<BlockPosEU>>();
-        this.modeStrDimensions = I18n.format("enderutilities.tooltip.item.ruler.dimensions");
-        this.modeStrDifference = I18n.format("enderutilities.tooltip.item.ruler.difference");
     }
 
     public void renderHud()
     {
         EntityPlayer player = this.mc.player;
+
         if (player == null)
         {
             return;
         }
 
         ItemStack stack = player.getHeldItemMainhand();
+
         if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
         {
-            stack = InventoryUtils.getFirstMatchingItem(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), EnderUtilitiesItems.ruler);
-            if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
+            stack = InventoryUtils.getFirstItemOfType(player, ItemRuler.class);
+
+            if (stack == null || ((ItemRuler) stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;
             }
         }
 
-        ItemRuler item = (ItemRuler)stack.getItem();
+        List<String> lines = new ArrayList<String>();
+
+        this.getText(lines, stack, player);
+
+        RenderEventHandler.renderText(lines, 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
+    }
+
+    private void getText(List<String> lines, ItemStack stack, EntityPlayer player)
+    {
+        ItemRuler item = (ItemRuler) stack.getItem();
         int selected = item.getLocationSelection(stack);
 
         BlockPosEU posStart = item.getPosition(stack, selected, ItemRuler.POS_START);
@@ -72,14 +82,14 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)(player.posY - 1.6d), (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
         }
 
-        if ((posStart != null && posStart.dimension != player.dimension) || (posEnd != null && posEnd.dimension != player.dimension))
+        if (posStart.dimension != player.dimension || posEnd.dimension != player.dimension)
         {
             return;
         }
@@ -87,23 +97,33 @@ public class RulerRenderer
         int lenX = Math.abs(posStart.posX - posEnd.posX);
         int lenY = Math.abs(posStart.posY - posEnd.posY);
         int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
-        String modeStr = this.modeStrDifference;
+        String modeStr;
+        String preGreen = TextFormatting.GREEN.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         if (item.getDistanceMode(stack) == ItemRuler.DISTANCE_MODE_DIMENSIONS)
         {
             lenX += 1;
             lenY += 1;
             lenZ += 1;
-            modeStr = this.modeStrDimensions;
+            modeStr = I18n.format("enderutilities.tooltip.item.ruler.dimensions");
+        }
+        else
+        {
+            modeStr = I18n.format("enderutilities.tooltip.item.ruler.difference");
         }
 
-        ScaledResolution scaledResolution = new ScaledResolution(this.mc);
-        int scaledY = scaledResolution.getScaledHeight();
-        int x = 0;
-        int y = scaledY - 16;
+        lines.add(String.format("%s: %s%s%s - X: %s%d%s, Y: %s%d%s, Z: %s%d%s",
+                I18n.format("enderutilities.tooltip.item.mode"), preGreen, modeStr, rst,
+                preGreen, lenX, rst, preGreen, lenY, rst, preGreen, lenZ, rst));
 
-        //System.out.println("scX: " + scaledX + " scY: " + scaledY);
-        this.mc.fontRendererObj.drawString(modeStr + " X: " + lenX + ", Y: " + lenY + ", Z: " + lenZ, x + 10, y, 0xFF70FFFF, true);
+        String strStart = I18n.format("enderutilities.tooltip.item.start");
+        lines.add(String.format("%s: x: %s%d%s, y: %s%d%s, z: %s%d%s",
+                strStart, preGreen, posStart.posX, rst, preGreen, posStart.posY, rst, preGreen, posStart.posZ, rst));
+
+        String strEnd = I18n.format("enderutilities.tooltip.item.end");
+        lines.add(String.format("%s: x: %s%d%s, y: %s%d%s, z: %s%d%s",
+                strEnd, preGreen, posEnd.posX, rst, preGreen, posEnd.posY, rst, preGreen, posEnd.posZ, rst));
     }
 
     public void renderAllPositionPairs(EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
@@ -229,21 +249,18 @@ public class RulerRenderer
     {
         if (posStart == null && posEnd == null)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                this.positions.remove(i);
-            }
+            this.positions.clear();
             return;
         }
 
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)(usingPlayer.posY), (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)(usingPlayer.posY), (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
@@ -325,7 +342,7 @@ public class RulerRenderer
 
         public BlockPosAligner(BlockPosEU p1, BlockPosEU p2, EntityPlayer player)
         {
-            this.playerPos = new double[] { player.posX, player.posY - 1.0d, player.posZ };
+            this.playerPos = new double[] { player.posX, player.posY + player.getEyeHeight(), player.posZ };
             this.points = new int[][] {
                 { p1.posX, p1.posY, p1.posZ },
                 { p2.posX, p2.posY, p2.posZ }
