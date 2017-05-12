@@ -6,14 +6,13 @@ import fi.dy.masa.enderutilities.inventory.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerScrollable;
-import fi.dy.masa.enderutilities.reference.HotKeys;
-import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
 public class ContainerJSU extends ContainerLargeStacksTile implements IScrollableInventory
 {
     protected final TileEntityJSU tejsu;
     private int startRow;
+    private int startRowLast;
 
     public ContainerJSU(EntityPlayer player, TileEntityJSU te)
     {
@@ -61,20 +60,7 @@ public class ContainerJSU extends ContainerLargeStacksTile implements IScrollabl
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
-        // Shift + Middle click: Cycle the stack size in creative mode
-        if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
-        {
-            if (player.capabilities.isCreativeMode)
-            {
-                this.cycleStackSize(element, this.tejsu.getBaseItemHandler());
-            }
-        }
-        // Alt + Middle click: Swap two stacks
-        else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_ALT))
-        {
-            this.swapSlots(element, player);
-        }
-        else if (action == GUI_ACTION_SCROLL_MOVE)
+        if (action == GUI_ACTION_SCROLL_MOVE)
         {
             this.setStartRow(this.startRow + element);
         }
@@ -82,7 +68,40 @@ public class ContainerJSU extends ContainerLargeStacksTile implements IScrollabl
         {
             this.setStartRow(element);
         }
+        else
+        {
+            super.performGuiAction(player, action, element);
+        }
 
         this.detectAndSendChanges();
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        for (int i = 0; i < this.listeners.size(); i++)
+        {
+            if (this.startRow != this.startRowLast)
+            {
+                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.startRow);
+            }
+        }
+
+        this.startRowLast = this.startRow;
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
+    public void updateProgressBar(int id, int data)
+    {
+        if (id == 0)
+        {
+            this.setStartRow(data);
+        }
+        else
+        {
+            super.updateProgressBar(id, data);
+        }
     }
 }

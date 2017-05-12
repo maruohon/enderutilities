@@ -16,7 +16,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
 public class GuiJSU extends GuiContainerLargeStacks
 {
-    private final ContainerJSU containerJSU;
     private final ScrollBar scrollBar;
     private final GuiArea areaInventory;
 
@@ -24,7 +23,6 @@ public class GuiJSU extends GuiContainerLargeStacks
     {
         super(container, 192, 220, "gui.container.jsu");
 
-        this.containerJSU = container;
         this.areaInventory = new GuiArea(7, 16, 177, 108);
         this.scrollBar = new ScrollBar(0, 172, 17, 192, 0, 12, 106, ((TileEntityJSU.INV_SIZE / 9) - 5), this);
         this.scaledStackSizeTextInventories.add(container.inventory);
@@ -70,9 +68,6 @@ public class GuiJSU extends GuiContainerLargeStacks
     public void scrollbarAction(int scrollbarId, ScrollbarAction action, int position)
     {
         int row = ((TileEntityJSU.INV_SIZE / 9) - 6) * this.scrollBar.getPosition() / this.scrollBar.getMaxPosition();
-
-        // Change the scroll position locally
-        this.containerJSU.performGuiAction(this.player, ContainerJSU.GUI_ACTION_SCROLL_SET, row);
 
         // Send a packet to the server
         PacketHandler.INSTANCE.sendToServer(
