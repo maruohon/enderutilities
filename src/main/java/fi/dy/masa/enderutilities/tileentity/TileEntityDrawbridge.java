@@ -25,6 +25,8 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiDrawbridge;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
@@ -636,6 +638,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return new ContainerDrawbridge(player, this);
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public GuiEnderUtilities getGui(EntityPlayer player)
     {

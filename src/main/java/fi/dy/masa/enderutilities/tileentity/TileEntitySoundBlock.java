@@ -32,7 +32,6 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
     private boolean repeat;
     private boolean redstoneState;
     /** Current filter string in the GUI */
-    @SideOnly(Side.CLIENT)
     public String filter = "";
     public int selectedSound = -1;
 
@@ -302,12 +301,14 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
         }
     }
 
+    @Override
     public ContainerSoundBlock getContainer(EntityPlayer player)
     {
         return new ContainerSoundBlock(player, this);
     }
 
     @SideOnly(Side.CLIENT)
+    @Override
     public GuiEnderUtilities getGui(EntityPlayer player)
     {
         return new GuiSoundBlock(this.getContainer(player), this);
