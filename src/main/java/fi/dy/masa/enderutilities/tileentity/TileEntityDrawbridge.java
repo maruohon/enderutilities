@@ -434,30 +434,42 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     {
         if (this.state == State.EXTEND)
         {
-            this.extendOneBlock(this.position, this.getPlayer(), true);
-
-            if (this.position < this.maxLength - 1)
+            while (this.position < this.maxLength)
             {
-                this.position++;
-                this.scheduleBlockUpdate(this.delay, false);
+                if (this.extendOneBlock(this.position++, this.getPlayer(), true))
+                {
+                    break;
+                }
+            }
+
+            if (this.position >= this.maxLength)
+            {
+                this.position = this.maxLength - 1;
+                this.state = State.IDLE;
             }
             else
             {
-                this.state = State.IDLE;
+                this.scheduleBlockUpdate(this.delay, false);
             }
         }
         else if (this.state == State.CONTRACT)
         {
-            this.contractOneBlock(this.position, this.getPlayer(), true);
-
-            if (this.position > 0)
+            while (this.position >= 0)
             {
-                this.position--;
-                this.scheduleBlockUpdate(this.delay, false);
+                if (this.contractOneBlock(this.position--, this.getPlayer(), true))
+                {
+                    break;
+                }
+            }
+
+            if (this.position < 0)
+            {
+                this.position = 0;
+                this.state = State.IDLE;
             }
             else
             {
-                this.state = State.IDLE;
+                this.scheduleBlockUpdate(this.delay, false);
             }
         }
     }
@@ -506,7 +518,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             this.setDelay(this.delay + element);
         }
         // Change max length
-        else if (action == 2)
+        else if (action == 2 && this.state == State.IDLE)
         {
             if (this.isAdvanced())
             {
@@ -515,6 +527,13 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             else
             {
                 this.setMaxLength(this.maxLength + element);
+            }
+
+            // If the device is in the extended idle state, set the position to the end of
+            // the newly set length.
+            if (this.redstoneState)
+            {
+                this.position = (this.maxLength - 1);
             }
         }
 
