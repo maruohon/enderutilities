@@ -26,7 +26,7 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class InventoryUtils
 {
-    public static final int SLOT_ITER_LIMIT = 128;
+    public static final int SLOT_ITER_LIMIT = 256;
     public static final ItemStackHandlerBasic NULL_INV = new ItemStackHandlerBasic(0);
 
     public static int calcRedstoneFromInventory(IItemHandler inv)
@@ -699,50 +699,54 @@ public class InventoryUtils
      */
     public static ItemStack extractItemsFromSlot(IItemHandler inv, int slot, int amount)
     {
-        if (inv instanceof IItemHandlerModifiable)
+        ItemStack stackExtract = inv.extractItem(slot, amount, false);
+
+        if (stackExtract == null)
         {
+            return stackExtract;
+        }
+
+        if ((stackExtract.getMaxStackSize() * SLOT_ITER_LIMIT) < amount && inv instanceof IItemHandlerModifiable)
+        {
+            amount -= stackExtract.stackSize;
             ItemStack stackSlot = inv.getStackInSlot(slot);
-            ItemStack stackExtract = null;
 
             if (stackSlot != null)
             {
                 if (stackSlot.stackSize <= amount)
                 {
+                    stackExtract.stackSize += stackSlot.stackSize;
                     ((IItemHandlerModifiable) inv).setStackInSlot(slot, null);
-                    return stackSlot;
                 }
-
-                stackExtract = stackSlot.copy();
-                stackExtract.stackSize = Math.min(stackSlot.stackSize, amount);
-
-                stackSlot = stackSlot.copy();
-                stackSlot.stackSize -= stackExtract.stackSize;
-                ((IItemHandlerModifiable) inv).setStackInSlot(slot, stackSlot);
+                else
+                {
+                    stackExtract.stackSize += amount;
+                    stackSlot = stackSlot.copy();
+                    stackSlot.stackSize -= amount;
+                    ((IItemHandlerModifiable) inv).setStackInSlot(slot, stackSlot);
+                }
             }
 
             return stackExtract;
         }
 
-        ItemStack stack = inv.extractItem(slot, amount, false);
         int loops = 0;
 
-        if (stack != null)
+        while (stackExtract.stackSize < amount && loops < SLOT_ITER_LIMIT)
         {
-            while (stack.stackSize < amount && loops < SLOT_ITER_LIMIT)
-            {
-                ItemStack stackTmp = inv.extractItem(slot, amount - stack.stackSize, false);
-                if (stackTmp == null)
-                {
-                    break;
-                }
+            ItemStack stackTmp = inv.extractItem(slot, amount - stackExtract.stackSize, false);
 
-                stack.stackSize += stackTmp.stackSize;
-                loops++;
+            if (stackTmp == null)
+            {
+                break;
             }
+
+            stackExtract.stackSize += stackTmp.stackSize;
+            loops++;
         }
 
         //System.out.printf("extractItemsFromSlot(): slot: %d, requested amount: %d, loops %d, extracted: %s\n", slot, amount, loops, stack);
-        return stack;
+        return stackExtract;
     }
 
     /**
