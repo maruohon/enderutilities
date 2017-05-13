@@ -48,13 +48,16 @@ public class ItemDolly extends ItemEnderUtilities
     public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
             EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
-        if (this.isCarryingBlock(stack))
+        if (world.isRemote == false)
         {
-            this.tryPlaceDownBlock(stack, player, world, pos, side);
-        }
-        else
-        {
-            this.tryPickUpBlock(stack, player, world, pos, side);
+            if (this.isCarryingBlock(stack))
+            {
+                this.tryPlaceDownBlock(stack, player, world, pos, side);
+            }
+            else
+            {
+                this.tryPickUpBlock(stack, player, world, pos, side);
+            }
         }
 
         return world.isRemote ? EnumActionResult.PASS : EnumActionResult.SUCCESS;
@@ -151,11 +154,6 @@ public class ItemDolly extends ItemEnderUtilities
             return false;
         }
 
-        if (world.isRemote)
-        {
-            return false;
-        }
-
         IBlockState state = world.getBlockState(pos);
         TileEntity te = world.getTileEntity(pos);
         String name = ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString();
@@ -190,7 +188,7 @@ public class ItemDolly extends ItemEnderUtilities
     {
         pos = pos.offset(side);
 
-        if (this.isCarryingBlock(stack) == false || world.isBlockModifiable(player, pos))
+        if (this.isCarryingBlock(stack) == false || world.isBlockModifiable(player, pos) == false)
         {
             return false;
         }
@@ -204,11 +202,6 @@ public class ItemDolly extends ItemEnderUtilities
         {
             if (block != null && block != Blocks.AIR && world.canBlockBePlaced(block, pos, false, side, null, null))
             {
-                if (world.isRemote)
-                {
-                    return false;
-                }
-
                 @SuppressWarnings("deprecation")
                 IBlockState state = block.getStateFromMeta(meta);
                 EnumFacing pickupFacing = EnumFacing.getFront(tagCarrying.getByte("PickupFacing"));
