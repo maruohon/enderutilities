@@ -73,6 +73,12 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public int damageDropped(IBlockState state)
+    {
+        return 0;
+    }
+
+    @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityBarrel();

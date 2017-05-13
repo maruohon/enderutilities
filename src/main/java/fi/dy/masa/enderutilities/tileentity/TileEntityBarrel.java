@@ -246,7 +246,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         super.setFacing(facing);
 
-        this.updateBarrelProperties(false);
+        this.updateBarrelProperties(true);
     }
 
     public void updateBarrelProperties(boolean updateLabels)
