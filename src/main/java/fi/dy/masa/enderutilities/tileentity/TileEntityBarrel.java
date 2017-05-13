@@ -50,6 +50,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private List<EnumFacing> labels = new ArrayList<EnumFacing>();
     private int labelMask;
     private int maxStacks = 64;
+    private boolean hasStructureUpgrade;
     private ItemStack cachedStack;
     public ItemStack renderStack;
     public String cachedStackSizeString;
@@ -78,17 +79,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     public IItemHandler getUpgradeInventory()
     {
-        return new ItemHandlerWrapperContainerBarrelUpgrades(this.itemHandlerUpgrades);
-    }
-
-    public int getMaxStacks()
-    {
-        return this.maxStacks;
+        return new ItemHandlerWrapperContainer(this.itemHandlerUpgrades, this.itemHandlerUpgrades, true);
     }
 
     public boolean retainsContentsWhenBroken()
     {
-        return this.itemHandlerUpgrades.getStackInSlot(1) != null;
+        return this.hasStructureUpgrade;
     }
 
     @Override
@@ -118,6 +114,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         super.readItemsFromNBT(nbt);
 
+        this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1) != null;
         this.cachedStack = ItemStack.copyItemStack(this.itemHandlerLockable.getStackInSlot(0));
     }
 
@@ -136,7 +133,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.setCreative(nbt.getBoolean("Creative"));
         this.setLabelsFromMask(nbt.getByte("Labels"));
-        this.updateBarrelProperties(false);
+
+        this.updateLabels(false);
+        this.setMaxStacksFromUpgrades();
     }
 
     @Override
@@ -164,13 +163,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             nbt.setTag("st", tag);
         }
 
-        stack = this.itemHandlerUpgrades.getStackInSlot(1);
-
-        if (stack != null)
-        {
-            nbt.setTag("ups", stack.writeToNBT(new NBTTagCompound()));
-        }
-
         stack = this.itemHandlerLockable.getTemplateStackInSlot(0);
 
         if (stack != null)
@@ -178,10 +170,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             nbt.setTag("stlo", stack.writeToNBT(new NBTTagCompound()));
         }
 
-        nbt.setInteger("msc", this.maxStacks);
         nbt.setBoolean("cr", this.isCreative());
         nbt.setByte("la", (byte) this.getLabelMask(true));
         nbt.setBoolean("lo", this.itemHandlerLockable.isSlotLocked(0));
+        nbt.setInteger("mxs", this.maxStacks);
+        nbt.setBoolean("stu", this.hasStructureUpgrade);
 
         return nbt;
     }
@@ -189,16 +182,10 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.maxStacks = tag.getInteger("msc");
+        this.hasStructureUpgrade = tag.getBoolean("stu");
         this.setCreative(tag.getBoolean("cr"));
         this.setLabelsFromMask(tag.getByte("la"));
         this.itemHandlerLockable.setSlotLocked(0, tag.getBoolean("lo"));
-
-        if (tag.hasKey("ups", Constants.NBT.TAG_COMPOUND))
-        {
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("ups"));
-            this.itemHandlerUpgrades.setStackInSlot(1, stack);
-        }
 
         if (tag.hasKey("stlo", Constants.NBT.TAG_COMPOUND))
         {
@@ -220,6 +207,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             this.itemHandlerLockable.setStackInSlot(0, stack);
         }
 
+        this.setMaxStacks(tag.getInteger("mxs"));
         this.updateCachedStack();
 
         super.handleUpdateTag(tag);
@@ -247,15 +235,13 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         super.setFacing(facing);
 
-        this.updateBarrelProperties(true);
+        this.updateLabels(true);
     }
 
-    private void updateBarrelProperties(boolean notifyBlockUpdate)
+    private void updateLabels(boolean notifyBlockUpdate)
     {
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
-            this.updateMaxStackSize();
-
             if (this.itemHandlerUpgrades.getStackInSlot(0) == null)
             {
                 this.labels.clear();
@@ -276,14 +262,18 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
     }
 
-    private void updateMaxStackSize()
+    private void setMaxStacksFromUpgrades()
     {
         ItemStack stackCapacityUpgrades = this.itemHandlerUpgrades.getStackInSlot(2);
-        ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
-
         int upgrades = stackCapacityUpgrades != null ? stackCapacityUpgrades.stackSize : 0;
-        this.maxStacks = 64 + upgrades * Configs.barrelCapacityUpgradeStacksPer;
 
+        this.setMaxStacks(64 + upgrades * Configs.barrelCapacityUpgradeStacksPer);
+    }
+
+    private void setMaxStacks(int maxStacks)
+    {
+        this.maxStacks = maxStacks;
+        ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
         this.itemHandlerLockable.setStackLimit(this.maxStacks * (stack != null ? stack.getMaxStackSize() : 64));
     }
 
@@ -333,7 +323,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 }
 
                 this.labels.add(side);
-                this.updateBarrelProperties(true);
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
             }
 
@@ -497,7 +486,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             if (InventoryUtils.areItemStacksEqual(stack, this.cachedStack) == false)
             {
-                this.updateMaxStackSize();
+                this.setMaxStacksFromUpgrades();
                 this.cachedStack = ItemStack.copyItemStack(stack);
 
                 this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
@@ -521,9 +510,21 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                     this.labels.clear();
                     this.labels.add(this.getFacing());
                 }
+
+                this.updateLabels(true);
+            }
+            else if (slot == 1)
+            {
+                this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1) != null;
+
+                IBlockState state = this.getWorld().getBlockState(this.getPos());
+                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            }
+            else if (slot == 2)
+            {
+                this.setMaxStacksFromUpgrades();
             }
 
-            this.updateBarrelProperties(true);
             int stackSize = this.cachedStack != null ? this.cachedStack.stackSize : 0;
             this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
         }
@@ -546,7 +547,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         // Stored item amount has changed, but the item type not
         else if (intValues.length == 2)
         {
-            this.maxStacks = intValues[1];
+            this.setMaxStacks(intValues[1]);
 
             if (this.itemHandlerLockable.getStackInSlot(0) != null)
             {
@@ -606,30 +607,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
 
         return new Vec3d(x, y, z);
-    }
-
-    private class ItemHandlerWrapperContainerBarrelUpgrades extends ItemHandlerWrapperContainer
-    {
-        private final ItemHandlerBarrelUpgrades barrelUpgrades;
-
-        public ItemHandlerWrapperContainerBarrelUpgrades(ItemHandlerBarrelUpgrades baseHandler)
-        {
-            super(baseHandler, baseHandler, true);
-
-            this.barrelUpgrades = baseHandler;
-        }
-
-        @Override
-        public int getInventoryStackLimit()
-        {
-            return this.barrelUpgrades.getInventoryStackLimit();
-        }
-
-        @Override
-        public int getItemStackLimit(ItemStack stack)
-        {
-            return this.barrelUpgrades.getItemStackLimit(stack);
-        }
     }
 
     private class ItemHandlerBarrelUpgrades extends ItemStackHandlerTileEntity

@@ -119,15 +119,12 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
                 InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getUpgradeInventory());
 
                 // Fail-safe for not spawning hundreds of thousands of items in the world,
-                // if there is no structure upgrade installed and a barrel is broken in Creative mode.
-                if (te.getBaseItemHandler() != null)
-                {
-                    ItemStack stack = te.getBaseItemHandler().getStackInSlot(0);
+                // if there is no structure upgrade installed and a barrel is forcibly broken (in Creative mode for example).
+                ItemStack stack = te.getBaseItemHandler().getStackInSlot(0);
 
-                    if (stack != null)
-                    {
-                        EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.stackSize, 4096), true);
-                    }
+                if (stack != null)
+                {
+                    EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.stackSize, 4096), true);
                 }
 
                 world.updateComparatorOutputLevel(pos, this);

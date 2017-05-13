@@ -35,7 +35,7 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
         this.tebarrel = te;
         this.infoArea = new InfoArea(160, 17, 11, 11, "enderutilities.gui.infoarea.barrel", Integer.valueOf(Configs.barrelCapacityUpgradeStacksPer));
 
-        this.upgradeInv = te.getUpgradeInventory();
+        this.upgradeInv = container.getUpgradeInventory();
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
 

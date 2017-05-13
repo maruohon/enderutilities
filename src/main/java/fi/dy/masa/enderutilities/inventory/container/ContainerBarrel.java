@@ -35,4 +35,9 @@ public class ContainerBarrel extends ContainerLargeStacksTile
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.upgradeInv, slot, 62 + slot * 18, 59));
         }
     }
+
+    public IItemHandler getUpgradeInventory()
+    {
+        return this.upgradeInv;
+    }
 }
