@@ -45,7 +45,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     private int delay = 4;
     private int outputSideIndex;
     private boolean isFiltered;
-    private boolean pushing;
+    private boolean disableUpdateScheduling;
     private ItemStack[] cachedFilterStacks = new ItemStack[0];
 
     public TileEntityInserter()
@@ -117,11 +117,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         //System.out.printf("onNeighborBlockChange(), scheduling(?) for %s\n", this.getPos());
         this.updateValidSides(true);
-
-        if (this.shouldOperate())
-        {
-            this.scheduleBlockUpdate(this.delay, false);
-        }
+        this.scheduleBlockUpdate(this.delay, false);
     }
 
     public void toggleOutputSide(EnumFacing side)
@@ -364,8 +360,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         // When an adjacent tile changes, schedule a new tile tick.
         // Updates will not be scheduled due to the adjacent inventory changing
-        // while we are pushing items to it (this.pushing == true).
-        if (this.pushing == false && this.shouldOperate())
+        // while we are pushing items to it or pulling items from it (this.disableUpdateScheduling == true).
+        if (this.disableUpdateScheduling == false && this.shouldOperate())
         {
             //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
             this.scheduleBlockUpdate(this.delay, false);
@@ -426,6 +422,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
             {
                 ItemStack stack;
 
+                this.disableUpdateScheduling = true;
+
                 if (this.isFiltered && this.isFilterSettingEnabled(FilterSetting.IS_INPUT_FILTER))
                 {
                     stack = this.tryPullInItemsThatPassFilters(inv);
@@ -438,8 +436,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 if (stack != null)
                 {
                     this.itemHandlerBase.insertItem(0, stack, false);
+                    this.disableUpdateScheduling = false;
                     return true;
                 }
+
+                this.disableUpdateScheduling = false;
             }
         }
 
@@ -535,11 +536,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
                 // This is used to prevent scheduling a new update because of an adjacent inventory changing
                 // while we push out items. The update will be scheduled, if needed, after the push is complete.
-                this.pushing = true;
+                this.disableUpdateScheduling = true;
 
                 stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
 
-                this.pushing = false;
+                this.disableUpdateScheduling = false;
 
                 // Return the items that couldn't be moved
                 if (stack != null)
@@ -562,6 +563,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         if (inventoryId == 1)
         {
             this.cachedFilterStacks = InventoryUtils.createInventorySnapshotOfNonEmptySlots(this.itemHandlerFilters);
+        }
+
+        if (this.disableUpdateScheduling == false)
+        {
             this.scheduleBlockUpdate(this.delay, false);
         }
     }

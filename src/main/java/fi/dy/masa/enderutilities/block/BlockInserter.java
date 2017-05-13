@@ -141,6 +141,21 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
+    {
+        super.onBlockAdded(world, pos, state);
+
+        TileEntityInserter te = getTileEntitySafely(world, pos, TileEntityInserter.class);
+
+        if (te != null)
+        {
+            // This will schedule the first update after placing down the Inserter.
+            // Otherwise it would need an external update to start moving items.
+            te.onNeighborBlockChange(world, pos, state, state.getBlock());
+        }
+    }
+
+    @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
             ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
