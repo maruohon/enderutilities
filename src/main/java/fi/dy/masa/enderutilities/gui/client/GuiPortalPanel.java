@@ -40,7 +40,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
 
         Keyboard.enableRepeatEvents(true);
 
-        this.nameField = new GuiTextField(0, this.fontRendererObj, 11, 131, 154, 12);
+        this.nameField = new GuiTextField(0, this.fontRenderer, 11, 131, 154, 12);
         this.nameField.setTextColor(-1);
         this.nameField.setDisabledTextColour(-1);
         this.nameField.setEnableBackgroundDrawing(false);
@@ -99,9 +99,9 @@ public class GuiPortalPanel extends GuiEnderUtilities
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.tepp.hasCustomName() ? this.tepp.getName() : I18n.format(this.tepp.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.settargetname"), 8, 118, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 156, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.settargetname"), 8, 118, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 156, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
@@ -165,7 +165,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         {
             List<String> list = new ArrayList<String>();
             ItemEnderUtilities.addTooltips("enderutilities.gui.label.portalpanel.dyeslot", list, false);
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
     }
 

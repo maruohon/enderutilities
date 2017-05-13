@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang3.tuple.Pair;
-import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -22,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -137,7 +137,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @Override
     protected EnumFacing getPlacementFacing(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        return BlockPistonBase.getFacingFromEntity(pos, placer).getOpposite();
+        return EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite();
     }
 
     @Override
@@ -156,10 +156,10 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-            ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() && heldItem == null)
+        if (player.isSneaking() && player.getHeldItemMainhand().isEmpty() && player.getHeldItemOffhand().isEmpty())
         {
             if (world.isRemote == false)
             {
@@ -189,7 +189,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
             return true;
         }
 
-        return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -300,9 +300,9 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @SuppressWarnings("deprecation")
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos,
-            AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity)
+            AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity, boolean p_185477_7_)
     {
-        super.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity);
+        super.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity, p_185477_7_);
 
         TileEntityInserter te = getTileEntitySafely(world, pos, TileEntityInserter.class);
 
@@ -414,7 +414,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int meta = 0; meta < InserterType.values().length; meta++)
         {

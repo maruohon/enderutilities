@@ -45,8 +45,8 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.nullifier"), 8, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 58, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.nullifier"), 8, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 58, 0x404040);
     }
 
     @Override

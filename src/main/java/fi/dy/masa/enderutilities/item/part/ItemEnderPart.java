@@ -18,6 +18,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -116,12 +117,15 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote)
         {
             return EnumActionResult.PASS;
         }
+
+        ItemStack stack = player.getHeldItem(hand);
 
         // Ender Relic
         if (stack != null && stack.getMetadata() == 40)
@@ -137,8 +141,10 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World worldIn, EntityPlayer playerIn, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
+        ItemStack stack = playerIn.getHeldItem(hand);
+
         if (worldIn.isRemote == false && stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
             if (playerIn.isSneaking())
@@ -153,7 +159,7 @@ public class ItemEnderPart extends ItemModule
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
-        return super.onItemRightClick(stack, worldIn, playerIn, hand);
+        return super.onItemRightClick(worldIn, playerIn, hand);
     }
 
     @Override
@@ -373,40 +379,40 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         // Ender Alloys
         for (int i = 0; i <= 2; i++)
         {
-            list.add(new ItemStack(this, 1, i));
+            list.add(new ItemStack(item, 1, i));
         }
 
         // Inactive Ender Cores
         for (int i = 10; i <= 12; i++)
         {
-            list.add(new ItemStack(this, 1, i));
+            list.add(new ItemStack(item, 1, i));
         }
 
         // (Active) Ender Cores
         for (int i = 15; i <= 17; i++)
         {
-            list.add(new ItemStack(this, 1, i));
+            list.add(new ItemStack(item, 1, i));
         }
 
-        list.add(new ItemStack(this, 1, 20)); // Ender Stick
-        list.add(new ItemStack(this, 1, 21)); // Ender Rope
-        list.add(new ItemStack(this, 1, 30)); // Creative Breaking module
-        list.add(new ItemStack(this, 1, 40)); // Ender Relic
-        list.add(new ItemStack(this, 1, 45)); // Mob Persistence
-        list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
-        list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 6 B
-        list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
-        list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
-        list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
-        list.add(new ItemStack(this, 1, 70)); // Barrel Label
-        list.add(new ItemStack(this, 1, 71)); // Barrel Structural Upgrade
-        list.add(new ItemStack(this, 1, 72)); // Barrel Capacity Upgrade
-        list.add(new ItemStack(this, 1, 80)); // Storage Key
+        list.add(new ItemStack(item, 1, 20)); // Ender Stick
+        list.add(new ItemStack(item, 1, 21)); // Ender Rope
+        list.add(new ItemStack(item, 1, 30)); // Creative Breaking module
+        list.add(new ItemStack(item, 1, 40)); // Ender Relic
+        list.add(new ItemStack(item, 1, 45)); // Mob Persistence
+        list.add(new ItemStack(item, 1, 50)); // Memory Card (misc)
+        list.add(new ItemStack(item, 1, 51)); // Memory Card (items) 6 B
+        list.add(new ItemStack(item, 1, 52)); // Memory Card (items) 8 B
+        list.add(new ItemStack(item, 1, 53)); // Memory Card (items) 10 B
+        list.add(new ItemStack(item, 1, 54)); // Memory Card (items) 12 B
+        list.add(new ItemStack(item, 1, 70)); // Barrel Label
+        list.add(new ItemStack(item, 1, 71)); // Barrel Structural Upgrade
+        list.add(new ItemStack(item, 1, 72)); // Barrel Capacity Upgrade
+        list.add(new ItemStack(item, 1, 80)); // Storage Key
     }
 
     @SideOnly(Side.CLIENT)

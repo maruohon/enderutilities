@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -84,17 +84,17 @@ public class BlackLists
     {
         TELEPORT_BLACKLIST_CLASSES.clear();
 
-        for (String entry : blacklist)
+        for (String name : blacklist)
         {
-            Class<? extends Entity> clazz = EntityList.NAME_TO_CLASS.get(entry);
+            EntityEntry entry = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(name));
 
-            if (clazz != null)
+            if (entry != null && entry.getEntityClass() != null)
             {
-                TELEPORT_BLACKLIST_CLASSES.add(clazz);
+                TELEPORT_BLACKLIST_CLASSES.add(entry.getEntityClass());
             }
             else
             {
-                EnderUtilities.logger.warn("Unknown Entity type '{}' on the teleport blacklist", entry);
+                EnderUtilities.logger.warn("Unknown Entity type '{}' on the teleport blacklist", name);
             }
         }
     }

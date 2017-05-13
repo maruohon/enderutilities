@@ -35,4 +35,10 @@ public class ItemHandlerMuxer implements IItemHandler
     {
         return this.provider.getInventory().extractItem(slot, amount, simulate);
     }
+
+    @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.provider.getInventory().getSlotLimit(slot);
+    }
 }

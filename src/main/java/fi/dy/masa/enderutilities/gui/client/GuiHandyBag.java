@@ -218,9 +218,9 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int xOff = this.offsetXTier;
-        this.fontRendererObj.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 99, 59, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.crafting"), xOff + 97, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.memorycards"), xOff + 99, 59, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.handybag"), xOff + 8, 5, 0x404040);
     }
 
     protected void createButtons()
@@ -459,9 +459,9 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
                     s1 = s1 + " " + I18n.format("enchantment.level." + (amp + 1));
                 }
 
-                this.fontRendererObj.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
+                this.fontRenderer.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
                 String s = Potion.getPotionDurationString(potioneffect, 1.0F);
-                this.fontRendererObj.drawStringWithShadow(s, (float)(i + 10 + 18), (float)(j + 6 + 10), 8355711);
+                this.fontRenderer.drawStringWithShadow(s, (float)(i + 10 + 18), (float)(j + 6 + 10), 8355711);
                 j += l;
             }
         }

@@ -121,7 +121,7 @@ public class GuiEnderUtilities extends GuiContainer
             // Mouse is over the button
             if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY))
             {
-                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
+                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRenderer);
             }
         }
 
@@ -147,7 +147,7 @@ public class GuiEnderUtilities extends GuiContainer
         // Info text has been set, show it if the mouse is over the designated info area
         if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, x, y))
         {
-            this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRendererObj);
+            this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRenderer);
         }
     }
 

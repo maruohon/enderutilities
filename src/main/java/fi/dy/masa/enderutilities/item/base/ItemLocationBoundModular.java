@@ -32,12 +32,15 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player != null && player.isSneaking())
+        if (player.isSneaking())
         {
             if (world.isRemote == false)
             {
+                ItemStack stack = player.getHeldItem(hand);
+
                 if (this.useBindLocking(stack) == false || this.isBindLocked(stack) == false)
                 {
                     boolean adjustPosHit = UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION;

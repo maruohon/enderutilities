@@ -44,13 +44,13 @@ public class GuiEnderFurnace extends GuiContainerLargeStacks implements IButtonS
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.teef.hasCustomName() ? this.teef.getName() : I18n.format(this.teef.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404025);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 4, 0x404025);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404025);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 4, 0x404025);
 
         if (this.teef.getOwnerName() != null)
         {
             s = I18n.format(this.teef.getOwnerName());
-            this.fontRendererObj.drawString(s, this.xSize - this.fontRendererObj.getStringWidth(s) - 6, 20, 0x404025);
+            this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 6, 20, 0x404025);
         }
     }
 

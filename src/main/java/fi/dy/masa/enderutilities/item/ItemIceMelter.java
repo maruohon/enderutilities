@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item;
 
-import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,6 +11,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -42,17 +42,17 @@ public class ItemIceMelter extends ItemEnderUtilities
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.getBlockState(pos).getBlock() == Blocks.ICE && worldIn.isBlockModifiable(playerIn, pos))
+        if (worldIn.getBlockState(pos).getBlock() == Blocks.ICE && worldIn.isBlockModifiable(player, pos))
         {
             if (worldIn.isRemote == false)
             {
                 int num = 8;
                 float velocity = 0.2f;
                 // The Super variant (meta = 1) doesn't cause a block update
-                int flag = stack.getMetadata() == 1 ? 2 : 3;
+                int flag = player.getHeldItem(hand).getMetadata() == 1 ? 2 : 3;
 
                 if (worldIn.provider.doesWaterVaporize() == false)
                 {
@@ -66,7 +66,7 @@ public class ItemIceMelter extends ItemEnderUtilities
                 }
 
                 Effects.spawnParticlesFromServer(worldIn.provider.getDimension(), pos.up(), EnumParticleTypes.SMOKE_LARGE, num, 0.5f, velocity);
-                worldIn.playSound(null, playerIn.getPosition(), SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 0.8f, 1.0f);
+                worldIn.playSound(null, player.getPosition(), SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.MASTER, 0.8f, 1.0f);
             }
 
             return EnumActionResult.SUCCESS;
@@ -77,10 +77,10 @@ public class ItemIceMelter extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(this, 1, 0)); // Regular version
-        list.add(new ItemStack(this, 1, 1)); // "Super" version
+        list.add(new ItemStack(item, 1, 0)); // Regular version
+        list.add(new ItemStack(item, 1, 1)); // "Super" version
     }
 
     @SideOnly(Side.CLIENT)

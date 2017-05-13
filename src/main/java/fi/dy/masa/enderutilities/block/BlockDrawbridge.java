@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.List;
 import java.util.Random;
-import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -14,6 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -80,7 +79,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     @Override
     protected EnumFacing getPlacementFacing(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        return BlockPistonBase.getFacingFromEntity(pos, placer);
+        return EnumFacing.getDirectionFromEntityLiving(pos, placer);
     }
 
     @Override
@@ -115,7 +114,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));

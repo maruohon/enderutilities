@@ -18,7 +18,6 @@ import net.minecraft.util.ITickable;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -360,7 +359,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
         int burnTime = 0;
 
-        if (itemContainsFluidFuelFluidCapability(stack))
+        if (itemContainsFluidFuel(stack))
         {
             // Can't return the drained container if there is more than one item in the slot...
             if (stack.stackSize > 1)
@@ -369,18 +368,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             }
 
             stack = fuelInv.extractItem(fuelSlot, 1, simulate);
-            burnTime = consumeFluidFuelDosageFluidCapability(stack);
-        }
-        else if (itemContainsFluidFuelFluidContainerItem(stack))
-        {
-            // Can't return the drained container if there is more than one item in the slot...
-            if (stack.stackSize > 1)
-            {
-                return 0;
-            }
-
-            stack = fuelInv.extractItem(fuelSlot, 1, simulate);
-            burnTime = consumeFluidFuelDosageFluidContainerItem(stack);
+            burnTime = consumeFluidFuelDosage(stack);
         }
         else
         {
@@ -516,48 +504,9 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      * @param stack
      * @return burn time gained, in ticks
      */
-    private static int consumeFluidFuelDosageFluidContainerItem(ItemStack stack)
+    private static int consumeFluidFuelDosage(ItemStack stack)
     {
-        if (itemContainsFluidFuelFluidContainerItem(stack) == false)
-        {
-            return 0;
-        }
-
-        // All the null checks happened already in itemContainsFluidFuelFluidContainerItem()
-        // Consume max 1000 mB per use.
-        FluidStack fluidStack = ((IFluidContainerItem) stack.getItem()).drain(stack, Fluid.BUCKET_VOLUME, true);
-
-        //System.out.printf("consumeFluidFuelDosageFluidContainerItem: %s - %d\n", (fluidStack != null ? fluidStack.getFluid().getName() : "null"), fluidStack != null ? fluidStack.amount : 0);
-        // 1.5 times vanilla lava fuel value (150 items per bucket)
-        return fluidStack != null ? (fluidStack.amount * 15 * COOKTIME_DEFAULT / 100) : 0;
-    }
-
-    /**
-     * Checks if the given ItemStack contains a valid fluid fuel source for a furnace.
-     * Valid fuels are: lava
-     * @param stack
-     * @return
-     */
-    private static boolean itemContainsFluidFuelFluidContainerItem(ItemStack stack)
-    {
-        if (stack == null || (stack.getItem() instanceof IFluidContainerItem) == false)
-        {
-            return false;
-        }
-
-        FluidStack fluidStack = ((IFluidContainerItem) stack.getItem()).drain(stack, Fluid.BUCKET_VOLUME, false);
-        //System.out.printf("itemContainsFluidFuelFluidContainer(): %s\n", fluidStack != null ? fluidStack.getFluid().getName() : "null");
-        return fluidStack != null && fluidStack.amount > 0 && fluidStack.getFluid() == FluidRegistry.LAVA;
-    }
-
-    /**
-     * Uses one dose 1000 mB) of fluid fuel, returns the amount of burn time that was gained from it.
-     * @param stack
-     * @return burn time gained, in ticks
-     */
-    private static int consumeFluidFuelDosageFluidCapability(ItemStack stack)
-    {
-        if (itemContainsFluidFuelFluidCapability(stack) == false)
+        if (itemContainsFluidFuel(stack) == false)
         {
             return 0;
         }
@@ -579,7 +528,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      * @param stack
      * @return
      */
-    private static boolean itemContainsFluidFuelFluidCapability(ItemStack stack)
+    private static boolean itemContainsFluidFuel(ItemStack stack)
     {
         if (stack == null || stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) == false)
         {
@@ -600,16 +549,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         return fluidStack.getFluid() == FluidRegistry.LAVA;
-    }
-
-    /**
-     * Checks if the given ItemStack contains a valid fluid fuel source for the furnace.
-     * @param stack
-     * @return
-     */
-    private static boolean itemContainsFluidFuel(ItemStack stack)
-    {
-        return itemContainsFluidFuelFluidCapability(stack) || itemContainsFluidFuelFluidContainerItem(stack);
     }
 
     /**

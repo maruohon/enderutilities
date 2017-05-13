@@ -62,7 +62,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
     }
 
     @Override
-    protected void kill()
+    protected void outOfWorld()
     {
         // Failed to add the pearl straight back to the thrower's inventory: drop the item in the world
         if (this.returnToPlayersInventory() == false)
@@ -70,7 +70,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
             this.dropAsItem();
         }
 
-        super.kill();
+        super.outOfWorld();
     }
 
     @Override

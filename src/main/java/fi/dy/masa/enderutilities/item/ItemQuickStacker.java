@@ -62,36 +62,38 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote == false)
         {
             player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_QUICK_STACKER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking())
         {
             TileEntity te = world.getTileEntity(pos);
+
             if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+
                 if (world.isRemote == false && inv != null)
                 {
-                    quickStackItems(player, stack, inv);
+                    quickStackItems(player, player.getHeldItem(hand), inv);
                 }
 
                 return EnumActionResult.SUCCESS;
             }
         }
 
-        return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+        return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
     }
 
     @Override

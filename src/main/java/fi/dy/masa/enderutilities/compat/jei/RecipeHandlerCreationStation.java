@@ -24,6 +24,12 @@ public class RecipeHandlerCreationStation<C extends Container> implements IRecip
     }
 
     @Override
+    public boolean canHandle(ContainerCreationStation container)
+    {
+        return true;
+    }
+
+    @Override
     public List<Slot> getRecipeSlots(ContainerCreationStation container)
     {
         List<Slot> slots = new ArrayList<Slot>();

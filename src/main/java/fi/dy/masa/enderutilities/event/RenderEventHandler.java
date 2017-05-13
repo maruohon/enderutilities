@@ -238,7 +238,7 @@ public class RenderEventHandler
     protected void renderLabel(String text, double x, double y, double z, float angleH, float angleV)
     {
         boolean flag = false; // sneaking
-        FontRenderer fontrenderer = this.mc.fontRendererObj;
+        FontRenderer fontrenderer = this.mc.fontRenderer;
 
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
         GlStateManager.pushMatrix();
@@ -296,7 +296,7 @@ public class RenderEventHandler
     {
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         int scaledY = scaledResolution.getScaledHeight();
-        int lineHeight = mc.fontRendererObj.FONT_HEIGHT + 2;
+        int lineHeight = mc.fontRenderer.FONT_HEIGHT + 2;
         int posX = offsetX;
         int posY = offsetY;
 
@@ -313,7 +313,7 @@ public class RenderEventHandler
         }
 
         int textBgColor = 0x80000000;
-        FontRenderer fontRenderer = mc.fontRendererObj;
+        FontRenderer fontRenderer = mc.fontRenderer;
 
         for (String line : lines)
         {

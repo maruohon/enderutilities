@@ -31,8 +31,8 @@ public class GuiJSU extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.jsu"), 8, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 129, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.jsu"), 8, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 129, 0x404040);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.creativetab;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -13,9 +13,9 @@ public class CreativeTab
     {
         @SideOnly(Side.CLIENT)
         @Override
-        public Item getTabIconItem()
+        public ItemStack getTabIconItem()
         {
-            return EnderUtilitiesItems.enderPearlReusable;
+            return new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 1);
         }
 
         @SideOnly(Side.CLIENT)

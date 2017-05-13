@@ -50,8 +50,8 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.barrel"), 8, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 80, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.barrel"), 8, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 80, 0x404040);
     }
 
     @Override

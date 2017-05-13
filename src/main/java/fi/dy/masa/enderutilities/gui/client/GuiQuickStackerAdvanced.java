@@ -41,7 +41,7 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities implements IButto
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         String str = I18n.format("enderutilities.container.quickstacker.advanced");
-        this.fontRendererObj.drawString(str, this.xSize / 2 - this.fontRendererObj.getStringWidth(str) / 2, 5, 0x404040);
+        this.fontRenderer.drawString(str, this.xSize / 2 - this.fontRenderer.getStringWidth(str) / 2, 5, 0x404040);
     }
 
     @Override

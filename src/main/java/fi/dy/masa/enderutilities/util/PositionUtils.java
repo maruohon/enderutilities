@@ -872,7 +872,7 @@ public class PositionUtils
                                 state = Blocks.BEDROCK.getDefaultState();
                             }
 
-                            state.addCollisionBoxToList(world, pos, bb, list, entity);
+                            state.addCollisionBoxToList(world, pos, bb, list, entity, false);
                         }
                     }
                 }

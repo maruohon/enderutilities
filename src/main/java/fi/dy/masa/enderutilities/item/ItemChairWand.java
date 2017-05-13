@@ -29,12 +29,13 @@ public class ItemChairWand  extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote == false)
         {
-            float yOffset = playerIn.isSneaking() ? -hitY : 0;
+            ItemStack stack = player.getHeldItem(hand);
+            float yOffset = player.isSneaking() ? -hitY : 0;
             EntityChair chair = new EntityChair(worldIn);
             chair.setWidth(this.getEntityWidth(stack));
             chair.setHeight(this.getEntityHeight(stack));

@@ -86,7 +86,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking() == false || player.getHeldItem(hand) != null)
         {
@@ -99,7 +99,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
             return true;
         }
 
-        return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
     }
 
     @Override

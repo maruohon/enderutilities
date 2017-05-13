@@ -380,19 +380,23 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = player.getHeldItem(hand);
         TileEntity te = world.getTileEntity(pos);
+
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() && te != null &&
-            (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te.getClass() == TileEntityEnderChest.class)
-            && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
+        if (player.isSneaking() && te != null &&
+            (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te.getClass() == TileEntityEnderChest.class) &&
+            UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
             if (world.isRemote == false)
             {
                 UtilItemModular.setTarget(stack, player, pos, side, hitX, hitY, hitZ, false, false);
             }
+
             return EnumActionResult.SUCCESS;
         }
 

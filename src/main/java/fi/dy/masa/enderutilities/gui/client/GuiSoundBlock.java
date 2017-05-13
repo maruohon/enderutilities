@@ -68,33 +68,33 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.sound_block"), 8, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.sound_block"), 8, 6, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
         this.searchField.drawTextBox();
 
         int max = Math.min(this.filteredSounds.size() - 1, this.startIndex + 9);
-        int h = this.fontRendererObj.FONT_HEIGHT + 1;
+        int h = this.fontRenderer.FONT_HEIGHT + 1;
 
         for (int i = 0, index = this.startIndex; index <= max; index++, i++)
         {
             String str = this.filteredSounds.get(index).getRight();
             str = str.substring(0, Math.min(27, str.length()));
             int color = this.filteredSounds.get(index).getLeft() == this.tesb.selectedSound ? 0xF0F0F0 : 0x202020;
-            this.fontRendererObj.drawString(str, this.areaSoundList.getX() + 2, this.areaSoundList.getY() + 1 + i * h, color);
+            this.fontRenderer.drawString(str, this.areaSoundList.getX() + 2, this.areaSoundList.getY() + 1 + i * h, color);
         }
 
         if (StringUtils.isEmpty(this.selectedName) == false)
         {
-            this.fontRendererObj.drawString(this.selectedName, 8, 140, 0x404040);
+            this.fontRenderer.drawString(this.selectedName, 8, 140, 0x404040);
         }
 
         String str = I18n.format("enderutilities.gui.label.soundblock.pitch") + String.format(": %.3f", this.tesb.getPitch());
-        this.fontRendererObj.drawString(str, 60, 152, 0x404040);
+        this.fontRenderer.drawString(str, 60, 152, 0x404040);
 
         str = I18n.format("enderutilities.gui.label.soundblock.volume") + String.format(": %.3f", this.tesb.getVolume());
-        this.fontRendererObj.drawString(str, 60, 163, 0x404040);
+        this.fontRenderer.drawString(str, 60, 163, 0x404040);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
     {
         Keyboard.enableRepeatEvents(true);
 
-        this.searchField = new GuiTextField(0, this.fontRendererObj, 8, 26, 141, 12);
+        this.searchField = new GuiTextField(0, this.fontRenderer, 8, 26, 141, 12);
         this.searchField.setTextColor(-1);
         this.searchField.setDisabledTextColour(-1);
         this.searchField.setEnableBackgroundDrawing(false);

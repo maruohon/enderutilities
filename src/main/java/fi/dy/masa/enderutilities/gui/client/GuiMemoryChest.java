@@ -71,8 +71,8 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
             default:
         }
 
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.memorychest"), 8, 15, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, y, 0x404025);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.memorychest"), 8, 15, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, y, 0x404025);
     }
 
     @Override

@@ -88,8 +88,8 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int xOff = this.baublesLoaded ? 20 : 0;
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.inventoryswapper"), 6 + xOff, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 58 + xOff, 139, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.inventoryswapper"), 6 + xOff, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 58 + xOff, 139, 0x404040);
     }
 
     @Override

@@ -63,10 +63,10 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.pickupmanager"), 8, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.transportfilters"), 8, 19, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.inventoryfilters"), 81, 112, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.filterpresets") + ":", 8, 163, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.pickupmanager"), 8, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.transportfilters"), 8, 19, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.inventoryfilters"), 81, 112, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.filterpresets") + ":", 8, 163, 0x404040);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.transportitemsslot"));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
         else
         {

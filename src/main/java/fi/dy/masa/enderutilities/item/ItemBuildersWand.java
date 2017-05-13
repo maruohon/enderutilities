@@ -120,12 +120,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
         BlockPosEU pos = this.getPosition(stack, POS_START);
+
         if (pos == null)
         {
-            return super.onItemRightClick(stack, world, player, hand);
+            return super.onItemRightClick(world, player, hand);
         }
 
         Mode mode = Mode.getMode(stack);
@@ -178,12 +180,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = player.getHeldItem(hand);
         TileEntity te = world.getTileEntity(pos);
+
         if (te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te.getClass() == TileEntityEnderChest.class))
         {
-            return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+            return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
         Mode mode = Mode.getMode(stack);
@@ -830,7 +835,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             // Check if we can place the block. If we don't require items, then we are moving an area
             // and in that case we always want to place the block.
-            if (requireItems == false || BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew, targetStack))
+            if (requireItems == false || BlockUtils.checkCanPlaceBlockAt(world, pos, side, blockNew))
             {
                 if (requireItems)
                 {

@@ -10,6 +10,7 @@ import net.minecraft.block.BlockFalling;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -204,7 +205,7 @@ public class EntityFallingBlockEU extends Entity
             {
                 if (this.canSetAsBlock)
                 {
-                    if (world.canBlockBePlaced(block, pos, true, EnumFacing.UP, null, null) &&
+                    if (world.mayPlace(block, pos, true, EnumFacing.UP, null) &&
                         BlockFalling.canFallThrough(this.world.getBlockState(pos.down())) == false &&
                         this.world.setBlockState(pos, this.blockState, 3))
                     {
@@ -272,7 +273,7 @@ public class EntityFallingBlockEU extends Entity
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        this.move(this.motionX, this.motionY, this.motionZ);
+        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
         this.motionX *= 0.98D;
         this.motionY *= 0.98D;
@@ -291,7 +292,7 @@ public class EntityFallingBlockEU extends Entity
             {
                 boolean isAnvil = block == Blocks.ANVIL;
                 List<Entity> list = Lists.newArrayList(this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox()));
-                DamageSource damageSource = isAnvil ? DamageSource.anvil : DamageSource.fallingBlock;
+                DamageSource damageSource = isAnvil ? DamageSource.ANVIL : DamageSource.FALLING_BLOCK;
 
                 for (Entity entity : list)
                 {

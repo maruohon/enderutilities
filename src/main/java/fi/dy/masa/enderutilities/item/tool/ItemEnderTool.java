@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
@@ -37,6 +38,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -118,9 +120,12 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = player.getHeldItem(hand);
         TileEntity te = world.getTileEntity(pos);
+
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
         if (player != null && player.isSneaking() && te != null &&
@@ -196,7 +201,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
         {
             // Check if we can place the block
-            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block, targetStack))
+            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block))
             {
                 EnumActionResult result;
                 // Off-hand
@@ -862,7 +867,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     }
 
     @Override
-    public int getHarvestLevel(ItemStack stack, String toolClass)
+    public int getHarvestLevel(ItemStack stack, String toolClass, @Nullable EntityPlayer player, @Nullable IBlockState blockState)
     {
         //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
         if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(ToolType.fromStack(stack).getToolClass()))
@@ -1130,11 +1135,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < 4; i++)
         {
-            list.add(new ItemStack(this, 1, i));
+            list.add(new ItemStack(item, 1, i));
         }
     }
 

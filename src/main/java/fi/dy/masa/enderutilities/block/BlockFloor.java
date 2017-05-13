@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -79,9 +80,10 @@ public class BlockFloor extends BlockEnderUtilities
 
     @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-            float hitZ, int meta, EntityLivingBase placer, ItemStack stack)
+            float hitZ, int meta, EntityLivingBase placer)
     {
-        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, stack);
+        @SuppressWarnings("deprecation")
+        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer);
 
         if (facing != EnumFacing.UP && hitY > 0.5f)
         {
@@ -109,9 +111,10 @@ public class BlockFloor extends BlockEnderUtilities
         return state.getValue(HALF).equals(EnumHalf.BOTTOM) ? BOUNDS_BOTTOM : BOUNDS_TOP;
     }
 
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
-    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+            List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
     {
         if (state.getValue(TYPE) == FloorType.CRACKED)
         {
@@ -122,12 +125,12 @@ public class BlockFloor extends BlockEnderUtilities
         }
         else
         {
-            super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn);
+            super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn, p_185477_7_);
         }
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int meta = 0; meta < FloorType.values().length; meta++)
         {

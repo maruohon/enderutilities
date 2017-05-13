@@ -77,9 +77,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos,
             EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
             OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
@@ -100,7 +102,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
                 // If we are in bind mode, bind the bucket to the targeted tank and then return
                 if (BucketMode.fromStack(stack) == BucketMode.BIND)
                 {
-                    return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+                    return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
                 }
 
                 return this.useBucketOnTank(world, pos, side, player, stack);
@@ -111,11 +113,13 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote == false)
         {
+            ItemStack stack = player.getHeldItem(hand);
+
             if (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
                 OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
             {
@@ -136,8 +140,10 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         // Do nothing on the client side
         if (world.isRemote || (LinkMode.fromStack(stack) == LinkMode.ENABLED &&
             OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))

@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.item.part;
 
-import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -81,13 +81,10 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        // FIXME Disabled the Portal type Link Crystal until it is actually used
-        for (int i = 0; i < 2; i++)
-        {
-            list.add(new ItemStack(this, 1, i));
-        }
+        list.add(new ItemStack(item, 1, 0));
+        list.add(new ItemStack(item, 1, 1));
     }
 
     @SideOnly(Side.CLIENT)

@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.item;
 
-import java.util.List;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
@@ -10,6 +9,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraftforge.fml.relauncher.Side;
@@ -122,12 +122,12 @@ public class ItemSyringe extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(this, 1, 0)); // Empty syringe
-        list.add(new ItemStack(this, 1, 1)); // Syringe with paralyzer
-        list.add(new ItemStack(this, 1, 2)); // Syringe with stimulant
-        list.add(new ItemStack(this, 1, 3)); // Syringe with passifier
+        list.add(new ItemStack(item, 1, 0)); // Empty syringe
+        list.add(new ItemStack(item, 1, 1)); // Syringe with paralyzer
+        list.add(new ItemStack(item, 1, 2)); // Syringe with stimulant
+        list.add(new ItemStack(item, 1, 3)); // Syringe with passifier
     }
 
     @SideOnly(Side.CLIENT)

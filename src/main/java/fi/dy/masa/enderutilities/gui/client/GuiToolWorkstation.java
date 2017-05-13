@@ -41,7 +41,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
 
         Keyboard.enableRepeatEvents(true);
 
-        this.nameField = new GuiTextField(0, this.fontRendererObj, 34, 100, 134, 12);
+        this.nameField = new GuiTextField(0, this.fontRenderer, 34, 100, 134, 12);
         this.nameField.setTextColor(-1);
         this.nameField.setDisabledTextColour(-1);
         this.nameField.setEnableBackgroundDrawing(false);
@@ -110,10 +110,10 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.modulestorage"), 8, 56, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.renameitems"), 8, 86, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 125, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.modulestorage"), 8, 56, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.renameitems"), 8, 86, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 125, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
@@ -190,14 +190,14 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool"));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
         else if (slot != null && slot.slotNumber == this.containerTW.getSlotRename() && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename"));
             list.add(I18n.format("enderutilities.gui.label.toolworkstation.useemptynametoreset"));
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRendererObj);
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
     }
 }

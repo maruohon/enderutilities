@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -130,7 +129,7 @@ public class EntityChair extends Entity
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, ItemStack stack, EnumHand hand)
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
         if (player.getEntityWorld().isRemote == false && this.getPassengers().contains(player) == false)
         {

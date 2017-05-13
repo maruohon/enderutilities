@@ -55,7 +55,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the player is standing inside a portal, then we try to activate the teleportation in onItemRightClick()
         if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL))
@@ -80,6 +80,8 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             return EnumActionResult.SUCCESS;
         }
 
+        ItemStack stack = player.getHeldItem(hand);
+
         // When right clicking on Obsidian, try to light a Nether Portal
         if (block == Blocks.OBSIDIAN && world.isAirBlock(pos.offset(side)) && world.isBlockModifiable(player, pos.offset(side)) &&
             UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST_PORTAL_ACTIVATION, true) &&
@@ -95,8 +97,10 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (EntityUtils.isEntityCollidingWithBlockSpace(world, player, Blocks.PORTAL) == false)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

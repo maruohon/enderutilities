@@ -36,11 +36,11 @@ public class GuiASU extends GuiContainerLargeStacks
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.asu"), 8, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 46, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.asu"), 8, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 46, 0x404040);
 
         String str = String.valueOf(this.teasu.getBaseItemHandler().getInventoryStackLimit());
-        this.fontRendererObj.drawString(str, 116 - this.fontRendererObj.getStringWidth(str), 16, 0x404040);
+        this.fontRenderer.drawString(str, 116 - this.fontRenderer.getStringWidth(str), 16, 0x404040);
     }
 
     @Override

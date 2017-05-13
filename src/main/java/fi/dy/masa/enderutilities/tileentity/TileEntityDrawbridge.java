@@ -233,6 +233,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Nullable
     private IBlockState getPlacementStateForPosition(int invPosition, World world, BlockPos pos, FakePlayer player)
     {
@@ -249,7 +250,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             int meta = itemBlock.getMetadata(stack.getMetadata());
             player.rotationYaw = this.getFacing().getHorizontalAngle();
 
-            return itemBlock.block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player, stack);
+            return itemBlock.block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
         }
 
         return null;
@@ -266,7 +267,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         if (placementState != null && stack != null && world.isBlockLoaded(pos, world.isRemote == false) &&
             world.getBlockState(pos).getBlock().isReplaceable(world, pos))
         {
-            if (world.canBlockBePlaced(placementState.getBlock(), pos, true, EnumFacing.UP, null, stack) == false)
+            if (world.mayPlace(placementState.getBlock(), pos, true, EnumFacing.UP, null) == false)
             {
                 return false;
             }

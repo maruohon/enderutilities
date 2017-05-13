@@ -454,7 +454,7 @@ public class EntityEndermanFighter extends EntityMob
         {
             if (this.isWet())
             {
-                this.attackEntityFrom(DamageSource.drown, 1.0F);
+                this.attackEntityFrom(DamageSource.DROWN, 1.0F);
             }
 
             if ((this.ticksExisted & 0x7) == 0)

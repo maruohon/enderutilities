@@ -70,8 +70,10 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (world.isRemote == false)
         {
             // These two lines are to fix the UUID being missing the first time the GUI opens,
@@ -86,7 +88,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (player.isSneaking())
         {
@@ -94,16 +96,17 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+
                 if (world.isRemote == false && inv != null)
                 {
-                    this.swapInventory(stack, inv, player);
+                    this.swapInventory(player.getHeldItem(hand), inv, player);
                 }
 
                 return EnumActionResult.SUCCESS;
             }
         }
 
-        return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+        return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -318,7 +321,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         final long mask = this.getEnabledSlotsMask(swapperStack);
         final int invMax = player.inventory.getInventoryStackLimit();
         final int invSize = player.inventory.getSizeInventory();
-        final int mainInvSize = player.inventory.mainInventory.length;
+        final int mainInvSize = player.inventory.mainInventory.size();
         long bit = 0x1;
 
         for (int slot = 0; slot < invSize; slot++)

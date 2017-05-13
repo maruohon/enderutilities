@@ -46,7 +46,7 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
         this.guiLeft = (this.width - this.xSize) / 2;
         this.guiTop = (this.height - this.ySize) / 2;
 
-        this.nameField = new GuiTextField(0, this.fontRendererObj, this.guiLeft + 10, this.guiTop + 25, 173, 12);
+        this.nameField = new GuiTextField(0, this.fontRenderer, this.guiLeft + 10, this.guiTop + 25, 173, 12);
         this.nameField.setTextColor(-1);
         this.nameField.setDisabledTextColour(-1);
         this.nameField.setEnableBackgroundDrawing(false);
@@ -68,9 +68,9 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         String s = I18n.format("enderutilities.gui.label.builderswand.template");
-        int textWidth = this.fontRendererObj.getStringWidth(s);
+        int textWidth = this.fontRenderer.getStringWidth(s);
         int x = (this.width / 2);
-        this.fontRendererObj.drawString(s, x - (textWidth / 2), this.guiTop + 6, 0x404040);
+        this.fontRenderer.drawString(s, x - (textWidth / 2), this.guiTop + 6, 0x404040);
 
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();

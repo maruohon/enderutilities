@@ -40,19 +40,19 @@ public class GuiInserter extends GuiEnderUtilities implements IButtonStateCallba
     {
         if (this.tef.isFiltered())
         {
-            this.fontRendererObj.drawString(I18n.format("enderutilities.container.inserter_filtered"), 8, 6, 0x404040);
-            this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 105, 0x404040);
+            this.fontRenderer.drawString(I18n.format("enderutilities.container.inserter_filtered"), 8, 6, 0x404040);
+            this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 105, 0x404040);
         }
         else
         {
-            this.fontRendererObj.drawString(I18n.format("enderutilities.container.inserter_normal"), 8, 6, 0x404040);
-            this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 49, 0x404040);
+            this.fontRenderer.drawString(I18n.format("enderutilities.container.inserter_normal"), 8, 6, 0x404040);
+            this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 49, 0x404040);
         }
 
         String str = String.valueOf(this.tef.getBaseItemHandler().getInventoryStackLimit());
-        this.fontRendererObj.drawString(str, 134 - this.fontRendererObj.getStringWidth(str), 22, 0x404040);
+        this.fontRenderer.drawString(str, 134 - this.fontRenderer.getStringWidth(str), 22, 0x404040);
         str = String.valueOf(this.tef.getUpdateDelay());
-        this.fontRendererObj.drawString(str, 134 - this.fontRendererObj.getStringWidth(str), 36, 0x404040);
+        this.fontRenderer.drawString(str, 134 - this.fontRenderer.getStringWidth(str), 36, 0x404040);
     }
 
     protected void createButtons()

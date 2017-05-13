@@ -225,19 +225,14 @@ public class BlockUtils
     }
 
     /**
-     * Check if the block in the given ItemStack stack can be placed in the given position.
+     * Check if the given block can be placed in the given position.
      * Note: This method is a functional copy of ItemBlock.func_150936_a() which is client side only.
      */
-    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, EnumFacing side, Block blockNew, ItemStack stack)
+    public static boolean checkCanPlaceBlockAt(World world, BlockPos pos, EnumFacing side, Block blockNew)
     {
-        if (stack == null)
-        {
-            return false;
-        }
-
         Block blockExisting = world.getBlockState(pos).getBlock();
 
-        if (blockExisting == Blocks.SNOW_LAYER && blockExisting.isReplaceable(world, pos) == true)
+        if (blockExisting == Blocks.SNOW_LAYER && blockExisting.isReplaceable(world, pos))
         {
             side = EnumFacing.UP;
         }
@@ -246,6 +241,6 @@ public class BlockUtils
             pos = pos.offset(side);
         }
 
-        return world.canBlockBePlaced(blockNew, pos, false, side, (Entity)null, stack);
+        return world.mayPlace(blockNew, pos, false, side, (Entity) null);
     }
 }

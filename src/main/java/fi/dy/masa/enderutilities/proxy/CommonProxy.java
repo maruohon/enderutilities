@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -25,24 +26,7 @@ import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
-import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
-import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
-import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
-import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
-import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
-import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
-import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
-import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
-import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
-import fi.dy.masa.enderutilities.tileentity.TileEntitySoundBlock;
-import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
+import fi.dy.masa.enderutilities.tileentity.*;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public class CommonProxy implements IProxy
@@ -53,7 +37,7 @@ public class CommonProxy implements IProxy
         switch (ctx.side)
         {
             case SERVER:
-                return ctx.getServerHandler().playerEntity;
+                return ctx.getServerHandler().player;
             default:
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
@@ -72,11 +56,21 @@ public class CommonProxy implements IProxy
     public void registerEntities()
     {
         int id = 0;
-        EntityRegistry.registerModEntity(EntityEnderArrow.class, ReferenceNames.NAME_ENTITY_ENDER_ARROW, id++, EnderUtilities.instance, 64, 2, true);
-        EntityRegistry.registerModEntity(EntityEnderPearlReusable.class, ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE, id++, EnderUtilities.instance, 64, 2, true);
-        EntityRegistry.registerModEntity(EntityEndermanFighter.class, ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER, id++, EnderUtilities.instance, 64, 3, true, 0x161616, 0x1947dc);
-        EntityRegistry.registerModEntity(EntityChair.class, ReferenceNames.NAME_ENTITY_CHAIR, id++, EnderUtilities.instance, 64, 10, false);
-        EntityRegistry.registerModEntity(EntityFallingBlockEU.class, ReferenceNames.NAME_ENTITY_FALLING_BLOCK, id++, EnderUtilities.instance, 64, 2, false);
+        this.registerEntity(EntityEnderArrow.class,         ReferenceNames.NAME_ENTITY_ENDER_ARROW,         id++, EnderUtilities.instance, 64, 2, true);
+        this.registerEntity(EntityEnderPearlReusable.class, ReferenceNames.NAME_ENTITY_ENDER_PEARL_REUSABLE,id++, EnderUtilities.instance, 64, 2, true);
+        this.registerEntity(EntityEndermanFighter.class,    ReferenceNames.NAME_ENTITY_ENDERMAN_FIGHTER,    id++, EnderUtilities.instance, 64, 3, true, 0x161616, 0x1947dc);
+        this.registerEntity(EntityChair.class,              ReferenceNames.NAME_ENTITY_CHAIR,               id++, EnderUtilities.instance, 64, 10, false);
+        this.registerEntity(EntityFallingBlockEU.class,     ReferenceNames.NAME_ENTITY_FALLING_BLOCK,       id++, EnderUtilities.instance, 64, 2, false);
+    }
+
+    private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
+    {
+        EntityRegistry.registerModEntity(new ResourceLocation(Reference.MOD_ID, entityName), entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
+    }
+
+    private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary)
+    {
+        EntityRegistry.registerModEntity(new ResourceLocation(Reference.MOD_ID, entityName), entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates, eggPrimary, eggSecondary);
     }
 
     @Override

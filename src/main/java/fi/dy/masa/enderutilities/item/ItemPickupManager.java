@@ -88,8 +88,10 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (world.isRemote == false)
         {
             // These two lines are to fix the UUID being missing the first time the GUI opens,

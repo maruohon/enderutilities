@@ -100,7 +100,7 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (worldIn.isRemote == false)
         {

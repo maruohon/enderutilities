@@ -70,7 +70,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int y = this.chestTier == 3 ? 3 : 6;
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.handychest"), 8, y, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.handychest"), 8, y, 0x404040);
     }
 
     @Override

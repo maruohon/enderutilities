@@ -180,7 +180,7 @@ public class TemplateEnderUtilities
             }
             else
             {
-                world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock());
+                world.notifyNeighborsRespectDebug(pos, blockInfo.blockState.getBlock(), false);
             }
         }
     }

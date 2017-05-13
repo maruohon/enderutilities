@@ -86,7 +86,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World worldIn, BlockPos pos)
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return NULL_AABB;
     }
@@ -206,7 +206,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (worldIn.isRemote == false && this.checkCanStayAndScheduleBreaking(worldIn, pos, state) == false)
         {

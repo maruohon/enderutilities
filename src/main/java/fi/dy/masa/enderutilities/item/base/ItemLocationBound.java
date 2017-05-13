@@ -30,13 +30,16 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player != null && player.isSneaking() == true)
+        if (player.isSneaking())
         {
             if (world.isRemote == false)
             {
-                boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+                ItemStack stack = player.getHeldItem(hand);
+                boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal &&
+                        ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
                 this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
 
@@ -47,9 +50,11 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
-        if (player.isSneaking() == true)
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (player.isSneaking())
         {
             if (world.isRemote == false)
             {

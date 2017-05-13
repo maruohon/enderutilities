@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.item.tool;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -292,7 +293,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     }
 
     @Override
-    public int getHarvestLevel(ItemStack stack, String toolClass)
+    public int getHarvestLevel(ItemStack stack, String toolClass, @Nullable EntityPlayer player, @Nullable IBlockState blockState)
     {
         if (stack != null && this.isToolBroken(stack) == false)
         {

@@ -212,7 +212,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
 
     private void renderText(String text, double x, double y, double z, EnumFacing side, EnumFacing barrelFront)
     {
-        FontRenderer fontRenderer = this.mc.fontRendererObj;
+        FontRenderer fontRenderer = this.mc.fontRenderer;
         int strLenHalved = fontRenderer.getStringWidth(text) / 2;
 
         GlStateManager.pushMatrix();

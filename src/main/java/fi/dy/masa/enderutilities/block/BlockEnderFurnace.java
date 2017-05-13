@@ -1,16 +1,12 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.List;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.SoundCategory;
@@ -125,15 +121,6 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
                             SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
                 }
             }
-        }
-    }
-
-    @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
-    {
-        for (int meta = 0; meta < 1; meta++)
-        {
-            list.add(new ItemStack(item, 1, meta));
         }
     }
 

@@ -58,9 +58,10 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == true)
+        if (world.isRemote)
         {
             return EnumActionResult.SUCCESS;
         }
@@ -68,10 +69,13 @@ public class ItemRuler extends ItemModular
         // Hack to work around the fact that when the NBT changes, the left click event will fire again the next tick,
         // so it would easily result in the state toggling multiple times per left click
         Long last = this.lastLeftClick.get(player.getUniqueID());
+
         if (last == null || (world.getTotalWorldTime() - last) >= 6)
         {
+            ItemStack stack = player.getHeldItem(hand);
             // When not sneaking, adjust the position to be the adjacent block and not the targeted block itself
-            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.getEntityWorld().provider.getDimension(), side), POS_END, player.isSneaking() == false);
+            this.setOrRemovePosition(stack, new BlockPosEU(pos, player.getEntityWorld().provider.getDimension(), side),
+                    POS_END, player.isSneaking() == false);
         }
 
         this.lastLeftClick.put(player.getUniqueID(), world.getTotalWorldTime());

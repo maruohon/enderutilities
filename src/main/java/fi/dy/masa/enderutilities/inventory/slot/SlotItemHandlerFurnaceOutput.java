@@ -38,9 +38,11 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
     }
 
     @Override
-    public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+    public ItemStack onTake(EntityPlayer player, ItemStack stack)
     {
         this.onCrafting(stack);
+        super.onTake(player, stack);
+        return stack;
     }
 
     @Override

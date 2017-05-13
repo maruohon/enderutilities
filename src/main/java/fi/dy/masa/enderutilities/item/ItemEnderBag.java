@@ -51,8 +51,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (stack == null || stack.getTagCompound() == null)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -163,13 +165,15 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         TileEntity te = world.getTileEntity(pos);
-        if (player.isSneaking() == true && te != null &&
-            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) == true))
+
+        if (player.isSneaking() && te != null &&
+            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)))
         {
-            return super.onItemUse(stack, player, world, pos, hand, side, hitX, hitY, hitZ);
+            return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
         }
 
         return EnumActionResult.PASS;

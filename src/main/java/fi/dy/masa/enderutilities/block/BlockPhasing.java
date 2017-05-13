@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -15,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -56,11 +56,11 @@ public class BlockPhasing extends BlockEnderUtilities
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
-        this.neighborChanged(state, worldIn, pos, this);
+        this.neighborChanged(state, worldIn, pos, this, pos);
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (worldIn.isRemote == false)
         {
@@ -135,17 +135,17 @@ public class BlockPhasing extends BlockEnderUtilities
         return this.isBlockNormalCube(state);
     }
 
+    // Inverted naming here >_> It used to be called isPassable, and is used in the same places and is the same method still
     @Override
-    public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
+    public boolean blocksMovement(IBlockAccess worldIn, BlockPos pos)
     {
         return this.isBlockNormalCube(worldIn.getBlockState(pos)) == false;
     }
 
     @Override
-    public boolean causesSuffocation()
+    public boolean causesSuffocation(IBlockState state)
     {
-        // TODO Make a Forge PR to add a state-sensitive version of this method
-        return false;
+        return this.isBlockNormalCube(state);
     }
 
     @Override
@@ -200,13 +200,13 @@ public class BlockPhasing extends BlockEnderUtilities
 
     @Override
     @Nullable
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, World worldIn, BlockPos pos)
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return state.getValue(POWERED) == state.getValue(INVERTED) ? FULL_BLOCK_AABB : NULL_AABB;
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(item, 1, 0)); // normal
         list.add(new ItemStack(item, 1, 1)); // inverted

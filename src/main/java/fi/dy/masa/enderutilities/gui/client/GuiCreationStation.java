@@ -62,7 +62,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.creationstation"), 80, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.creationstation"), 80, 6, 0x404040);
     }
 
     @Override
@@ -226,7 +226,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                             this.itemRender.zLevel = 0.0F;
                             this.zLevel = 0.0F;
 
-                            this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, recipeStack, x + 1, y + 1, "0");
+                            this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, recipeStack, x + 1, y + 1, "0");
                         }
                         // Extra items, purple background
                         else if (recipeStack == null)
@@ -235,7 +235,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                             GlStateManager.disableLighting();
                             this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
                             GlStateManager.enableLighting();
-                            //this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), recipeStack, x, y, "+");
+                            //this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, this.mc.getTextureManager(), recipeStack, x, y, "+");
                         }
                         // Wrong items, red background
                         else

@@ -107,11 +107,11 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             // This slot belongs to a "large stacks" type inventory, render the stack size text scaled to 0.5x
             if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler)slotIn).getItemHandler()))
             {
-                this.renderLargeStackItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY);
+                this.renderLargeStackItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY);
             }
             else
             {
-                this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY, str);
+                this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
             }
         }
 

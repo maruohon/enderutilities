@@ -122,7 +122,7 @@ public class TeleportEntity
 
                 if (bottom instanceof EntityLivingBase)
                 {
-                    bottom.attackEntityFrom(DamageSource.fall, teleportDamage);
+                    bottom.attackEntityFrom(DamageSource.FALL, teleportDamage);
                 }
             }
 
@@ -340,7 +340,7 @@ public class TeleportEntity
             entity.isDead = false;
             worldSrc.updateEntityWithOptionalForce(entity, false);
 
-            Entity entityNew = EntityList.createEntityByName(EntityList.getEntityString(entity), worldDst);
+            Entity entityNew = EntityList.newEntity(entity.getClass(), worldDst);
 
             if (entityNew != null)
             {

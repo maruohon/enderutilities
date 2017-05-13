@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.proxy;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -17,6 +15,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -74,7 +73,7 @@ public class ClientProxy extends CommonProxy
             case CLIENT:
                 return FMLClientHandler.instance().getClientPlayerEntity();
             case SERVER:
-                return ctx.getServerHandler().playerEntity;
+                return ctx.getServerHandler().player;
             default:
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
@@ -355,7 +354,7 @@ public class ClientProxy extends CommonProxy
         if (item.isEnabled())
         {
             ResourceLocation[] variants = item.getItemVariants();
-            List<ItemStack> items = new ArrayList<ItemStack>();
+            NonNullList<ItemStack> items = NonNullList.create();
             item.getSubItems(item, item.getCreativeTab(), items);
 
             int i = 0;
@@ -438,7 +437,7 @@ public class ClientProxy extends CommonProxy
     {
         if (blockIn.isEnabled())
         {
-            List<ItemStack> stacks = new ArrayList<ItemStack>();
+            NonNullList<ItemStack> stacks = NonNullList.create();
             blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
             String[] names = blockIn.getUnlocalizedNames();
 

@@ -45,11 +45,13 @@ public class ItemDolly extends ItemEnderUtilities
     }
 
     @Override
-    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos,
             EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
         if (world.isRemote == false)
         {
+            ItemStack stack = player.getHeldItem(hand);
+
             if (this.isCarryingBlock(stack))
             {
                 this.tryPlaceDownBlock(stack, player, world, pos, side);
@@ -200,7 +202,7 @@ public class ItemDolly extends ItemEnderUtilities
 
         try
         {
-            if (block != null && block != Blocks.AIR && world.canBlockBePlaced(block, pos, false, side, null, null))
+            if (block != null && block != Blocks.AIR && world.mayPlace(block, pos, false, side, player))
             {
                 @SuppressWarnings("deprecation")
                 IBlockState state = block.getStateFromMeta(meta);

@@ -54,7 +54,7 @@ public class MessageSendString implements IMessage
                 return null;
             }
 
-            final EntityPlayerMP sendingPlayer = ctx.getServerHandler().playerEntity;
+            final EntityPlayerMP sendingPlayer = ctx.getServerHandler().player;
             if (sendingPlayer == null)
             {
                 EnderUtilities.logger.error("Sending player was null in MessageSendString");

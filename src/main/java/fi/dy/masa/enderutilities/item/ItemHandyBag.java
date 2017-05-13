@@ -16,6 +16,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -104,23 +105,26 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand,
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
             EnumFacing side, float hitX, float hitY, float hitZ)
     {
         // If the bag is sneak + right clicked on an inventory, then we try to dump all the contents to that inventory
         if (player.isSneaking())
         {
+            ItemStack stack = player.getHeldItem(hand);
             this.tryMoveItems(world, pos, side, stack, player);
 
             return EnumActionResult.SUCCESS;
         }
 
-        return super.onItemUse(stack, player,world, pos, hand, side, hitX, hitY, hitZ);
+        return super.onItemUse(player,world, pos, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+        ItemStack stack = player.getHeldItem(hand);
+
         if (world.isRemote == false)
         {
             // These two lines are to fix the UUID being missing the first time the GUI opens,
@@ -941,10 +945,10 @@ public class ItemHandyBag extends ItemInventoryModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, List<ItemStack> list)
+    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(this, 1, 0)); // Tier 1
-        list.add(new ItemStack(this, 1, 1)); // Tier 2
+        list.add(new ItemStack(item, 1, 0)); // Tier 1
+        list.add(new ItemStack(item, 1, 1)); // Tier 2
     }
 
     @SideOnly(Side.CLIENT)

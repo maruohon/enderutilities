@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.stats.AchievementList;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
@@ -56,6 +57,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
         if (this.amountCrafted > 0)
         {
             stack.onCrafting(this.player.getEntityWorld(), this.player, this.amountCrafted);
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(this.player, stack, this.craftMatrix);
         }
 
         this.amountCrafted = 0;
@@ -111,18 +113,17 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
         }
     }
 
-    public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+    public ItemStack onTake(EntityPlayer player, ItemStack stack)
     {
-        net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, craftMatrix);
         this.onCrafting(stack);
-        net.minecraftforge.common.ForgeHooks.setCraftingPlayer(playerIn);
-        ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.getEntityWorld());
+        net.minecraftforge.common.ForgeHooks.setCraftingPlayer(player);
+        NonNullList<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, player.getEntityWorld());
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(null);
 
-        for (int i = 0; i < remainingItems.length; ++i)
+        for (int i = 0; i < remainingItems.size(); i++)
         {
             ItemStack stackInSlot = this.craftMatrix.getStackInSlot(i);
-            ItemStack remainingItemsInSlot = remainingItems[i];
+            ItemStack remainingItemsInSlot = remainingItems.get(i);
 
             if (stackInSlot != null)
             {

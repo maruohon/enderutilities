@@ -46,8 +46,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRendererObj.drawString(I18n.format("enderutilities.container.quickstacker"), 6, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 60, 135, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.quickstacker"), 6, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.gui.label.slotpresets") + ":", 60, 135, 0x404040);
     }
 
     @Override

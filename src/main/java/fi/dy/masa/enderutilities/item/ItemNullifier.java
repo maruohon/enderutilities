@@ -56,9 +56,10 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = player.getHeldItem(hand);
         ItemStack useStack = this.getItemForUse(stack, player);
 
         if (useStack != null && world.isBlockModifiable(player, pos.offset(facing)))
@@ -73,7 +74,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
             return result;
         }
 
-        return super.onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
+        return super.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
     }
 
     public static boolean isNullifierEnabled(ItemStack stack)

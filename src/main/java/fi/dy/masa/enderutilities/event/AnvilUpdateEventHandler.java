@@ -107,7 +107,8 @@ public class AnvilUpdateEventHandler
                 {
                     Enchantment enchOld = iterOldEnchantments.next().getKey();
 
-                    if (enchOld.equals(enchBook) == false && (enchBook.canApplyTogether(enchOld) && enchOld.canApplyTogether(enchBook)) == false)
+                    // func_191560_c - canApplyTogether
+                    if (enchOld.equals(enchBook) == false && enchOld.func_191560_c(enchBook) == false)
                     {
                         event.setCanceled(true);
                         return;

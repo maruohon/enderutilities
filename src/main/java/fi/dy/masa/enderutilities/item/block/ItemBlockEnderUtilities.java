@@ -171,13 +171,14 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
     }
 
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World worldIn, BlockPos pos,
+    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos,
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        EnumActionResult result = super.onItemUse(stack, player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+        EnumActionResult result = super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
 
         if (result == EnumActionResult.SUCCESS && this.hasPlacementProperties())
         {
+            ItemStack stack = player.getHeldItem(hand);
             ItemType type = new ItemType(stack, this.placementPropertyNBTSensitive);
             NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
 
