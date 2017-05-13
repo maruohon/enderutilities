@@ -61,6 +61,12 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         this.facing = facing;
         this.markDirty();
+
+        if (this.getWorld() != null && this.getWorld().isRemote == false)
+        {
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+        }
     }
 
     public EnumFacing getFacing()
