@@ -436,7 +436,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
             if (InventoryUtils.areItemStacksEqual(stackCursor, stackSlot))
             {
-                int max = inv.getItemStackLimit(stackCursor);
+                int max = inv.getItemStackLimit(slotNum, stackCursor);
 
                 // When middle clicked with an identical single item in cursor, cycle the stack size in x10 increments
                 if (stackCursor.stackSize == 1)

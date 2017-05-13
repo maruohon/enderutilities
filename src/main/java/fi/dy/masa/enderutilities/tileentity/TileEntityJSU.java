@@ -52,7 +52,7 @@ public class TileEntityJSU extends TileEntityEnderUtilitiesInventory
         }
 
         @Override
-        public int getItemStackLimit(ItemStack stack)
+        public int getItemStackLimit(int slot, ItemStack stack)
         {
             return this.itemHandlerBase.getInventoryStackLimit();
         }
@@ -60,7 +60,7 @@ public class TileEntityJSU extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            return stack != null && stack.getMaxStackSize() == 1;
+            return stack.isEmpty() == false && stack.getMaxStackSize() == 1;
         }
     }
 

@@ -113,11 +113,11 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     }
 
     @Override
-    public int getItemStackLimit(ItemStack stack)
+    public int getItemStackLimit(int slot, ItemStack stack)
     {
         if (this.wrapperHandler instanceof IItemHandlerSize)
         {
-            return ((IItemHandlerSize) this.wrapperHandler).getItemStackLimit(stack);
+            return ((IItemHandlerSize) this.wrapperHandler).getItemStackLimit(slot, stack);
         }
 
         return this.getInventoryStackLimit();

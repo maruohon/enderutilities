@@ -20,6 +20,12 @@ public class ItemHandlerWrapperSize implements IItemHandler, IItemHandlerSize
     }
 
     @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.baseHandler.getSlotLimit(slot);
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slot)
     {
         return this.baseHandler.getStackInSlot(slot);
@@ -49,11 +55,11 @@ public class ItemHandlerWrapperSize implements IItemHandler, IItemHandlerSize
     }
 
     @Override
-    public int getItemStackLimit(ItemStack stack)
+    public int getItemStackLimit(int slot, ItemStack stack)
     {
         if (this.baseHandler instanceof IItemHandlerSize)
         {
-            return ((IItemHandlerSize) this.baseHandler).getItemStackLimit(stack);
+            return ((IItemHandlerSize) this.baseHandler).getItemStackLimit(slot, stack);
         }
 
         return this.getInventoryStackLimit();

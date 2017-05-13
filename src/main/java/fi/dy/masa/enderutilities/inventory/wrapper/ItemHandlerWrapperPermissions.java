@@ -109,9 +109,9 @@ public class ItemHandlerWrapperPermissions implements IItemHandlerModifiable, II
     }
 
     @Override
-    public int getItemStackLimit(ItemStack stack)
+    public int getItemStackLimit(int slot, ItemStack stack)
     {
-        return this.baseHandler.getItemStackLimit(stack);
+        return this.baseHandler.getItemStackLimit(slot, stack);
     }
 
     @Override

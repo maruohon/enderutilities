@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -39,33 +38,16 @@ public class InventoryUtils
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (inv instanceof IItemHandlerSize)
+            if ((inv instanceof IItemHandlerSize) && stack.isEmpty() == false)
             {
-                if (stack != null)
-                {
-                    capacity += ((IItemHandlerSize)inv).getItemStackLimit(stack);
-                }
-                else
-                {
-                    capacity += ((IItemHandlerSize)inv).getInventoryStackLimit();
-                }
+                capacity += ((IItemHandlerSize)inv).getItemStackLimit(slot, stack);
             }
             else
             {
-                ItemStack stackTmp = stack != null ? stack.copy() : new ItemStack(Blocks.COBBLESTONE);
-                int added = Integer.MAX_VALUE;
-                stackTmp.stackSize = added;
-                stackTmp = inv.insertItem(slot, stackTmp, true);
-
-                if (stackTmp != null)
-                {
-                    added -= stackTmp.stackSize;
-                }
-
-                capacity += stack.stackSize + added;
+                capacity += inv.getSlotLimit(slot);
             }
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 items += stack.stackSize;
             }
@@ -1450,12 +1432,12 @@ public class InventoryUtils
         for (ItemTypeByName type : types)
         {
             ItemStack stack = type.getStack();
-            int max = inv instanceof IItemHandlerSize ? ((IItemHandlerSize) inv).getItemStackLimit(stack) : stack.getMaxStackSize();
-            //System.out.printf("sorting for: %s - max size: %d\n", stack.toString(), max);
 
             while (true)
             {
-                //System.out.printf("sorting for slot: %d\n", slot);
+                int max = inv instanceof IItemHandlerSize ? ((IItemHandlerSize) inv).getItemStackLimit(slot, stack) : stack.getMaxStackSize();
+                //System.out.printf("sorting for: %s - slot: %d, max: %d\n", stack.toString(), slot, max);
+
                 if (slot >= range.lastInc)
                 {
                     //System.out.printf("slot >= range.lastInc\n");

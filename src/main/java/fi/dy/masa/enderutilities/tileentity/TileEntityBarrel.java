@@ -622,7 +622,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
 
         @Override
-        public int getItemStackLimit(ItemStack stack)
+        public int getItemStackLimit(int slot, ItemStack stack)
         {
             if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
             {

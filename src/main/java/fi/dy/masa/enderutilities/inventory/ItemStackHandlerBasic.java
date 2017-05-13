@@ -33,6 +33,12 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     }
 
     @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.stackLimit;
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slot)
     {
         return this.items[slot];
@@ -54,7 +60,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         }
 
         int existingStackSize = this.items[slot] != null ? this.items[slot].stackSize : 0;
-        int max = this.getItemStackLimit(stack);
+        int max = this.getItemStackLimit(slot, stack);
 
         if (this.allowCustomStackSizes == false)
         {
@@ -175,7 +181,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     }
 
     @Override
-    public int getItemStackLimit(ItemStack stack)
+    public int getItemStackLimit(int slot, ItemStack stack)
     {
         //System.out.println("ItemStackHandlerBasic.getItemStackLimit(stack)");
         if (this.allowCustomStackSizes || (stack != null && this.getInventoryStackLimit() < stack.getMaxStackSize()))
