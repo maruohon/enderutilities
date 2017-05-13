@@ -350,7 +350,16 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     {
         String name = super.getItemStackDisplayName(stack);
         int slot = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION) + 1;
-        return name + " - " + slot + " / 9";
+        ItemStack selectedStack = getSelectedStack(stack);
+
+        if (selectedStack != null)
+        {
+            return name + " - " + slot + " / " + NUM_SLOTS + " - " + selectedStack.getDisplayName();
+        }
+        else
+        {
+            return name + " - " + slot + " / " + NUM_SLOTS;
+        }
     }
 
     @Override
@@ -379,7 +388,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         list.add(I18n.format("enderutilities.tooltip.item.enabled") + ": " + str);
 
         int slot = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION) + 1;
-        list.add(I18n.format("enderutilities.tooltip.item.selected") + ": " + preBlue + slot + " / 5" + rst);
+        list.add(I18n.format("enderutilities.tooltip.item.selected") + ": " + preBlue + slot + " / " + NUM_SLOTS + rst);
 
         ArrayList<String> lines = new ArrayList<String>();
         int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines, 20);
