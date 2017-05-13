@@ -129,27 +129,15 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        return new TileEntityInserter();
+        TileEntityInserter te = new TileEntityInserter();
+        te.setIsFiltered(state.getValue(TYPE) == InserterType.FILTERED);
+        return te;
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state)
+    protected EnumFacing getPlacementFacing(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        super.breakBlock(world, pos, state); // TODO unnecessary override?
-    }
-
-    @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-        super.onBlockPlacedBy(world, pos, state, placer, stack);
-
-        TileEntityInserter te = getTileEntitySafely(world, pos, TileEntityInserter.class);
-
-        if (te != null)
-        {
-            te.setFacing(BlockPistonBase.getFacingFromEntity(pos, placer).getOpposite());
-            te.setIsFiltered(state.getValue(TYPE) == InserterType.FILTERED);
-        }
+        return BlockPistonBase.getFacingFromEntity(pos, placer).getOpposite();
     }
 
     @Override

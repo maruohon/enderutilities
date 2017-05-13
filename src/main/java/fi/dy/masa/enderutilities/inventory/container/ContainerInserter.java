@@ -109,7 +109,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
                 this.tef.setUpdateDelay(data);
                 break;
             case 2:
-                this.tef.getBaseItemHandler().setStackLimit(data);
+                this.tef.setStackLimit(data);
                 break;
             case 3:
                 this.tef.setFilterMask(data);
