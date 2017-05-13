@@ -136,7 +136,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.setCreative(nbt.getBoolean("Creative"));
         this.setLabelsFromMask(nbt.getByte("Labels"));
-        this.updateBarrelProperties(true);
+        this.updateBarrelProperties(false);
     }
 
     @Override
@@ -228,8 +228,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public void rotate(Rotation rotationIn)
     {
-        super.rotate(rotationIn);
-
         List<EnumFacing> newList = new ArrayList<EnumFacing>();
 
         for (EnumFacing side : this.labels)
@@ -237,8 +235,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             newList.add(rotationIn.rotate(side));
         }
 
-        this.labels = newList;
+        this.labels.clear();
+        this.labels.addAll(newList);
         this.labelMask = this.getLabelMask(false);
+
+        super.rotate(rotationIn);
     }
 
     @Override
@@ -249,26 +250,29 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         this.updateBarrelProperties(true);
     }
 
-    public void updateBarrelProperties(boolean updateLabels)
+    private void updateBarrelProperties(boolean notifyBlockUpdate)
     {
-        this.updateMaxStackSize();
-
-        if (updateLabels && this.itemHandlerUpgrades.getStackInSlot(0) == null)
-        {
-            this.labels.clear();
-            this.labels.add(this.getFacing());
-        }
-        else if (this.labels.contains(this.getFacing()) == false)
-        {
-            this.labels.add(this.getFacing());
-        }
-
-        this.labelMask = this.getLabelMask(false);
-
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            this.updateMaxStackSize();
+
+            if (this.itemHandlerUpgrades.getStackInSlot(0) == null)
+            {
+                this.labels.clear();
+            }
+
+            if (this.labels.contains(this.getFacing()) == false)
+            {
+                this.labels.add(this.getFacing());
+            }
+
+            this.labelMask = this.getLabelMask(false);
+
+            if (notifyBlockUpdate)
+            {
+                IBlockState state = this.getWorld().getBlockState(this.getPos());
+                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            }
         }
     }
 
@@ -314,30 +318,23 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
     }
 
-    private boolean applyLabel(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack)
+    private boolean applyLabel(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack, EnumFacing side)
     {
         if (stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == 70)
         {
-            RayTraceResult rayTrace = EntityUtils.getRayTraceFromPlayer(this.getWorld(), player, false);
-
-            if (rayTrace != null && rayTrace.typeOfHit == RayTraceResult.Type.BLOCK && this.getPos().equals(rayTrace.getBlockPos()))
+            if (this.labels.contains(side) == false && side != this.getFacing())
             {
-                EnumFacing side = rayTrace.sideHit;
+                this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.enderPart, 1, 70), false);
 
-                if (this.labels.contains(side) == false && side != this.getFacing())
+                if (player.capabilities.isCreativeMode == false)
                 {
-                    this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.enderPart, 1, 70), false);
-
-                    if (player.capabilities.isCreativeMode == false)
-                    {
-                        stack.stackSize--;
-                        player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
-                    }
-
-                    this.labels.add(side);
-                    this.updateBarrelProperties(true);
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
+                    stack.stackSize--;
+                    player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
                 }
+
+                this.labels.add(side);
+                this.updateBarrelProperties(true);
+                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
             }
 
             return true;
@@ -375,8 +372,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.enderPart, 1, 72), false) == null)
             {
-                stack.stackSize--;
-                player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
+                if (player.capabilities.isCreativeMode == false)
+                {
+                    stack.stackSize--;
+                    player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
+                }
+
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
             }
 
@@ -403,28 +404,16 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return false;
     }
 
-    public void onRightClick(EntityPlayer player, EnumHand hand)
+    public void onRightClick(EntityPlayer player, EnumHand hand, EnumFacing side)
     {
         ItemStack stack = player.getHeldItem(hand);
 
         if (stack != null)
         {
-            if (this.toggleLocked(stack))
-            {
-                return;
-            }
-
-            if (this.applyLabel(player, hand, stack))
-            {
-                return;
-            }
-
-            if (this.applyStructureUpgrade(player, hand, stack))
-            {
-                return;
-            }
-
-            if (this.applyCapacityUpgrade(player, hand, stack))
+            if (this.toggleLocked(stack) ||
+                this.applyLabel(player, hand, stack, side) ||
+                this.applyStructureUpgrade(player, hand, stack) ||
+                this.applyCapacityUpgrade(player, hand, stack))
             {
                 return;
             }
@@ -522,6 +511,18 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         // Upgrades changed
         else if (inventoryId == 1)
         {
+            if (slot == 0)
+            {
+                ItemStack stack = this.itemHandlerUpgrades.getStackInSlot(0);
+
+                // Clear all labels if the label slot's stack size shrinks below the labeled face count
+                if (stack == null || stack.stackSize < this.labels.size() - 1)
+                {
+                    this.labels.clear();
+                    this.labels.add(this.getFacing());
+                }
+            }
+
             this.updateBarrelProperties(true);
             int stackSize = this.cachedStack != null ? this.cachedStack.stackSize : 0;
             this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
