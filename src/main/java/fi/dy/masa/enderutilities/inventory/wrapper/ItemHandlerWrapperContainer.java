@@ -43,6 +43,12 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     }
 
     @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.wrapperHandler.getSlotLimit(slot);
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slot)
     {
         return this.wrapperHandler.getStackInSlot(slot);

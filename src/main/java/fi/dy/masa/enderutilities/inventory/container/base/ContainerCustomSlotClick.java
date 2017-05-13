@@ -132,7 +132,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         if (stackSlot != null)
         {
-            slot.onPickupFromSlot(this.player, stackSlot);
+            slot.onTake(this.player, stackSlot);
 
             if (stackCursor == null)
             {
@@ -168,26 +168,25 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         if (stack1 != null)
         {
-            slot1.onPickupFromSlot(this.player, stack1);
+            slot1.onTake(this.player, stack1);
         }
 
         if (stack2 != null)
         {
-            slot2.onPickupFromSlot(this.player, stack2);
+            slot2.onTake(this.player, stack2);
         }
 
-        slot1.putStack(ItemStack.copyItemStack(stack2));
-        slot2.putStack(ItemStack.copyItemStack(stack1));
+        slot1.putStack(stack2.copy());
+        slot2.putStack(stack1.copy());
 
         return true;
     }
 
     protected void endDragging()
     {
-        ItemStack stackCursor = ItemStack.copyItemStack(this.inventoryPlayer.getItemStack());
-
-        if (stackCursor != null)
+        if (this.inventoryPlayer.getItemStack().isEmpty() == false)
         {
+            ItemStack stackCursor = this.inventoryPlayer.getItemStack().copy();
             int numSlots = this.draggedSlots.size();
             int itemsPerSlot = this.draggingRightClick == true ? 1 : (numSlots > 0 ? stackCursor.stackSize / numSlots : stackCursor.stackSize);
 
@@ -277,7 +276,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                      stackSlot.stackSize <= stackSlot.getMaxStackSize() && slot.getItemStackLimit(stackCursor) >= stackCursor.stackSize)
             {
                 this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
-                slot.onPickupFromSlot(this.player, stackSlot);
+                slot.onTake(this.player, stackSlot);
                 slot.insertItem(stackCursor, false);
             }
         }
@@ -326,7 +325,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                     stackSlot.stackSize <= stackSlot.getMaxStackSize() && slot.getItemStackLimit(stackCursor) >= stackCursor.stackSize)
             {
                 this.inventoryPlayer.setItemStack(slot.decrStackSize(stackSlot.stackSize));
-                slot.onPickupFromSlot(this.player, stackSlot);
+                slot.onTake(this.player, stackSlot);
                 slot.insertItem(stackCursor, false);
             }
         }
@@ -511,7 +510,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
         if (this.transferStackFromSlot(player, slotNum))
         {
-            slot.onPickupFromSlot(player, stackSlot);
+            slot.onTake(player, stackSlot);
         }
     }
 
@@ -526,7 +525,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
             if (stackDrop != null)
             {
-                slot.onPickupFromSlot(player, stackDrop);
+                slot.onTake(player, stackDrop);
                 player.dropItem(stackDrop, true);
             }
         }
@@ -554,7 +553,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
             if (stackSlot != null)
             {
-                slot.onPickupFromSlot(player, stackSlot);
+                slot.onTake(player, stackSlot);
             }
         }
         // Hotbar slot is empty, but the whole stack doesn't fit into it
@@ -563,7 +562,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             int num = Math.min(stackSlot.getMaxStackSize(), this.inventoryPlayer.getInventoryStackLimit());
             num = Math.min(num, stackSlot.stackSize);
             stackHotbar = slot.decrStackSize(num);
-            slot.onPickupFromSlot(player, stackHotbar);
+            slot.onTake(player, stackHotbar);
             this.playerInv.setStackInSlot(button, stackHotbar);
         }
         // Matching items in both slots
@@ -575,7 +574,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             {
                 stackHotbar.stackSize += num;
                 slot.decrStackSize(num);
-                slot.onPickupFromSlot(player, stackSlot);
+                slot.onTake(player, stackSlot);
                 this.playerInv.setStackInSlot(button, stackHotbar);
             }
             // ... otherwise take the stack from it

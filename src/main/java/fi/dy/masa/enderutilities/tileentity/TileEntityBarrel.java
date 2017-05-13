@@ -115,7 +115,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         super.readItemsFromNBT(nbt);
 
         this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1) != null;
-        this.cachedStack = ItemStack.copyItemStack(this.itemHandlerLockable.getStackInSlot(0));
+        ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
+        this.cachedStack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
     }
 
     @Override
@@ -190,16 +191,16 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         if (tag.hasKey("stlo", Constants.NBT.TAG_COMPOUND))
         {
             NBTTagCompound tmp = tag.getCompoundTag("stlo");
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tmp);
-            this.itemHandlerLockable.setTemplateStackInSlot(0, stack);
+            ItemStack stack = new ItemStack(tmp);
+            this.itemHandlerLockable.setTemplateStackInSlot(0, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
 
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
         {
             NBTTagCompound tmp = tag.getCompoundTag("st");
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tmp);
+            ItemStack stack = new ItemStack(tmp);
 
-            if (stack != null && tmp.hasKey("ac", Constants.NBT.TAG_INT))
+            if (stack.isEmpty() == false && tmp.hasKey("ac", Constants.NBT.TAG_INT))
             {
                 stack.stackSize = tmp.getInteger("ac");
             }
@@ -487,7 +488,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             if (InventoryUtils.areItemStacksEqual(stack, this.cachedStack) == false)
             {
                 this.setMaxStacksFromUpgrades();
-                this.cachedStack = ItemStack.copyItemStack(stack);
+                this.cachedStack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
 
                 this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
             }

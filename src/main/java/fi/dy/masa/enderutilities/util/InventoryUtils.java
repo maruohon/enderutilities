@@ -1264,7 +1264,8 @@ public class InventoryUtils
 
         for (int i = 0; i < items.length; i++)
         {
-            items[i] = ItemStack.copyItemStack(inv.getStackInSlot(i));
+            ItemStack stack = inv.getStackInSlot(i);
+            items[i] = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
         }
 
         return items;

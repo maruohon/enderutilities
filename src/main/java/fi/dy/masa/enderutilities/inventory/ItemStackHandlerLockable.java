@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory;
 
 import java.util.BitSet;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -64,13 +65,14 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
      * @param slot
      * @param stack
      */
-    public void setTemplateStackInSlot(int slot, @Nullable ItemStack stack)
+    public void setTemplateStackInSlot(int slot, @Nonnull ItemStack stack)
     {
-        this.templateStacks[slot] = ItemStack.copyItemStack(stack);
+        stack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+        this.templateStacks[slot] = stack;
 
-        if (this.templateStacks[slot] != null)
+        if (this.templateStacks[slot].isEmpty() == false)
         {
-            this.templateStacks[slot].stackSize = 0;
+            this.templateStacks[slot].setCount(1);
         }
 
         this.onContentsChanged(slot);

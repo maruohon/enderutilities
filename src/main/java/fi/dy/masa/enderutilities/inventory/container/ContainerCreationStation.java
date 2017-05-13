@@ -416,7 +416,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {
-                prevStack = ItemStack.copyItemStack(currentStack);
+                prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 this.recipeStacks[slot] = prevStack;
 
                 for (int i = 0; i < this.listeners.size(); i++)

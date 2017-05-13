@@ -61,6 +61,7 @@ public class UtilItemModular
     public static int getInstalledModuleCount(ItemStack containerStack, ModuleType moduleType)
     {
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+
         if (nbtTagList == null)
         {
             return 0;
@@ -72,8 +73,9 @@ public class UtilItemModular
         // Read all the module ItemStacks from the tool
         for (int i = 0; i < listNumStacks; ++i)
         {
-            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
-            if (moduleTypeEquals(moduleStack, moduleType) == true)
+            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+
+            if (moduleTypeEquals(moduleStack, moduleType))
             {
                 count++;
             }
@@ -93,19 +95,23 @@ public class UtilItemModular
     {
         int tier = -1;
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+
         if (nbtTagList == null)
         {
             return tier;
         }
 
         int listNumStacks = nbtTagList.tagCount();
+
         // Read all the module ItemStacks from the tool
         for (int i = 0; i < listNumStacks; ++i)
         {
-            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
-            if (moduleTypeEquals(moduleStack, moduleType) == true)
+            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+
+            if (moduleTypeEquals(moduleStack, moduleType))
             {
                 int t = ((IModule) moduleStack.getItem()).getModuleTier(moduleStack);
+
                 if (t > tier)
                 {
                     tier = t;
@@ -202,19 +208,22 @@ public class UtilItemModular
     public static ItemStack getModuleStackBySlotNumber(ItemStack containerStack, int slotNum, ModuleType moduleType)
     {
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+
         if (nbtTagList == null)
         {
             return null;
         }
 
         int listNumStacks = nbtTagList.tagCount();
+
         for (int i = 0; i < listNumStacks; ++i)
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
             if (moduleTag.getByte("Slot") == slotNum)
             {
-                ItemStack moduleStack = ItemStack.loadItemStackFromNBT(moduleTag);
-                if (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType) == true)
+                ItemStack moduleStack = new ItemStack(moduleTag);
+
+                if (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType))
                 {
                     return moduleStack;
                 }
@@ -237,6 +246,7 @@ public class UtilItemModular
     public static ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
         NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+
         if (nbtTagList == null)
         {
             return null;
@@ -248,8 +258,9 @@ public class UtilItemModular
         // Get the selected-th TAG_Compound of the given module type
         for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
         {
-            ItemStack moduleStack = ItemStack.loadItemStackFromNBT(nbtTagList.getCompoundTagAt(i));
-            if (moduleTypeEquals(moduleStack, moduleType) == true)
+            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+
+            if (moduleTypeEquals(moduleStack, moduleType))
             {
                 if (++count >= selected)
                 {
@@ -293,7 +304,7 @@ public class UtilItemModular
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
 
-            if (moduleTypeEquals(ItemStack.loadItemStackFromNBT(moduleTag), moduleType) == true)
+            if (moduleTypeEquals(new ItemStack(moduleTag), moduleType))
             {
                 if (++count >= selected)
                 {

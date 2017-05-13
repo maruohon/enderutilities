@@ -247,9 +247,9 @@ public class PlacementProperties
     {
         if (tagData.hasKey("ItemType", Constants.NBT.TAG_COMPOUND) && tagData.hasKey("Tag", Constants.NBT.TAG_COMPOUND))
         {
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tagData.getCompoundTag("ItemType"));
+            ItemStack stack = new ItemStack(tagData.getCompoundTag("ItemType"));
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
                         ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();

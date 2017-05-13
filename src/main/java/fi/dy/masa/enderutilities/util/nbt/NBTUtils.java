@@ -591,11 +591,11 @@ public class NBTUtils
     @Nullable
     public static ItemStack loadItemStackFromTag(@Nonnull NBTTagCompound tag)
     {
-        ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+        ItemStack stack = new ItemStack(tag);
 
-        if (stack != null && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
+        if (stack.isEmpty() == false && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
         {
-            stack.stackSize = tag.getInteger("ActualCount");
+            stack.setCount(tag.getInteger("ActualCount"));
         }
 
         return stack;

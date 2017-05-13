@@ -47,6 +47,12 @@ public class ItemHandlerWrapperPermissions implements IItemHandlerModifiable, II
     }
 
     @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.baseHandler.getSlotLimit(slot);
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slot)
     {
         if (this.isCurrentlyAccessible())

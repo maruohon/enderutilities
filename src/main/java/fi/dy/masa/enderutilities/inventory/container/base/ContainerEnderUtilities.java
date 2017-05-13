@@ -199,7 +199,7 @@ public class ContainerEnderUtilities extends Container
 
                 if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
                 {
-                    prevStack = ItemStack.copyItemStack(currentStack);
+                    prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                     this.inventoryItemStacks.set(slot, prevStack);
 
                     for (int i = 0; i < this.listeners.size(); i++)
@@ -316,7 +316,7 @@ public class ContainerEnderUtilities extends Container
 
         // Get the actual stack for non-simulated merging
         stack = slot.decrStackSize(amount);
-        slot.onPickupFromSlot(player, stack);
+        slot.onTake(player, stack);
 
         // Actually merge the items
         stack = this.mergeItemStack(stack, slotRange, reverse, false);
@@ -465,7 +465,7 @@ public class ContainerEnderUtilities extends Container
                     }
                 }
 
-                templateStacksLast[slot] = ItemStack.copyItemStack(templateStack);
+                templateStacksLast[slot] = templateStack.copy();
             }
         }
     }

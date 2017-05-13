@@ -389,6 +389,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     {
         invId = MathHelper.clamp(invId, 0, 1);
         NBTTagCompound tag = this.getRecipeTag(invId, recipeId, true);
+
         if (tag != null)
         {
             int invSize = invCrafting.getSlots();
@@ -407,7 +408,8 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             }
 
             // Store the recipe output item in the last slot, it will be used for GUI stuff
-            items[items.length - 1] = ItemStack.copyItemStack(this.craftResults[invId].getStackInSlot(0));
+            ItemStack stack = this.craftResults[invId].getStackInSlot(0);
+            items[items.length - 1] = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
 
             NBTUtils.writeItemsToTag(tag, items, "Recipe_" + recipeId, true);
         }
