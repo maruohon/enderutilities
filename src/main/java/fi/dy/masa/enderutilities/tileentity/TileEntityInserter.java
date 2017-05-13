@@ -36,27 +36,25 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
-    private final ItemHandlerWrapperInserter itemHandlerInserter;
     private final ItemStackHandlerTileEntity itemHandlerFilters;
     private final List<EnumFacing> enabledSides = new ArrayList<EnumFacing>();
     private final List<EnumFacing> validSides = new ArrayList<EnumFacing>();
     private EnumFacing facingOpposite = EnumFacing.SOUTH;
     private RedstoneMode redstoneMode = RedstoneMode.IGNORED;
-    private int filterMask;
+    private int filterMask = FilterSetting.MATCH_META.getBitMask();
     private int delay = 4;
     private int outputSideIndex;
     private boolean isFiltered;
+    private boolean pushing;
     private ItemStack[] cachedFilterStacks = new ItemStack[0];
 
     public TileEntityInserter()
     {
         super(ReferenceNames.NAME_TILE_INSERTER);
 
-        this.filterMask = FilterSetting.MATCH_META.getBitMask();
         this.itemHandlerBase    = new ItemStackHandlerTileEntity(0,  1,  1, false, "Items", this);
         this.itemHandlerFilters = new ItemStackHandlerTileEntity(1, 27, 64, false, "ItemsFilter", this);
-        this.itemHandlerInserter = new ItemHandlerWrapperInserter(this.itemHandlerBase);
-        this.itemHandlerExternal = this.itemHandlerInserter;
+        this.itemHandlerExternal = new ItemHandlerWrapperInserter(this.itemHandlerBase);
     }
 
     public boolean isFiltered()
@@ -119,7 +117,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         //System.out.printf("onNeighborBlockChange(), scheduling(?) for %s\n", this.getPos());
         this.updateValidSides(true);
-        this.scheduleBlockUpdate(this.delay, false);
+
+        if (this.shouldOperate())
+        {
+            this.scheduleBlockUpdate(this.delay, false);
+        }
     }
 
     public void toggleOutputSide(EnumFacing side)
@@ -360,11 +362,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        // When a tile changes on the input side, schedule a new tile tick, if necessary.
-        // Don't schedule when we are part of a "pipe line", unless we are the first one,
-        // because we try to operate on a push-basis.
-        if (this.shouldOperate() && neighbor.equals(this.getPos().offset(this.getFacing().getOpposite())) &&
-            world.getBlockState(neighbor).getBlock() != this.getBlockType())
+        // When an adjacent tile changes, schedule a new tile tick.
+        // Updates will not be scheduled due to the adjacent inventory changing
+        // while we are pushing items to it (this.pushing == true).
+        if (this.pushing == false && this.shouldOperate())
         {
             //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
             this.scheduleBlockUpdate(this.delay, false);
@@ -380,35 +381,33 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         //System.out.printf("onScheduledBlockUpdate() @ %s (%s)\n", pos, world.isRemote ? "c" : "s");
-        if (this.shouldOperate() == false)
+        if (this.shouldOperate())
         {
-            return;
-        }
-
-        ItemStack stack = this.itemHandlerBase.getStackInSlot(0);
-
-        // Currently holding items, try to push them out
-        if (stack != null)
-        {
-            if (this.tryPushOutItems(world, pos))
+            // Currently holding items, try to push them out
+            if (this.itemHandlerBase.getStackInSlot(0) != null)
             {
-                // Schedule a new update, if we managed to push at least some items out
-                this.scheduleBlockUpdate(this.delay, false);
+                if (this.tryPushOutItems(world, pos))
+                {
+                    // Schedule a new update, if we managed to push out at least some items
+                    this.scheduleBlockUpdate(this.delay, false);
+                }
             }
-        }
-        // Not holding items, try to pull items in
-        else
-        {
-            if (this.tryPullInItems(world, pos))
+            // Not holding items, try to pull items in
+            else
             {
-                this.scheduleBlockUpdate(this.delay, false);
+                if (this.tryPullInItems(world, pos))
+                {
+                    // Schedule a new update, if we managed to pull in at least some items
+                    this.scheduleBlockUpdate(this.delay, false);
+                }
             }
         }
     }
 
     /**
      * Tries to pull in items from an inventory on the input side.<br>
-     * <b>NOTE: ONLY call this when the internal slot is empty, as this method doesn't check it!</b>
+     * <b>NOTE: ONLY call this when the internal slot is empty, as this method doesn't check it!</b><br>
+     * Does <b>NOT</b> pull items from another Inserter.
      * @return true if the operation succeeded and at least some items were moved, false otherwise
      */
     private boolean tryPullInItems(World world, BlockPos posSelf)
@@ -416,7 +415,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         //System.out.printf("tryPullInItems() @ %s\n", posSelf);
         TileEntity te = world.getTileEntity(posSelf.offset(this.facingOpposite));
 
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
+        // We don't ever want to pull in items from another Inserter,
+        // but instead we operate on a push-basis. (The extract() method returns null anyways.)
+        if (te != null && (te instanceof TileEntityInserter) == false &&
+            te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
         {
             IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing());
 
@@ -530,7 +532,14 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 ItemStack stack = this.itemHandlerBase.extractItem(0, 64, false);
                 int sizeOrig = stack.stackSize;
                 boolean movedSome = false;
+
+                // This is used to prevent scheduling a new update because of an adjacent inventory changing
+                // while we push out items. The update will be scheduled, if needed, after the push is complete.
+                this.pushing = true;
+
                 stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
+
+                this.pushing = false;
 
                 // Return the items that couldn't be moved
                 if (stack != null)
