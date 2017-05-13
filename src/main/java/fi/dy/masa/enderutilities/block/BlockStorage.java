@@ -28,9 +28,11 @@ import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemUtils;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
@@ -204,9 +206,9 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     {
         Random rand = worldIn instanceof World ? ((World) worldIn).rand : RANDOM;
         ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, state.getValue(TYPE).getMeta());
-        TileEntityEnderUtilities te = getTileEntitySafely(worldIn, pos, TileEntityEnderUtilities.class);
+        TileEntityEnderUtilitiesInventory te = getTileEntitySafely(worldIn, pos, TileEntityEnderUtilitiesInventory.class);
 
-        if (te != null)
+        if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
         {
             return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }

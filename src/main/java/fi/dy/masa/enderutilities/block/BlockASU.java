@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.ItemUtils;
 
 public class BlockASU extends BlockEnderUtilitiesInventory
@@ -98,7 +99,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
         ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
         TileEntityASU te = getTileEntitySafely(worldIn, pos, TileEntityASU.class);
 
-        if (te != null)
+        if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
         {
             return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }

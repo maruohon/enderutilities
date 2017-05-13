@@ -362,7 +362,6 @@ public class InventoryUtils
     /**
      * Returns the slot number of the first non-empty slot in the given inventory, or -1 if there are no items.
      */
-    /*
     public static int getFirstNonEmptySlot(IItemHandler inv)
     {
         for (int i = 0; i < inv.getSlots(); i++)
@@ -375,7 +374,6 @@ public class InventoryUtils
 
         return -1;
     }
-    */
 
     /**
      * Returns an ItemStack of up to maxAmount items from the first slot possible to extract from.
