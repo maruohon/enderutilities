@@ -156,7 +156,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         IBakedModel itemModel = null;
         IBakedModel textModel = null;
 
-        if (containedStack != null)
+        if (containedStack.isEmpty() == false)
         {
             ItemType type = new ItemType(containedStack);
             itemModel = ITEM_MODEL_CACHE.get(type);
@@ -333,8 +333,8 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         {
             this.locked = ItemNullifier.isNullifierEnabled(nullifierStack) == false;
             ItemStack containedStack = ItemNullifier.getSelectedStack(nullifierStack);
-            this.containedItem = containedStack != null ? new ItemType(containedStack) : null;
-            this.stackSize = containedStack != null ? containedStack.stackSize : 0;
+            this.containedItem = containedStack.isEmpty() ? null : new ItemType(containedStack);
+            this.stackSize = containedStack.getCount();
         }
 
         @Override

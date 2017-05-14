@@ -88,7 +88,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() == false || player.getHeldItem(hand) != null)
+        if (player.isSneaking() == false || player.getHeldItem(hand).isEmpty() == false)
         {
             if (world.isRemote == false)
             {
@@ -124,7 +124,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
 
                 if (stack != null)
                 {
-                    EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.stackSize, 4096), true);
+                    EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.getCount(), 4096), true);
                 }
 
                 world.updateComparatorOutputLevel(pos, this);

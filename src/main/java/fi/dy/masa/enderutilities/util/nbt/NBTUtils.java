@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
@@ -593,7 +594,12 @@ public class NBTUtils
     {
         ItemStack stack = new ItemStack(tag);
 
-        if (stack.isEmpty() == false && tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
+        if (stack.isEmpty())
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
         {
             stack.setCount(tag.getInteger("ActualCount"));
         }
@@ -608,7 +614,7 @@ public class NBTUtils
      * @param items
      * @param tagName
      */
-    public static void readStoredItemsFromTag(@Nonnull NBTTagCompound nbt, @Nonnull ItemStack[] items, @Nonnull String tagName)
+    public static void readStoredItemsFromTag(@Nonnull NBTTagCompound nbt, NonNullList<ItemStack> items, @Nonnull String tagName)
     {
         if (nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == false)
         {
@@ -617,15 +623,16 @@ public class NBTUtils
 
         NBTTagList nbtTagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
         int num = nbtTagList.tagCount();
+        int listSize = items.size();
 
         for (int i = 0; i < num; ++i)
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
             int slotNum = tag.getShort("Slot");
 
-            if (slotNum >= 0 && slotNum < items.length)
+            if (slotNum >= 0 && slotNum < listSize)
             {
-                items[slotNum] = loadItemStackFromTag(tag);
+                items.set(slotNum, loadItemStackFromTag(tag));
             }
             /*else
             {
@@ -674,19 +681,21 @@ public class NBTUtils
      * @param items
      */
     @Nonnull
-    public static NBTTagList createTagListForItems(@Nonnull ItemStack[] items)
+    public static NBTTagList createTagListForItems(NonNullList<ItemStack> items)
     {
-        int invSlots = items.length;
+        int invSlots = items.size();
         NBTTagList nbtTagList = new NBTTagList();
 
         // Write all the ItemStacks into a TAG_List
         for (int slotNum = 0; slotNum < invSlots; slotNum++)
         {
-            if (items[slotNum] != null)
+            ItemStack stack = items.get(slotNum);
+
+            if (stack.isEmpty() == false)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                items[slotNum].writeToNBT(tag);
-                tag.setInteger("ActualCount", items[slotNum].stackSize);
+                stack.writeToNBT(tag);
+                tag.setInteger("ActualCount", stack.getCount());
 
                 if (invSlots <= 127)
                 {
@@ -713,9 +722,9 @@ public class NBTUtils
      * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
     @Nonnull
-    public static NBTTagCompound writeItemsToTag(@Nonnull NBTTagCompound nbt, @Nonnull ItemStack[] items, @Nonnull String tagName, boolean keepExtraSlots)
+    public static NBTTagCompound writeItemsToTag(@Nonnull NBTTagCompound nbt, NonNullList<ItemStack> items, @Nonnull String tagName, boolean keepExtraSlots)
     {
-        int invSlots = items.length;
+        int invSlots = items.size();
         NBTTagList nbtTagList = createTagListForItems(items);
 
         if (keepExtraSlots && nbt.hasKey(tagName, Constants.NBT.TAG_LIST))
@@ -756,7 +765,7 @@ public class NBTUtils
      * @param tagName the NBTTagList tag name where the items will be written to
      * @param keepExtraSlots set to true to append existing items in slots that are outside of the currently written slot range
      */
-    public static void writeItemsToContainerItem(@Nonnull ItemStack containerStack, @Nonnull ItemStack[] items,
+    public static void writeItemsToContainerItem(@Nonnull ItemStack containerStack, NonNullList<ItemStack> items,
             @Nonnull String tagName, boolean keepExtraSlots)
     {
         // Write the items to the "container" ItemStack's NBT
@@ -783,18 +792,18 @@ public class NBTUtils
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 if (stacks < maxEntries)
                 {
                     NBTTagCompound tag = new NBTTagCompound();
                     tag.setString("dn", stack.getDisplayName());
-                    tag.setInteger("c", stack.stackSize);
+                    tag.setInteger("c", stack.getCount());
                     list.appendTag(tag);
                 }
 
                 stacks++;
-                items += stack.stackSize;
+                items += stack.getCount();
             }
         }
 

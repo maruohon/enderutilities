@@ -19,6 +19,6 @@ public class InventoryItemModules extends InventoryItem
             return false;
         }
 
-        return stack == null || stack.getItem() instanceof IModule;
+        return stack.isEmpty() || stack.getItem() instanceof IModule;
     }
 }

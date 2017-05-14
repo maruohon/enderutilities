@@ -34,40 +34,40 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
     {
         int slotPosX = slotIn.xPos;
         int slotPosY = slotIn.yPos;
-        ItemStack itemstack = slotIn.getStack();
+        ItemStack stack = slotIn.getStack();
         boolean flag = false;
-        boolean flag1 = slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick == false;
-        ItemStack itemstack1 = this.mc.player.inventory.getItemStack();
+        boolean flag1 = slotIn == this.clickedSlot && this.draggedStack.isEmpty() == false && this.isRightMouseClick == false;
+        ItemStack stackCursor = this.mc.player.inventory.getItemStack();
         String str = null;
 
-        if (slotIn == this.clickedSlot && this.draggedStack != null && this.isRightMouseClick  && itemstack != null)
+        if (slotIn == this.clickedSlot && this.draggedStack.isEmpty() == false && this.isRightMouseClick  && stack.isEmpty() == false)
         {
-            itemstack = itemstack.copy();
-            itemstack.stackSize /= 2;
+            stack = stack.copy();
+            stack.setCount(stack.getCount() / 2);
         }
-        else if (this.dragSplitting && this.dragSplittingSlots.contains(slotIn) && itemstack1 != null)
+        else if (this.dragSplitting && this.dragSplittingSlots.contains(slotIn) && stackCursor.isEmpty() == false)
         {
             if (this.dragSplittingSlots.size() == 1)
             {
                 return;
             }
 
-            if (Container.canAddItemToSlot(slotIn, itemstack1, true) && this.inventorySlots.canDragIntoSlot(slotIn))
+            if (Container.canAddItemToSlot(slotIn, stackCursor, true) && this.inventorySlots.canDragIntoSlot(slotIn))
             {
-                itemstack = itemstack1.copy();
+                stack = stackCursor.copy();
                 flag = true;
-                Container.computeStackSize(this.dragSplittingSlots, this.dragSplittingLimit, itemstack, slotIn.getStack() == null ? 0 : slotIn.getStack().stackSize);
+                Container.computeStackSize(this.dragSplittingSlots, this.dragSplittingLimit, stack, slotIn.getStack().getCount());
 
-                if (itemstack.stackSize > itemstack.getMaxStackSize())
+                if (stack.getCount() > stack.getMaxStackSize())
                 {
-                    str = TextFormatting.YELLOW + "" + itemstack.getMaxStackSize();
-                    itemstack.stackSize = itemstack.getMaxStackSize();
+                    str = TextFormatting.YELLOW + "" + stack.getMaxStackSize();
+                    stack.setCount(stack.getMaxStackSize());
                 }
 
-                if (itemstack.stackSize > slotIn.getItemStackLimit(itemstack))
+                if (stack.getCount() > slotIn.getItemStackLimit(stack))
                 {
-                    str = TextFormatting.YELLOW + "" + slotIn.getItemStackLimit(itemstack);
-                    itemstack.stackSize = slotIn.getItemStackLimit(itemstack);
+                    str = TextFormatting.YELLOW + "" + slotIn.getItemStackLimit(stack);
+                    stack.setCount(slotIn.getItemStackLimit(stack));
                 }
             }
             else
@@ -80,7 +80,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         this.zLevel = 100.0F;
         this.itemRender.zLevel = 100.0F;
 
-        if (itemstack == null)
+        if (stack.isEmpty())
         {
             TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
 
@@ -102,16 +102,16 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             }
 
             GlStateManager.enableDepth();
-            this.itemRender.renderItemAndEffectIntoGUI(itemstack, slotPosX, slotPosY);
+            this.itemRender.renderItemAndEffectIntoGUI(stack, slotPosX, slotPosY);
 
             // This slot belongs to a "large stacks" type inventory, render the stack size text scaled to 0.5x
-            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler)slotIn).getItemHandler()))
+            if (slotIn instanceof SlotItemHandler && this.scaledStackSizeTextInventories.contains(((SlotItemHandler) slotIn).getItemHandler()))
             {
-                this.renderLargeStackItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY);
+                this.renderLargeStackItemOverlayIntoGUI(this.fontRenderer, stack, slotPosX, slotPosY);
             }
             else
             {
-                this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
+                this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, stack, slotPosX, slotPosY, str);
             }
         }
 
@@ -121,16 +121,16 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
 
     public void renderLargeStackItemOverlayIntoGUI(FontRenderer fontRenderer, ItemStack stack, int xPosition, int yPosition)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return;
         }
 
-        if (stack.stackSize != 1)
+        if (stack.getCount() != 1)
         {
             String str = EUStringUtils.getStackSizeString(stack, 4);
 
-            if (stack.stackSize < 1)
+            if (stack.getCount() < 1)
             {
                 str = TextFormatting.RED + str;
             }

@@ -16,14 +16,9 @@ public class InventoryItemMemoryCards extends InventoryItemModularModules
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
         //System.out.println("InventoryItemMemoryCards#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
-        if (super.isItemValidForSlot(slotNum, stack) == false)
+        if (super.isItemValidForSlot(slotNum, stack) == false || stack.isEmpty())
         {
             return false;
-        }
-
-        if (stack == null)
-        {
-            return true;
         }
 
         if (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))

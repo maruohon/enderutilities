@@ -5,13 +5,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
 {
-    private final ItemStack[] templateStacks;
+    private final NonNullList<ItemStack> templateStacks;
     private final BitSet locked;
 
     public ItemStackHandlerLockable(int inventoryId, int invSize, int stackLimit, boolean allowCustomStackSizes,
@@ -19,7 +20,7 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     {
         super(inventoryId, invSize, stackLimit, allowCustomStackSizes, tagName, te);
 
-        this.templateStacks = new ItemStack[invSize];
+        this.templateStacks = NonNullList.withSize(invSize, ItemStack.EMPTY);
         this.locked = new BitSet(invSize);
     }
 
@@ -57,7 +58,7 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     @Nullable
     public ItemStack getTemplateStackInSlot(int slot)
     {
-        return this.templateStacks[slot];
+        return this.templateStacks.get(slot);
     }
 
     /**
@@ -67,12 +68,15 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
      */
     public void setTemplateStackInSlot(int slot, @Nonnull ItemStack stack)
     {
-        stack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
-        this.templateStacks[slot] = stack;
-
-        if (this.templateStacks[slot].isEmpty() == false)
+        if (stack.isEmpty())
         {
-            this.templateStacks[slot].setCount(1);
+            this.templateStacks.set(slot, ItemStack.EMPTY);
+        }
+        else
+        {
+            stack = stack.copy();
+            stack.setCount(1);
+            this.templateStacks.set(slot, stack);
         }
 
         this.onContentsChanged(slot);
@@ -92,7 +96,7 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
-        return this.locked.get(slot) == false || InventoryUtils.areItemStacksEqual(this.templateStacks[slot], stack);
+        return this.locked.get(slot) == false || InventoryUtils.areItemStacksEqual(this.templateStacks.get(slot), stack);
     }
 
     @Override

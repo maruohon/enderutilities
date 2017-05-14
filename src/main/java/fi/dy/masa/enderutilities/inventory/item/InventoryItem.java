@@ -46,9 +46,9 @@ public class InventoryItem extends ItemStackHandlerBasic
 
     protected void clearInventory()
     {
-        for (int i = 0; i < this.items.length; i++)
+        for (int i = 0; i < this.items.size(); i++)
         {
-            this.items[i] = null;
+            this.items.set(i, ItemStack.EMPTY);
         }
     }
 
@@ -110,7 +110,7 @@ public class InventoryItem extends ItemStackHandlerBasic
 
             ItemStack stack = this.getContainerItemStack();
 
-            if (stack != null && stack.hasTagCompound() && this.isCurrentlyAccessible())
+            if (stack.isEmpty() == false && stack.hasTagCompound() && this.isCurrentlyAccessible())
             {
                 this.deserializeNBT(stack.getTagCompound());
             }
@@ -127,7 +127,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             //System.out.println("InventoryItem#writeToContainerItemStack() - " + (this.isRemote ? "client" : "server"));
             ItemStack stack = this.getContainerItemStack();
 
-            if (stack != null && this.isCurrentlyAccessible())
+            if (stack.isEmpty() == false && this.isCurrentlyAccessible())
             {
                 NBTUtils.writeItemsToContainerItem(stack, this.items, this.getItemStorageTagName(), true);
             }
@@ -137,19 +137,19 @@ public class InventoryItem extends ItemStackHandlerBasic
     public boolean isCurrentlyAccessible()
     {
         //System.out.println("InventoryItem#isCurrentlyAccessible() - " + (this.isRemote ? "client" : "server"));
-        return this.getContainerItemStack() != null;
+        return this.getContainerItemStack().isEmpty() == false;
     }
 
     public boolean isAccessibleBy(Entity entity)
     {
         //System.out.println("InventoryItem#isAccessibleByPlayer() - " + (this.isRemote ? "client" : "server"));
-        return this.getContainerItemStack() != null;
+        return this.getContainerItemStack().isEmpty() == false;
     }
 
     public boolean isAccessibleBy(UUID uuid)
     {
         //System.out.println("InventoryItem#isAccessibleBy() - " + (this.isRemote ? "client" : "server"));
-        return this.getContainerItemStack() != null;
+        return this.getContainerItemStack().isEmpty() == false;
     }
 
     public boolean isPrivate()
@@ -166,7 +166,7 @@ public class InventoryItem extends ItemStackHandlerBasic
 
     public int getInventoryStackLimitFromContainerStack(ItemStack stack)
     {
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.enderPart)
         {
             int tier = ((IModule) stack.getItem()).getModuleTier(stack);
 
@@ -183,7 +183,7 @@ public class InventoryItem extends ItemStackHandlerBasic
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
         //System.out.println("InventoryItem#isItemValidForSlot(" + slot + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
-        return this.getContainerItemStack() != null && this.isCurrentlyAccessible();
+        return this.getContainerItemStack().isEmpty() == false && this.isCurrentlyAccessible();
     }
 
     @Override

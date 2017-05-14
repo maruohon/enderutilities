@@ -117,7 +117,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(playerIn, ItemDye.class);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             EnumDyeColor stackColor = EnumDyeColor.byDyeDamage(stack.getMetadata());
 
@@ -130,7 +130,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 
                     if (playerIn.capabilities.isCreativeMode == false)
                     {
-                        stack.stackSize--;
+                        stack.shrink(1);
                     }
                 }
 

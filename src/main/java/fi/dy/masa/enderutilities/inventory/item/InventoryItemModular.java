@@ -96,7 +96,7 @@ public class InventoryItemModular extends InventoryItemPermissions
      */
     public int getSelectedModuleIndex()
     {
-        if (this.getModularItemStack() == null)
+        if (this.getModularItemStack().isEmpty())
         {
             return -1;
         }
@@ -109,7 +109,7 @@ public class InventoryItemModular extends InventoryItemPermissions
         //System.out.println("InventoryItemModular#getSelectedModuleStack() - " + (this.isRemote ? "client" : "server"));
         //return UtilItemModular.getModuleStackBySlotNumber(this.getModularItemStack(), this.getSelectedModuleIndex(), this.moduleType);
         int index = this.getSelectedModuleIndex();
-        return index >= 0 && index < this.moduleInventory.getSlots() ? this.moduleInventory.getStackInSlot(index) : null;
+        return index >= 0 && index < this.moduleInventory.getSlots() ? this.moduleInventory.getStackInSlot(index) : ItemStack.EMPTY;
     }
 
     @Override
@@ -121,14 +121,15 @@ public class InventoryItemModular extends InventoryItemPermissions
     @Override
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return super.isItemValidForSlot(slotNum, stack);
         }
 
         ItemStack modularStack = this.getModularItemStack();
+
         // Don't allow nesting the same type of items as the container item inside itself
-        if (modularStack != null && modularStack.getItem() == stack.getItem())
+        if (modularStack.isEmpty() == false && modularStack.getItem() == stack.getItem())
         {
             return false;
         }
@@ -139,13 +140,6 @@ public class InventoryItemModular extends InventoryItemPermissions
     @Override
     public boolean isAccessibleBy(Entity entity)
     {
-        ItemStack stack = this.getModularItemStack();
-        if (stack == null)
-        {
-            //System.out.println("isUseableByPlayer(): false - containerStack == null");
-            return false;
-        }
-
-        return super.isAccessibleBy(entity);
+        return this.getModularItemStack().isEmpty() == false && super.isAccessibleBy(entity);
     }
 }

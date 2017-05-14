@@ -1,14 +1,16 @@
 package fi.dy.masa.enderutilities.inventory;
 
+import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>, IItemHandlerSelective, IItemHandlerSize
 {
-    protected final ItemStack[] items;
+    protected final NonNullList<ItemStack> items;
     private final boolean allowCustomStackSizes;
     private int stackLimit;
     private String tagName;
@@ -22,14 +24,14 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     {
         this.tagName = tagName;
         this.allowCustomStackSizes = allowCustomStackSizes;
-        this.items = new ItemStack[invSize];
+        this.items = NonNullList.withSize(invSize, ItemStack.EMPTY);
         this.setStackLimit(stackLimit);
     }
 
     @Override
     public int getSlots()
     {
-        return this.items.length;
+        return this.items.size();
     }
 
     @Override
@@ -39,27 +41,31 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     }
 
     @Override
+    @Nonnull
     public ItemStack getStackInSlot(int slot)
     {
-        return this.items[slot];
+        return this.items.get(slot);
     }
 
     @Override
-    public void setStackInSlot(int slot, ItemStack stack)
+    public void setStackInSlot(int slot, @Nonnull ItemStack stack)
     {
-        this.items[slot] = stack;
+        this.items.set(slot, stack);
         this.onContentsChanged(slot);
     }
 
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+    @Nonnull
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
     {
-        if (stack == null || this.isItemValidForSlot(slot, stack) == false)
+        if (stack.isEmpty() || this.isItemValidForSlot(slot, stack) == false)
         {
             return stack;
         }
 
-        int existingStackSize = this.items[slot] != null ? this.items[slot].stackSize : 0;
+        ItemStack existingStack = this.items.get(slot);
+        int existingStackSize = existingStack.getCount();
+        boolean hasStack = existingStack.isEmpty() == false;
         int max = this.getItemStackLimit(slot, stack);
 
         if (this.allowCustomStackSizes == false)
@@ -68,24 +74,19 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         }
 
         // Existing items in the target slot
-        if (this.items[slot] != null)
+        if (hasStack)
         {
-            // The slot is already full, bail out now
-            if (this.items[slot].stackSize >= max)
-            {
-                return stack;
-            }
-
-            // Check that the item-to-be-inserted is identical to the existing items
-            if (stack.getItem() != this.items[slot].getItem() ||
-                stack.getMetadata() != this.items[slot].getMetadata() ||
-                ItemStack.areItemStackTagsEqual(stack, this.items[slot]) == false)
+            // If the slot is already full, or the to-be-inserted item is different
+            if (existingStackSize >= max ||
+                stack.getItem() != existingStack.getItem() ||
+                stack.getMetadata() != existingStack.getMetadata() ||
+                ItemStack.areItemStackTagsEqual(stack, existingStack) == false)
             {
                 return stack;
             }
         }
 
-        int amount = Math.min(max - existingStackSize, stack.stackSize);
+        int amount = Math.min(max - existingStackSize, stack.getCount());
 
         if (amount <= 0)
         {
@@ -94,64 +95,71 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
         if (simulate == false)
         {
-            if (this.items[slot] != null)
+            if (hasStack)
             {
-                this.items[slot].stackSize += amount;
+                existingStack.grow(amount);
             }
             else
             {
-                this.items[slot] = stack.copy();
-                this.items[slot].stackSize = amount;
+                ItemStack newStack = stack.copy();
+                newStack.setCount(amount);
+                this.items.set(slot, newStack);
             }
 
             this.onContentsChanged(slot);
         }
 
-        if (amount < stack.stackSize)
+        if (amount < stack.getCount())
         {
             ItemStack stackRemaining = stack.copy();
-            stackRemaining.stackSize -= amount;
+            stackRemaining.shrink(amount);
 
             return stackRemaining;
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        if (slot < 0 || slot >= this.items.length || this.items[slot] == null || this.canExtractFromSlot(slot) == false)
+        if (this.canExtractFromSlot(slot) == false)
         {
-            return null;
+            return ItemStack.EMPTY;
         }
 
-        amount = Math.min(amount, this.items[slot].stackSize);
-        amount = Math.min(amount, this.items[slot].getMaxStackSize());
+        ItemStack existingStack = this.items.get(slot);
+
+        if (existingStack.isEmpty())
+        {
+            return ItemStack.EMPTY;
+        }
+
+        amount = Math.min(amount, Math.min(existingStack.getCount(), existingStack.getMaxStackSize()));
 
         ItemStack stack;
 
         if (simulate)
         {
-            stack = this.items[slot].copy();
-            stack.stackSize = amount;
+            stack = existingStack.copy();
+            stack.setCount(amount);
 
             return stack;
         }
         else
         {
-            if (amount == this.items[slot].stackSize)
+            if (amount == existingStack.getCount())
             {
-                stack = this.items[slot];
-                this.items[slot] = null;
+                stack = existingStack;
+                this.items.set(slot, ItemStack.EMPTY);
             }
             else
             {
-                stack = this.items[slot].splitStack(amount);
+                stack = existingStack.splitStack(amount);
 
-                if (this.items[slot].stackSize <= 0)
+                if (existingStack.getCount() <= 0)
                 {
-                    this.items[slot] = null;
+                    this.items.set(slot, ItemStack.EMPTY);
                 }
             }
         }
@@ -184,7 +192,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     public int getItemStackLimit(int slot, ItemStack stack)
     {
         //System.out.println("ItemStackHandlerBasic.getItemStackLimit(stack)");
-        if (this.allowCustomStackSizes || (stack != null && this.getInventoryStackLimit() < stack.getMaxStackSize()))
+        if (this.allowCustomStackSizes || (stack.isEmpty() == false && this.getInventoryStackLimit() < stack.getMaxStackSize()))
         {
             return this.getInventoryStackLimit();
         }
@@ -217,12 +225,9 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
      * Sets the NBTTagList tag name that stores the items of this inventory in the container ItemStack
      * @param tagName
      */
-    public void setItemStorageTagName(String tagName)
+    public void setItemStorageTagName(@Nonnull String tagName)
     {
-        if (tagName != null)
-        {
-            this.tagName = tagName;
-        }
+        this.tagName = tagName;
     }
 
     public String getItemStorageTagName()

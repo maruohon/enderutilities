@@ -133,7 +133,7 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
 
             if (slot != null && slot.getHasStack() && container.getCustomInventorySlotRange().contains(slot.slotNumber))
             {
-                String size = EUStringUtils.formatNumberWithKSeparators(slot.getStack().stackSize);
+                String size = EUStringUtils.formatNumberWithKSeparators(slot.getStack().getCount());
                 event.getToolTip().add(size + " " + I18n.format("enderutilities.tooltip.item.items"));
             }
         }

@@ -77,17 +77,6 @@ public class GuiMSU extends GuiContainerLargeStacks implements IButtonStateCallb
 
         this.drawLockedSlotBackgrounds(this.temsu.getInventoryMSU());
         this.drawTemplateStacks(this.temsu.getInventoryMSU());
-
-        /* The selected slot index isn't currently synced to the client... And it's probably too minor a feature to bother with anyway.
-        int selectedSlot = ((ContainerMSU) this.container).getSelectedSlot();
-
-        if (selectedSlot != -1)
-        {
-            Slot slot = this.container.getSlot(selectedSlot);
-            this.bindTexture(this.guiTextureWidgets);
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
-        }
-        */
     }
 
     protected void createButtons()
@@ -141,7 +130,7 @@ public class GuiMSU extends GuiContainerLargeStacks implements IButtonStateCallb
 
             if (slot != null && slot.getHasStack() && container.getCustomInventorySlotRange().contains(slot.slotNumber))
             {
-                String size = EUStringUtils.formatNumberWithKSeparators(slot.getStack().stackSize);
+                String size = EUStringUtils.formatNumberWithKSeparators(slot.getStack().getCount());
                 event.getToolTip().add(size + " " + I18n.format("enderutilities.tooltip.item.items"));
             }
         }
