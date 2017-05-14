@@ -173,15 +173,15 @@ public class PositionUtils
 
     public static boolean isPositionInsideArea(BlockPosEU pos, BlockPos posMin, BlockPos posMax)
     {
-        return pos.posX >= posMin.getX() && pos.posX <= posMax.getX() &&
-               pos.posY >= posMin.getY() && pos.posY <= posMax.getY() &&
-               pos.posZ >= posMin.getZ() && pos.posZ <= posMax.getZ();
+        return pos.getX() >= posMin.getX() && pos.getX() <= posMax.getX() &&
+               pos.getY() >= posMin.getY() && pos.getY() <= posMax.getY() &&
+               pos.getZ() >= posMin.getZ() && pos.getZ() <= posMax.getZ();
     }
 
     public static boolean isPositionValid(BlockPosEU pos)
     {
-        World world = DimensionManager.getWorld(pos.dimension);
-        return world != null && pos.posY >= 0 && pos.posY < world.getHeight() && world.getWorldBorder().contains(pos.toBlockPos());
+        World world = DimensionManager.getWorld(pos.getDimension());
+        return world != null && pos.getY() >= 0 && pos.getY() < world.getHeight() && world.getWorldBorder().contains(pos.toBlockPos());
     }
 
     public static BlockPos getPositionInfrontOfEntity(Entity entity)
@@ -314,9 +314,9 @@ public class PositionUtils
      */
     public static BlockPosEU getTransformedBlockPos(BlockPosEU pos, Mirror mirror, Rotation rotation)
     {
-        int x = pos.posX;
-        int y = pos.posY;
-        int z = pos.posZ;
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
         boolean isMirrored = true;
 
         switch (mirror)
@@ -336,13 +336,13 @@ public class PositionUtils
         switch (rotation)
         {
             case CLOCKWISE_90:
-                return new BlockPosEU(-z, y,  x, pos.dimension, pos.face);
+                return new BlockPosEU(-z, y,  x, pos.getDimension(), pos.getFacing());
             case COUNTERCLOCKWISE_90:
-                return new BlockPosEU( z, y, -x, pos.dimension, pos.face);
+                return new BlockPosEU( z, y, -x, pos.getDimension(), pos.getFacing());
             case CLOCKWISE_180:
-                return new BlockPosEU(-x, y, -z, pos.dimension, pos.face);
+                return new BlockPosEU(-x, y, -z, pos.getDimension(), pos.getFacing());
             default:
-                return isMirrored ? new BlockPosEU(x, y, z, pos.dimension, pos.face) : pos;
+                return isMirrored ? new BlockPosEU(x, y, z, pos.getDimension(), pos.getFacing()) : pos;
         }
     }
 
@@ -352,9 +352,9 @@ public class PositionUtils
      */
     public static BlockPosEU getOriginalPositionFromTransformed(BlockPosEU pos, Mirror mirror, Rotation rotation)
     {
-        int x = pos.posX;
-        int y = pos.posY;
-        int z = pos.posZ;
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
         int tmp;
         boolean noRotation = false;
 
@@ -390,7 +390,7 @@ public class PositionUtils
                 }
         }
 
-        return new BlockPosEU(x, y, z, pos.dimension, pos.face);
+        return new BlockPosEU(x, y, z, pos.getDimension(), pos.getFacing());
     }
 
     public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
@@ -437,7 +437,7 @@ public class PositionUtils
             return null;
         }
 
-        return getFacingFromPositions(pos1.posX, pos1.posZ, pos2.posX, pos2.posZ);
+        return getFacingFromPositions(pos1.getX(), pos1.getZ(), pos2.getX(), pos2.getZ());
     }
 
     /**

@@ -81,21 +81,21 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP);
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)player.posX, (int)player.posY, (int)player.posZ, player.dimension, EnumFacing.UP);
         }
 
-        if (posStart.dimension != player.dimension || posEnd.dimension != player.dimension)
+        if (posStart.getDimension() != player.dimension || posEnd.getDimension() != player.dimension)
         {
             return;
         }
 
-        int lenX = Math.abs(posStart.posX - posEnd.posX);
-        int lenY = Math.abs(posStart.posY - posEnd.posY);
-        int lenZ = Math.abs(posStart.posZ - posEnd.posZ);
+        int lenX = Math.abs(posStart.getX() - posEnd.getX());
+        int lenY = Math.abs(posStart.getY() - posEnd.getY());
+        int lenZ = Math.abs(posStart.getZ() - posEnd.getZ());
         String modeStr;
         String preGreen = TextFormatting.GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
@@ -118,11 +118,11 @@ public class RulerRenderer
 
         String strStart = I18n.format("enderutilities.tooltip.item.start");
         lines.add(String.format("%s: x: %s%d%s, y: %s%d%s, z: %s%d%s",
-                strStart, preGreen, posStart.posX, rst, preGreen, posStart.posY, rst, preGreen, posStart.posZ, rst));
+                strStart, preGreen, posStart.getX(), rst, preGreen, posStart.getY(), rst, preGreen, posStart.getZ(), rst));
 
         String strEnd = I18n.format("enderutilities.tooltip.item.end");
         lines.add(String.format("%s: x: %s%d%s, y: %s%d%s, z: %s%d%s",
-                strEnd, preGreen, posEnd.posX, rst, preGreen, posEnd.posY, rst, preGreen, posEnd.posZ, rst));
+                strEnd, preGreen, posEnd.getX(), rst, preGreen, posEnd.getY(), rst, preGreen, posEnd.getZ(), rst));
     }
 
     public void renderAllPositionPairs(EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
@@ -186,7 +186,7 @@ public class RulerRenderer
     private void renderPointPair(EntityPlayer usingPlayer, BlockPosEU posStart, BlockPosEU posEnd,
             int color, EntityPlayer clientPlayer, float partialTicks)
     {
-        if ((posStart != null && posStart.dimension != usingPlayer.dimension) || (posEnd != null && posEnd.dimension != usingPlayer.dimension))
+        if ((posStart != null && posStart.getDimension() != usingPlayer.dimension) || (posEnd != null && posEnd.getDimension() != usingPlayer.dimension))
         {
             return;
         }
@@ -218,7 +218,7 @@ public class RulerRenderer
                     BlockPosEU pos = column.get(i);
                     //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
                     {
-                        AxisAlignedBB aabb = BuildersWandRenderer.createAABB(pos.posX, pos.posY, pos.posZ, 0, partialTicks, clientPlayer);
+                        AxisAlignedBB aabb = BuildersWandRenderer.createAABB(pos.getX(), pos.getY(), pos.getZ(), 0, partialTicks, clientPlayer);
                         RenderGlobal.drawSelectionBoundingBox(aabb, ((color >>> 16) & 0xFF) / 255f, ((color >>> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0f);
                     }
                 }
@@ -232,7 +232,7 @@ public class RulerRenderer
         {
             // Render the start position in a different (hilighted) color
             GlStateManager.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posStart.posX, posStart.posY, posStart.posZ, 0, partialTicks, clientPlayer);
+            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posStart.getX(), posStart.getY(), posStart.getZ(), 0, partialTicks, clientPlayer);
             RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
@@ -240,7 +240,7 @@ public class RulerRenderer
         {
             // Render the end position in a different (hilighted) color
             GlStateManager.glLineWidth(3.0f);
-            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posEnd.posX, posEnd.posY, posEnd.posZ, 0, partialTicks, clientPlayer);
+            AxisAlignedBB aabb = BuildersWandRenderer.createAABB(posEnd.getX(), posEnd.getY(), posEnd.getZ(), 0, partialTicks, clientPlayer);
             RenderGlobal.drawSelectionBoundingBox(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }
@@ -256,11 +256,11 @@ public class RulerRenderer
         if (posStart == null)
         {
             posStart = posEnd;
-            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP);
         }
         else if (posEnd == null)
         {
-            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP.getIndex());
+            posEnd = new BlockPosEU((int)usingPlayer.posX, (int)usingPlayer.posY, (int)usingPlayer.posZ, usingPlayer.dimension, EnumFacing.UP);
         }
 
         BlockPosEU[] pos = new BlockPosEU[] { posStart, posEnd };
@@ -296,8 +296,8 @@ public class RulerRenderer
     {
         List<BlockPosEU> list = new ArrayList<BlockPosEU>();
 
-        int[] p1 = new int[] { posNear.posX, posNear.posY, posNear.posZ };
-        int[] p2 = new int[] { posFar.posX, posFar.posY, posFar.posZ };
+        int[] p1 = new int[] { posNear.getX(), posNear.getY(), posNear.getZ() };
+        int[] p2 = new int[] { posFar.getX(), posFar.getY(), posFar.getZ() };
         int inc = p1[axis] < p2[axis] ? 1 : -1;
 
         if (includeStart == false)
@@ -316,7 +316,7 @@ public class RulerRenderer
         {
             for (int i = 0; i < maxLength && p1[axis] <= p2[axis]; i++)
             {
-                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
+                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.getDimension(), posNear.getFacing()));
                 p1[axis] += 1;
             }
         }
@@ -324,7 +324,7 @@ public class RulerRenderer
         {
             for (int i = 0; i < maxLength && p1[axis] >= p2[axis]; i++)
             {
-                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.dimension, posNear.face));
+                list.add(new BlockPosEU(p1[0], p1[1], p1[2], posNear.getDimension(), posNear.getFacing()));
                 p1[axis] -= 1;
             }
         }
@@ -344,8 +344,8 @@ public class RulerRenderer
         {
             this.playerPos = new double[] { player.posX, player.posY + player.getEyeHeight(), player.posZ };
             this.points = new int[][] {
-                { p1.posX, p1.posY, p1.posZ },
-                { p2.posX, p2.posY, p2.posZ }
+                { p1.getX(), p1.getY(), p1.getZ() },
+                { p2.getX(), p2.getY(), p2.getZ() }
             };
         }
 

@@ -654,7 +654,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumActionResult useWand(ItemStack stack, World world, EntityPlayer player, BlockPosEU posTarget)
     {
-        if (world.provider.getDimension() != posTarget.dimension)
+        if (world.provider.getDimension() != posTarget.getDimension())
         {
             return EnumActionResult.FAIL;
         }
@@ -728,7 +728,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE &&
                 mode != Mode.REPLACE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
             {
-                this.setPosition(pos.offset(pos.side, 1), POS_START, stack, player);
+                this.setPosition(pos.offset(pos.getFacing()), POS_START, stack, player);
             }
         }
         else
@@ -757,7 +757,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (this.getSelectionIndex(wandStack) == BLOCK_TYPE_ADJACENT)
         {
-            blockInfo = this.getBlockInfoForAdjacentBlock(world, posStateDist.toBlockPos(), posStateDist.side);
+            blockInfo = this.getBlockInfoForAdjacentBlock(world, posStateDist.toBlockPos(), posStateDist.getFacing());
         }
         else
         {
@@ -769,7 +769,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.side, blockInfo.blockStateActual, 3, true, true);
+        return this.placeBlockToPosition(wandStack, world, player, posStateDist.toBlockPos(), posStateDist.getFacing(), blockInfo.blockStateActual, 3, true, true);
     }
 
     public boolean placeBlockToPosition(ItemStack wandStack, World world, EntityPlayer player,
@@ -863,7 +863,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (this.canReplaceBlock(world, player, stack, posIn))
         {
-            BlockUtils.getDropAndSetToAir(world, player, pos, posIn.side, false);
+            BlockUtils.getDropAndSetToAir(world, player, pos, posIn.getFacing(), false);
 
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             return wand.placeBlockToPosition(stack, world, player, posIn);
@@ -1048,7 +1048,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumFacing getAxisRight(ItemStack stack, BlockPosEU pos)
     {
-        EnumFacing face = pos.side;
+        EnumFacing face = pos.getFacing();
         EnumFacing axisRight = BlockPosEU.getRotation(face, EnumFacing.DOWN);
 
         if (face == EnumFacing.UP)
@@ -1072,7 +1072,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     private EnumFacing getAxisUp(ItemStack stack, BlockPosEU pos)
     {
-        EnumFacing face = pos.side;
+        EnumFacing face = pos.getFacing();
         EnumFacing axisRight = BlockPosEU.getRotation(face, EnumFacing.DOWN);
         EnumFacing axisUp = BlockPosEU.getRotation(face, axisRight);
 
@@ -1137,7 +1137,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        EnumFacing faceAxis = pos.side;
+        EnumFacing faceAxis = pos.getFacing();
         EnumFacing axisRight = this.getAxisRight(stack, pos);
         EnumFacing axisUp = this.getAxisUp(stack, pos);
 
@@ -1219,7 +1219,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Set<BlockPosEU> visited = new HashSet<BlockPosEU>();
         boolean continueThrough = mode != Mode.EXTEND_CONTINUOUS && WandOption.CONTINUE_THROUGH.isEnabled(stack, mode);
         boolean diagonals = mode == Mode.EXTEND_CONTINUOUS && WandOption.ALLOW_DIAGONALS.isEnabled(stack, mode);
-        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(posStart.side, -1).toBlockPos());
+        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posStart.offset(posStart.getFacing(), -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
 
@@ -1271,7 +1271,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (mode == Mode.EXTEND_AREA || mode == Mode.EXTEND_CONTINUOUS)
             {
-                BlockPos posTgt = posTmp.offset(posIn.side, -1);
+                BlockPos posTgt = posTmp.offset(posIn.getFacing(), -1);
 
                 IBlockState state = world.getBlockState(posTgt);
                 Block block = state.getBlock();
@@ -1285,7 +1285,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                        (biTarget != null && biTarget.block == block && biTarget.blockMeta == meta)))
                 {
                     positions.add(new BlockPosStateDist(posIn,
-                                    this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
+                                    this.getBlockInfoForBlockType(world, posTmp, posIn.getFacing(), blockType, biTarget, biBound)));
                 }
                 // Extend Continuous can't continue past air blocks on the back face
                 else if (mode == Mode.EXTEND_CONTINUOUS)
@@ -1296,7 +1296,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             else
             {
                 positions.add(new BlockPosStateDist(posIn,
-                            this.getBlockInfoForBlockType(world, posTmp, posIn.side, blockType, biTarget, biBound)));
+                            this.getBlockInfoForBlockType(world, posTmp, posIn.getFacing(), blockType, biTarget, biBound)));
             }
         }
         else if (continueThrough == false)
@@ -1306,7 +1306,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         visited.add(posIn);
 
-        for (BlockPosEU pos : PositionUtils.getAdjacentPositions(posIn, posIn.side, diagonals))
+        for (BlockPosEU pos : PositionUtils.getAdjacentPositions(posIn, posIn.getFacing(), diagonals))
         {
             if (visited.contains(pos) || PositionUtils.isPositionInsideArea(pos, posMin, posMax) == false)
             {
@@ -1342,14 +1342,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Set<BlockPos> visited = new HashSet<BlockPos>();
         boolean continueThrough = WandOption.CONTINUE_THROUGH.isEnabled(stack, Mode.CIRCLE);
         boolean diagonals = WandOption.ALLOW_DIAGONALS.isEnabled(stack, Mode.CIRCLE);
-        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posCenter.offset(posCenter.side, -1).toBlockPos());
+        BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, posCenter.offset(posCenter.getFacing(), -1).toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
 
         // Radius = 0 means only the targeted block position
         if (radius < 1)
         {
-            positions.add(new BlockPosStateDist(posCenter, this.getBlockInfoForAdjacentBlock(world, posCenter.toBlockPos(), posCenter.side)));
+            positions.add(new BlockPosStateDist(posCenter, this.getBlockInfoForAdjacentBlock(world, posCenter.toBlockPos(), posCenter.getFacing())));
             return positions;
         }
 
@@ -1417,7 +1417,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         while (counter <= 16641) // 129 * 129 area
         {
-            nextPos = this.checkReplacePositionIgnoringSide(world, pos, posStart.side, posMin, posMax,
+            nextPos = this.checkReplacePositionIgnoringSide(world, pos, posStart.getFacing(), posMin, posMax,
                     visited, branches, positions, diagonals, biTarget, biBound);
             counter++;
 
@@ -1555,7 +1555,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public void getBlockPositions(ItemStack stack, World world, EntityPlayer player, List<BlockPosStateDist> positions, BlockPosEU center)
     {
         BlockPosEU flippedCenter = center;
-        EnumFacing side = center.side;
+        EnumFacing side = center.getFacing();
         EnumFacing axisRight = BlockPosEU.getRotation(side, EnumFacing.DOWN);
         EnumFacing axisUp = BlockPosEU.getRotation(side, axisRight);
 
@@ -1575,9 +1575,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, side);
             axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
             axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
-            if (flipAxis.getAxis() != center.side.getAxis())
+            if (flipAxis.getAxis() != center.getFacing().getAxis())
             {
-                flippedCenter = new BlockPosEU(center.toBlockPos(), center.dimension, BlockPosEU.getRotation(center.side, flipAxis));
+                flippedCenter = new BlockPosEU(center.toBlockPos(), center.getDimension(), BlockPosEU.getRotation(center.getFacing(), flipAxis));
             }
             //System.out.printf("flipAxis: %s axisRight: %s axisUp: %s\n", flipAxis, axisRight, axisUp);
         }
@@ -1669,20 +1669,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        int startX = Math.min(pos1.posX, pos2.posX);
-        int startY = Math.min(pos1.posY, pos2.posY);
-        int startZ = Math.min(pos1.posZ, pos2.posZ);
+        int startX = Math.min(pos1.getX(), pos2.getX());
+        int startY = Math.min(pos1.getY(), pos2.getY());
+        int startZ = Math.min(pos1.getZ(), pos2.getZ());
 
-        int endX = Math.max(pos1.posX, pos2.posX);
-        int endY = Math.max(pos1.posY, pos2.posY);
-        int endZ = Math.max(pos1.posZ, pos2.posZ);
+        int endX = Math.max(pos1.getX(), pos2.getX());
+        int endY = Math.max(pos1.getY(), pos2.getY());
+        int endZ = Math.max(pos1.getZ(), pos2.getZ());
 
         if (endX - startX > 128 || endY - startY > 128 || endZ - startZ > 128)
         {
             return;
         }
 
-        BlockPosEU targeted = pos1.offset(pos1.side, -1);
+        BlockPosEU targeted = pos1.offset(pos1.getFacing(), -1);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
@@ -1692,8 +1692,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int y = startY; y <= endY; y++)
             {
-                positions.add(new BlockPosStateDist(x, y, startZ, dim, targeted.face,
-                                this.getBlockInfoForBlockType(world, new BlockPos(x, y, startZ), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(x, y, startZ, dim, targeted.getFacing(),
+                                this.getBlockInfoForBlockType(world, new BlockPos(x, y, startZ), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
 
@@ -1701,8 +1701,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int y = startY; y <= endY; y++)
             {
-                positions.add(new BlockPosStateDist(x, y, endZ, dim, targeted.face,
-                        this.getBlockInfoForBlockType(world, new BlockPos(x, y, endZ), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(x, y, endZ, dim, targeted.getFacing(),
+                        this.getBlockInfoForBlockType(world, new BlockPos(x, y, endZ), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
 
@@ -1710,8 +1710,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int z = startZ; z <= endZ; z++)
             {
-                positions.add(new BlockPosStateDist(x, startY, z, dim, targeted.face,
-                                this.getBlockInfoForBlockType(world, new BlockPos(x, startY, z), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(x, startY, z, dim, targeted.getFacing(),
+                                this.getBlockInfoForBlockType(world, new BlockPos(x, startY, z), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
 
@@ -1719,8 +1719,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int z = startZ; z <= endZ; z++)
             {
-                positions.add(new BlockPosStateDist(x, endY, z, dim, targeted.face,
-                                this.getBlockInfoForBlockType(world, new BlockPos(x, endY, z), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(x, endY, z, dim, targeted.getFacing(),
+                                this.getBlockInfoForBlockType(world, new BlockPos(x, endY, z), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
 
@@ -1728,8 +1728,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int y = startY + 1; y <= endY - 1; y++)
             {
-                positions.add(new BlockPosStateDist(startX, y, z, dim, targeted.face,
-                                this.getBlockInfoForBlockType(world, new BlockPos(startX, y, z), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(startX, y, z, dim, targeted.getFacing(),
+                                this.getBlockInfoForBlockType(world, new BlockPos(startX, y, z), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
 
@@ -1737,8 +1737,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             for (int y = startY + 1; y <= endY - 1; y++)
             {
-                positions.add(new BlockPosStateDist(endX, y, z, dim, targeted.face,
-                                this.getBlockInfoForBlockType(world, new BlockPos(endX, y, z), targeted.side, blockType, biTarget, biBound)));
+                positions.add(new BlockPosStateDist(endX, y, z, dim, targeted.getFacing(),
+                                this.getBlockInfoForBlockType(world, new BlockPos(endX, y, z), targeted.getFacing(), blockType, biTarget, biBound)));
             }
         }
     }
@@ -1750,20 +1750,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return;
         }
 
-        int startX = Math.min(pos1.posX, pos2.posX);
-        int startY = Math.min(pos1.posY, pos2.posY);
-        int startZ = Math.min(pos1.posZ, pos2.posZ);
+        int startX = Math.min(pos1.getX(), pos2.getX());
+        int startY = Math.min(pos1.getY(), pos2.getY());
+        int startZ = Math.min(pos1.getZ(), pos2.getZ());
 
-        int endX = Math.max(pos1.posX, pos2.posX);
-        int endY = Math.max(pos1.posY, pos2.posY);
-        int endZ = Math.max(pos1.posZ, pos2.posZ);
+        int endX = Math.max(pos1.getX(), pos2.getX());
+        int endY = Math.max(pos1.getY(), pos2.getY());
+        int endZ = Math.max(pos1.getZ(), pos2.getZ());
 
         if (endX - startX > 128 || endY - startY > 128 || endZ - startZ > 128)
         {
             return;
         }
 
-        BlockPosEU targeted = pos1.offset(pos1.side, -1);
+        BlockPosEU targeted = pos1.offset(pos1.getFacing(), -1);
         BlockInfo biTarget = this.getBlockInfoForTargeted(stack, world, targeted.toBlockPos());
         BlockInfo biBound = getSelectedFixedBlockType(stack);
         int blockType = this.getSelectionIndex(stack);
@@ -1775,8 +1775,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 for (int x = startX; x <= endX; x++)
                 {
-                    positions.add(new BlockPosStateDist(x, y, z, dim, pos1.face,
-                                    this.getBlockInfoForBlockType(world, new BlockPos(x, y, z), targeted.side, blockType, biTarget, biBound)));
+                    positions.add(new BlockPosStateDist(x, y, z, dim, pos1.getFacing(),
+                                    this.getBlockInfoForBlockType(world, new BlockPos(x, y, z), targeted.getFacing(), blockType, biTarget, biBound)));
                 }
             }
         }
@@ -1807,7 +1807,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         int dim = world.provider.getDimension();
 
-        if (posEndIn.dimension != dim || posStartIn.isWithinDistance(player, 160) == false)
+        if (posEndIn.getDimension() != dim || posStartIn.isWithinDistance(player, 160) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoofar"));
             return EnumActionResult.FAIL;
@@ -2174,7 +2174,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPos endPosRelative = pos2.subtract(pos1);
         Area3D area = Area3D.getAreaFromNBT(this.getAreaTag(stack));
 
-        if (pos1EU.dimension != dim || pos2EU.dimension != dim || this.isStackedAreaWithinLimits(pos1, pos2, endPosRelative, area, player) == false)
+        if (pos1EU.getDimension() != dim || pos2EU.getDimension() != dim ||
+            this.isStackedAreaWithinLimits(pos1, pos2, endPosRelative, area, player) == false)
         {
             player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.areatoolargeortoofar"));
             return EnumActionResult.FAIL;

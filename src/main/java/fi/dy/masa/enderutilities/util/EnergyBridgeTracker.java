@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
@@ -28,13 +29,14 @@ public class EnergyBridgeTracker
 
     private static void addBridgeLocation(BlockPosEU pos, boolean markDirty)
     {
-        Integer count = bridgeCounts.get(pos.dimension);
+        Integer count = bridgeCounts.get(pos.getDimension());
+
         if (count == null)
         {
             count = Integer.valueOf(0);
         }
 
-        bridgeCounts.put(pos.dimension, Integer.valueOf(count.intValue() + 1));
+        bridgeCounts.put(pos.getDimension(), Integer.valueOf(count.intValue() + 1));
 
         if (bridgeLocations.contains(pos) == false)
         {
@@ -51,6 +53,7 @@ public class EnergyBridgeTracker
     {
         BlockPosEU pos = new BlockPosEU(posIn, dimension, 1);
         Integer count = bridgeCounts.get(dimension);
+
         if (count == null)
         {
             count = Integer.valueOf(1);
@@ -84,12 +87,18 @@ public class EnergyBridgeTracker
 
         NBTTagList tagList = nbt.getTagList("EnergyBridges", Constants.NBT.TAG_COMPOUND);
         int count = tagList.tagCount();
+
         for (int i = 0; i < count; ++i)
         {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
-            if (tag.hasKey("Dim", Constants.NBT.TAG_INT) && tag.hasKey("posX", Constants.NBT.TAG_INT) && tag.hasKey("posY", Constants.NBT.TAG_INT) && tag.hasKey("posZ", Constants.NBT.TAG_INT))
+
+            if (tag.hasKey("Dim", Constants.NBT.TAG_INT) &&
+                tag.hasKey("posX", Constants.NBT.TAG_INT) &&
+                tag.hasKey("posY", Constants.NBT.TAG_INT) &&
+                tag.hasKey("posZ", Constants.NBT.TAG_INT))
             {
-                addBridgeLocation(new BlockPosEU(tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ"), tag.getInteger("Dim"), 1), false);
+                addBridgeLocation(new BlockPosEU(tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ"),
+                        tag.getInteger("Dim"), EnumFacing.UP), false);
             }
         }
     }
@@ -97,19 +106,21 @@ public class EnergyBridgeTracker
     public static NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         int count = bridgeLocations.size();
+
         if (count > 0)
         {
             NBTTagList tagList = new NBTTagList();
+
             for (int i = 0; i < count; ++i)
             {
                 BlockPosEU pos = bridgeLocations.get(i);
                 if (pos != null)
                 {
                     NBTTagCompound tag = new NBTTagCompound();
-                    tag.setInteger("Dim", pos.dimension);
-                    tag.setInteger("posX", pos.posX);
-                    tag.setInteger("posY", pos.posY);
-                    tag.setInteger("posZ", pos.posZ);
+                    tag.setInteger("Dim", pos.getDimension());
+                    tag.setInteger("posX", pos.getX());
+                    tag.setInteger("posY", pos.getY());
+                    tag.setInteger("posZ", pos.getZ());
                     tagList.appendTag(tag);
                 }
             }
@@ -133,20 +144,22 @@ public class EnergyBridgeTracker
         try
         {
             File saveDir = DimensionManager.getCurrentSaveRootDirectory();
+
             if (saveDir == null)
             {
                 return;
             }
 
             File file = new File(new File(saveDir, Reference.MOD_ID), "energybridges.dat");
-            if (file.exists() == true && file.isFile() == true)
+
+            if (file.exists() && file.isFile())
             {
                 readFromNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
             }
         }
         catch (Exception e)
         {
-            EnderUtilities.logger.warn("Failed to read Energy Bridge data from file!");
+            EnderUtilities.logger.warn("Failed to read Energy Bridge data from file!", e);
         }
     }
 
@@ -160,12 +173,14 @@ public class EnergyBridgeTracker
         try
         {
             File saveDir = DimensionManager.getCurrentSaveRootDirectory();
+
             if (saveDir == null)
             {
                 return;
             }
 
             saveDir = new File(saveDir, Reference.MOD_ID);
+
             if (saveDir.exists() == false)
             {
                 if (saveDir.mkdirs() == false)
@@ -189,7 +204,7 @@ public class EnergyBridgeTracker
         }
         catch (Exception e)
         {
-            EnderUtilities.logger.warn("Failed to write Energy Bridge data to file!");
+            EnderUtilities.logger.warn("Failed to write Energy Bridge data to file!", e);
         }
     }
 }

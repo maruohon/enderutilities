@@ -84,7 +84,7 @@ public class BuildersWandRenderer
             }
         }
 
-        if (posStart == null || usingPlayer.dimension != posStart.dimension)
+        if (posStart == null || usingPlayer.dimension != posStart.getDimension())
         {
             return;
         }
@@ -170,7 +170,7 @@ public class BuildersWandRenderer
 
             if (pos.equals(posStart) == false && pos.equals(posEnd) == false)
             {
-                AxisAlignedBB aabb = createAABB(pos.posX, pos.posY, pos.posZ, expand, partialTicks, player);
+                AxisAlignedBB aabb = createAABB(pos.getX(), pos.getY(), pos.getZ(), expand, partialTicks, player);
                 RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
@@ -196,7 +196,7 @@ public class BuildersWandRenderer
         {
             // Render the targeted position in a different (hilighted) color
             GlStateManager.glLineWidth(3.0f);
-            AxisAlignedBB aabb = createAABB(posStart.posX, posStart.posY, posStart.posZ, expand, partialTicks, player);
+            AxisAlignedBB aabb = createAABB(posStart.getX(), posStart.getY(), posStart.getZ(), expand, partialTicks, player);
             RenderGlobal.drawSelectionBoundingBox(aabb, 1.0f, 0x11 / 255f, 0x11 / 255f, 1.0f);
         }
 
@@ -204,7 +204,7 @@ public class BuildersWandRenderer
         {
             // Render the end position in a different (hilighted) color
             GlStateManager.glLineWidth(3.0f);
-            AxisAlignedBB aabb = createAABB(posEnd.posX, posEnd.posY, posEnd.posZ, expand, partialTicks, player);
+            AxisAlignedBB aabb = createAABB(posEnd.getX(), posEnd.getY(), posEnd.getZ(), expand, partialTicks, player);
             RenderGlobal.drawSelectionBoundingBox(aabb, 0x11 / 255f, 0x11 / 255f, 1.0f, 1.0f);
         }
     }
@@ -242,7 +242,7 @@ public class BuildersWandRenderer
                 GlStateManager.pushMatrix();
                 GlStateManager.enableCull();
                 GlStateManager.enableDepth();
-                GlStateManager.translate(posEU.posX - dx, posEU.posY - dy, posEU.posZ - dz);
+                GlStateManager.translate(posEU.getX() - dx, posEU.getY() - dy, posEU.getZ() - dz);
 
                 GlStateManager.color(1f, 1f, 1f, 1f);
 
@@ -297,9 +297,9 @@ public class BuildersWandRenderer
         int xn = area.getXNeg();
         int yn = area.getYNeg();
         int zn = area.getZNeg();
-        int sx = Math.abs(posEnd.posX - posStart.posX) + 1;
-        int sy = Math.abs(posEnd.posY - posStart.posY) + 1;
-        int sz = Math.abs(posEnd.posZ - posStart.posZ) + 1;
+        int sx = Math.abs(posEnd.getX() - posStart.getX()) + 1;
+        int sy = Math.abs(posEnd.getY() - posStart.getY()) + 1;
+        int sz = Math.abs(posEnd.getZ() - posStart.getZ()) + 1;
         AxisAlignedBB originalBox = createEnclosingAABB(posStart, posEnd, player, partialTicks);
 
         GlStateManager.glLineWidth(2.0f);
@@ -536,12 +536,12 @@ public class BuildersWandRenderer
 
     private AxisAlignedBB createEnclosingAABB(BlockPosEU posStart, BlockPosEU posEnd, EntityPlayer player, float partialTicks)
     {
-        int minX = Math.min(posStart.posX, posEnd.posX);
-        int minY = Math.min(posStart.posY, posEnd.posY);
-        int minZ = Math.min(posStart.posZ, posEnd.posZ);
-        int maxX = Math.max(posStart.posX, posEnd.posX) + 1;
-        int maxY = Math.max(posStart.posY, posEnd.posY) + 1;
-        int maxZ = Math.max(posStart.posZ, posEnd.posZ) + 1;
+        int minX = Math.min(posStart.getX(), posEnd.getX());
+        int minY = Math.min(posStart.getY(), posEnd.getY());
+        int minZ = Math.min(posStart.getZ(), posEnd.getZ());
+        int maxX = Math.max(posStart.getX(), posEnd.getX()) + 1;
+        int maxY = Math.max(posStart.getY(), posEnd.getY()) + 1;
+        int maxZ = Math.max(posStart.getZ(), posEnd.getZ()) + 1;
 
         return createAABB(minX, minY, minZ, maxX, maxY, maxZ, 0, partialTicks, player);
     }

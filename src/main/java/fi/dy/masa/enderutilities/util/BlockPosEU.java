@@ -10,12 +10,11 @@ import net.minecraftforge.common.util.Constants;
 
 public class BlockPosEU
 {
-    public final int posX;
-    public final int posY;
-    public final int posZ;
-    public final int dimension;
-    public final int face;
-    public final EnumFacing side;
+    private final int posX;
+    private final int posY;
+    private final int posZ;
+    private final int dimension;
+    private final EnumFacing facing;
 
     public BlockPosEU(BlockPos pos)
     {
@@ -24,32 +23,56 @@ public class BlockPosEU
 
     public BlockPosEU(int x, int y, int z)
     {
-        this(x, y, z, 0, 0);
+        this(x, y, z, 0, EnumFacing.DOWN);
     }
 
     public BlockPosEU(int x, int y, int z, int dim)
     {
-        this(x, y, z, dim, 0);
+        this(x, y, z, dim, EnumFacing.DOWN);
     }
 
-    public BlockPosEU(BlockPos pos, int dim, int side)
+    public BlockPosEU(BlockPos pos, int dim, int facing)
     {
-        this(pos.getX(), pos.getY(), pos.getZ(), dim, side);
+        this(pos.getX(), pos.getY(), pos.getZ(), dim, EnumFacing.getFront(facing));
     }
 
-    public BlockPosEU(BlockPos pos, int dim, EnumFacing side)
+    public BlockPosEU(BlockPos pos, int dim, EnumFacing facing)
     {
-        this(pos.getX(), pos.getY(), pos.getZ(), dim, side.getIndex());
+        this(pos.getX(), pos.getY(), pos.getZ(), dim, facing);
     }
 
-    public BlockPosEU(int x, int y, int z, int dim, int face)
+    public BlockPosEU(int x, int y, int z, int dim, EnumFacing facing)
     {
         this.posX = x;
         this.posY = y;
         this.posZ = z;
         this.dimension = dim;
-        this.face = face;
-        this.side = EnumFacing.getFront(face);
+        this.facing = facing != null ? facing : EnumFacing.DOWN;
+    }
+
+    public int getX()
+    {
+        return this.posX;
+    }
+
+    public int getY()
+    {
+        return this.posY;
+    }
+
+    public int getZ()
+    {
+        return this.posZ;
+    }
+
+    public int getDimension()
+    {
+        return this.dimension;
+    }
+
+    public EnumFacing getFacing()
+    {
+        return this.facing;
     }
 
     public BlockPosEU add(BlockPosEU pos)
@@ -57,23 +80,22 @@ public class BlockPosEU
         return this.add(pos.posX, pos.posY, pos.posZ);
     }
 
+    public BlockPosEU subtract(BlockPosEU other)
+    {
+        return this.add(-other.posX, -other.posY, -other.posZ);
+    }
+
     /**
-     * Add the given offsets to the position.
-     * Returns a new instance with the changes applied and does not modify the original.
+     * Add the given offsets to the position. Keeps the same dimension and facing.
      */
     public BlockPosEU add(int x, int y, int z)
     {
-        return new BlockPosEU(this.posX + x, this.posY + y, this.posZ + z, this.dimension, this.face);
-    }
-
-    public BlockPosEU subtract(BlockPosEU other)
-    {
-        if (other.posX == 0 && other.posY == 0 && other.posZ == 0)
+        if (x == 0 && y == 0 && z == 0)
         {
             return this;
         }
 
-        return new BlockPosEU(this.posX - other.posX, this.posY - other.posY, this.posZ - other.posZ);
+        return new BlockPosEU(this.posX + x, this.posY + y, this.posZ + z, this.dimension, this.facing);
     }
 
     public BlockPosEU offset(EnumFacing facing)
@@ -90,7 +112,7 @@ public class BlockPosEU
         return new BlockPosEU(  this.posX + facing.getFrontOffsetX() * distance,
                                 this.posY + facing.getFrontOffsetY() * distance,
                                 this.posZ + facing.getFrontOffsetZ() * distance,
-                                this.dimension, this.face);
+                                this.dimension, this.facing);
     }
 
     public boolean isWithinDistance(Entity entity, double maxDist)
@@ -104,7 +126,7 @@ public class BlockPosEU
         double dy = pos.yCoord - this.posY;
         double dz = pos.zCoord - this.posZ;
 
-        return this.dimension == dimension && (dx * dx + dy * dy + dz * dz) <= maxDist * maxDist;
+        return this.dimension == dimension && (dx * dx + dy * dy + dz * dz) <= (maxDist * maxDist);
     }
 
     public BlockPosEU clampCoordsToWorldBounds()
@@ -113,7 +135,7 @@ public class BlockPosEU
         int y = MathHelper.clamp(this.posY, 0, 255);
         int z = MathHelper.clamp(this.posZ, -30000000, 30000000);
 
-        return new BlockPosEU(x, y, z, this.dimension, this.face);
+        return new BlockPosEU(x, y, z, this.dimension, this.facing);
     }
 
     public BlockPos toBlockPos()
@@ -127,7 +149,7 @@ public class BlockPosEU
         tag.setInteger("posY", this.posY);
         tag.setInteger("posZ", this.posZ);
         tag.setInteger("dim", this.dimension);
-        tag.setByte("face", (byte)this.face);
+        tag.setByte("face", (byte) this.facing.getIndex());
 
         return tag;
     }
@@ -162,7 +184,7 @@ public class BlockPosEU
         int dim = tag.getInteger("dim");
         int face = tag.getByte("face");
 
-        return new BlockPosEU(x, y, z, dim, face);
+        return new BlockPosEU(x, y, z, dim, EnumFacing.getFront(face));
     }
 
     public static BlockPosEU readFromNBT(NBTTagCompound nbt)
@@ -207,7 +229,7 @@ public class BlockPosEU
         final int prime = 31;
         int result = 1;
         result = prime * result + dimension;
-        result = prime * result + face;
+        result = prime * result + facing.getIndex();
         result = prime * result + posX;
         result = prime * result + posY;
         result = prime * result + posZ;
@@ -225,7 +247,7 @@ public class BlockPosEU
         BlockPosEU other = (BlockPosEU) obj;
         if (dimension != other.dimension)
             return false;
-        if (face != other.face)
+        if (facing != other.facing)
             return false;
         if (posX != other.posX)
             return false;
@@ -239,7 +261,7 @@ public class BlockPosEU
     @Override
     public String toString()
     {
-        return String.format("BlockPosEU:{x: %d, y: %d, z: %d, dim: %d, face: %d}", this.posX, this.posY, this.posZ, this.dimension, this.face);
+        return String.format("BlockPosEU:{x: %d, y: %d, z: %d, dim: %d, face: %d}", this.posX, this.posY, this.posZ, this.dimension, this.facing);
         //return "BlockPosEU:{x:" + this.posX + ",y:" + this.posY + ",z:" + this.posZ + "dim:" + this.dimension + ",face:" + this.face + "}";
     }
 }

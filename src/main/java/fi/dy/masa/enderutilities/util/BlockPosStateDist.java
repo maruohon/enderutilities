@@ -10,18 +10,18 @@ public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPos
 
     public BlockPosStateDist(BlockPosEU pos, BlockInfo blockInfo)
     {
-        this(pos.posX, pos.posY, pos.posZ, pos.dimension, pos.face, blockInfo);
+        this(pos.getX(), pos.getY(), pos.getZ(), pos.getDimension(), pos.getFacing(), blockInfo);
     }
 
-    public BlockPosStateDist(BlockPos pos, int dim, EnumFacing side, BlockInfo blockInfo)
+    public BlockPosStateDist(BlockPos pos, int dim, EnumFacing facing, BlockInfo blockInfo)
     {
-        super(pos, dim, side);
+        super(pos, dim, facing);
         this.blockInfo = blockInfo;
     }
 
-    public BlockPosStateDist(int x, int y, int z, int dim, int face, BlockInfo blockInfo)
+    public BlockPosStateDist(int x, int y, int z, int dim, EnumFacing facing, BlockInfo blockInfo)
     {
-        super(x, y, z, dim, face);
+        super(x, y, z, dim, facing);
         this.blockInfo = blockInfo;
     }
 
@@ -32,7 +32,7 @@ public class BlockPosStateDist extends BlockPosEU implements Comparable<BlockPos
 
     public double getSquaredDistanceFrom(double x, double y, double z)
     {
-        return (x - this.posX) * (x - this.posX) + (y - this.posY) * (y - this.posY) + (z - this.posZ) * (z - this.posZ);
+        return (x - this.getX()) * (x - this.getX()) + (y - this.getY()) * (y - this.getY()) + (z - this.getZ()) * (z - this.getZ());
     }
 
     @Override

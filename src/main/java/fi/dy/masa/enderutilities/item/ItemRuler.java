@@ -181,8 +181,8 @@ public class ItemRuler extends ItemModular
             if (posStart != null && posEnd != null)
             {
                 list.add(String.format("x: %s%d%s y: %s%d%s z: %s%d%s ... x: %s%d%s y: %s%d%s z: %s%d%s",
-                        preBlue, posStart.posX, rst, preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst,
-                        preBlue, posEnd.posX, rst, preBlue, posEnd.posY, rst, preBlue, posEnd.posZ, rst));
+                        preBlue, posStart.getX(), rst, preBlue, posStart.getY(), rst, preBlue, posStart.getZ(), rst,
+                        preBlue, posEnd.getX(), rst, preBlue, posEnd.getY(), rst, preBlue, posEnd.getZ(), rst));
             }
 
             return;
@@ -191,15 +191,15 @@ public class ItemRuler extends ItemModular
         if (posStart != null)
         {
             str = I18n.format("enderutilities.tooltip.item.start");
-            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posStart.posX, rst,
-                    preBlue, posStart.posY, rst, preBlue, posStart.posZ, rst));
+            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posStart.getX(), rst,
+                    preBlue, posStart.getY(), rst, preBlue, posStart.getZ(), rst));
         }
 
         if (posEnd != null)
         {
             str = I18n.format("enderutilities.tooltip.item.end");
-            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posEnd.posX, rst,
-                    preBlue, posEnd.posY, rst, preBlue, posEnd.posZ, rst));
+            list.add(str + String.format(": x: %s%d%s, y: %s%d%s, z: %s%d%s", preBlue, posEnd.getX(), rst,
+                    preBlue, posEnd.getY(), rst, preBlue, posEnd.getZ(), rst));
         }
 
         str = I18n.format("enderutilities.tooltip.item.mode") + ": ";
@@ -399,7 +399,7 @@ public class ItemRuler extends ItemModular
                 index = this.getLocationSelection(rulerStack);
             }
 
-            String tagName = isPos1 == true ? "Pos1" : "Pos2";
+            String tagName = isPos1 ? "Pos1" : "Pos2";
             NBTTagCompound tag = tagList.getCompoundTagAt(index);
 
             return BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
@@ -415,15 +415,17 @@ public class ItemRuler extends ItemModular
     public void setOrRemovePosition(ItemStack rulerStack, BlockPosEU pos, boolean isPos1, boolean adjustPosition)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
+
         if (moduleStack != null)
         {
-            if (adjustPosition == true)
+            if (adjustPosition)
             {
-                pos = pos.offset(pos.side, 1);
+                pos = pos.offset(pos.getFacing());
             }
 
             int selected = this.getLocationSelection(rulerStack);
             NBTTagList tagList = NBTUtils.getTagList(moduleStack, TAG_WRAPPER, TAG_LOCATIONS, Constants.NBT.TAG_COMPOUND, true);
+
             if (selected >= tagList.tagCount())
             {
                 tagList.appendTag(new NBTTagCompound());
@@ -433,7 +435,7 @@ public class ItemRuler extends ItemModular
             String tagName = isPos1 == true ? "Pos1" : "Pos2";
             BlockPosEU oldPos = BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
 
-            if (pos == null || pos.equals(oldPos) == true)
+            if (pos == null || pos.equals(oldPos))
             {
                 tag.removeTag(tagName);
             }

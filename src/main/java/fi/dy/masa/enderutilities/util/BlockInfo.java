@@ -50,7 +50,7 @@ public class BlockInfo
         Block block = state.getBlock();
         @SuppressWarnings("deprecation")
         ItemStack stack = block.getItem(world, pos, state);
-        return new BlockInfo(state, stateActual, block, block.getMetaFromState(state), stack != null ? stack.getMetadata() : 0);
+        return new BlockInfo(state, stateActual, block, block.getMetaFromState(state), stack.isEmpty() == false ? stack.getMetadata() : 0);
     }
 
     @Override
