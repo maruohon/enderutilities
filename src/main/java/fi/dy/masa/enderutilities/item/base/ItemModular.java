@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
-import java.util.List;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -28,7 +26,7 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     @Override
     public int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             UtilItemModular.getSelectedModuleTierAbs(containerStack, moduleType);
         }
@@ -39,7 +37,7 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     @Override
     public ItemStack getSelectedModuleStack(ItemStack containerStack, ModuleType moduleType)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             return UtilItemModular.getSelectedModuleStackAbs(containerStack, moduleType);
         }
@@ -50,7 +48,7 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     @Override
     public boolean setSelectedModuleStack(ItemStack containerStack, ModuleType moduleType, ItemStack moduleStack)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             return UtilItemModular.setSelectedModuleStackAbs(containerStack, moduleType, moduleStack);
         }
@@ -61,29 +59,11 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     @Override
     public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        if (this.useAbsoluteModuleIndexing(containerStack) == true)
+        if (this.useAbsoluteModuleIndexing(containerStack))
         {
             return UtilItemModular.changeSelectedModuleAbs(containerStack, moduleType, reverse);
         }
 
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
-    }
-
-    @Override
-    public List<NBTTagCompound> getAllModules(ItemStack containerStack)
-    {
-        return UtilItemModular.getAllModules(containerStack);
-    }
-
-    @Override
-    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
-    {
-        return UtilItemModular.setAllModules(containerStack, modules);
-    }
-
-    @Override
-    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
-    {
-        return UtilItemModular.setModule(containerStack, index, nbt);
     }
 }

@@ -146,7 +146,7 @@ public class EntityUtils
 
     /**
      * Returns the index of the BB in the given list that the given entity is currently looking at.
-     * @return the list index of the pointed box, or -1 of no hit was detected
+     * @return the list index of the pointed box, or null of no hit was detected
      */
     public static <T> T getPointedBox(Entity entity, double reach, Map<T, AxisAlignedBB> boxes, float partialTicks)
     {
@@ -158,7 +158,7 @@ public class EntityUtils
 
     /**
      * Returns the index of the BB in the given list that the given vectors are currently pointing at.
-     * @return the list index of the pointed box, or -1 of no hit was detected
+     * @return the list index of the pointed box, or null of no hit was detected
      */
     @Nullable
     public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
@@ -197,54 +197,56 @@ public class EntityUtils
 
     public static boolean isHoldingItem(EntityLivingBase entity, Item item)
     {
-        return getHeldItemOfType(entity, item) != null;
+        return getHeldItemOfType(entity, item).isEmpty() == false;
     }
 
     public static ItemStack getHeldItemOfType(EntityLivingBase entity, Item item)
     {
         ItemStack stack = entity.getHeldItemMainhand();
-        if (stack != null && stack.getItem() == item)
+
+        if (stack.isEmpty() == false && stack.getItem() == item)
         {
             return stack;
         }
 
         stack = entity.getHeldItemOffhand();
-        if (stack != null && stack.getItem() == item)
+
+        if (stack.isEmpty() == false && stack.getItem() == item)
         {
             return stack;
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public static boolean isHoldingItemOfType(EntityLivingBase entity, Class<?> clazz)
     {
-        return getHeldItemOfType(entity, clazz) != null;
+        return getHeldItemOfType(entity, clazz).isEmpty() == false;
     }
 
     public static ItemStack getHeldItemOfType(EntityLivingBase entity, Class<?> clazz)
     {
         ItemStack stack = entity.getHeldItemMainhand();
-        if (stack != null)
+
+        if (stack.isEmpty() == false)
         {
-            Item item = stack.getItem();
-            if (item != null && clazz.isAssignableFrom(item.getClass()))
+            if (clazz.isAssignableFrom(stack.getItem().getClass()))
             {
                 return stack;
             }
         }
 
         stack = entity.getHeldItemOffhand();
-        if (stack != null)
+
+        if (stack.isEmpty() == false)
         {
-            Item item = stack.getItem();
-            if (item != null && clazz.isAssignableFrom(item.getClass()))
+            if (clazz.isAssignableFrom(stack.getItem().getClass()))
             {
                 return stack;
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public static EnumFacing getLookingDirection(Entity entity)
@@ -324,6 +326,7 @@ public class EntityUtils
     public static EnumFacing getClosestLookingDirectionNotOnAxis(Entity entity, EnumFacing notOnAxis)
     {
         EnumFacing facing = getClosestLookingDirection(entity);
+
         if (facing == notOnAxis || facing.getOpposite() == notOnAxis)
         {
             if (notOnAxis == EnumFacing.UP || notOnAxis == EnumFacing.DOWN)
@@ -500,13 +503,6 @@ public class EntityUtils
 
     public static Entity getBottomEntity(Entity entity)
     {
-        /*Entity ent;
-
-        for (ent = entity; ent.isRiding(); ent = ent.getRidingEntity())
-        {
-        }
-
-        return ent;*/
         return entity.getLowestRidingEntity();
     }
 
@@ -515,12 +511,12 @@ public class EntityUtils
      */
     public static Entity getTopEntity(Entity entity)
     {
-        Entity ent;
-        for (ent = entity; ent.isBeingRidden(); ent = ent.getPassengers().get(0))
+        while (entity.isBeingRidden())
         {
+            entity = entity.getPassengers().get(0);
         }
 
-        return ent;
+        return entity;
     }
 
     /**
@@ -829,6 +825,7 @@ public class EntityUtils
             double r = 1.0d;
             // Check that there aren't already Ender Crystals nearby
             List<EntityEnderCrystal> entities = world.getEntitiesWithinAABB(EntityEnderCrystal.class, new AxisAlignedBB(x - r, y - r, z - r, x + r, y + r, z + r));
+
             if (entities.isEmpty() == false)
             {
                 return false;
@@ -1094,7 +1091,7 @@ public class EntityUtils
      */
     public static void dropItemStacksInWorld(World worldIn, Vec3d pos, ItemStack stack, int amountOverride, boolean dropFullStacks, boolean randomMotion)
     {
-        int amount = stack.stackSize;
+        int amount = stack.getCount();
         int max = stack.getMaxStackSize();
         int num = max;
 
@@ -1111,9 +1108,10 @@ public class EntityUtils
             }
 
             num = Math.min(num, amount);
-            ItemStack dropStack = stack.copy();
-            dropStack.stackSize = num;
             amount -= num;
+
+            ItemStack dropStack = stack.copy();
+            dropStack.setCount(num);
 
             EntityItem entityItem = new EntityItem(worldIn, pos.xCoord, pos.yCoord, pos.zCoord, dropStack);
 

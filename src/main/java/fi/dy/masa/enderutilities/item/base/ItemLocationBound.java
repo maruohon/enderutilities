@@ -71,7 +71,8 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     public String getBaseItemDisplayName(ItemStack stack)
     {
         String itemName = super.getBaseItemDisplayName(stack);
-        if (itemName.length() >= 14 && this.shouldDisplayTargetName(stack) == true)
+
+        if (itemName.length() >= 14 && this.shouldDisplayTargetName(stack))
         {
             itemName = EUStringUtils.getInitialsWithDots(itemName);
         }
@@ -82,7 +83,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public boolean shouldDisplayTargetName(ItemStack stack)
     {
-        if (stack.hasDisplayName() == true)
+        if (stack.hasDisplayName())
         {
             return false;
         }
@@ -101,7 +102,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (this.shouldDisplayTargetName(stack) == true)
+        if (this.shouldDisplayTargetName(stack))
         {
             String targetName = this.getTargetDisplayName(stack);
             String pre = TextFormatting.GREEN.toString();
@@ -133,12 +134,16 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             boolean showBlock = false;
             String blockName = "";
             Item item = stack.getItem();
+
             // Show the target block info for block type link crystals
-            if (item instanceof IModule && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_LINKCRYSTAL) && ((IModule)item).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
+            if (item instanceof IModule &&
+                ((IModule) item).getModuleType(stack).equals(ModuleType.TYPE_LINKCRYSTAL) &&
+                ((IModule) item).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK)
             {
                 Block block = Block.getBlockFromName(target.blockName);
                 ItemStack targetStack = new ItemStack(block, 1, target.itemMeta);
-                if (targetStack != null && targetStack.getItem() != null)
+
+                if (targetStack.isEmpty() == false)
                 {
                     blockName = targetStack.getDisplayName();
                     showBlock = true;
@@ -149,6 +154,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             if (verbose)
             {
                 String s = I18n.format("enderutilities.tooltip.dimension") + ": " + preBlue + target.dimension + rst;
+
                 if (dimName.length() > 0)
                 {
                     s = s + " - " + preDGreen + dimName + rst;
@@ -164,6 +170,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 if (showBlock)
                 {
                     list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
+
                     if (advancedTooltips)
                     {
                         list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
@@ -174,6 +181,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             else
             {
                 String s = preDGreen + dimName + rst;
+
                 if (dimName.length() == 0)
                 {
                     s = I18n.format("enderutilities.tooltip.dimension.compact") + ": " + preBlue + target.dimension + rst;
@@ -256,7 +264,8 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         double hitY = player.posY - pos.getY();
         double hitZ = player.posZ - pos.getZ();
         //System.out.printf("x: %d y: %d z: %d hit: %.3f %.3f %.3f\n", x, y, z, hitX, hitY, hitZ);
-        boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+        boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL &&
+                ((ItemLinkCrystal) stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
 
         this.setTarget(stack, player, pos, EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }

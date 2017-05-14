@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.item.part;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -63,7 +62,7 @@ public class ItemEnderPart extends ItemModule
     {
         int damage = stack.getMetadata();
 
-        switch(damage)
+        switch (damage)
         {
             case 0: // Damage 0: Ender Alloy (Basic)
             case 1: // Damage 1: Ender Alloy (Enhanced)
@@ -128,13 +127,14 @@ public class ItemEnderPart extends ItemModule
         ItemStack stack = player.getHeldItem(hand);
 
         // Ender Relic
-        if (stack != null && stack.getMetadata() == 40)
+        if (stack.getMetadata() == 40 && EntityUtils.spawnEnderCrystal(world, pos))
         {
-            if (EntityUtils.spawnEnderCrystal(world, pos))
+            if (player.capabilities.isCreativeMode == false)
             {
-                stack.stackSize--;
-                return EnumActionResult.SUCCESS;
+                stack.shrink(1);
             }
+
+            return EnumActionResult.SUCCESS;
         }
 
         return EnumActionResult.PASS;
@@ -145,7 +145,7 @@ public class ItemEnderPart extends ItemModule
     {
         ItemStack stack = playerIn.getHeldItem(hand);
 
-        if (worldIn.isRemote == false && stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
+        if (worldIn.isRemote == false && this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
             if (playerIn.isSneaking())
             {
@@ -166,13 +166,13 @@ public class ItemEnderPart extends ItemModule
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase livingBase, EnumHand hand)
     {
         // Jailer module
-        if (stack != null && this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
+        if (this.getModuleType(stack).equals(ModuleType.TYPE_MOBPERSISTENCE))
         {
             if (livingBase instanceof EntityLiving && EntityUtils.applyMobPersistence((EntityLiving)livingBase))
             {
-                if (player.getEntityWorld().isRemote == false)
+                if (player.getEntityWorld().isRemote == false && player.capabilities.isCreativeMode == false)
                 {
-                    stack.stackSize--;
+                    stack.shrink(1);
                 }
 
                 return true;
@@ -192,14 +192,17 @@ public class ItemEnderPart extends ItemModule
 
         // Set to private and not the owner
         OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
+
         if (ownerData != null && ownerData.canAccess(player) == false)
         {
-            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst, preRed, I18n.format("enderutilities.tooltip.item.private"), rst));
+            list.add(String.format("%s: %s%s%s - %s%s%s", strOwner, preWh, ownerData.getOwnerName(), rst,
+                    preRed, I18n.format("enderutilities.tooltip.item.private"), rst));
             return;
         }
 
         int meta = stack.getMetadata();
         NBTTagCompound nbt = stack.getTagCompound();
+
         if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags()))
         {
             list.add(I18n.format("enderutilities.tooltip.item.memorycard.nodata"));
@@ -210,9 +213,11 @@ public class ItemEnderPart extends ItemModule
         {
             ArrayList<String> listDataTypes = new ArrayList<String>();
             Iterator<String> iter = nbt.getKeySet().iterator();
+
             while (iter.hasNext())
             {
                 String key = iter.next();
+
                 if (key != null && key.equals("display") == false && key.equals("RepairCost") == false)
                 {
                     listDataTypes.add("  " + key);
@@ -233,6 +238,7 @@ public class ItemEnderPart extends ItemModule
         {
             ArrayList<String> lines = new ArrayList<String>();
             int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines, 20);
+
             if (lines.size() > 0)
             {
                 NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
@@ -259,7 +265,8 @@ public class ItemEnderPart extends ItemModule
     {
         int meta = stack.getMetadata();
         // Inactive Ender Cores
-        if (stack != null && meta >= 10 && meta <= 12)
+
+        if (meta >= 10 && meta <= 12)
         {
             // "Activate" the Ender Core (ie. change the item)
             stack.setItemDamage(meta + 5);
@@ -270,6 +277,7 @@ public class ItemEnderPart extends ItemModule
     public ModuleType getModuleType(ItemStack stack)
     {
         int meta = stack.getMetadata();
+
         // Inactive Ender Cores
         // Active Ender Cores
         if ((meta >= 10 && meta <= 12) ||
@@ -309,6 +317,7 @@ public class ItemEnderPart extends ItemModule
     public int getModuleTier(ItemStack stack)
     {
         int meta = stack.getMetadata();
+
         // Inactive Ender Cores
         if (meta >= 10 && meta <= 12)
         {
@@ -343,6 +352,7 @@ public class ItemEnderPart extends ItemModule
         if (this.getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
             int tier = meta - 51;
+
             switch (tier)
             {
                 case 0: return MEMORY_CARD_TYPE_ITEMS_6B;
@@ -355,9 +365,9 @@ public class ItemEnderPart extends ItemModule
         return -1; // Invalid item (= non-module)
     }
 
-    public static boolean itemMatches(@Nullable ItemStack stack, ItemPartType type)
+    public static boolean itemMatches(ItemStack stack, ItemPartType type)
     {
-        return stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == type.getMeta();
+        return stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == type.getMeta();
     }
 
     public enum ItemPartType

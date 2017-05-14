@@ -76,7 +76,8 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     public String getTargetDisplayName(ItemStack stack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack != null && moduleStack.getItem() instanceof ILocationBound)
+
+        if (moduleStack.isEmpty() == false && moduleStack.getItem() instanceof ILocationBound)
         {
             if (moduleStack.hasDisplayName())
             {
@@ -120,7 +121,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         // Link Crystals installed
-        if (linkCrystalStack != null)
+        if (linkCrystalStack.isEmpty() == false)
         {
             // Valid target set in the currently selected Link Crystal
             if (TargetData.itemHasTargetTag(linkCrystalStack))
@@ -183,13 +184,16 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             if (this.getMaxModules(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
             {
                 String s;
+
                 if (this.getInstalledModuleCount(stack, ModuleType.TYPE_MOBPERSISTENCE) > 0)
                 {
-                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " + TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.jailer") + ": " +
+                            TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);
@@ -200,11 +204,13 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
                 String s;
                 if (this.isBindLocked(stack))
                 {
-                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " + TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " +
+                            TextFormatting.GREEN + I18n.format("enderutilities.tooltip.item.yes") + rst;
                 }
                 else
                 {
-                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " + TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
+                    s = I18n.format("enderutilities.tooltip.item.bindlocked") + ": " +
+                            TextFormatting.RED + I18n.format("enderutilities.tooltip.item.no") + rst;
                 }
 
                 list.add(s);
@@ -212,9 +218,10 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
             // Ender Capacitor charge, if one has been installed
             ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-            if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+
+            if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {
-                ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
+                ((ItemEnderCapacitor) capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
             }
         }
     }
@@ -314,7 +321,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }
@@ -379,23 +386,5 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         }
 
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
-    }
-
-    @Override
-    public List<NBTTagCompound> getAllModules(ItemStack containerStack)
-    {
-        return UtilItemModular.getAllModules(containerStack);
-    }
-
-    @Override
-    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
-    {
-        return UtilItemModular.setAllModules(containerStack, modules);
-    }
-
-    @Override
-    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
-    {
-        return UtilItemModular.setModule(containerStack, index, nbt);
     }
 }

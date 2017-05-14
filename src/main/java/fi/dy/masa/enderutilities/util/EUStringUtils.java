@@ -11,7 +11,7 @@ public class EUStringUtils
 
     public static String getStackSizeString(ItemStack stack, int maxChars)
     {
-        return formatNumber(stack.stackSize, 9999, maxChars);
+        return formatNumber(stack.getCount(), 9999, maxChars);
     }
 
     public static String formatNumber(long value, long maxUnformatted, int maxChars)

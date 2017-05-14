@@ -95,7 +95,7 @@ public class BlockUtils
         {
             ItemStack stack = BlockUtils.getPickBlockItemStack(world, pos, player, side);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 if (addToInventory)
                 {
@@ -107,7 +107,7 @@ public class BlockUtils
                     }
                 }
 
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     EntityUtils.dropItemStacksInWorld(world, pos, stack, -1, true);
                 }
@@ -210,7 +210,7 @@ public class BlockUtils
     public static ItemStack getSilkTouchDrop(IBlockState state)
     {
         Block block = state.getBlock();
-        ItemStack stack = null;
+        ItemStack stack = ItemStack.EMPTY;
 
         try
         {

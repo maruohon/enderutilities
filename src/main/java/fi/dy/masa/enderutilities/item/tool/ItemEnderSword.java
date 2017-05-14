@@ -85,9 +85,9 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         return SwordMode.fromStack(stack) == SwordMode.REMOTE ? super.getItemStackDisplayName(stack) : this.getBaseItemDisplayName(stack);
     }
 
-    public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
+    private boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
-        if (stack == null || this.isToolBroken(stack))
+        if (this.isToolBroken(stack))
         {
             return false;
         }
@@ -136,12 +136,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
 
     public boolean isToolBroken(ItemStack stack)
     {
-        if (stack == null || stack.getItemDamage() >= this.getMaxDamage(stack))
-        {
-            return true;
-        }
-
-        return false;
+        return stack.getItemDamage() >= this.getMaxDamage(stack);
     }
 
     @Override
@@ -158,6 +153,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         }
 
         Material material = state.getMaterial();
+
         if (material == Material.PLANTS ||
             material == Material.VINE ||
             material == Material.CORAL ||
@@ -235,14 +231,15 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         TargetData target = TargetData.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
-        if (OwnerData.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-            || (target.dimension != player.dimension &&
+        if (OwnerData.canAccessSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL, player) == false ||
+            (target.dimension != player.dimension &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
         {
             return itemsIn;
         }
 
         World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+
         if (targetWorld == null)
         {
             return itemsIn;
@@ -258,7 +255,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         if (targetWorld.spawnEntity(entityItem))
         {
             Effects.spawnParticles(targetWorld, EnumParticleTypes.PORTAL, target.dPosX, target.dPosY, target.dPosZ, 3, 0.2d, 1.0d);
-            return null;
+            return ItemStack.EMPTY;
         }
 
         return itemsIn;
@@ -266,12 +263,11 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
 
     public void handleLivingDropsEvent(ItemStack toolStack, LivingDropsEvent event)
     {
-        if (event.getEntity().getEntityWorld().isRemote || this.isToolBroken(toolStack) || event.getDrops() == null || event.getDrops().size() == 0)
+        if (event.getEntity().getEntityWorld().isRemote || this.isToolBroken(toolStack) ||
+            event.getDrops() == null || event.getDrops().size() == 0)
         {
             return;
         }
-
-        List<EntityItem> drops = event.getDrops();
 
         SwordMode mode = SwordMode.fromStack(toolStack);
         // 3 modes: 0 = normal; 1 = drops to player's inventory; 2 = drops to Link Crystals target; 3 = summon Ender Fighters
@@ -281,16 +277,18 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
             return;
         }
 
-        boolean transported = false;
+        List<EntityItem> drops = event.getDrops();
         EntityPlayer player = (EntityPlayer)event.getSource().getSourceOfDamage();
         Iterator<EntityItem> iter = drops.iterator();
         IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
+        boolean transported = false;
 
         while (iter.hasNext())
         {
             EntityItem item = iter.next();
             ItemStack stack = item.getEntityItem();
-            if (stack == null || stack.getItem() == null)
+
+            if (stack.isEmpty())
             {
                 iter.remove();
                 continue;
@@ -304,7 +302,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
                 MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item)))
             {
                 Effects.addItemTeleportEffects(player.getEntityWorld(), player.getPosition());
-                stackTmp = null;
+                stackTmp = ItemStack.EMPTY;
             }
             else if (inv != null)
             {
@@ -313,17 +311,17 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
             // Location type Link Crystal, teleport/spawn the drops as EntityItems to the target spot
             else if (this.getSelectedModuleTier(toolStack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_LOCATION)
             {
-                stackTmp = this.tryTeleportItems(stack, toolStack, player);
+                stackTmp = this.tryTeleportItems(stack.copy(), toolStack, player);
             }
 
-            if (stackTmp == null || stackTmp.stackSize <= 0)
+            if (stackTmp.isEmpty())
             {
                 iter.remove();
                 transported = true;
             }
-            else if (stackTmp.stackSize != stack.stackSize)
+            else if (stackTmp.getCount() != stack.getCount())
             {
-                stack.stackSize = stackTmp.stackSize;
+                stack.setCount(stackTmp.getCount());
                 item.setEntityItemStack(stack);
                 transported = true;
             }
@@ -349,12 +347,13 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         if (drops.size() > 0)
         {
             iter = drops.iterator();
+
             while (iter.hasNext())
             {
                 EntityItem item = iter.next();
                 MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item));
 
-                if (item.isDead || item.getEntityItem() == null || item.getEntityItem().stackSize <= 0)
+                if (item.isDead || item.getEntityItem().isEmpty())
                 {
                     iter.remove();
                 }
@@ -407,6 +406,12 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     public boolean canHarvestBlock(IBlockState state, ItemStack stack)
     {
         return state.getBlock() == Blocks.WEB;
+    }
+
+    @Override
+    public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player)
+    {
+        return false;
     }
 
     @Override
@@ -483,7 +488,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }
@@ -529,6 +534,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
 
         // Installed Ender Core type
         str = I18n.format("enderutilities.tooltip.item.endercore") + ": ";
+
         if (coreTier >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC && coreTier <= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
             String coreType = (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC ? "enderutilities.tooltip.item.basic" :
@@ -546,13 +552,14 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         list.add(str);
 
         // Link Crystals installed
-        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+        if (linkCrystalStack.isEmpty() == false && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
         {
             String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+
             // Valid target set in the currently selected Link Crystal
             if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
-                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+                ((ItemLinkCrystal) linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
             else
             {
@@ -571,9 +578,9 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         }
 
         // Capacitor installed
-        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
         {
-            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+            ((ItemEnderCapacitor) capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
         }
     }
 

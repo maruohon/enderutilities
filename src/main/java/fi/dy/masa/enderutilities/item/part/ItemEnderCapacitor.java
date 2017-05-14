@@ -163,15 +163,8 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);
 
-        list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
-        /*if (EnderUtilities.proxy.isShiftKeyDown())
-        {
-            list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
-        }
-        else
-        {
-            list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " + EUStringUtils.formatNumberFloorWithPostfix(charge) + " / " + EUStringUtils.formatNumberFloorWithPostfix(capacity));
-        }*/
+        list.add(I18n.format("enderutilities.tooltip.item.charge") + ": " +
+                    EUStringUtils.formatNumberWithKSeparators(charge) + " / " + EUStringUtils.formatNumberWithKSeparators(capacity));
     }
 
     @Override

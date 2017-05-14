@@ -1,8 +1,6 @@
 package fi.dy.masa.enderutilities.item.base;
 
-import java.util.List;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 
 public interface IModular
@@ -80,28 +78,4 @@ public interface IModular
      * @return
      */
     public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse);
-
-    /**
-     * Returns a list of all the installed modules.
-     * @param containerStack
-     * @return
-     */
-    public List<NBTTagCompound> getAllModules(ItemStack containerStack);
-
-    /**
-     * Sets the modules to the ones provided in the list.
-     * @param containerStack
-     * @param modules
-     * @return
-     */
-    public boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules);
-
-    /**
-     * Sets the module indicated by the position in 'index' to the one provided in moduleStack.
-     * @param containerStack
-     * @param index
-     * @param moduleStack
-     * @return
-     */
-    public boolean setModule(ItemStack containerStack, int index, NBTTagCompound moduleStack);
 }

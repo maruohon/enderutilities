@@ -111,6 +111,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     public String getUnlocalizedName(ItemStack stack)
     {
         ToolType toolType = ToolType.fromStack(stack);
+
         if (toolType != ToolType.INVALID)
         {
             return super.getUnlocalizedName() + "_" + toolType.getName();
@@ -184,13 +185,14 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         int slot = -1;
 
         ItemStack targetStack = playerIn.getHeldItemOffhand();
-        if (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false)
+
+        if (targetStack.isEmpty() || (targetStack.getItem() instanceof ItemBlock) == false)
         {
             slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
             targetStack = playerIn.inventory.getStackInSlot(slot);
 
             // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
-            if (origSlot == 0 && (targetStack == null || (targetStack.getItem() instanceof ItemBlock) == false))
+            if (origSlot == 0 && (targetStack.isEmpty() || (targetStack.getItem() instanceof ItemBlock) == false))
             {
                 slot = InventoryPlayer.getHotbarSize() - 1;
                 targetStack = playerIn.inventory.getStackInSlot(slot);
@@ -198,29 +200,33 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         // If the target stack is an ItemBlock, we try to place that in the world
-        if (targetStack != null && targetStack.getItem() instanceof ItemBlock)
+        if (targetStack.isEmpty() == false && targetStack.getItem() instanceof ItemBlock)
         {
             // Check if we can place the block
-            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock)targetStack.getItem()).block))
+            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock) targetStack.getItem()).block))
             {
                 EnumActionResult result;
+
                 // Off-hand
                 if (slot == -1)
                 {
                     result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.OFF_HAND);
-                    if (targetStack.stackSize <= 0)
+
+                    if (targetStack.isEmpty())
                     {
-                        playerIn.setHeldItem(EnumHand.OFF_HAND, null);
+                        playerIn.setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
                     }
                 }
                 else
                 {
                     playerIn.inventory.currentItem = slot;
                     result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND);
-                    if (targetStack.stackSize <= 0)
+
+                    if (targetStack.isEmpty())
                     {
-                        playerIn.inventory.setInventorySlotContents(slot, null);
+                        playerIn.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
                     }
+
                     playerIn.inventory.currentItem = origSlot;
                 }
 
@@ -289,13 +295,10 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             }
             else if (block == Blocks.DIRT)
             {
-                if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT)
+                if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT ||
+                    state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.COARSE_DIRT)
                 {
                     newBlockState = Blocks.FARMLAND.getDefaultState();
-                }
-                else if (state.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.COARSE_DIRT)
-                {
-                    newBlockState = Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT);
                 }
                 else
                 {
@@ -307,15 +310,16 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 return false;
             }
 
-            world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
-                    SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
-
-            if (world.isRemote == false)
+            if (world.isRemote == false && newBlockState != null)
             {
-                world.setBlockState(pos, newBlockState);
+                world.setBlockState(pos, newBlockState, 3);
                 // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
                 world.notifyBlockUpdate(pos, state, state, 3);
+
                 this.addToolDamage(stack, 1, player, player);
+
+                world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
+                        SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
             }
 
             return true;
@@ -384,10 +388,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         boolean ret = false;
         ItemStack plantStack = inv.getStackInSlot(slot);
 
-        if (plantStack != null && plantStack.getItem() instanceof IPlantable)
+        if (plantStack.isEmpty() == false && plantStack.getItem() instanceof IPlantable)
         {
             plantStack = inv.extractItem(slot, 1, false);
-            if (plantStack == null)
+
+            if (plantStack.isEmpty())
             {
                 return false;
             }
@@ -397,9 +402,14 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 ret = true;
             }
 
-            if (plantStack.stackSize > 0)
+            if (plantStack.isEmpty() == false)
             {
-                inv.insertItem(slot, plantStack, false);
+                plantStack = InventoryUtils.tryInsertItemStackToInventory(inv, plantStack);
+
+                if (plantStack.isEmpty() == false)
+                {
+                    player.dropItem(plantStack, false, true);
+                }
             }
 
             if (inv instanceof PlayerMainInvWrapper && player instanceof EntityPlayerMP)
@@ -478,10 +488,10 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         return NBTUtils.getShort(stack, null, "ToolDamage") >= this.material.getMaxUses();
     }
 
-    public boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
+    private boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         //System.out.println("addToolDamage(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
-        if (stack == null || this.isToolBroken(stack))
+        if (this.isToolBroken(stack))
         {
             return false;
         }
@@ -661,6 +671,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
+
         if (inv != null)
         {
             Iterator<ItemStack> iter = drops.iterator();
@@ -668,17 +679,19 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             while (iter.hasNext())
             {
                 ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
+
+                if (stack.isEmpty() == false && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
                 {
                     ItemStack stackTmp = InventoryUtils.tryInsertItemStackToInventory(inv, stack.copy());
-                    if (stackTmp == null)
+
+                    if (stackTmp.isEmpty())
                     {
                         iter.remove();
                         transported = true;
                     }
-                    else if (stackTmp.stackSize != stack.stackSize)
+                    else if (stackTmp.getCount() != stack.getCount())
                     {
-                        stack.stackSize = stackTmp.stackSize;
+                        stack.setCount(stackTmp.getCount());
                         transported = true;
                     }
                 }
@@ -698,6 +711,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             }
 
             World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+
             if (targetWorld == null)
             {
                 return;
@@ -707,10 +721,12 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, target.dimension, target.pos.getX() >> 4, target.pos.getZ() >> 4, 30);
 
             Iterator<ItemStack> iter = drops.iterator();
+
             while (iter.hasNext())
             {
                 ItemStack stack = iter.next();
-                if (stack != null && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
+
+                if (stack.isEmpty() == false && (isSilk || event.getWorld().rand.nextFloat() < event.getDropChance()))
                 {
                     EntityItem entityItem = new EntityItem(targetWorld, target.dPosX, target.dPosY + 0.125d, target.dPosZ, stack.copy());
                     entityItem.motionX = entityItem.motionZ = 0.0d;
@@ -870,7 +886,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     public int getHarvestLevel(ItemStack stack, String toolClass, @Nullable EntityPlayer player, @Nullable IBlockState blockState)
     {
         //System.out.println("getHarvestLevel(stack, \"" + toolClass + "\")");
-        if (stack != null && this.isToolBroken(stack) == false && toolClass.equals(ToolType.fromStack(stack).getToolClass()))
+        if (this.isToolBroken(stack) == false && ToolType.fromStack(stack).getToolClass().equals(toolClass))
         {
             return this.material.getHarvestLevel();
         }
@@ -997,7 +1013,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }
@@ -1102,13 +1118,14 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_enabled", str));
 
         // Link Crystals installed
-        if (linkCrystalStack != null && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
+        if (linkCrystalStack.isEmpty() == false && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
         {
             String preWhiteIta = TextFormatting.WHITE.toString() + TextFormatting.ITALIC.toString();
+
             // Valid target set in the currently selected Link Crystal
             if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
-                ((ItemLinkCrystal)linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+                ((ItemLinkCrystal) linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
             else
             {
@@ -1127,9 +1144,9 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         // Capacitor installed
-        if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+        if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
         {
-            ((ItemEnderCapacitor)capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+            ((ItemEnderCapacitor) capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
         }
     }
 

@@ -111,7 +111,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     private boolean addToolDamage(ItemStack stack, int amount, EntityLivingBase living1, EntityLivingBase living2)
     {
         //System.out.println("addToolDamage(): living1: " + living1 + " living2: " + living2 + " remote: " + living2.worldObj.isRemote);
-        if (stack == null || this.isToolBroken(stack))
+        if (this.isToolBroken(stack))
         {
             return false;
         }
@@ -295,7 +295,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     @Override
     public int getHarvestLevel(ItemStack stack, String toolClass, @Nullable EntityPlayer player, @Nullable IBlockState blockState)
     {
-        if (stack != null && this.isToolBroken(stack) == false)
+        if (this.isToolBroken(stack) == false)
         {
             return this.material.getHarvestLevel();
         }
@@ -377,7 +377,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemVoidPickaxe.this.isFastMode(stack) ? 1.0F : 0.0F;
+                return ItemVoidPickaxe.this.isFastMode(stack) ? 1.0F : 0.0F;
             }
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "broken"), new IItemPropertyGetter()
@@ -385,7 +385,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemVoidPickaxe.this.isToolBroken(stack) ? 1.0F : 0.0F;
+                return ItemVoidPickaxe.this.isToolBroken(stack) ? 1.0F : 0.0F;
             }
         });
     }

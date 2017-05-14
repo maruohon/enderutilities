@@ -18,7 +18,7 @@ public class ItemType
 
     public ItemType(ItemStack stack, boolean checkNBT)
     {
-        this.stack = stack.copy();
+        this.stack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
         this.checkNBT = checkNBT;
     }
 
@@ -61,10 +61,12 @@ public class ItemType
 
         ItemType other = (ItemType) obj;
 
-        if (this.stack == null || other.stack == null)
+        if (this.stack.isEmpty() || other.stack.isEmpty())
         {
-            if (this.stack != other.stack)
+            if (this.stack.isEmpty() != other.stack.isEmpty())
+            {
                 return false;
+            }
         }
         else
         {
