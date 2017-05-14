@@ -258,7 +258,7 @@ public class ItemRuler extends ItemModular
             String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
 
             ItemStack moduleStack = this.getSelectedModuleStack(rulerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
                 list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));

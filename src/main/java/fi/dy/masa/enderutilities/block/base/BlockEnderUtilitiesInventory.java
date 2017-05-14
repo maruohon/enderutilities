@@ -2,15 +2,11 @@ package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -34,25 +30,6 @@ public abstract class BlockEnderUtilitiesInventory extends BlockEnderUtilitiesTi
         }
 
         world.removeTileEntity(pos);
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-            EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
-
-        if (te != null && te.hasGui() && this.isTileEntityValid(te))
-        {
-            if (world.isRemote == false)
-            {
-                player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     @Override

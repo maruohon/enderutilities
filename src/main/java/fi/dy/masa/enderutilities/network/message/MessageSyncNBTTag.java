@@ -38,8 +38,7 @@ public class MessageSyncNBTTag implements IMessage
         }
         catch (IOException e)
         {
-            EnderUtilities.logger.warn("MessageSyncNBTTag: Exception while reading data from buffer");
-            e.printStackTrace();
+            EnderUtilities.logger.warn("MessageSyncNBTTag: Exception while reading data from buffer", e);
         }
     }
 

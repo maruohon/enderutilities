@@ -242,7 +242,7 @@ public class ItemHandyBag extends ItemInventoryModular
             ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
-            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
                 list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
@@ -505,7 +505,7 @@ public class ItemHandyBag extends ItemInventoryModular
         boolean pickedUp = false;
         EntityPlayer player = event.getEntityPlayer();
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
+        List<Integer> bagSlots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.HANDY_BAG);
 
         Iterator<ItemStack> iter = event.drops.iterator();
         while (iter.hasNext())
@@ -522,7 +522,7 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 ItemStack bagStack = playerInv.getStackInSlot(slot);
                 // Bag is not locked
-                if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack))
+                if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.HANDY_BAG && ItemHandyBag.bagIsOpenable(bagStack))
                 {
                     ItemStack stackOrig = stack;
                     stack = handleItems(stack, bagStack, player);
@@ -581,12 +581,12 @@ public class ItemHandyBag extends ItemInventoryModular
 
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         // Not all the items could fit into existing stacks in the player's inventory, move them directly to the bag
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.HANDY_BAG);
         for (int slot : slots)
         {
             ItemStack bagStack = playerInv.getStackInSlot(slot);
             // Bag is not locked
-            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.handyBag && ItemHandyBag.bagIsOpenable(bagStack))
+            if (bagStack != null && bagStack.getItem() == EnderUtilitiesItems.HANDY_BAG && ItemHandyBag.bagIsOpenable(bagStack))
             {
                 stack = handleItems(stack, bagStack, player);
 
@@ -641,7 +641,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static ItemStack getOpenableBag(EntityPlayer player)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.handyBag);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.HANDY_BAG);
 
         for (int slot : slots)
         {
@@ -670,7 +670,7 @@ public class ItemHandyBag extends ItemInventoryModular
             InventoryItemModular inv = container.inventoryItemModular;
             ItemStack stack = inv.getModularItemStack();
 
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.handyBag)
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.HANDY_BAG)
             {
                 int max = ((ItemHandyBag)stack.getItem()).getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
                 // Changing the selected module via the GUI buttons

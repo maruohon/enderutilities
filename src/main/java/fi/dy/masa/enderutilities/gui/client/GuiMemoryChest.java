@@ -91,6 +91,7 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
         for (int i = 0; i < invSize; i++, bit <<= 1)
         {
             Slot slot = this.inventorySlots.getSlot(i);
+
             if ((mask & bit) != 0)
             {
                 int x = this.guiLeft + slot.xPos;
@@ -98,7 +99,7 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
                 int v = 18;
 
                 // Empty locked slots are in a different color
-                if (this.inventory.getStackInSlot(i) == null)
+                if (this.inventory.getStackInSlot(i).isEmpty())
                 {
                     v = 36;
                 }
@@ -113,18 +114,21 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
         GlStateManager.enableRescaleNormal();
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
         this.zLevel = 100.0F;
-        itemRender.zLevel = 100.0F;
+        this.itemRender.zLevel = 100.0F;
 
         bit = 0x1;
+
         for (int i = 0; i < invSize; i++, bit <<= 1)
         {
             Slot slot = this.inventorySlots.getSlot(i);
+
             if ((mask & bit) != 0)
             {
-                if (this.inventory.getStackInSlot(i) == null)
+                if (this.inventory.getStackInSlot(i).isEmpty())
                 {
                     ItemStack stack = this.temc.getTemplateStack(i);
-                    if (stack != null)
+
+                    if (stack.isEmpty() == false)
                     {
                         int x = this.guiLeft + slot.xPos;
                         int y = this.guiTop + slot.yPos;
@@ -139,7 +143,7 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
             }
         }
 
-        itemRender.zLevel = 0.0F;
+        this.itemRender.zLevel = 0.0F;
         this.zLevel = 0.0F;
         GlStateManager.disableBlend();
         GlStateManager.enableLighting();

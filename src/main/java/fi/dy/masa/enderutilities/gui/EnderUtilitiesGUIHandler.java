@@ -49,31 +49,31 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG:
                 stack = ItemHandyBag.getOpenableBag(player);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerHandyBag(player, stack);
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.handyBag);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.HANDY_BAG);
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerHandyBag(player, stack);
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.inventorySwapper);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.INVENTORY_SWAPPER);
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerInventorySwapper(player, stack);
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.pickupManager);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.PICKUP_MANAGER);
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerPickupManager(player, stack);
                 }
@@ -81,7 +81,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_QUICK_STACKER:
                 stack = ItemQuickStacker.getEnabledItem(player);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerQuickStacker(player, stack);
                 }
@@ -89,7 +89,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_NULLIFIER:
                 stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.NULLIFIER);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new ContainerNullifier(player, stack);
                 }
@@ -122,31 +122,31 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG:
                 ItemStack stack = ItemHandyBag.getOpenableBag(player);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new GuiHandyBag(new ContainerHandyBag(player, stack));
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_HANDY_BAG_RIGHT_CLICK:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.handyBag);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.HANDY_BAG);
+                if (stack.isEmpty() == false)
                 {
                     return new GuiHandyBag(new ContainerHandyBag(player, stack));
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_INVENTORY_SWAPPER:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.inventorySwapper);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.INVENTORY_SWAPPER);
+                if (stack.isEmpty() == false)
                 {
                     return new GuiInventorySwapper(new ContainerInventorySwapper(player, stack));
                 }
                 break;
 
             case ReferenceGuiIds.GUI_ID_PICKUP_MANAGER:
-                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.pickupManager);
-                if (stack != null)
+                stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.PICKUP_MANAGER);
+                if (stack.isEmpty() == false)
                 {
                     return new GuiPickupManager(new ContainerPickupManager(player, stack));
                 }
@@ -154,7 +154,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_QUICK_STACKER:
                 stack = ItemQuickStacker.getEnabledItem(player);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new GuiQuickStacker(new ContainerQuickStacker(player, stack));
                 }
@@ -162,7 +162,7 @@ public class EnderUtilitiesGUIHandler implements IGuiHandler
 
             case ReferenceGuiIds.GUI_ID_NULLIFIER:
                 stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.NULLIFIER);
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     return new GuiNullifier(new ContainerNullifier(player, stack));
                 }

@@ -118,12 +118,12 @@ public class RenderEventHandler
             state = state.getActualState(world, pos);
             Block block = state.getBlock();
 
-            if (block == EnderUtilitiesBlocks.blockPortalPanel || block == EnderUtilitiesBlocks.INSERTER)
+            if (block == EnderUtilitiesBlocks.PORTAL_PANEL || block == EnderUtilitiesBlocks.INSERTER)
             {
                 this.updatePointedBlockHilight(world, trace.getBlockPos(), state, (BlockEnderUtilities) block, event.getPartialTicks());
             }
 
-            if (block == EnderUtilitiesBlocks.blockPortalPanel)
+            if (block == EnderUtilitiesBlocks.PORTAL_PANEL)
             {
                 this.renderPortalPanelText(this.mc.world, trace.getBlockPos(), (BlockEnderUtilities) block, this.mc.player, event.getPartialTicks());
             }
@@ -132,16 +132,16 @@ public class RenderEventHandler
 
     private void renderItemExtras(World world, EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.buildersWand);
+        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.BUILDERS_WAND);
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.BUILDERS_WAND)
         {
             this.buildersWandRenderer.renderSelectedArea(world, usingPlayer, stack, clientPlayer, partialTicks);
         }
 
-        stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.chairWand);
+        stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.CHAIR_WAND);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             List<EntityChair> chairs = world.getEntities(EntityChair.class, Predicates.alwaysTrue());
 
@@ -339,33 +339,31 @@ public class RenderEventHandler
     {
         ItemStack stack = player.getHeldItemMainhand();
 
-        if (stack == null || (stack.getItem() instanceof ItemBlockEnderUtilities) == false)
+        if (stack.isEmpty() || (stack.getItem() instanceof ItemBlockEnderUtilities) == false)
         {
             stack = player.getHeldItemOffhand();
         }
 
-        if (stack != null && stack.getItem() instanceof ItemBlockEnderUtilities)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
         {
             ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
 
             if (item.hasPlacementProperties())
             {
-                renderText(this.getPlacementPropertiesText(stack, player), 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
+                renderText(this.getPlacementPropertiesText(item, stack, player), 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
             }
         }
     }
 
-    private List<String> getPlacementPropertiesText(ItemStack stack, EntityPlayer player)
+    private List<String> getPlacementPropertiesText(ItemBlockEnderUtilities item, ItemStack stack, EntityPlayer player)
     {
         String preGreen = TextFormatting.GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         List<String> lines = new ArrayList<String>();
         PlacementProperties props = PlacementProperties.getInstance();
-        ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
         UUID uuid = player.getUniqueID();
-        boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
-                ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
+        boolean nbtSensitive = item.getPlacementPropertyNBTSensitive();
         ItemType type = new ItemType(stack, nbtSensitive);
         int index = props.getPropertyIndex(uuid, type);
         int count = item.getPlacementPropertyCount();

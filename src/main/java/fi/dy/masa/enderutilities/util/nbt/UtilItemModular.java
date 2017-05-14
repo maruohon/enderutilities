@@ -41,16 +41,9 @@ public class UtilItemModular
      */
     public static boolean moduleTypeEquals(ItemStack moduleStack, ModuleType moduleType)
     {
-        if (moduleStack != null && moduleStack.getItem() instanceof IModule
-            && ((IModule)moduleStack.getItem()).getModuleType(moduleStack).equals(moduleType) == true)
-        {
-            return true;
-        }
-
-        return false;
+        return moduleStack.isEmpty() == false && moduleStack.getItem() instanceof IModule &&
+                ((IModule) moduleStack.getItem()).getModuleType(moduleStack).equals(moduleType);
     }
-
-
 
     /**
      * Returns the number of installed modules in containerStack of the type moduleType.
@@ -71,7 +64,7 @@ public class UtilItemModular
         int listNumStacks = nbtTagList.tagCount();
 
         // Read all the module ItemStacks from the tool
-        for (int i = 0; i < listNumStacks; ++i)
+        for (int i = 0; i < listNumStacks; i++)
         {
             ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
 
@@ -132,7 +125,8 @@ public class UtilItemModular
     public static int getSelectedModuleTier(ItemStack containerStack, ModuleType moduleType)
     {
         ItemStack moduleStack = getSelectedModuleStack(containerStack, moduleType);
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return -1;
         }
@@ -152,7 +146,8 @@ public class UtilItemModular
         int slotNum = getStoredModuleSelection(containerStack, moduleType);
         slotNum += getFirstIndexOfModuleType(containerStack, moduleType);
         ItemStack moduleStack = getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return -1;
         }
@@ -170,6 +165,7 @@ public class UtilItemModular
     {
         int selected = getStoredModuleSelection(containerStack, moduleType);
         int num = getInstalledModuleCount(containerStack, moduleType);
+
         if (selected >= num)
         {
             // If the selected module number is larger than the current number of installed modules of that type, then select the last one
@@ -189,13 +185,14 @@ public class UtilItemModular
      */
     public static int getStoredModuleSelection(ItemStack containerStack, ModuleType moduleType)
     {
-        if (containerStack == null || containerStack.getTagCompound() == null || (containerStack.getItem() instanceof IModular) == false)
+        if (containerStack.isEmpty() || containerStack.getTagCompound() == null ||
+            (containerStack.getItem() instanceof IModular) == false)
         {
             return 0;
         }
 
         int selected = containerStack.getTagCompound().getByte("Selected_" + moduleType.getName());
-        int max = ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType);
+        int max = ((IModular) containerStack.getItem()).getMaxModules(containerStack, moduleType);
 
         return selected < max ? selected : max - 1;
     }
@@ -211,7 +208,7 @@ public class UtilItemModular
 
         if (nbtTagList == null)
         {
-            return null;
+            return ItemStack.EMPTY;
         }
 
         int listNumStacks = nbtTagList.tagCount();
@@ -219,22 +216,24 @@ public class UtilItemModular
         for (int i = 0; i < listNumStacks; ++i)
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
+
             if (moduleTag.getByte("Slot") == slotNum)
             {
                 ItemStack moduleStack = new ItemStack(moduleTag);
 
-                if (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType))
+                if (moduleStack.isEmpty() == false &&
+                    (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType)))
                 {
                     return moduleStack;
                 }
                 else
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -249,7 +248,7 @@ public class UtilItemModular
 
         if (nbtTagList == null)
         {
-            return null;
+            return ItemStack.EMPTY;
         }
 
         int listNumStacks = nbtTagList.tagCount();
@@ -260,7 +259,7 @@ public class UtilItemModular
         {
             ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
 
-            if (moduleTypeEquals(moduleStack, moduleType))
+            if (moduleStack.isEmpty() == false && moduleTypeEquals(moduleStack, moduleType))
             {
                 if (++count >= selected)
                 {
@@ -269,7 +268,7 @@ public class UtilItemModular
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -366,61 +365,6 @@ public class UtilItemModular
     }
 
     /**
-     * Returns a list of all the installed modules. UNIMPLEMENTED ATM
-     * @param containerStack
-     * @return
-     */
-    public static List<NBTTagCompound> getAllModules(ItemStack containerStack)
-    {
-        if (containerStack == null)
-        {
-            return null;
-        }
-
-        // TODO
-
-        return null;
-    }
-
-    /**
-     * Sets the modules to the ones provided in the list. <b>UNIMPLEMENTED ATM</b>
-     * @param containerStack
-     * @param modules
-     * @return
-     */
-    public static boolean setAllModules(ItemStack containerStack, List<NBTTagCompound> modules)
-    {
-        if (containerStack == null)
-        {
-            return false;
-        }
-
-        // TODO
-
-        return false;
-    }
-
-    /**
-     * Sets the module indicated by the position to the one provided in the compound tag.
-     * <b>UNIMPLEMENTED ATM</b>
-     * @param containerStack
-     * @param index
-     * @param nbt
-     * @return
-     */
-    public static boolean setModule(ItemStack containerStack, int index, NBTTagCompound nbt)
-    {
-        if (containerStack == null)
-        {
-            return false;
-        }
-
-        // TODO
-
-        return false;
-    }
-
-    /**
      * Change the currently selected module of type moduleType to the next one, if any.
      * @param containerStack
      * @param moduleType
@@ -431,6 +375,7 @@ public class UtilItemModular
     {
         int moduleCount = getInstalledModuleCount(containerStack, moduleType);
         NBTTagCompound nbt = containerStack.getTagCompound();
+
         if (moduleCount == 0 || nbt == null)
         {
             return false;
@@ -477,7 +422,7 @@ public class UtilItemModular
         int maxOfType = ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType);
         int current = getStoredModuleSelection(containerStack, moduleType);
 
-        if (reverse == true)
+        if (reverse)
         {
             if (--current < 0)
             {
@@ -493,6 +438,7 @@ public class UtilItemModular
         }
 
         setModuleSelection(containerStack, moduleType, current);
+
         return true;
     }
 
@@ -545,9 +491,9 @@ public class UtilItemModular
                 NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
                 ItemStack tmpStack = NBTUtils.loadItemStackFromTag(tag);
 
-                if (tmpStack != null)
+                if (tmpStack.isEmpty() == false)
                 {
-                    int stackSize = tmpStack.stackSize;
+                    int stackSize = tmpStack.getCount();
                     itemCount += stackSize;
 
                     if (i < maxLines)
@@ -582,10 +528,12 @@ public class UtilItemModular
     public static int getListPositionOfStackInSlot(NBTTagList nbtTagList, int slotNum)
     {
         int size = nbtTagList.tagCount();
+
         for (int i = 0; i < size; i++)
         {
             NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
-            if (tag.hasKey("Slot", Constants.NBT.TAG_BYTE) == true && tag.getByte("Slot") == slotNum)
+
+            if (tag.hasKey("Slot", Constants.NBT.TAG_BYTE) && tag.getByte("Slot") == slotNum)
             {
                 return i;
             }
@@ -611,21 +559,17 @@ public class UtilItemModular
         }
 
         ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
-        if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
+
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IChargeable) == false)
         {
             return 0;
         }
 
         IChargeable cap = (IChargeable) moduleStack.getItem();
-        if (cap.addCharge(moduleStack, amount, false) == 0)
-        {
-            return 0;
-        }
+        int added = cap.addCharge(moduleStack, amount, doCharge);
 
-        int added = 0;
-        if (doCharge == true)
+        if (doCharge && added > 0)
         {
-            added = cap.addCharge(moduleStack, amount, true);
             setSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR, moduleStack);
         }
 
@@ -645,7 +589,8 @@ public class UtilItemModular
         }
 
         ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
-        if (moduleStack == null || (moduleStack.getItem() instanceof IChargeable) == false)
+
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IChargeable) == false)
         {
             return 0;
         }
@@ -675,12 +620,14 @@ public class UtilItemModular
         }
 
         ItemStack moduleStack = getSelectedModuleStack(containerStack, ModuleType.TYPE_ENDERCAPACITOR);
-        if (moduleStack == null || (moduleStack.getItem() instanceof ItemEnderCapacitor) == false)
+
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof ItemEnderCapacitor) == false)
         {
             return false;
         }
 
         ItemEnderCapacitor cap = (ItemEnderCapacitor) moduleStack.getItem();
+
         if (cap.useCharge(moduleStack, amount, false) < amount)
         {
             return false;
@@ -755,13 +702,12 @@ public class UtilItemModular
     {
         int slotNum = getStoredModuleSelection(containerStack, moduleType);
         ItemStack moduleStack = getModuleStackBySlotNumber(containerStack, slotNum, moduleType);
-        if (moduleStack == null)
-        {
-            return;
-        }
 
-        OwnerData.togglePrivacyModeOnItem(moduleStack, player);
-        setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
+        if (moduleStack.isEmpty() == false)
+        {
+            OwnerData.togglePrivacyModeOnItem(moduleStack, player);
+            setModuleStackBySlotNumber(containerStack, slotNum, moduleStack);
+        }
     }
 
     /**
@@ -774,16 +720,17 @@ public class UtilItemModular
      */
     public static int getFirstIndexOfModuleType(ItemStack containerStack, ModuleType moduleType)
     {
-        if (containerStack == null || (containerStack.getItem() instanceof IModular) == false)
+        if (containerStack.isEmpty() || (containerStack.getItem() instanceof IModular) == false)
         {
             return 0;
         }
 
         IModular item = (IModular)containerStack.getItem();
         int start = 0;
+
         for (ModuleType type : ModuleType.values())
         {
-            if (type.equals(moduleType) == true)
+            if (type == moduleType)
             {
                 break;
             }
@@ -800,12 +747,12 @@ public class UtilItemModular
      */
     public static IItemHandler getBoundInventory(ItemStack modularStack, EntityPlayer player, int chunkLoadDuration)
     {
-        if (modularStack == null || (modularStack.getItem() instanceof IModular) == false)
+        if (modularStack.isEmpty() || (modularStack.getItem() instanceof IModular) == false)
         {
             return null;
         }
 
-        IModular iModular = (IModular)modularStack.getItem();
+        IModular iModular = (IModular) modularStack.getItem();
         TargetData target = TargetData.getTargetFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
 
         if (iModular.getSelectedModuleTier(modularStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
@@ -814,20 +761,21 @@ public class UtilItemModular
         }
 
         // Bound to a vanilla Ender Chest
-        if ("minecraft:ender_chest".equals(target.blockName) == true)
+        if ("minecraft:ender_chest".equals(target.blockName))
         {
             return new InvWrapper(player.getInventoryEnderChest());
         }
 
         // For cross-dimensional item teleport we require the third tier of active Ender Core
-        if (OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false
-            || (target.dimension != player.getEntityWorld().provider.getDimension() &&
+        if (OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false ||
+            (target.dimension != player.getEntityWorld().provider.getDimension() &&
                 iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
         {
             return null;
         }
 
         World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+
         if (targetWorld == null)
         {
             return null;
@@ -841,8 +789,10 @@ public class UtilItemModular
         }
 
         TileEntity te = targetWorld.getTileEntity(target.pos);
+
         // Block has changed since binding, or does not have IItemHandler capability
-        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == false || target.isTargetBlockUnchanged() == false)
+        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing) == false ||
+            target.isTargetBlockUnchanged() == false)
         {
             // Remove the bind
             TargetData.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);

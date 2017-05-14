@@ -15,7 +15,7 @@ public class CreativeTab
         @Override
         public ItemStack getTabIconItem()
         {
-            return new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, 1);
+            return new ItemStack(EnderUtilitiesItems.ENDER_PEARL_REUSABLE, 1, 1);
         }
 
         @SideOnly(Side.CLIENT)

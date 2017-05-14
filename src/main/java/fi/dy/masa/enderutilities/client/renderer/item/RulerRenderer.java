@@ -15,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.event.RenderEventHandler.HudAlignment;
 import fi.dy.masa.enderutilities.item.ItemRuler;
@@ -47,13 +46,13 @@ public class RulerRenderer
             return;
         }
 
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.RULER);
 
-        if (stack == null || stack.getItem() != EnderUtilitiesItems.ruler)
+        if (stack.isEmpty())
         {
-            stack = InventoryUtils.getFirstItemOfType(player, ItemRuler.class);
+            stack = InventoryUtils.getFirstItemOfType(player, EnderUtilitiesItems.RULER);
 
-            if (stack == null || ((ItemRuler) stack.getItem()).getRenderWhenUnselected(stack) == false)
+            if (stack.isEmpty() || ((ItemRuler) stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;
             }
@@ -128,13 +127,13 @@ public class RulerRenderer
 
     public void renderAllPositionPairs(EntityPlayer usingPlayer, EntityPlayer clientPlayer, float partialTicks)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.ruler);
+        ItemStack stack = EntityUtils.getHeldItemOfType(usingPlayer, EnderUtilitiesItems.RULER);
 
-        if (stack == null)
+        if (stack.isEmpty())
         {
-            stack = InventoryUtils.getFirstMatchingItem(usingPlayer.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), EnderUtilitiesItems.ruler);
+            stack = InventoryUtils.getFirstItemOfType(usingPlayer, EnderUtilitiesItems.RULER);
 
-            if (stack == null || ((ItemRuler)stack.getItem()).getRenderWhenUnselected(stack) == false)
+            if (stack.isEmpty() || ((ItemRuler) stack.getItem()).getRenderWhenUnselected(stack) == false)
             {
                 return;
             }
@@ -150,7 +149,7 @@ public class RulerRenderer
         GlStateManager.enableAlpha();
         GlStateManager.pushMatrix();
 
-        ItemRuler item = (ItemRuler)stack.getItem();
+        ItemRuler item = (ItemRuler) stack.getItem();
         int selected = item.getLocationSelection(stack);
 
         if (item.getRenderAllLocations(stack))
@@ -209,18 +208,19 @@ public class RulerRenderer
         for (int a = 0; a < 3; a++)
         {
             List<BlockPosEU> column = this.positions.get(a);
-            if (column == null)
-            {
-                continue;
-            }
 
-            for (int i = 0; i < column.size(); i++)
+            if (column != null)
             {
-                BlockPosEU pos = column.get(i);
-                //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+                final int size = column.size();
+
+                for (int i = 0; i < size; i++)
                 {
-                    AxisAlignedBB aabb = BuildersWandRenderer.createAABB(pos.posX, pos.posY, pos.posZ, 0, partialTicks, clientPlayer);
-                    RenderGlobal.drawSelectionBoundingBox(aabb, ((color >>> 16) & 0xFF) / 255f, ((color >>> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0f);
+                    BlockPosEU pos = column.get(i);
+                    //if (pos.equals(posStart) == false && (posEnd == null || posEnd.equals(pos) == false))
+                    {
+                        AxisAlignedBB aabb = BuildersWandRenderer.createAABB(pos.posX, pos.posY, pos.posZ, 0, partialTicks, clientPlayer);
+                        RenderGlobal.drawSelectionBoundingBox(aabb, ((color >>> 16) & 0xFF) / 255f, ((color >>> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 1.0f);
+                    }
                 }
             }
         }

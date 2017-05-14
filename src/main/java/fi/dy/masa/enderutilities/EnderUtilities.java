@@ -33,7 +33,7 @@ import fi.dy.masa.enderutilities.util.PlacementProperties;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
-     acceptedMinecraftVersions = "1.10.2")
+     acceptedMinecraftVersions = "1.11.2")
 public class EnderUtilities
 {
     @Instance(Reference.MOD_ID)

@@ -17,7 +17,7 @@ public class MessageSyncSlot implements IMessage
 {
     private int windowId;
     private int slotNum;
-    private ItemStack stack;
+    private ItemStack stack = ItemStack.EMPTY;
 
     public MessageSyncSlot()
     {
@@ -41,8 +41,7 @@ public class MessageSyncSlot implements IMessage
         }
         catch (IOException e)
         {
-            EnderUtilities.logger.warn("MessageSyncSlot: Exception while reading data from buffer");
-            e.printStackTrace();
+            EnderUtilities.logger.warn("MessageSyncSlot: Exception while reading data from buffer", e);
         }
     }
 
@@ -67,6 +66,7 @@ public class MessageSyncSlot implements IMessage
 
             Minecraft mc = FMLClientHandler.instance().getClient();
             final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+
             if (mc == null || player == null)
             {
                 EnderUtilities.logger.error("Minecraft or player was null in MessageSyncSlot");

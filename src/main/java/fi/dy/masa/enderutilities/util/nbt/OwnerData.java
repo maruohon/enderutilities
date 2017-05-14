@@ -155,7 +155,7 @@ public class OwnerData
 
     public static OwnerData getOwnerDataFromItem(ItemStack stack)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             return getOwnerDataFromNBT(stack.getTagCompound());
         }
@@ -231,7 +231,7 @@ public class OwnerData
      */
     public static boolean canAccessItem(ItemStack stack, @Nullable UUID uuid)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return false;
         }
@@ -369,7 +369,7 @@ public class OwnerData
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
 
-        if (moduleStack != null)
+        if (moduleStack.isEmpty() == false)
         {
             removeOwnerDataFromItem(moduleStack, entity);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
@@ -383,7 +383,8 @@ public class OwnerData
     private static boolean writeOwnerTagToSelectedModule(ItemStack toolStack, ModuleType moduleType, Entity entity, boolean isPublic)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             writeOwnerTagToItem(moduleStack, entity, isPublic);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
@@ -396,7 +397,7 @@ public class OwnerData
 
     private boolean writeToItem(ItemStack stack)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             stack.setTagCompound(this.writeToNBT(stack.getTagCompound()));
             return true;
@@ -408,7 +409,8 @@ public class OwnerData
     private boolean writeToSelectedModule(ItemStack toolStack, ModuleType moduleType)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             if (this.writeToItem(moduleStack) == false)
             {

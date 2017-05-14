@@ -58,9 +58,9 @@ public class TaskReplaceBlocks3D implements IPlayerTask
     @Override
     public boolean execute(World world, EntityPlayer player)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.BUILDERS_WAND);
 
-        if (stack != null && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
+        if (stack.isEmpty() == false && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
         {
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
 

@@ -122,6 +122,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
 
         // Draw the colored background for the selected module slot
         int index = this.inventory.getSelectedModuleIndex();
+
         if (index >= 0)
         {
             this.drawTexturedModalRect(this.firstModuleSlotX - 1 + index * 18, this.firstModuleSlotY - 1, 102, 18, 18, 18);
@@ -131,7 +132,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
 
         ItemStack stack = this.containerInvSwapper.getContainerItem();
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.INVENTORY_SWAPPER)
         {
             ItemInventorySwapper swapper = (ItemInventorySwapper) stack.getItem();
             // Draw the selection border around the selected preset's button
@@ -141,6 +142,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
             // Draw the colored background for the selected/enabled inventory slots
             final long mask = swapper.getEnabledSlotsMask(stack);
             long bit = 0x1;
+
             // Hotbar
             for (int c = 0; c < 9; c++)
             {
@@ -197,7 +199,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            if (this.inventory.getModuleInventory().getStackInSlot(i) == null)
+            if (this.inventory.getModuleInventory().getStackInSlot(i).isEmpty())
             {
                 this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 144, 16, 16);
             }
@@ -334,7 +336,7 @@ public class GuiInventorySwapper extends GuiEnderUtilities implements IButtonSta
     {
         ItemStack stack = this.containerInvSwapper.getContainerItem();
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             // Locked mode
             if (callbackId == BTN_ID_LOCKED)

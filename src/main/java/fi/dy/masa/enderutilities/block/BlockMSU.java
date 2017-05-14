@@ -24,7 +24,6 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -66,21 +65,9 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        return new TileEntityMSU();
-    }
-
-    @Override
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
-    {
-        if (world.isRemote == false)
-        {
-            TileEntity te = getTileEntitySafely(world, pos, TileEntity.class);
-
-            if (te instanceof ITieredStorage)
-            {
-                ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getMeta());
-            }
-        }
+        TileEntityMSU te = new TileEntityMSU();
+        te.setStorageTier(state.getValue(TYPE).getMeta());
+        return te;
     }
 
     @Override
@@ -182,9 +169,9 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < EnumStorageType.values().length; meta++)
+        for (int i = 0; i < EnumStorageType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, EnumStorageType.values()[i].getMeta()));
         }
     }
 

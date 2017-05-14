@@ -487,10 +487,10 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             if (slot < NUM_TARGET_INVENTORIES)
             {
                 // Only allow Block type Link Crystals
-                return stack.getItem() == EnderUtilitiesItems.linkCrystal && ((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK;
+                return stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL && ((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK;
             }
 
-            return stack.getItem() == EnderUtilitiesItems.enderPart && ((IModule)stack.getItem()).getModuleType(stack) == ModuleType.TYPE_MEMORY_CARD_MISC;
+            return stack.getItem() == EnderUtilitiesItems.ENDER_PART && ((IModule)stack.getItem()).getModuleType(stack) == ModuleType.TYPE_MEMORY_CARD_MISC;
         }
     }
 

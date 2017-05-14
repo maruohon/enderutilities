@@ -178,7 +178,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.numModuleSlots; i++)
         {
-            if (this.invModular.getModuleInventory().getStackInSlot(i) == null)
+            if (this.invModular.getModuleInventory().getStackInSlot(i).isEmpty())
             {
                 this.drawTexturedModalRect(this.firstModuleSlotX + i * 18, this.firstModuleSlotY, 240, 80, 16, 16);
             }
@@ -203,7 +203,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         // Draw the shift-click double-tap mode's effective mode indication, if applicable
         ItemStack modularStack = this.containerHB.inventoryItemModular.getModularItemStack();
 
-        if (modularStack != null && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.TO_BAG)
+        if (modularStack.isEmpty() == false && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.TO_BAG)
         {
             int x = this.guiLeft + this.offsetXTier + 64;
             this.drawTexturedModalRect(x, this.guiTop + 157, 154, 0, 12, 12);
@@ -229,6 +229,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
 
         // Add the Memory Card selection buttons
         int numModules = this.invModular.getModuleInventory().getSlots();
+
         for (int i = 0; i < numModules; i++)
         {
             this.buttonList.add(new GuiButtonIcon(BTN_ID_FIRST_SELECT_MODULE + i, this.firstModuleSlotX + 4 + i * 18, this.firstModuleSlotY + 19, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
@@ -343,6 +344,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         else if (button.id >= BTN_ID_FIRST_MOVE_ITEMS && button.id <= (BTN_ID_FIRST_MOVE_ITEMS + 5))
         {
             int value = button.id - BTN_ID_FIRST_MOVE_ITEMS;
+
             if (GuiScreen.isShiftKeyDown())
             {
                 value |= 0x8000;
@@ -393,10 +395,18 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
     protected void updateActivePotionEffects()
     {
         boolean hasVisibleEffect = false;
-        for(PotionEffect potioneffect : this.mc.player.getActivePotionEffects()) {
+
+        for (PotionEffect potioneffect : this.mc.player.getActivePotionEffects())
+        {
             Potion potion = potioneffect.getPotion();
-            if(potion.shouldRender(potioneffect)) { hasVisibleEffect = true; break; }
+
+            if (potion.shouldRender(potioneffect))
+            {
+                hasVisibleEffect = true;
+                break;
+            }
         }
+
         if (this.mc.player.getActivePotionEffects().isEmpty() == false && hasVisibleEffect)
         {
             if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent(this)))
@@ -424,7 +434,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
 
         Collection<PotionEffect> collection = this.mc.player.getActivePotionEffects();
 
-        if (!collection.isEmpty())
+        if (collection.isEmpty() == false)
         {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.disableLighting();
@@ -438,7 +448,12 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
             for (PotionEffect potioneffect : Ordering.natural().sortedCopy(collection))
             {
                 Potion potion = potioneffect.getPotion();
-                if(!potion.shouldRender(potioneffect)) continue;
+
+                if (potion.shouldRender(potioneffect) == false)
+                {
+                    continue;
+                }
+
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 this.mc.getTextureManager().bindTexture(INVENTORY_BACKGROUND);
                 this.drawTexturedModalRect(i, j, 0, 166, 140, 32);
@@ -450,7 +465,13 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
                 }
 
                 potion.renderInventoryEffect(i, j, potioneffect, mc);
-                if (!potion.shouldRenderInvText(potioneffect)) { j += l; continue; }
+
+                if (potion.shouldRenderInvText(potioneffect) == false)
+                {
+                    j += l;
+                    continue;
+                }
+
                 String s1 = I18n.format(potion.getName());
                 int amp = potioneffect.getAmplifier();
 
@@ -472,7 +493,7 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
     {
         ItemStack stack = this.containerHB.getContainerItem();
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             // Locked mode
             if (callbackId == BTN_ID_FIRST_MODES)
@@ -523,14 +544,13 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
 
     private boolean isMaskActiveForSection(int section, String tagName)
     {
-        ItemStack stack = null;
         int selected = this.invModular.getSelectedModuleIndex();
 
         if (selected >= 0 && section >= 0 && section <= 2)
         {
-            stack = this.invModular.getModuleInventory().getStackInSlot(selected);
+            ItemStack stack = this.invModular.getModuleInventory().getStackInSlot(selected);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 long[] masks = new long[] { 0x1FFFFFFL, 0x1FFF8000000L, 0x7FFE0000000000L };
                 long lockMask = NBTUtils.getLong(stack, "HandyBag", tagName);

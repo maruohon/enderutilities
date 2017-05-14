@@ -200,7 +200,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
             int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
-            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.enderPart)
+            if (moduleStack != null && moduleStack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
                 list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
@@ -232,7 +232,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     private int getSlotContainingEnabledItem(EntityPlayer player)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.inventorySwapper);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.INVENTORY_SWAPPER);
         for (int slot : slots)
         {
             if (this.isEnabled(playerInv.getStackInSlot(slot)))
@@ -461,7 +461,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         // Re-fetch the item to check if it's enabled
         stack = this.getEnabledItem(player);
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+        if (stack != null && stack.getItem() == EnderUtilitiesItems.INVENTORY_SWAPPER)
         {
             ((ItemInventorySwapper)stack.getItem()).doKeyBindingAction(player, stack, key);
         }
@@ -518,7 +518,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         if (player.openContainer instanceof ContainerInventorySwapper)
         {
             ItemStack stack = ((ContainerInventorySwapper)player.openContainer).getContainerItem();
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.inventorySwapper)
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.INVENTORY_SWAPPER)
             {
                 ItemInventorySwapper swapper = (ItemInventorySwapper)stack.getItem();
                 int max = swapper.getMaxModules(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);

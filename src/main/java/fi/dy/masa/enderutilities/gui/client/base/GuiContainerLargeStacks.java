@@ -40,7 +40,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         ItemStack stackCursor = this.mc.player.inventory.getItemStack();
         String str = null;
 
-        if (slotIn == this.clickedSlot && this.draggedStack.isEmpty() == false && this.isRightMouseClick  && stack.isEmpty() == false)
+        if (slotIn == this.clickedSlot && this.draggedStack.isEmpty() == false && this.isRightMouseClick && stack.isEmpty() == false)
         {
             stack = stack.copy();
             stack.setCount(stack.getCount() / 2);
@@ -166,9 +166,9 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             Tessellator tessellator = Tessellator.getInstance();
             VertexBuffer vertexBuffer = tessellator.getBuffer();
 
-            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
-            drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, j, 1, 255 - i, i, 0, 255);
+            this.drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
+            this.drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
+            this.drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, j, 1, 255 - i, i, 0, 255);
 
             GlStateManager.enableAlpha();
             GlStateManager.enableTexture2D();

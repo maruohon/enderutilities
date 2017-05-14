@@ -57,9 +57,9 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
     @Override
     public boolean execute(World world, EntityPlayer player)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.buildersWand);
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.BUILDERS_WAND);
 
-        if (stack != null && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
+        if (stack.isEmpty() == false && this.wandUUID.equals(NBTUtils.getUUIDFromItemStack(stack, ItemBuildersWand.WRAPPER_TAG_NAME, false)))
         {
             ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
             PlacementSettings placement = this.template.getPlacementSettings();
@@ -70,7 +70,7 @@ public class TaskTemplatePlaceBlocks implements IPlayerTask
                 IBlockState state = blockInfo.blockState.withMirror(placement.getMirror()).withRotation(placement.getRotation());
                 BlockPos pos = TemplateEnderUtilities.transformedBlockPos(placement, blockInfo.pos).add(this.posStart);
 
-                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2, true, true) == true)
+                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2, true, true))
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

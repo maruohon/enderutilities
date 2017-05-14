@@ -222,7 +222,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
         ItemStack modularStackPost = this.getContainerItem();
 
-        if (player.getEntityWorld().isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.pickupManager)
+        if (player.getEntityWorld().isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.PICKUP_MANAGER)
         {
             boolean sent = ((ItemPickupManager)modularStackPost.getItem()).tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
 

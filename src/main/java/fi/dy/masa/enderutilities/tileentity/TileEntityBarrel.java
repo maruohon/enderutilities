@@ -311,11 +311,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     private boolean applyLabel(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack, EnumFacing side)
     {
-        if (stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == 70)
+        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 70)
         {
             if (this.labels.contains(side) == false && side != this.getFacing())
             {
-                this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.enderPart, 1, 70), false);
+                this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 70), false);
 
                 if (player.capabilities.isCreativeMode == false)
                 {
@@ -335,11 +335,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     private boolean applyStructureUpgrade(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack)
     {
-        if (stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == 71)
+        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 71)
         {
             if (this.itemHandlerUpgrades.getStackInSlot(1) == null)
             {
-                this.itemHandlerUpgrades.insertItem(1, new ItemStack(EnderUtilitiesItems.enderPart, 1, 71), false);
+                this.itemHandlerUpgrades.insertItem(1, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 71), false);
 
                 if (player.capabilities.isCreativeMode == false)
                 {
@@ -358,9 +358,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     private boolean applyCapacityUpgrade(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack)
     {
-        if (stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == 72)
+        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 72)
         {
-            if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.enderPart, 1, 72), false) == null)
+            if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 72), false) == null)
             {
                 if (player.capabilities.isCreativeMode == false)
                 {
@@ -624,7 +624,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         @Override
         public int getItemStackLimit(int slot, ItemStack stack)
         {
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 int meta = stack.getMetadata();
 
@@ -644,7 +644,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.enderPart)
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 int meta = stack.getMetadata();
 

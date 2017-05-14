@@ -357,7 +357,7 @@ public class ItemEnderPart extends ItemModule
 
     public static boolean itemMatches(@Nullable ItemStack stack, ItemPartType type)
     {
-        return stack != null && stack.getItem() == EnderUtilitiesItems.enderPart && stack.getMetadata() == type.getMeta();
+        return stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == type.getMeta();
     }
 
     public enum ItemPartType

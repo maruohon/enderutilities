@@ -109,17 +109,14 @@ public class BlockEnderFurnace extends BlockEnderUtilitiesInventory
     {
         TileEntityEnderFurnace te = getTileEntitySafely(world, pos, TileEntityEnderFurnace.class);
 
-        if (te != null)
+        if (te != null && te.isBurningLast)
         {
-            if (te.isBurningLast)
-            {
-                Effects.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
+            Effects.spawnParticlesAround(world, EnumParticleTypes.PORTAL, pos, 2, rand);
 
-                if (rand.nextDouble() < 0.1D)
-                {
-                    world.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
-                            SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
-                }
+            if (rand.nextDouble() < 0.1D)
+            {
+                world.playSound((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D,
+                        SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
             }
         }
     }

@@ -27,7 +27,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.ITieredStorage;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
@@ -99,30 +98,26 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     {
         switch (state.getValue(TYPE))
         {
-            case MEMORY_CHEST_0:    return new TileEntityMemoryChest();
-            case MEMORY_CHEST_1:    return new TileEntityMemoryChest();
-            case MEMORY_CHEST_2:    return new TileEntityMemoryChest();
-            case HANDY_CHEST_0:     return new TileEntityHandyChest();
-            case HANDY_CHEST_1:     return new TileEntityHandyChest();
-            case HANDY_CHEST_2:     return new TileEntityHandyChest();
-            case HANDY_CHEST_3:     return new TileEntityHandyChest();
-            case JSU:               return new TileEntityJSU();
-        }
+            case MEMORY_CHEST_0:
+            case MEMORY_CHEST_1:
+            case MEMORY_CHEST_2:
+                TileEntityMemoryChest temc = new TileEntityMemoryChest();
+                temc.setStorageTier(state.getValue(TYPE).getTier());
+                return temc;
 
-        return new TileEntityMemoryChest();
-    }
+            case HANDY_CHEST_0:
+            case HANDY_CHEST_1:
+            case HANDY_CHEST_2:
+            case HANDY_CHEST_3:
+                TileEntityHandyChest tehc = new TileEntityHandyChest();
+                tehc.setStorageTier(state.getValue(TYPE).getTier());
+                return tehc;
 
-    @Override
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
-    {
-        if (world.isRemote == false)
-        {
-            TileEntity te = getTileEntitySafely(world, pos, TileEntity.class);
+            case JSU:
+                return new TileEntityJSU();
 
-            if (te instanceof ITieredStorage)
-            {
-                ((ITieredStorage) te).setStorageTier(state.getValue(TYPE).getTier());
-            }
+            default:
+                return new TileEntityMemoryChest();
         }
     }
 
@@ -294,9 +289,9 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < EnumStorageType.values().length; meta++)
+        for (int i = 0; i < EnumStorageType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, EnumStorageType.values()[i].getMeta()));
         }
     }
 

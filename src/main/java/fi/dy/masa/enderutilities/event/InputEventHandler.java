@@ -67,13 +67,13 @@ public class InputEventHandler
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
 
-        return stack != null && ((stack.getItem() instanceof ItemBlockEnderUtilities) == false || 
+        return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockEnderUtilities) == false || 
                 ((ItemBlockEnderUtilities) stack.getItem()).hasPlacementProperties());
     }
 
     public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)
     {
-        return InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class) != null;
+        return InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class).isEmpty() == false;
     }
 
     @SubscribeEvent
@@ -144,7 +144,7 @@ public class InputEventHandler
 
             // Jump or sneak above an Ender Elevator - activate it
             if (keyState && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
-                eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
+                             eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
             {
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
                 World world = player.getEntityWorld();
@@ -237,7 +237,8 @@ public class InputEventHandler
         }
 
         ItemStack stack = Minecraft.getMinecraft().player.getHeldItemMainhand();
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand &&
+
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.BUILDERS_WAND &&
             ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
         {
             Minecraft.getMinecraft().displayGuiScreen(new GuiScreenBuilderWandTemplate());

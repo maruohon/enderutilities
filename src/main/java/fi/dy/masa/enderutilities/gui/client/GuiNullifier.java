@@ -70,7 +70,7 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
         ItemStack stack = this.containerN.getContainerItem();
 
         // Draw the selection around the selected slot's button
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             int slot =  NBTUtils.getByte(stack, ItemNullifier.TAG_NAME_CONTAINER, ItemNullifier.TAG_NAME_SLOT_SELECTION);
             this.drawTexturedModalRect(this.guiLeft + 11 + slot * 18, this.guiTop + 42, 120, 24, 10, 10);
@@ -118,7 +118,7 @@ public class GuiNullifier extends GuiContainerLargeStacks implements IButtonStat
         if (callbackId == 20)
         {
             ItemStack stack = this.containerN.getContainerItem();
-            return stack != null && NBTUtils.getBoolean(stack, ItemNullifier.TAG_NAME_CONTAINER, ItemNullifier.TAG_NAME_DISABLED) ? 1 : 0;
+            return stack.isEmpty() == false && NBTUtils.getBoolean(stack, ItemNullifier.TAG_NAME_CONTAINER, ItemNullifier.TAG_NAME_DISABLED) ? 1 : 0;
         }
 
         return 0;

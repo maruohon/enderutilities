@@ -42,7 +42,7 @@ public class EntityEventHandler
         EntityPlayer player = event.getEntityPlayer();
         ItemStack stack = player.getHeldItem(event.getHand());
 
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return;
         }
@@ -52,7 +52,7 @@ public class EntityEventHandler
 
         // This needs to be in the event instead of itemInteractionForEntity() if we want it to also work in creative mode...
         // (Otherwise in creative mode the NBT will get wiped after the use when the item is restored)
-        if (item == EnderUtilitiesItems.livingManipulator)
+        if (item == EnderUtilitiesItems.LIVING_MANIPULATOR)
         {
             if (event.getTarget() instanceof EntityLivingBase)
             {
@@ -63,12 +63,12 @@ public class EntityEventHandler
                 event.setCanceled(true);
             }
         }
-        else if (item == EnderUtilitiesItems.mobHarness && event.getTarget() instanceof EntityLivingBase)
+        else if (item == EnderUtilitiesItems.MOB_HARNESS && event.getTarget() instanceof EntityLivingBase)
         {
             ((ItemMobHarness) item).handleInteraction(stack, player, event.getTarget());
             event.setCanceled(true);
         }
-        else if (item == EnderUtilitiesItems.enderLasso && event.getTarget() instanceof EntityLivingBase)
+        else if (item == EnderUtilitiesItems.ENDER_LASSO && event.getTarget() instanceof EntityLivingBase)
         {
             if (Configs.enderLassoAllowPlayers || EntityUtils.doesEntityStackHavePlayers(event.getTarget()) == false)
             {
@@ -94,12 +94,14 @@ public class EntityEventHandler
                 IChargeable chargeable = (IChargeable)item;
                 chargeable.addCharge(stack, chargeable.getCapacity(stack) >> 2, true);
             }
-            else if (item instanceof IModule && item == EnderUtilitiesItems.enderPart && ((IModule)item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE))
+            else if (item == EnderUtilitiesItems.ENDER_PART && ((IModule) item).getModuleType(stack).equals(ModuleType.TYPE_ENDERCORE))
             {
-                int tier = ((IModule)item).getModuleTier(stack);
+                ItemEnderPart part = (ItemEnderPart) item;
+                int tier = part.getModuleTier(stack);
+
                 if (tier >= ItemEnderPart.ENDER_CORE_TYPE_INACTIVE_BASIC && tier <= ItemEnderPart.ENDER_CORE_TYPE_INACTIVE_ADVANCED)
                 {
-                    ((ItemEnderPart)item).activateEnderCore(stack);
+                    part.activateEnderCore(stack);
                 }
             }
         }
@@ -117,11 +119,11 @@ public class EntityEventHandler
         {
             // If the player is holding a Portal Scaler, then try to use that and cancel the regular
             // teleport if the Portal Scaler teleportation succeeds
-            ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer)entity, EnderUtilitiesItems.portalScaler);
+            ItemStack stack = EntityUtils.getHeldItemOfType((EntityPlayer) entity, EnderUtilitiesItems.PORTAL_SCALER);
 
-            if (stack != null && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
+            if (stack.isEmpty() == false && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
             {
-                if (((ItemPortalScaler)stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer)entity))
+                if (((ItemPortalScaler) stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer) entity))
                 {
                     event.setCanceled(true);
                 }
@@ -158,7 +160,8 @@ public class EntityEventHandler
             ((event.getEntity() instanceof EntityItem) || (event.getEntity() instanceof EntityXPOrb)))
         {
             event.getCollisionBoxesList().clear();
-            event.getCollisionBoxesList().addAll(PositionUtils.getSurroundingCollisionBoxesForEntityItem(event.getWorld(), event.getAabb(), event.getEntity()));
+            event.getCollisionBoxesList().addAll(
+                    PositionUtils.getSurroundingCollisionBoxesForEntityItem(event.getWorld(), event.getAabb(), event.getEntity()));
         }
     }
 }

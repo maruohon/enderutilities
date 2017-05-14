@@ -56,7 +56,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        return new TileEntityEnergyBridge();
+        TileEntityEnergyBridge te = new TileEntityEnergyBridge();
+        te.setType(state.getValue(TYPE).getMeta());
+        return te;
     }
 
     @Override
@@ -70,7 +72,6 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 
             if (te != null)
             {
-                te.setType(state.getValue(TYPE).getMeta());
                 te.tryAssembleMultiBlock();
             }
         }
@@ -128,9 +129,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < 3; meta++)
+        for (int i = 0; i < EnumMachineType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, EnumMachineType.values()[i].getMeta()));
         }
     }
 

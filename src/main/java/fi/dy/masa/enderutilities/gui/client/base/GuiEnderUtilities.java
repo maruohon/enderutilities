@@ -271,7 +271,7 @@ public class GuiEnderUtilities extends GuiContainer
                 ItemStack stackSlot = inv.getStackInSlot(slotNum);
 
                 // Empty locked slots are in a different color
-                if (stackSlot == null)
+                if (stackSlot.isEmpty())
                 {
                     v = 36;
                 }
@@ -305,23 +305,20 @@ public class GuiEnderUtilities extends GuiContainer
         {
             Slot slot = this.inventorySlots.getSlot(slotNum);
 
-            if (inv.isSlotLocked(slotNum))
+            if (inv.isSlotLocked(slotNum) && inv.getStackInSlot(slotNum).isEmpty())
             {
-                if (inv.getStackInSlot(slotNum) == null)
-                {
-                    ItemStack stack = inv.getTemplateStackInSlot(slotNum);
+                ItemStack stack = inv.getTemplateStackInSlot(slotNum);
 
-                    if (stack != null)
-                    {
-                        int x = this.guiLeft + slot.xPos;
-                        int y = this.guiTop + slot.yPos;
-                        GlStateManager.enableLighting();
-                        GlStateManager.enableDepth();
-                        GlStateManager.enableBlend();
-                        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-                        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-                        this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
-                    }
+                if (stack.isEmpty() == false)
+                {
+                    int x = this.guiLeft + slot.xPos;
+                    int y = this.guiTop + slot.yPos;
+                    GlStateManager.enableLighting();
+                    GlStateManager.enableDepth();
+                    GlStateManager.enableBlend();
+                    OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+                    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                    this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
                 }
             }
         }

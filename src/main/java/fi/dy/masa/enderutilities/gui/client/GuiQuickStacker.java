@@ -58,7 +58,8 @@ public class GuiQuickStacker extends GuiEnderUtilities
         this.bindTexture(this.guiTextureWidgets);
 
         ItemStack stack = this.containerQS.getContainerItem();
-        if (stack != null)
+
+        if (stack.isEmpty() == false)
         {
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET_SELECTION);
@@ -93,6 +94,7 @@ public class GuiQuickStacker extends GuiEnderUtilities
 
             // Offhand slot
             bit = 1L << 40;
+
             if ((mask & bit) != 0)
             {
                 this.drawTexturedModalRect(this.firstInvSlotX - 1 - 18, this.firstInvSlotY - 1 - 18, 102, 18, 18, 18);

@@ -273,7 +273,7 @@ public class PortalFormer
             {
                 EnumFacing facing = this.portalAxis == EnumFacing.Axis.X ? EnumFacing.EAST :
                                     this.portalAxis == EnumFacing.Axis.Z ? EnumFacing.NORTH : EnumFacing.UP;
-                BlockEnderUtilities block = EnderUtilitiesBlocks.blockPortal;
+                BlockEnderUtilities block = EnderUtilitiesBlocks.PORTAL;
                 IBlockState state = block.getDefaultState().withProperty(block.propFacing, facing);
 
                 for (BlockPos posPortal : this.visited)

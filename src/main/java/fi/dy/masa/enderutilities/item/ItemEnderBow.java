@@ -54,7 +54,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         this.setNoRepair();
         this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
         this.commonTooltip = "enderutilities.tooltips.itemlocationboundmodular";
-        this.repairMaterial = new ItemStack(EnderUtilitiesItems.enderPart, 1, 1); // Enhanced Ender Alloy
+        this.repairMaterial = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 1); // Enhanced Ender Alloy
     }
 
     /**
@@ -90,7 +90,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             return;
         }
 
-        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.enderArrow)) == false)
+        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)) == false)
         {
             return;
         }
@@ -129,7 +129,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             }
 
             IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null); // null: joined wrapper
-            InventoryUtils.extractItems(inv, EnderUtilitiesItems.enderArrow, 1);
+            InventoryUtils.extractItems(inv, EnderUtilitiesItems.ENDER_ARROW, 1);
 
             stack.damageItem(1, player);
 
@@ -192,7 +192,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             }
         }
 
-        if (player.capabilities.isCreativeMode == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.enderArrow)) == true)
+        if (player.capabilities.isCreativeMode == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)) == true)
         {
             player.setActiveHand(hand);
 

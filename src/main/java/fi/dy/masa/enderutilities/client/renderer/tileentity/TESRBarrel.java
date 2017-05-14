@@ -59,7 +59,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                 }
             }
 
-            if (te.renderStack == null)
+            if (te.renderStack.isEmpty())
             {
                 return;
             }

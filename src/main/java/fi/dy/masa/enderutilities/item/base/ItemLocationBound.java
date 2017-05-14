@@ -38,7 +38,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
             if (world.isRemote == false)
             {
                 ItemStack stack = player.getHeldItem(hand);
-                boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal &&
+                boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL &&
                         ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
                 this.setTarget(stack, player, pos, side, hitX, hitY, hitZ, adjustPosHit, false);
             }
@@ -256,7 +256,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
         double hitY = player.posY - pos.getY();
         double hitZ = player.posZ - pos.getZ();
         //System.out.printf("x: %d y: %d z: %d hit: %.3f %.3f %.3f\n", x, y, z, hitX, hitY, hitZ);
-        boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.linkCrystal && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+        boolean adjustPosHit = stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL && ((ItemLinkCrystal)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
 
         this.setTarget(stack, player, pos, EnumFacing.UP, hitX, hitY, hitZ, adjustPosHit, storeRotation);
     }

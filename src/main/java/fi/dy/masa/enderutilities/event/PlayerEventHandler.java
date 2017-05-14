@@ -40,21 +40,27 @@ public class PlayerEventHandler
         BlockPos pos = event.getPos();
         EnumFacing face = event.getFace();
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand)
+        if (stack.isEmpty() == false)
         {
-            ((ItemBuildersWand) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
-            event.setCanceled(true);
-        }
-        else if (stack != null && stack.getItem() == EnderUtilitiesItems.ruler)
-        {
-            ((ItemRuler) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
-            event.setCanceled(true);
-        }
-        else if (player.capabilities.isCreativeMode == false && stack != null && stack.getItem() == EnderUtilitiesItems.enderTool)
-        {
-            if (player.getCooldownTracker().hasCooldown(stack.getItem()))
+            if (stack.getItem() == EnderUtilitiesItems.BUILDERS_WAND)
             {
+                ((ItemBuildersWand) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
                 event.setCanceled(true);
+                return;
+            }
+            else if (stack.getItem() == EnderUtilitiesItems.RULER)
+            {
+                ((ItemRuler) stack.getItem()).onLeftClickBlock(player, world, stack, pos, world.provider.getDimension(), face);
+                event.setCanceled(true);
+                return;
+            }
+            else if (player.capabilities.isCreativeMode == false && stack.getItem() == EnderUtilitiesItems.ENDER_TOOL)
+            {
+                if (player.getCooldownTracker().hasCooldown(stack.getItem()))
+                {
+                    event.setCanceled(true);
+                    return;
+                }
             }
         }
 
@@ -75,9 +81,9 @@ public class PlayerEventHandler
     {
         if (event.getSide() == Side.CLIENT)
         {
-            ItemStack stack = EntityUtils.getHeldItemOfType(event.getEntityPlayer(), EnderUtilitiesItems.buildersWand);
+            ItemStack stack = EntityUtils.getHeldItemOfType(event.getEntityPlayer(), EnderUtilitiesItems.BUILDERS_WAND);
 
-            if (stack != null && EnderUtilities.proxy.isControlKeyDown())
+            if (stack.isEmpty() == false && EnderUtilities.proxy.isControlKeyDown())
             {
                 PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(HotKeys.KEYCODE_CUSTOM_1));
             }

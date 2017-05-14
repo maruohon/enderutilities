@@ -116,12 +116,12 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
 
         item.setHasPlacementProperties(true);
 
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".delay",         Constants.NBT.TAG_INT, 0, 72000);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_INSERTER + ".stack_limit",   Constants.NBT.TAG_BYTE, 1, 64);
+        item.addPlacementProperty("inserter.delay",         Constants.NBT.TAG_INT, 0, 72000);
+        item.addPlacementProperty("inserter.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
+        item.addPlacementProperty("inserter.stack_limit",   Constants.NBT.TAG_BYTE, 1, 64);
 
         String[] names = new String[] { "ignored", "low", "high" };
-        item.addPlacementPropertyValueNames(ReferenceNames.NAME_TILE_INSERTER + ".redstone_mode", names);
+        item.addPlacementPropertyValueNames("inserter.redstone_mode", names);
 
         return item;
     }
@@ -416,9 +416,9 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < InserterType.values().length; meta++)
+        for (int i = 0; i < InserterType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, InserterType.values()[i].getMeta()));
         }
     }
 

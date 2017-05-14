@@ -89,7 +89,7 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerColorHandlers()
     {
-        if (EnderUtilitiesBlocks.blockElevator.isEnabled())
+        if (EnderUtilitiesBlocks.ELEVATOR.isEnabled())
         {
             Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
                 new IBlockColor()
@@ -99,37 +99,7 @@ public class ClientProxy extends CommonProxy
                     {
                         return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
                     }
-                }, EnderUtilitiesBlocks.blockElevator);
-
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-                    new IBlockColor()
-                    {
-                        @Override
-                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
-                        {
-                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
-                        }
-                    }, EnderUtilitiesBlocks.blockElevatorSlab);
-
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-                    new IBlockColor()
-                    {
-                        @Override
-                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
-                        {
-                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
-                        }
-                    }, EnderUtilitiesBlocks.blockElevatorLayer);
-
-            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                new IItemColor()
-                {
-                    @Override
-                    public int getColorFromItemstack(ItemStack stack, int tintIndex)
-                    {
-                        return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
-                    }
-                }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevator));
+                }, EnderUtilitiesBlocks.ELEVATOR);
 
             Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
                     new IItemColor()
@@ -139,20 +109,58 @@ public class ClientProxy extends CommonProxy
                         {
                             return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
                         }
-                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevatorSlab));
-
-            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                    new IItemColor()
-                    {
-                        @Override
-                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
-                        {
-                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
-                        }
-                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.blockElevatorLayer));
+                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR));
         }
 
-        if (EnderUtilitiesBlocks.blockPortal.isEnabled())
+        if (EnderUtilitiesBlocks.ELEVATOR_SLAB.isEnabled())
+        {
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                    new IBlockColor()
+                    {
+                        @Override
+                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                        {
+                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, EnderUtilitiesBlocks.ELEVATOR_SLAB);
+
+            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                    new IItemColor()
+                    {
+                        @Override
+                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        {
+                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_SLAB));
+        }
+
+        if (EnderUtilitiesBlocks.ELEVATOR_LAYER.isEnabled())
+        {
+
+            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+                    new IBlockColor()
+                    {
+                        @Override
+                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+                        {
+                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, EnderUtilitiesBlocks.ELEVATOR_LAYER);
+
+
+            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+                    new IItemColor()
+                    {
+                        @Override
+                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        {
+                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                        }
+                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_LAYER));
+        }
+
+        if (EnderUtilitiesBlocks.PORTAL.isEnabled())
         {
             Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
                 new IBlockColor()
@@ -171,10 +179,10 @@ public class ClientProxy extends CommonProxy
                         }
                         return 0xA010F0;
                     }
-                }, EnderUtilitiesBlocks.blockPortal);
+                }, EnderUtilitiesBlocks.PORTAL);
         }
 
-        if (EnderUtilitiesBlocks.blockPortalPanel.isEnabled())
+        if (EnderUtilitiesBlocks.PORTAL_PANEL.isEnabled())
         {
             Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
                 new IBlockColor()
@@ -193,7 +201,7 @@ public class ClientProxy extends CommonProxy
                         }
                         return 0xFFFFFF;
                     }
-                }, EnderUtilitiesBlocks.blockPortalPanel);
+                }, EnderUtilitiesBlocks.PORTAL_PANEL);
         }
     }
 
@@ -230,7 +238,7 @@ public class ClientProxy extends CommonProxy
         RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class,
                 new IRenderFactory<EntityEnderPearlReusable>() {
                     @Override public Render<? super EntityEnderPearlReusable> createRenderFor (RenderManager manager) {
-                        return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.enderPearlReusable);
+                        return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.ENDER_PEARL_REUSABLE);
                     }
                 });
         RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class,
@@ -284,33 +292,33 @@ public class ClientProxy extends CommonProxy
 
     private void registerAllItemModels()
     {
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderCapacitor);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPart);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.linkCrystal);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_CAPACITOR);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PART);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.LINK_CRYSTAL);
 
-        this.registerItemModel(EnderUtilitiesItems.buildersWand);
-        this.registerItemModel(EnderUtilitiesItems.chairWand);
+        this.registerItemModel(EnderUtilitiesItems.BUILDERS_WAND);
+        this.registerItemModel(EnderUtilitiesItems.CHAIR_WAND);
         this.registerItemModel(EnderUtilitiesItems.DOLLY);
-        this.registerItemModel(EnderUtilitiesItems.enderArrow);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBag);
-        this.registerItemModel(EnderUtilitiesItems.enderBow);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderBucket);
-        this.registerItemModel(EnderUtilitiesItems.enderLasso);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPearlReusable);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.enderPorter);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderSword);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.enderTool);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.handyBag);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.iceMelter);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.inventorySwapper);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.livingManipulator);
-        this.registerItemModel(EnderUtilitiesItems.mobHarness);
+        this.registerItemModel(EnderUtilitiesItems.ENDER_ARROW);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BAG);
+        this.registerItemModel(EnderUtilitiesItems.ENDER_BOW);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BUCKET);
+        this.registerItemModel(EnderUtilitiesItems.ENDER_LASSO);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PEARL_REUSABLE);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PORTER);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_SWORD);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_TOOL);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.HANDY_BAG);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.ICE_MELTER);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.INVENTORY_SWAPPER);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.LIVING_MANIPULATOR);
+        this.registerItemModel(EnderUtilitiesItems.MOB_HARNESS);
         this.registerItemModelWithNamePrefix(EnderUtilitiesItems.NULLIFIER, 0, "item_");
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.pickupManager);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.quickStacker);
-        this.registerItemModel(EnderUtilitiesItems.portalScaler);
-        this.registerItemModel(EnderUtilitiesItems.ruler);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.syringe);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.PICKUP_MANAGER);
+        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.QUICK_STACKER);
+        this.registerItemModel(EnderUtilitiesItems.PORTAL_SCALER);
+        this.registerItemModel(EnderUtilitiesItems.RULER);
+        this.registerItemModelWithVariants(EnderUtilitiesItems.SYRINGE);
         this.registerItemModelWithNameSuffix(EnderUtilitiesItems.VOID_PICKAXE, 0, "_normal");
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
@@ -395,18 +403,18 @@ public class ClientProxy extends CommonProxy
         // And thus registerAllItemBlockModels() can't be used for them.
         for (int i = 0; i < 16; i++)
         {
-            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevator, i, "inventory");
-            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevatorSlab, i, "inventory");
-            this.registerItemBlockModel(EnderUtilitiesBlocks.blockElevatorLayer, i, "inventory");
+            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR, i, "inventory");
+            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_SLAB, i, "inventory");
+            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_LAYER, i, "inventory");
         }
 
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevator,      (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevatorSlab,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.blockElevatorLayer, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,      (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_SLAB,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_LAYER, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockEnergyBridge, "active=false,facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockMachine_1,    "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.blockStorage_0,    "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1,    "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0,    "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU,               "type=", "");
 
         this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
@@ -418,9 +426,9 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(EnderUtilitiesBlocks.MOLECULAR_EXCITER, 0, "facing=north,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalFrame,  0, "inventory");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockMachine_0,    0, "facing=north,mode=off");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.blockPortalPanel,  0, "facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_FRAME,  0, "inventory");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.ENDER_FURNACE,    0, "facing=north,mode=off");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_PANEL,  0, "facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.SOUND_BLOCK, 0, "inventory");
     }
 

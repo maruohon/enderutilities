@@ -165,17 +165,11 @@ public class EntityEndermanFighter extends EntityMob
 
     private boolean isPlayerHoldingSummonItem(EntityPlayer player)
     {
-        if (player.getHeldItemMainhand() != null)
-        {
-            ItemStack stack = player.getHeldItemMainhand();
-            if (stack.getItem() == EnderUtilitiesItems.enderSword &&
-                ItemEnderSword.SwordMode.fromStack(stack) == ItemEnderSword.SwordMode.SUMMON)
-            {
-                return true;
-            }
-        }
+        ItemStack stack = player.getHeldItemMainhand();
 
-        return false;
+        return stack.isEmpty() == false &&
+               stack.getItem() == EnderUtilitiesItems.ENDER_SWORD &&
+               ItemEnderSword.SwordMode.fromStack(stack) == ItemEnderSword.SwordMode.SUMMON;
     }
 
     public void setAssignedTarget(@Nullable EntityLivingBase target)
@@ -323,8 +317,8 @@ public class EntityEndermanFighter extends EntityMob
     {
         // The fighters attack players that are not holding an Ender Sword in the Summon mode, unless they have been renamed
         // (this allows having them around without them teleporting out and attacking unless you are always holding and Ender Sword...)
-        if (this.isBeingControlled || this.hasCustomName() || player.isEntityAlive() == false
-            || player.capabilities.disableDamage || this.isPlayerHoldingSummonItem(player))
+        if (this.isBeingControlled || this.hasCustomName() || player.isEntityAlive() == false ||
+            player.capabilities.disableDamage || this.isPlayerHoldingSummonItem(player))
         {
             return false;
         }
@@ -339,8 +333,9 @@ public class EntityEndermanFighter extends EntityMob
             EntityPlayer playerTmp = (EntityPlayer)this.getEntityWorld().playerEntities.get(i);
 
             // If there is a player holding an Ender Sword in Summon mode within 32 blocks, then this fighter won't attack players
-            if (playerTmp.isEntityAlive() && playerTmp.getDistanceSq(this.posX, this.posY, this.posZ) < 1024.0d
-                && this.isPlayerHoldingSummonItem(playerTmp))
+            if (playerTmp.isEntityAlive() &&
+                playerTmp.getDistanceSq(this.posX, this.posY, this.posZ) < 1024.0d &&
+                this.isPlayerHoldingSummonItem(playerTmp))
             {
                 this.isBeingControlled = true;
                 return;
@@ -498,8 +493,8 @@ public class EntityEndermanFighter extends EntityMob
 
         if (success)
         {
-            this.world.playSound(null, this.prevPosX, this.prevPosY, this.prevPosZ, SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 1.0F, 1.0F);
-            this.playSound(SoundEvents.ENTITY_ENDERMEN_TELEPORT, 1.0F, 1.0F);
+            this.getEntityWorld().playSound(null, this.prevPosX, this.prevPosY, this.prevPosZ,
+                    SoundEvents.ENTITY_ENDERMEN_TELEPORT, this.getSoundCategory(), 1.0F, 1.0F);
         }
 
         return success;

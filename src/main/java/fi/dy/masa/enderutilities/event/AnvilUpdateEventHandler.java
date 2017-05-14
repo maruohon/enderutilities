@@ -143,7 +143,7 @@ public class AnvilUpdateEventHandler
             outputStack.setStackDisplayName(name);
             event.setCost(event.getCost() + 1);
         }
-        else if (StringUtils.isBlank(name) == true && outputStack.hasDisplayName() == true)
+        else if (outputStack.hasDisplayName())
         {
             // Remove the custom name
             outputStack.clearCustomName();

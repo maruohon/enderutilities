@@ -4,7 +4,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class ReferenceTextures
 {
-    public static final String RESOURCE_PREFIX = Reference.MOD_ID.toLowerCase() + ":";
     public static final String GUI_LOCATION = "textures/gui/";
     public static final String ITEM_LOCATION = "items/";
 
@@ -26,7 +25,7 @@ public class ReferenceTextures
 
     public static ResourceLocation getResourceLocation(String path)
     {
-        return getResourceLocation(Reference.MOD_ID.toLowerCase(), path);
+        return getResourceLocation(Reference.MOD_ID, path);
     }
 
     public static ResourceLocation getResourceLocation(String modId, String path)

@@ -12,6 +12,7 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -83,9 +84,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     private final IItemHandler furnaceInventoryWrapper;
 
     private final InventoryItemCallback[] craftingInventories;
-    private final ItemStack[][] craftingGridTemplates;
+    private final NonNullList<ItemStack>[] craftingGridTemplates;
     protected final ItemStackHandlerBasic[] craftResults;
-    protected final ItemStack[][] recipeItems;
+    protected final NonNullList<ItemStack>[] recipeItems;
     protected int selectedModule;
     protected int actionMode;
     protected Map<UUID, Long> clickTimes;
@@ -109,9 +110,9 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.itemHandlerMemoryCards = new TileEntityHandyChest.ItemHandlerWrapperMemoryCards(this.getBaseItemHandler());
 
         this.craftingInventories = new InventoryItemCallback[2];
-        this.craftingGridTemplates = new ItemStack[][] { null, null };
+        this.craftingGridTemplates = new NonNullList<ItemStack>[] { null, null };
         this.craftResults = new ItemStackHandlerBasic[] { new ItemStackHandlerBasic(1), new ItemStackHandlerBasic(1) };
-        this.recipeItems = new ItemStack[][] { new ItemStack[10], new ItemStack[10] };
+        this.recipeItems = new NonNullList<ItemStack>[] { NonNullList.withSize(10, ItemStack.EMPTY), NonNullList.withSize(10, ItemStack.EMPTY) };
 
         this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
         this.furnaceInventoryWrapper = new ItemHandlerWrapperFurnace(this.furnaceInventory);
@@ -353,7 +354,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
      * Gets the recipeItems array of ItemStacks for the currently selected recipe
      * @param invId
      */
-    public ItemStack[] getRecipeItems(int invId)
+    public NonNullList<ItemStack> getRecipeItems(int invId)
     {
         return this.recipeItems[MathHelper.clamp(invId, 0, 1)];
     }
@@ -373,10 +374,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     protected void loadRecipe(int invId, int recipeId)
     {
         NBTTagCompound tag = this.getRecipeTag(invId, recipeId, false);
+
         if (tag != null)
         {
             this.clearLoadedRecipe(invId);
-            ItemStack items[] = this.getRecipeItems(invId);
+            NonNullList<ItemStack> items = this.getRecipeItems(invId);
             NBTUtils.readStoredItemsFromTag(tag, items, "Recipe_" + recipeId);
         }
         else
@@ -393,23 +395,24 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         if (tag != null)
         {
             int invSize = invCrafting.getSlots();
-            ItemStack items[] = this.getRecipeItems(invId);
+            NonNullList<ItemStack> items = this.getRecipeItems(invId);
 
             for (int i = 0; i < invSize; i++)
             {
                 ItemStack stack = invCrafting.getStackInSlot(i);
-                if (stack != null)
+
+                if (stack.isEmpty() == false)
                 {
                     stack = stack.copy();
-                    stack.stackSize = 1;
+                    stack.setCount(1);
                 }
 
-                items[i] = stack;
+                items.set(i, stack);
             }
 
             // Store the recipe output item in the last slot, it will be used for GUI stuff
             ItemStack stack = this.craftResults[invId].getStackInSlot(0);
-            items[items.length - 1] = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+            items.set(items.size() - 1, stack.isEmpty() ? ItemStack.EMPTY : stack.copy());
 
             NBTUtils.writeItemsToTag(tag, items, "Recipe_" + recipeId, true);
         }
@@ -417,10 +420,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     protected void clearLoadedRecipe(int invId)
     {
-        ItemStack items[] = this.getRecipeItems(invId);
-        for (int i = 0; i < items.length; i++)
+        NonNullList<ItemStack> items = this.getRecipeItems(invId);
+
+        for (int i = 0; i < items.size(); i++)
         {
-            items[i] = null;
+            items.set(i, ItemStack.EMPTY);
         }
     }
 
@@ -446,7 +450,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         int maskOreDict = invId == 1 ? MODE_BIT_RIGHT_CRAFTING_OREDICT : MODE_BIT_LEFT_CRAFTING_OREDICT;
         boolean useOreDict = (this.modeMask & maskOreDict) != 0;
 
-        ItemStack[] template = this.getRecipeItems(invId);
+        NonNullList<ItemStack> template = this.getRecipeItems(invId);
         IItemHandlerModifiable playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
         IItemHandler invWrapper = new CombinedInvWrapper(this.itemInventory, playerInv);
         InventoryUtils.clearInventoryToMatchTemplate(invCrafting, invWrapper, template);

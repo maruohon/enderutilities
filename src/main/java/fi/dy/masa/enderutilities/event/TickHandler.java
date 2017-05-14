@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.event;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
@@ -87,13 +86,14 @@ public class TickHandler
         // Once every 2 seconds
         if (this.playerTickCounter % 40 == 0)
         {
-            if (player.isRiding() && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness)))
+            if (player.isRiding() && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.MOB_HARNESS)))
             {
                 ItemMobHarness.addAITask(player.getRidingEntity(), false);
             }
 
             ItemStack stack = EntityUtils.getHeldItemOfType(player, IChunkLoadingItem.class);
-            if (stack != null)
+
+            if (stack.isEmpty() == false)
             {
                 NBTTagCompound nbt = stack.getTagCompound();
 
@@ -131,33 +131,37 @@ public class TickHandler
     private void teleportPlayers()
     {
         PlayerList list = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
-        Iterator<UUID> iter = this.portalFlags.iterator();
 
-        while (iter.hasNext())
+        if (this.portalFlags.isEmpty() == false)
         {
-            EntityPlayer player = list.getPlayerByUUID(iter.next());
-
-            if (player != null)
+            for (UUID uuid : this.portalFlags)
             {
-                World world = player.getEntityWorld();
-                BlockPos pos = player.getPosition();
+                EntityPlayer player = list.getPlayerByUUID(uuid);
 
-                for (int i = 0; i < 3; i++)
+                if (player != null)
                 {
-                    IBlockState state = world.getBlockState(pos);
+                    World world = player.getEntityWorld();
+                    BlockPos pos = player.getPosition();
 
-                    if (state.getBlock() == EnderUtilitiesBlocks.blockPortal &&
-                        player.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+                    // The exact intersection is checked here, because the players get added
+                    // to the set when they enter the block space, even if they don't intersect with the portal yet.
+                    for (int i = 0; i < 3; i++)
                     {
-                        ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
-                        break;
-                    }
+                        IBlockState state = world.getBlockState(pos);
 
-                    pos = pos.up();
+                        if (state.getBlock() == EnderUtilitiesBlocks.PORTAL &&
+                            player.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+                        {
+                            ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
+                            break;
+                        }
+
+                        pos = pos.up();
+                    }
                 }
             }
 
-            iter.remove();
+            this.portalFlags.clear();
         }
     }
 }

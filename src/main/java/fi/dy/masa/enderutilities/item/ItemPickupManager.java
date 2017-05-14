@@ -209,7 +209,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public static List<ItemStack> getEnabledItems(EntityPlayer player)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.pickupManager);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.PICKUP_MANAGER);
         List<ItemStack> enabledItems = new ArrayList<ItemStack>();
 
         for (int slot : slots)

@@ -417,22 +417,45 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the first matching item from the player's inventory, or null.
+     * Returns the first matching item from the player's inventory, or an empty stack.
      */
     public static ItemStack getFirstItemOfType(EntityPlayer player, Class<?> clazz)
     {
         IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        final int numSlots = inv.getSlots();
 
-        for (int slot = 0; slot < inv.getSlots(); slot++)
+        for (int slot = 0; slot < numSlots; slot++)
         {
             ItemStack stack = inv.getStackInSlot(slot);
-            if (stack != null && clazz.isAssignableFrom(stack.getItem().getClass()))
+
+            if (stack.isEmpty() == false && clazz.isAssignableFrom(stack.getItem().getClass()))
             {
                 return stack;
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * Returns the first matching item from the player's inventory, or an empty stack.
+     */
+    public static ItemStack getFirstItemOfType(EntityPlayer player, Item item)
+    {
+        IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        final int numSlots = inv.getSlots();
+
+        for (int slot = 0; slot < numSlots; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (stack.isEmpty() == false && stack.getItem() == item)
+            {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
 
     /**

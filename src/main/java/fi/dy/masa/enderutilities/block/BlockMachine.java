@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -9,7 +8,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
@@ -17,27 +15,25 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntityToolWorkstation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class BlockMachine1 extends BlockEnderUtilitiesInventory
+public class BlockMachine extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyEnum<BlockMachine1.EnumMachineType> TYPE =
-            PropertyEnum.<BlockMachine1.EnumMachineType>create("type", BlockMachine1.EnumMachineType.class);
+    public static final PropertyEnum<BlockMachine.EnumMachineType> TYPE =
+            PropertyEnum.<BlockMachine.EnumMachineType>create("type", BlockMachine.EnumMachineType.class);
 
-    public BlockMachine1(String name, float hardness, float resistance, int harvestLevel, Material material)
+    public BlockMachine(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(TYPE, BlockMachine1.EnumMachineType.ENDER_INFUSER)
+                .withProperty(TYPE, BlockMachine.EnumMachineType.ENDER_INFUSER)
                 .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING));
     }
 
@@ -126,25 +122,11 @@ public class BlockMachine1 extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random rand)
-    {
-        TileEntityEnderFurnace te = getTileEntitySafely(worldIn, pos, TileEntityEnderFurnace.class);
-
-        if (te != null)
-        {
-            if (te.isBurningLast == true)
-            {
-                Effects.spawnParticlesAround(worldIn, EnumParticleTypes.PORTAL, pos, 2, rand);
-            }
-        }
-    }
-
-    @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < EnumMachineType.values().length; meta++)
+        for (int i = 0; i < EnumMachineType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, EnumMachineType.values()[i].getMeta()));
         }
     }
 

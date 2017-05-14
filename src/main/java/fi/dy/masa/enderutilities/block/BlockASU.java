@@ -22,7 +22,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -51,8 +50,8 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     {
         ItemBlockEnderUtilities item = new ItemBlockStorage(this);
         item.setHasPlacementProperties(true);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".slots", Constants.NBT.TAG_BYTE, 1, 9);
+        item.addPlacementProperty("asu.stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
+        item.addPlacementProperty("asu.slots", Constants.NBT.TAG_BYTE, 1, 9);
         return item;
     }
 

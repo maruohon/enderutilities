@@ -84,7 +84,8 @@ public class MessageSendString implements IMessage
             if (message.type == Type.ITEM)
             {
                 ItemStack stack = EntityUtils.getHeldItemOfType(player, IStringInput.class);
-                if (stack != null)
+
+                if (stack.isEmpty() == false)
                 {
                     ((IStringInput) stack.getItem()).handleString(player, stack, message.text);
                 }

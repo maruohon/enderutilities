@@ -292,7 +292,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
             if (slot < 8)
             {
-                return stack.getItem() == EnderUtilitiesItems.linkCrystal &&
+                return stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL &&
                         ((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
             }
 
@@ -304,11 +304,11 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     {
         World world = this.getWorld();
         BlockPos posPanel = this.getPos();
-        BlockEnderUtilities blockPanel = EnderUtilitiesBlocks.blockPortalPanel;
+        BlockEnderUtilities blockPanel = EnderUtilitiesBlocks.PORTAL_PANEL;
         BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(blockPanel.propFacing).getOpposite());
 
         PortalFormer portalFormer = new PortalFormer(world, posFrame,
-                EnderUtilitiesBlocks.blockPortalFrame, EnderUtilitiesBlocks.blockPortal);
+                EnderUtilitiesBlocks.PORTAL_FRAME, EnderUtilitiesBlocks.PORTAL);
         portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getActiveColor());
         portalFormer.analyzePortal();
         boolean state = portalFormer.getPortalState();

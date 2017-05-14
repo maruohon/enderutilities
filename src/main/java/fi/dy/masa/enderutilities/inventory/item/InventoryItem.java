@@ -166,7 +166,7 @@ public class InventoryItem extends ItemStackHandlerBasic
 
     public int getInventoryStackLimitFromContainerStack(ItemStack stack)
     {
-        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.enderPart)
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
         {
             int tier = ((IModule) stack.getItem()).getModuleTier(stack);
 

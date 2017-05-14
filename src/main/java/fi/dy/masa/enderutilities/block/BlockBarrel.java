@@ -51,7 +51,8 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING_H, CREATIVE, LABEL_UP, LABEL_DOWN, LABEL_FRONT, LABEL_BACK, LABEL_LEFT, LABEL_RIGHT });
+        return new BlockStateContainer(this, new IProperty[] { FACING_H, CREATIVE,
+                LABEL_UP, LABEL_DOWN, LABEL_FRONT, LABEL_BACK, LABEL_LEFT, LABEL_RIGHT });
     }
 
     @Override
@@ -122,7 +123,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
                 // if there is no structure upgrade installed and a barrel is forcibly broken (in Creative mode for example).
                 ItemStack stack = te.getBaseItemHandler().getStackInSlot(0);
 
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     EntityUtils.dropItemStacksInWorld(world, pos, stack, Math.min(stack.getCount(), 4096), true);
                 }

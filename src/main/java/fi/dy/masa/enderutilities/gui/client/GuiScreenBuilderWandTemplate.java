@@ -151,8 +151,8 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
     {
         ItemStack stack = this.mc.player.getHeldItemMainhand();
 
-        if (stack != null && stack.getItem() == EnderUtilitiesItems.buildersWand &&
-                ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.BUILDERS_WAND &&
+            ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
         {
             return ((ItemBuildersWand) stack.getItem()).getTemplateName(stack, Mode.COPY);
         }

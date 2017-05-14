@@ -107,6 +107,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         GlStateManager.disableBlend();
 
         String name = this.tepp.getPanelDisplayName();
+
         if (this.nameLast.equals(name) == false)
         {
             this.nameField.setText(name);
@@ -135,7 +136,6 @@ public class GuiPortalPanel extends GuiEnderUtilities
 
             if (i < 8 && active == i)
             {
-                //System.out.println("active: " + i);
                 this.drawTexturedModalRect(x + slot.xPos - 1, y + slot.yPos - 1,      102, 54, 18, 18);
                 this.drawTexturedModalRect(x + slot.xPos - 1, y + slot.yPos - 1 + 18, 102, 54, 18, 18);
             }

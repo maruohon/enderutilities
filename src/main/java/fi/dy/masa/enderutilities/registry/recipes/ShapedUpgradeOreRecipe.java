@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.registry.recipes;
 
+import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -63,6 +64,7 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
     }
 
     @Override
+    @Nonnull
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
         ItemStack result = super.getCraftingResult(inv);
@@ -72,7 +74,7 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
             ItemStack tmp = inv.getStackInSlot(i);
 
             // Take or merge the NBT from the first item on the crafting grid that matches the set "source" item
-            if (tmp != null && tmp.getItem() == this.sourceItem && tmp.hasTagCompound() &&
+            if (tmp.isEmpty() == false && tmp.getItem() == this.sourceItem && tmp.hasTagCompound() &&
                 (this.sourceMeta == OreDictionary.WILDCARD_VALUE || tmp.getMetadata() == this.sourceMeta))
             {
                 if (result.hasTagCompound())

@@ -93,6 +93,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
 
         int mode = this.tehc.getQuickMode();
+
         if (mode >= 0 && mode <= 5)
         {
             button = this.buttonList.get(4 + mode);
@@ -117,10 +118,11 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         }
 
         int mask = this.tehc.getLockMask();
+
         for (int i = 0; i < 4; i++)
         {
             // Draw the background icon over empty storage module slots
-            if (this.tehc.getModuleInventory().getStackInSlot(i) == null)
+            if (this.tehc.getModuleInventory().getStackInSlot(i).isEmpty())
             {
                 slot = this.inventorySlots.getSlot(this.invSize + i);
                 this.drawTexturedModalRect(this.guiLeft + slot.xPos, this.guiTop + slot.yPos, 240, 80, 16, 16);

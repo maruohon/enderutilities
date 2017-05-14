@@ -83,6 +83,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         int x = 9;
         int y = 156;
         int mode = this.tecs.getQuickMode();
+
         if (mode >= 0 && mode <= 5)
         {
             x = ACTION_BUTTON_POSX[mode];
@@ -93,6 +94,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         // Draw the selection marker around selected crafting mode buttons
         mode = modeMask & 0xFF;
+
         for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
         {
             if ((mode & bit) != 0)
@@ -145,7 +147,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         // Draw the background icon over empty storage module slots
         for (int i = 0; i < this.tecs.getMemoryCardInventory().getSlots(); i++)
         {
-            if (this.tecs.getMemoryCardInventory().getStackInSlot(i) == null)
+            if (this.tecs.getMemoryCardInventory().getStackInSlot(i).isEmpty())
             {
                 this.drawTexturedModalRect(this.guiLeft + 216, this.guiTop + 102 + i * 18, 240, 80, 16, 16);
             }
@@ -202,7 +204,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                         y = this.guiTop + slot.yPos - 1;
 
                         // Missing items, red background
-                        if (gridStack == null)
+                        if (gridStack.isEmpty())
                         {
                             this.bindTexture(this.guiTextureWidgets);
 
@@ -229,7 +231,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                             this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, recipeStack, x + 1, y + 1, "0");
                         }
                         // Extra items, purple background
-                        else if (recipeStack == null)
+                        else if (recipeStack.isEmpty())
                         {
                             this.bindTexture(this.guiTextureWidgets);
                             GlStateManager.disableLighting();

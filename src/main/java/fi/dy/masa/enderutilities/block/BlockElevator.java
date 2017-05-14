@@ -144,11 +144,11 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
-        if (this == EnderUtilitiesBlocks.blockElevatorSlab)
+        if (this == EnderUtilitiesBlocks.ELEVATOR_SLAB)
         {
             return BOUNDS_SLAB;
         }
-        else if (this == EnderUtilitiesBlocks.blockElevatorLayer)
+        else if (this == EnderUtilitiesBlocks.ELEVATOR_LAYER)
         {
             return BOUNDS_LAYER;
         }

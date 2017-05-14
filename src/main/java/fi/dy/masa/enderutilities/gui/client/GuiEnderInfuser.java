@@ -53,6 +53,7 @@ public class GuiEnderInfuser extends GuiEnderUtilities
 
         // Currently charging an item, draw the charging progress bar
         int progress = ((ContainerEnderInfuser)this.inventorySlots).chargeProgress;
+
         if (progress > 0)
         {
             progress = progress * 15 / 100;
@@ -62,13 +63,13 @@ public class GuiEnderInfuser extends GuiEnderUtilities
         this.bindTexture(this.guiTextureWidgets);
 
         // Empty input slot, draw the slot background
-        if (this.inventorySlots.getSlot(0).getStack() == null)
+        if (this.inventorySlots.getSlot(0).getHasStack() == false)
         {
             this.drawTexturedModalRect(x + 44, y + 24, 240, 160, 16, 16);
         }
 
         // Empty chargeable item slot, draw the slot background
-        if (this.inventorySlots.getSlot(1).getStack() == null)
+        if (this.inventorySlots.getSlot(1).getHasStack() == false)
         {
             this.drawTexturedModalRect(x + 134, y + 8, 240, 16, 16, 16);
         }

@@ -119,6 +119,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         GlStateManager.disableBlend();
 
         String name = this.te.getItemName();
+
         if (name.equals(this.nameLast) == false)
         {
             this.nameField.setText(name);
@@ -139,15 +140,18 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         int y = (this.height - this.ySize) / 2;
 
         ItemStack toolStack = this.containerTW.getContainerItem();
+
         // No tool in the tool slot, draw the dark background
-        if (toolStack == null || (toolStack.getItem() instanceof IModular) == false)
+        if (toolStack.isEmpty() || (toolStack.getItem() instanceof IModular) == false)
         {
             this.drawTexturedModalRect(x + 8, y + 19, 240, 176, 16, 16);
         }
 
+        final int num = ContainerToolWorkstation.NUM_MODULE_SLOTS;
+        final int start = ContainerToolWorkstation.CONT_SLOT_MODULES_START;
+
         // Module slots
-        for (int i = 0, slotNum = ContainerToolWorkstation.CONT_SLOT_MODULES_START, dx = 79, dy = 18;
-             i < ContainerToolWorkstation.NUM_MODULE_SLOTS; dx += 18, i++)
+        for (int i = 0, slotNum = start, dx = 79, dy = 18; i < num; dx += 18, i++)
         {
             Slot slot = this.containerTW.getSlot(slotNum++);
 
@@ -185,6 +189,7 @@ public class GuiToolWorkstation extends GuiEnderUtilities
     protected void drawTooltips(int mouseX, int mouseY)
     {
         Slot slot = this.getSlotUnderMouse();
+
         // Hovering over the tool slot
         if (slot != null && slot.slotNumber == this.containerTW.getSlotTool() && slot.getHasStack() == false)
         {

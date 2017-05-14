@@ -10,15 +10,14 @@ public class BlockEventHandler
     @SubscribeEvent
     public void onHarvestDropsEvent(HarvestDropsEvent event)
     {
-        if (event.getHarvester() == null)
+        if (event.getHarvester() != null)
         {
-            return;
-        }
+            ItemStack stack = event.getHarvester().getHeldItemMainhand();
 
-        ItemStack stack = event.getHarvester().getHeldItemMainhand();
-        if (stack != null && stack.getItem() instanceof ItemEnderTool)
-        {
-            ((ItemEnderTool) stack.getItem()).handleHarvestDropsEvent(stack, event);
+            if (stack.isEmpty() == false && stack.getItem() instanceof ItemEnderTool)
+            {
+                ((ItemEnderTool) stack.getItem()).handleHarvestDropsEvent(stack, event);
+            }
         }
     }
 }

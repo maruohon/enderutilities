@@ -81,12 +81,12 @@ public class MessageOpenGui implements IMessage
 
         protected void processMessage(final MessageOpenGui message, EntityPlayer player)
         {
-            switch(message.guiId)
+            switch (message.guiId)
             {
                 case ReferenceGuiIds.GUI_ID_HANDY_BAG:
                     ItemStack stack = ItemHandyBag.getOpenableBag(player);
 
-                    if (stack != null)
+                    if (stack.isEmpty() == false)
                     {
                         // These two lines are to fix the UUID being missing the first time the GUI opens,
                         // if the item is grabbed from the creative inventory or from JEI or from /give

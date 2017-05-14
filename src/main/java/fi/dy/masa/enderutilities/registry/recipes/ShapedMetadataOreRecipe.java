@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.registry.recipes;
 
+import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -56,6 +57,7 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
     }
 
     @Override
+    @Nonnull
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
         ItemStack result = super.getCraftingResult(inv);
@@ -65,7 +67,7 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
             ItemStack tmp = inv.getStackInSlot(i);
 
             // Take or merge the NBT from the first item on the crafting grid that matches the set "source" item
-            if (tmp != null && tmp.getItem() == this.sourceItem)
+            if (tmp.isEmpty() == false && tmp.getItem() == this.sourceItem)
             {
                 result.setItemDamage(tmp.getMetadata() | this.mask);
 

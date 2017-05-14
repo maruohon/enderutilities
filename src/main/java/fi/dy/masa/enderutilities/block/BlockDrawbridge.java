@@ -114,9 +114,9 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(this, 1, 0));
-        list.add(new ItemStack(this, 1, 1));
+        list.add(new ItemStack(item, 1, 0));
+        list.add(new ItemStack(item, 1, 1));
     }
 }

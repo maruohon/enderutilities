@@ -132,9 +132,9 @@ public class BlockFloor extends BlockEnderUtilities
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < FloorType.values().length; meta++)
+        for (int i = 0; i < FloorType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, FloorType.values()[i].getMeta()));
         }
     }
 

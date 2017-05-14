@@ -150,7 +150,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public static ItemStack getEnabledItem(EntityPlayer player)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.quickStacker);
+        List<Integer> slots = InventoryUtils.getSlotNumbersOfMatchingItems(playerInv, EnderUtilitiesItems.QUICK_STACKER);
 
         for (int slot : slots)
         {
@@ -238,7 +238,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         if (player.openContainer instanceof ContainerQuickStacker)
         {
             ItemStack stack = ((ContainerQuickStacker)player.openContainer).getContainerItem();
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.quickStacker)
+            if (stack != null && stack.getItem() == EnderUtilitiesItems.QUICK_STACKER)
             {
                 if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
                 {

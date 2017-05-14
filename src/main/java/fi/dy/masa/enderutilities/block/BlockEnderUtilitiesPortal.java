@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
-import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
@@ -53,6 +52,12 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] { FACING });
+    }
+
+    @Override
+    protected String[] generateUnlocalizedNames()
+    {
+        return new String[] { this.blockName };
     }
 
     @Override
@@ -133,12 +138,6 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    protected String[] generateUnlocalizedNames()
-    {
-        return new String[] { this.blockName };
-    }
-
-    @Override
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return false;
@@ -172,18 +171,14 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
         {
             TileEntityPortal te = getTileEntitySafely(world, pos, TileEntityPortal.class);
 
-            if (te != null && entity.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+            if (te != null && te.getDestination() != null &&
+                entity.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
             {
-                TargetData target = te.getDestination();
+                OwnerData owner = te.getOwner();
 
-                if (target != null)
+                if (owner == null || owner.canAccess(entity))
                 {
-                    OwnerData owner = te.getOwner();
-
-                    if (owner == null || owner.canAccess(entity))
-                    {
-                        TeleportEntity.teleportEntityUsingTarget(entity, target, true, true);
-                    }
+                    TeleportEntity.teleportEntityUsingTarget(entity, te.getDestination(), true, true);
                 }
             }
         }
@@ -220,36 +215,31 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
      */
     private boolean checkCanStayAndScheduleBreaking(World world, BlockPos pos, IBlockState state)
     {
-        if (world.isRemote == false)
+        EnumFacing facing = state.getValue(FACING);
+        BlockPos[] positions = PositionUtils.getAdjacentPositions(pos, facing, false);
+        boolean canStay = true;
+
+        for (BlockPos posTmp : positions)
         {
-            EnumFacing facing = state.getValue(FACING);
-            BlockPos[] positions = PositionUtils.getAdjacentPositions(pos, facing, false);
-            boolean canStay = true;
+            Block block = world.getBlockState(posTmp).getBlock();
 
-            for (BlockPos posTmp : positions)
+            if (block != this && block != EnderUtilitiesBlocks.PORTAL_FRAME)
             {
-                Block block = world.getBlockState(posTmp).getBlock();
-
-                if (block != this && block != EnderUtilitiesBlocks.blockPortalFrame)
+                for (BlockPos posTmp2 : positions)
                 {
-                    for (BlockPos posTmp2 : positions)
+                    block = world.getBlockState(posTmp2).getBlock();
+
+                    if (block == this)
                     {
-                        block = world.getBlockState(posTmp2).getBlock();
-
-                        if (block == this)
-                        {
-                            world.scheduleBlockUpdate(posTmp2, block, 0, 0);
-                        }
+                        world.scheduleBlockUpdate(posTmp2, block, 0, 0);
                     }
-
-                    canStay = false;
-                    break;
                 }
-            }
 
-            return canStay;
+                canStay = false;
+                break;
+            }
         }
 
-        return true;
+        return canStay;
     }
 }

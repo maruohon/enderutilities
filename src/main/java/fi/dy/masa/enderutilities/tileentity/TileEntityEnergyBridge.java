@@ -38,7 +38,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     static
     {
-        IBlockState defaultState = EnderUtilitiesBlocks.blockEnergyBridge.getDefaultState();
+        IBlockState defaultState = EnderUtilitiesBlocks.ENERGY_BRIDGE.getDefaultState();
         IProperty<BlockEnergyBridge.EnumMachineType> type = BlockEnergyBridge.TYPE;
         BlockEnergyBridge.EnumMachineType transmitter = BlockEnergyBridge.EnumMachineType.TRANSMITTER;
         BlockEnergyBridge.EnumMachineType receiver = BlockEnergyBridge.EnumMachineType.RECEIVER;
@@ -231,7 +231,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             BlockPos posTmp = center.add(info.getPos());
             IBlockState state = world.getBlockState(posTmp);
 
-            if (state.getBlock() != EnderUtilitiesBlocks.blockEnergyBridge ||
+            if (state.getBlock() != EnderUtilitiesBlocks.ENERGY_BRIDGE ||
                 state.getActualState(world, posTmp).withProperty(BlockEnergyBridge.ACTIVE, false) != info.getBlockState())
             {
                 return false;

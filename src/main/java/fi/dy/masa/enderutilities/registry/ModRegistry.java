@@ -4,8 +4,8 @@ import net.minecraftforge.fml.common.Loader;
 
 public class ModRegistry
 {
-    public static final String MODID_BAUBLES = "Baubles";
-    public static final String MODID_JEI     = "JustEnoughItems";
+    public static final String MODID_BAUBLES = "baubles";
+    public static final String MODID_JEI     = "justenoughitems";
 
     private static boolean modLoadedBaubles;
     private static boolean modLoadedJEI;

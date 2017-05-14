@@ -18,7 +18,7 @@ public class MessageSyncCustomSlot implements IMessage
     private int windowId;
     private int typeId;
     private int slotNum;
-    private ItemStack stack;
+    private ItemStack stack = ItemStack.EMPTY;
 
     public MessageSyncCustomSlot()
     {
@@ -44,8 +44,7 @@ public class MessageSyncCustomSlot implements IMessage
         }
         catch (IOException e)
         {
-            EnderUtilities.logger.warn("MessageSyncCustomSlot: Exception while reading data from buffer");
-            e.printStackTrace();
+            EnderUtilities.logger.warn("MessageSyncCustomSlot: Exception while reading data from buffer", e);
         }
     }
 
@@ -71,6 +70,7 @@ public class MessageSyncCustomSlot implements IMessage
 
             Minecraft mc = FMLClientHandler.instance().getClient();
             final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
+
             if (mc == null || player == null)
             {
                 EnderUtilities.logger.error("Minecraft or player was null in MessageSyncCustomSlot");
@@ -92,7 +92,7 @@ public class MessageSyncCustomSlot implements IMessage
         {
             if (player.openContainer instanceof ICustomSlotSync && message.windowId == player.openContainer.windowId)
             {
-                ICustomSlotSync target = (ICustomSlotSync)player.openContainer;
+                ICustomSlotSync target = (ICustomSlotSync) player.openContainer;
                 target.putCustomStack(message.typeId, message.slotNum, message.stack);
             }
         }

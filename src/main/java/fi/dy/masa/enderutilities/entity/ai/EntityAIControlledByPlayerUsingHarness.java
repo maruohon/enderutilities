@@ -57,7 +57,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
         //System.out.printf("%s - shouldExecute()\n", this.getClass().getSimpleName());
         Entity rider = EntityUtils.getTopEntity(this.entity);
         return this.entity.isEntityAlive() && rider != null && rider instanceof EntityPlayer &&
-                ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.mobHarness));
+                ((EntityPlayer)rider).inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.MOB_HARNESS));
     }
 
     /**

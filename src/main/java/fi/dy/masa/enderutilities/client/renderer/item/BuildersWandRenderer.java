@@ -53,7 +53,7 @@ public class BuildersWandRenderer
 
     public void renderSelectedArea(World world, EntityPlayer usingPlayer, ItemStack stack, EntityPlayer clientPlayer, float partialTicks)
     {
-        ItemBuildersWand wand = (ItemBuildersWand)stack.getItem();
+        ItemBuildersWand wand = (ItemBuildersWand) stack.getItem();
         BlockPosEU posStart = wand.getPosition(stack, ItemBuildersWand.POS_START);
         Mode mode = Mode.getMode(stack);
 
@@ -331,17 +331,16 @@ public class BuildersWandRenderer
 
     public void renderHud(EntityPlayer player)
     {
-        ItemStack stack = this.mc.player.getHeldItemMainhand();
-        if (stack == null || stack.getItem() != EnderUtilitiesItems.buildersWand)
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, EnderUtilitiesItems.BUILDERS_WAND);
+
+        if (stack.isEmpty() == false)
         {
-            return;
+            List<String> lines = new ArrayList<String>();
+
+            this.getText(lines, stack, player);
+
+            RenderEventHandler.renderText(lines, 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
         }
-
-        List<String> lines = new ArrayList<String>();
-
-        this.getText(lines, stack, player);
-
-        RenderEventHandler.renderText(lines, 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
     }
 
     private void getText(List<String> lines, ItemStack stack, EntityPlayer player)
@@ -480,6 +479,7 @@ public class BuildersWandRenderer
         }
 
         String modeName = mode.getDisplayName();
+
         if (mode == Mode.REPLACE)
         {
             if (WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode))
@@ -578,8 +578,9 @@ public class BuildersWandRenderer
 
     private void renderQuads(final IBlockState state, final BlockPos pos, final VertexBuffer buffer, final List<BakedQuad> quads, final int alpha)
     {
-        int i = 0;
-        for (final int j = quads.size(); i < j; ++i)
+        final int size = quads.size();
+
+        for (int i = 0; i < size; i++)
         {
             final BakedQuad quad = quads.get(i);
             final int color = quad.getTintIndex() == -1 ? alpha | 0xffffff : this.getTint(state, pos, alpha, quad.getTintIndex());

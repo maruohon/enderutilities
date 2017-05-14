@@ -11,7 +11,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -262,14 +261,7 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (rayTraceResultTmp != null)
                 {
-                    if (rayTraceResultTmp.typeOfHit == RayTraceResult.Type.ENTITY &&
-                        rayTraceResultTmp.entityHit instanceof EntityPlayerMP && ((EntityPlayerMP)rayTraceResultTmp.entityHit).isSpectator())
-                    {
-                        continue;
-                    }
-
                     double d1 = vec31.distanceTo(rayTraceResultTmp.hitVec);
-
 
                     if (d1 < d0 || d0 == 0.0D)
                     {
@@ -524,6 +516,6 @@ public class EntityEnderArrow extends EntityArrow
     @Override
     protected ItemStack getArrowStack()
     {
-        return new ItemStack(EnderUtilitiesItems.enderArrow);
+        return new ItemStack(EnderUtilitiesItems.ENDER_ARROW);
     }
 }

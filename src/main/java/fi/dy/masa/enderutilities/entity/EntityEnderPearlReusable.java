@@ -192,7 +192,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         if (thrower instanceof EntityPlayerMP)
         {
             EntityPlayerMP player = (EntityPlayerMP) thrower;
-            if (player.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage)) == false)
+            if (player.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.ENDER_PEARL_REUSABLE, 1, damage)) == false)
             {
                 return false;
             }
@@ -213,7 +213,7 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         }
 
         int damage = (this.isElite ? 1 : 0);
-        EntityItem entityitem = new EntityItem(this.getEntityWorld(), this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.enderPearlReusable, 1, damage));
+        EntityItem entityitem = new EntityItem(this.getEntityWorld(), this.posX, this.posY, this.posZ, new ItemStack(EnderUtilitiesItems.ENDER_PEARL_REUSABLE, 1, damage));
 
         entityitem.motionX = 0.05d * this.getEntityWorld().rand.nextGaussian();
         entityitem.motionY = 0.05d * this.getEntityWorld().rand.nextGaussian() + 0.2d;

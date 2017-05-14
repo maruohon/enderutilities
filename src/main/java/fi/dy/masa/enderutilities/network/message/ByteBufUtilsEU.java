@@ -16,7 +16,7 @@ public class ByteBufUtilsEU
 {
     public static void writeItemStackToBuffer(ByteBuf buf, ItemStack stack)
     {
-        if (stack == null || stack.getItem() == null)
+        if (stack.isEmpty())
         {
             buf.writeShort(-1);
             return;
@@ -24,9 +24,10 @@ public class ByteBufUtilsEU
 
         buf.writeShort(Item.getIdFromItem(stack.getItem()));
         buf.writeShort(stack.getMetadata());
-        buf.writeInt(stack.stackSize);
+        buf.writeInt(stack.getCount());
 
         NBTTagCompound tag = null;
+
         if (stack.getItem().isDamageable() || stack.getItem().getShareTag())
         {
             tag = stack.getItem().getNBTShareTag(stack);
@@ -37,7 +38,7 @@ public class ByteBufUtilsEU
 
     public static ItemStack readItemStackFromBuffer(ByteBuf buf) throws IOException
     {
-        ItemStack stack = null;
+        ItemStack stack = ItemStack.EMPTY;
         short id = buf.readShort();
 
         if (id >= 0)
@@ -46,11 +47,6 @@ public class ByteBufUtilsEU
             int stackSize = buf.readInt();
             stack = new ItemStack(Item.getItemById(id), stackSize, meta);
             stack.setTagCompound(readNBTTagCompoundFromBuffer(buf));
-
-            if (stack.getItem() == null)
-            {
-                return null;
-            }
         }
 
         return stack;

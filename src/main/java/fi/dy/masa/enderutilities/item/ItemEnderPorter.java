@@ -241,7 +241,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 else
                 {
                     ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == EnderUtilitiesItems.enderPorter ?
+                    return itemstack != null && itemstack.getItem() == EnderUtilitiesItems.ENDER_PORTER ?
                             (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
                 }
             }

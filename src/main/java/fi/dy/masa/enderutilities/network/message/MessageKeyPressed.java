@@ -89,14 +89,16 @@ public class MessageKeyPressed implements IMessage
             }
 
             ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
-            if (stack != null)
+
+            if (stack.isEmpty() == false)
             {
                 ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
             }
             else
             {
                 stack = InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class);
-                if (stack != null)
+
+                if (stack.isEmpty() == false)
                 {
                     ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);
                 }

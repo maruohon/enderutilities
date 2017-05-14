@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -56,9 +57,10 @@ public class TargetData
 
     public static TargetData getTargetFromItem(ItemStack stack)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             TargetData target = new TargetData();
+
             if (target.readTargetTagFromNBT(stack.getTagCompound()) != null)
             {
                 return target;
@@ -98,7 +100,7 @@ public class TargetData
 
     public static boolean itemHasTargetTag(ItemStack stack)
     {
-        return (stack != null && nbtHasTargetTag(stack.getTagCompound()) == true);
+        return stack.isEmpty() == false && nbtHasTargetTag(stack.getTagCompound());
     }
 
     public static boolean selectedModuleHasTargetTag(ItemStack toolStack, ModuleType moduleType)
@@ -208,10 +210,12 @@ public class TargetData
         int itemMeta = 0;
 
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+
         if (server != null)
         {
             WorldServer world = server.worldServerForDimension(dim);
-            if (world != null && world.provider != null)
+
+            if (world != null)
             {
                 dimName = world.provider.getDimensionType().getName();
 
@@ -220,12 +224,14 @@ public class TargetData
                 blockMeta = block.getMetaFromState(iBlockState);
 
                 ItemStack stack = block.getPickBlock(iBlockState, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
-                if (stack != null)
+
+                if (stack.isEmpty() == false)
                 {
                     itemMeta = stack.getMetadata();
                 }
 
                 ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(block);
+
                 if (rl != null)
                 {
                     blockName = rl.toString();
@@ -249,7 +255,7 @@ public class TargetData
 
     public static void removeTargetTagFromItem(ItemStack stack)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             stack.setTagCompound(removeTargetTagFromNBT(stack.getTagCompound()));
         }
@@ -258,7 +264,8 @@ public class TargetData
     public static boolean removeTargetTagFromSelectedModule(ItemStack toolStack, ModuleType moduleType)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             removeTargetTagFromItem(moduleStack);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
@@ -272,7 +279,7 @@ public class TargetData
     public static void writeTargetTagToItem(ItemStack stack, BlockPos pos, int dim, EnumFacing side, EntityPlayer player,
             double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             stack.setTagCompound(writeTargetTagToNBT(stack.getTagCompound(), pos, dim, side, player, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle));
         }
@@ -282,7 +289,8 @@ public class TargetData
             EntityPlayer player, double hitX, double hitY, double hitZ, boolean doHitOffset, float yaw, float pitch, boolean hasAngle)
     {
         ItemStack moduleStack = UtilItemModular.getSelectedModuleStack(toolStack, moduleType);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             writeTargetTagToItem(moduleStack, pos, dim, side, player, hitX, hitY, hitZ, doHitOffset, yaw, pitch, hasAngle);
             UtilItemModular.setSelectedModuleStack(toolStack, moduleType, moduleStack);
@@ -309,22 +317,20 @@ public class TargetData
 
         IBlockState iBlockState = world.getBlockState(this.pos);
         Block block = iBlockState.getBlock();
+        ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(block);
         int meta = block.getMetaFromState(iBlockState);
 
         // The target block unique name and metadata matches what we have stored
-        if (this.blockMeta == meta && this.blockName.equals(ForgeRegistries.BLOCKS.getKey(block).toString()) == true)
-        {
-            return true;
-        }
-
-        return false;
+        return this.blockMeta == meta && rl != null && this.blockName.equals(rl.toString());
     }
 
+    @Nullable
     public String getTargetBlockDisplayName()
     {
         Block block = Block.getBlockFromName(this.blockName);
         ItemStack targetStack = new ItemStack(block, 1, this.itemMeta);
-        if (targetStack != null && targetStack.getItem() != null)
+
+        if (targetStack.isEmpty() == false)
         {
             return targetStack.getDisplayName();
         }
@@ -336,12 +342,11 @@ public class TargetData
     {
         try
         {
-            DimensionType type = DimensionType.getById(this.dimension);
-            return type.getName();
+            return DimensionType.getById(this.dimension).getName();
         }
-        catch (IllegalArgumentException e)
+        catch (Exception e)
         {
-            EnderUtilities.logger.debug("Failed to get DimensionType by id (" + this.dimension + ")");
+            EnderUtilities.logger.trace("Failed to get DimensionType by id (" + this.dimension + ")");
         }
 
         return useFallback == true ? "DIM: " + this.dimension : "";

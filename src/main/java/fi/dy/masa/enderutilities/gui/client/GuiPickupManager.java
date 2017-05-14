@@ -76,8 +76,6 @@ public class GuiPickupManager extends GuiContainerLargeStacks
 
         this.bindTexture(this.guiTextureWidgets);
 
-        ItemStack containerStack = this.containerPickupManager.getContainerItem();
-
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
@@ -121,17 +119,17 @@ public class GuiPickupManager extends GuiContainerLargeStacks
             }
         }
 
-        // Draw the colored background for the selected module slot
-        if (containerStack != null)
+        ItemStack containerStack = this.containerPickupManager.getContainerItem();
+
+        if (containerStack.isEmpty() == false)
         {
+            // Draw the colored background for the selected module slot
             int index = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_LINKCRYSTAL);
             this.drawTexturedModalRect(x + 116 - 1 + index * 18, y + 29 - 1, 102, 18, 18, 18);
+
             // Draw the selection border around the selected memory card module's selection button
             this.drawTexturedModalRect(x + 119 + index * 18, y + 17, 120, 0, 10, 10);
-        }
 
-        if (containerStack != null)
-        {
             // Draw the selection border around the selected preset's button
             byte sel = NBTUtils.getByte(containerStack, ItemPickupManager.TAG_NAME_CONTAINER, ItemPickupManager.TAG_NAME_PRESET_SELECTION);
             this.drawTexturedModalRect(x + 101 + sel * 18, y + 162, 120, 0, 10, 10);
@@ -140,7 +138,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         // Draw the background icon over empty storage module slots
         for (int slot = this.firstLinkCrystalSlot, i = 0; i < NUM_LINK_CRYSTAL_SLOTS; slot++, i++)
         {
-            if (this.inventoryItemModules.getStackInSlot(slot) == null)
+            if (this.inventoryItemModules.getStackInSlot(slot).isEmpty())
             {
                 this.drawTexturedModalRect(x + 116 + i * 18, y + 29, 240, 32, 16, 16);
             }
@@ -244,6 +242,7 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         super.actionPerformed(button);
 
         int first = 0;
+
         if (button.id >= first && button.id < (first + NUM_LINK_CRYSTAL_SLOTS))
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),

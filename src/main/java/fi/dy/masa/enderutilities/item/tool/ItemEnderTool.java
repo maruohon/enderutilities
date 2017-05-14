@@ -92,7 +92,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
     static
     {
-        ENDER_ALLOY_ADVANCED.setRepairItem(new ItemStack(EnderUtilitiesItems.enderPart, 1, 2));
+        ENDER_ALLOY_ADVANCED.setRepairItem(new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 2));
     }
 
     public ItemEnderTool()
