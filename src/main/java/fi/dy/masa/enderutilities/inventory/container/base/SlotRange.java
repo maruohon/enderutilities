@@ -1,4 +1,4 @@
-package fi.dy.masa.enderutilities.util;
+package fi.dy.masa.enderutilities.inventory.container.base;
 
 import net.minecraftforge.items.IItemHandler;
 

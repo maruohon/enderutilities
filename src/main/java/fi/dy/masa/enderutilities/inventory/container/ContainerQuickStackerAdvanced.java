@@ -7,11 +7,11 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
-import fi.dy.masa.enderutilities.util.SlotRange;
 
 public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
 {

@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
-import fi.dy.masa.enderutilities.util.SlotRange;
+import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 
