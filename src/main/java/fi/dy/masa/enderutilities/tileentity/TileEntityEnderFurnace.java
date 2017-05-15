@@ -33,7 +33,6 @@ import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-@SuppressWarnings("deprecation")
 public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory implements ITickable
 {
     // The values that define how fuels burn and items smelt
@@ -54,7 +53,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
     public boolean fastMode;
     public boolean outputToEnderChest;
-    private ItemStack smeltingResultCache;
+    private ItemStack smeltingResultCache = ItemStack.EMPTY;
     private boolean inputDirty;
     //private boolean fuelDirty;
 
@@ -70,7 +69,6 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     public TileEntityEnderFurnace()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.smeltingResultCache = null;
         this.inputDirty = true;
         //this.fuelDirty = true;
         this.fastMode = false;
@@ -103,6 +101,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         super.writeToNBT(nbt);
 
         byte flags = 0;
+
         if (this.fastMode)
         {
             flags |= 0x01;
@@ -161,13 +160,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         if (this.inputDirty)
         {
-            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) != null)
+            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT).isEmpty() == false)
             {
                 this.smeltingResultCache = FurnaceRecipes.instance().getSmeltingResult(this.getBaseItemHandler().getStackInSlot(SLOT_INPUT));
             }
             else
             {
-                this.smeltingResultCache = null;
+                this.smeltingResultCache = ItemStack.EMPTY;
             }
 
             this.inputDirty = false;
@@ -288,7 +287,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         // Output to Ender Chest enabled
-        if (this.outputToEnderChest && this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) != null && ++this.timer >= OUTPUT_INTERVAL)
+        if (this.outputToEnderChest && this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT).isEmpty() == false && ++this.timer >= OUTPUT_INTERVAL)
         {
             if (this.moveItemsToEnderChest())
             {
@@ -322,10 +321,10 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         if (this.canSmelt())
         {
-            this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, false);
+            this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache.copy(), false);
             this.getBaseItemHandler().extractItem(SLOT_INPUT, 1, false);
 
-            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) == null)
+            if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT).isEmpty())
             {
                 this.inputDirty = true;
             }
@@ -352,7 +351,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     {
         ItemStack stack = fuelInv.getStackInSlot(fuelSlot);
 
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return 0;
         }
@@ -362,7 +361,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         if (itemContainsFluidFuel(stack))
         {
             // Can't return the drained container if there is more than one item in the slot...
-            if (stack.stackSize > 1)
+            if (stack.getCount() > 1)
             {
                 return 0;
             }
@@ -374,7 +373,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         {
             burnTime = getItemBurnTime(stack);
 
-            if (burnTime == 0 || (stack.stackSize > 1 && stack.getItem().getContainerItem(stack) != null))
+            if (burnTime == 0 || (stack.getCount() > 1 && stack.getItem().getContainerItem(stack).isEmpty() == false))
             {
                 return 0;
             }
@@ -384,7 +383,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         }
 
         // Put the fuel/fluid container item back
-        if (simulate == false && stack != null)
+        if (simulate == false && stack.isEmpty() == false)
         {
             fuelInv.insertItem(fuelSlot, stack, false);
         }
@@ -399,13 +398,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private boolean moveItemsToEnderChest()
     {
-        if (this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT) == null ||
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_OUTPUT).isEmpty() ||
             this.ownerData == null || this.ownerData.getOwnerUUID() == null)
         {
             return false;
         }
 
         EntityPlayer player = this.getWorld().getPlayerEntityByUUID(this.ownerData.getOwnerUUID());
+
         if (player == null)
         {
             return false;
@@ -413,21 +413,22 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // Player is online
 
         ItemStack stack = this.getBaseItemHandler().extractItem(SLOT_OUTPUT, 64, false);
-        if (stack == null)
+
+        if (stack.isEmpty())
         {
             return false;
         }
 
-        int origSize = stack.stackSize;
+        int origSize = stack.getCount();
         IItemHandler inv = new InvWrapper(player.getInventoryEnderChest());
         stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
 
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return true;
         }
 
-        boolean movedItems = origSize != stack.stackSize;
+        boolean movedItems = origSize != stack.getCount();
         this.getBaseItemHandler().insertItem(SLOT_OUTPUT, stack, false);
 
         return movedItems;
@@ -449,12 +450,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     public boolean canSmelt()
     {
-        if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT) == null || this.smeltingResultCache == null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_INPUT).isEmpty() || this.smeltingResultCache.isEmpty())
         {
             return false;
         }
 
-        return this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, true) == null;
+        return this.getBaseItemHandler().insertItem(SLOT_OUTPUT, this.smeltingResultCache, true).isEmpty();
     }
 
     /**
@@ -464,7 +465,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private static int getItemBurnTime(ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return 0;
         }
@@ -530,12 +531,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
      */
     private static boolean itemContainsFluidFuel(ItemStack stack)
     {
-        if (stack == null || stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) == false)
+        if (stack.isEmpty() || stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null) == false)
         {
             return false;
         }
 
         IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+
         if (handler == null)
         {
             return false;
@@ -543,6 +545,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
 
         FluidStack fluidStack = handler.drain(Fluid.BUCKET_VOLUME, false);
         //System.out.printf("itemContainsFluidFuelFluidCapability: %s - %d\n", (fluidStack != null ? fluidStack.getFluid().getName() : "null"), fluidStack != null ? fluidStack.amount : 0);
+
         if (fluidStack == null || fluidStack.amount <= 0)
         {
             return false;
@@ -574,14 +577,14 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            if (stack.isEmpty())
             {
-                return true;
+                return false;
             }
 
             if (slot == SLOT_INPUT)
             {
-                return FurnaceRecipes.instance().getSmeltingResult(stack) != null;
+                return FurnaceRecipes.instance().getSmeltingResult(stack).isEmpty() == false;
             }
 
             return slot == SLOT_FUEL && isItemFuel(stack);
@@ -590,13 +593,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         @Override
         public boolean canExtractFromSlot(int slot)
         {
-            if ((slot == SLOT_FUEL && isItemFuel(this.getStackInSlot(slot)) == false) ||
-                (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == false))
-            {
-                return true;
-            }
-
-            return false;
+            return (slot == SLOT_FUEL && isItemFuel(this.getStackInSlot(slot)) == false) ||
+                   (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == false);
         }
     }
 

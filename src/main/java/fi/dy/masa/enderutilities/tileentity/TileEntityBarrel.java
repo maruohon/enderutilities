@@ -51,8 +51,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private int labelMask;
     private int maxStacks = 64;
     private boolean hasStructureUpgrade;
-    private ItemStack cachedStack;
-    public ItemStack renderStack;
+    private ItemStack cachedStack = ItemStack.EMPTY;
+    public ItemStack renderStack = ItemStack.EMPTY;
     public String cachedStackSizeString;
     public float cachedFullness;
 
@@ -99,7 +99,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     public boolean isOverSpillCapacity()
     {
         ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
-        return stack != null && stack.stackSize > 4096;
+        return stack.isEmpty() == false && stack.getCount() > 4096;
     }
 
     public List<EnumFacing> getLabeledFaces()
@@ -114,7 +114,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         super.readItemsFromNBT(nbt);
 
-        this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1) != null;
+        this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1).isEmpty() == false;
         ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
         this.cachedStack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
     }
@@ -154,19 +154,20 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
         nbt = super.getUpdatePacketTag(nbt);
+
         ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             NBTTagCompound tag = new NBTTagCompound();
             stack.writeToNBT(tag);
-            tag.setInteger("ac", stack.stackSize);
+            tag.setInteger("ac", stack.getCount());
             nbt.setTag("st", tag);
         }
 
         stack = this.itemHandlerLockable.getTemplateStackInSlot(0);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             nbt.setTag("stlo", stack.writeToNBT(new NBTTagCompound()));
         }
@@ -202,10 +203,10 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             if (stack.isEmpty() == false && tmp.hasKey("ac", Constants.NBT.TAG_INT))
             {
-                stack.stackSize = tmp.getInteger("ac");
+                stack.setCount(tmp.getInteger("ac"));
             }
 
-            this.itemHandlerLockable.setStackInSlot(0, stack);
+            this.itemHandlerLockable.setStackInSlot(0, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
 
         this.setMaxStacks(tag.getInteger("mxs"));
@@ -266,7 +267,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private void setMaxStacksFromUpgrades()
     {
         ItemStack stackCapacityUpgrades = this.itemHandlerUpgrades.getStackInSlot(2);
-        int upgrades = stackCapacityUpgrades != null ? stackCapacityUpgrades.stackSize : 0;
+        int upgrades = stackCapacityUpgrades.isEmpty() == false ? stackCapacityUpgrades.getCount() : 0;
 
         this.setMaxStacks(64 + upgrades * Configs.barrelCapacityUpgradeStacksPer);
     }
@@ -275,7 +276,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         this.maxStacks = maxStacks;
         ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
-        this.itemHandlerLockable.setStackLimit(this.maxStacks * (stack != null ? stack.getMaxStackSize() : 64));
+        this.itemHandlerLockable.setStackLimit(this.maxStacks * (stack.isEmpty() == false ? stack.getMaxStackSize() : 64));
     }
 
     public int getLabelMask(boolean cached)
@@ -319,8 +320,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
                 if (player.capabilities.isCreativeMode == false)
                 {
-                    stack.stackSize--;
-                    player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
+                    stack.shrink(1);
+                    player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
                 }
 
                 this.labels.add(side);
@@ -337,14 +338,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 71)
         {
-            if (this.itemHandlerUpgrades.getStackInSlot(1) == null)
+            if (this.itemHandlerUpgrades.getStackInSlot(1).isEmpty())
             {
                 this.itemHandlerUpgrades.insertItem(1, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 71), false);
 
                 if (player.capabilities.isCreativeMode == false)
                 {
-                    stack.stackSize--;
-                    player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
+                    stack.shrink(1);
+                    player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
                 }
 
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
@@ -360,12 +361,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 72)
         {
-            if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 72), false) == null)
+            if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 72), false).isEmpty())
             {
                 if (player.capabilities.isCreativeMode == false)
                 {
-                    stack.stackSize--;
-                    player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
+                    stack.shrink(1);
+                    player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
                 }
 
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
@@ -398,7 +399,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         ItemStack stack = player.getHeldItem(hand);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             if (this.toggleLocked(stack) ||
                 this.applyLabel(player, hand, stack, side) ||
@@ -409,7 +410,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             }
 
             stack = InventoryUtils.tryInsertItemStackToInventory(this.itemHandlerExternal, stack);
-            player.setHeldItem(hand, stack);
+            player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
 
         long time = System.currentTimeMillis();
@@ -441,7 +442,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         int amount = player.isSneaking() ? 1 : 64;
         ItemStack stack = this.itemHandlerExternal.extractItem(0, amount, false);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             EnumFacing side = this.getFacing();
             RayTraceResult rayTrace = EntityUtils.getRayTraceFromPlayer(this.getWorld(), player, false);
@@ -492,10 +493,10 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
                 this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack));
             }
-            else if (stack != null && stack.stackSize != this.cachedStack.stackSize)
+            else if (stack.isEmpty() == false && stack.getCount() != this.cachedStack.getCount())
             {
-                this.cachedStack.stackSize = stack.stackSize;
-                this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack.stackSize, this.maxStacks));
+                this.cachedStack.setCount(stack.getCount());
+                this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), this.cachedStack.getCount(), this.maxStacks));
             }
         }
         // Upgrades changed
@@ -506,7 +507,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 ItemStack stack = this.itemHandlerUpgrades.getStackInSlot(0);
 
                 // Clear all labels if the label slot's stack size shrinks below the labeled face count
-                if (stack == null || stack.stackSize < this.labels.size() - 1)
+                if (stack.isEmpty() || stack.getCount() < this.labels.size() - 1)
                 {
                     this.labels.clear();
                     this.labels.add(this.getFacing());
@@ -516,7 +517,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             }
             else if (slot == 1)
             {
-                this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1) != null;
+                this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1).isEmpty() == false;
 
                 IBlockState state = this.getWorld().getBlockState(this.getPos());
                 this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
@@ -526,7 +527,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.setMaxStacksFromUpgrades();
             }
 
-            int stackSize = this.cachedStack != null ? this.cachedStack.stackSize : 0;
+            int stackSize = this.cachedStack.isEmpty() ? 0 : this.cachedStack.getCount();
             this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), stackSize, this.maxStacks));
         }
     }
@@ -550,9 +551,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             this.setMaxStacks(intValues[1]);
 
-            if (this.itemHandlerLockable.getStackInSlot(0) != null)
+            if (this.itemHandlerLockable.getStackInSlot(0).isEmpty() == false)
             {
-                this.itemHandlerLockable.getStackInSlot(0).stackSize = intValues[0];
+                this.itemHandlerLockable.getStackInSlot(0).setCount(intValues[0]);
             }
         }
 
@@ -561,22 +562,23 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     private void updateCachedStack()
     {
-        ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
+        ItemStack stackStored = this.itemHandlerLockable.getStackInSlot(0);
+        ItemStack stackTemplate = this.itemHandlerLockable.getTemplateStackInSlot(0);
 
         // The renderStack is used in the TESR renderer
-        this.renderStack = stack != null ? stack : this.itemHandlerLockable.getTemplateStackInSlot(0);
-        stack = this.renderStack;
+        this.renderStack = stackStored.isEmpty() == false ? stackStored : stackTemplate;
 
-        // Template stacks have a stack size of 0
-        if (stack != null && stack.stackSize > 0)
+        // If there are actually items stored, then display the amount
+        if (stackStored.isEmpty() == false)
         {
-            int max = stack.getMaxStackSize();
-            int stacks = stack.stackSize / max;
-            int remainder = stack.stackSize % max;
+            int count = stackStored.getCount();
+            int max = stackStored.getMaxStackSize();
+            int stacks = count / max;
+            int remainder = count % max;
 
-            if (max == 1 || stack.stackSize <= max)
+            if (max == 1 || count <= max)
             {
-                this.cachedStackSizeString = String.valueOf(stack.stackSize);
+                this.cachedStackSizeString = String.valueOf(count);
             }
             else if (remainder != 0)
             {
@@ -587,8 +589,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.cachedStackSizeString = String.format("%dx%d", stacks, max);
             }
 
-            this.cachedFullness = (float) stack.stackSize / ((float) this.maxStacks * max);
+            this.cachedFullness = (float) count / ((float) this.maxStacks * max);
         }
+        // No items stored (possibly a template/locked stack)
         else
         {
             this.cachedStackSizeString = "-";
@@ -614,7 +617,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         private final TileEntityBarrel te;
 
-        public ItemHandlerBarrelUpgrades(int inventoryId, int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName, TileEntityBarrel te)
+        public ItemHandlerBarrelUpgrades(int inventoryId, int invSize, int stackLimit,
+                boolean allowCustomStackSizes, String tagName, TileEntityBarrel te)
         {
             super(inventoryId, invSize, stackLimit, allowCustomStackSizes, tagName, te);
 
@@ -624,7 +628,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         @Override
         public int getItemStackLimit(int slot, ItemStack stack)
         {
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
+            if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 int meta = stack.getMetadata();
 
@@ -644,7 +648,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
+            if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.ENDER_PART)
             {
                 int meta = stack.getMetadata();
 
@@ -671,20 +675,20 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             // Capacity upgrades can only be removed for those upgrades that are currently not needed
             if (slot == 2)
             {
-                ItemStack stack = this.te.itemHandlerLockable.getStackInSlot(0);
+                ItemStack stackStored = this.te.itemHandlerLockable.getStackInSlot(0);
                 ItemStack upgradeStack = this.getStackInSlot(2);
 
-                if (stack != null && stack.stackSize > 4096 && upgradeStack != null)
+                if (stackStored.isEmpty() == false && stackStored.getCount() > 4096 && upgradeStack.isEmpty() == false)
                 {
-                    int needed = (int) Math.ceil(((double) (stack.stackSize - 4096) / stack.getMaxStackSize()) / Configs.barrelCapacityUpgradeStacksPer);
-                    int toRemove = Math.min(amount, upgradeStack.stackSize - needed);
+                    int needed = (int) Math.ceil(((double) (stackStored.getCount() - 4096) / stackStored.getMaxStackSize()) / Configs.barrelCapacityUpgradeStacksPer);
+                    int toRemove = Math.min(amount, upgradeStack.getCount() - needed);
 
                     if (toRemove > 0)
                     {
                         return super.extractItem(slot, toRemove, simulate);
                     }
 
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
 

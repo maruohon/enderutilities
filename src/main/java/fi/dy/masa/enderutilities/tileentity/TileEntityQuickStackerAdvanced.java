@@ -110,22 +110,12 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     @Override
     public IItemHandlerModifiable getInventoryModifiable()
     {
-        if (this.isAreaMode())
-        {
-            return this.inventoryFiltersAreaMode;
-        }
-
-        return this.inventoryFiltersBound;
+        return this.isAreaMode() ? this.inventoryFiltersAreaMode : this.inventoryFiltersBound;
     }
 
     public FilterSettings getSelectedFilterSettings()
     {
-        if (this.isAreaMode())
-        {
-            return this.filtersAreaMode;
-        }
-
-        return this.filtersBound;
+        return this.isAreaMode() ? this.filtersAreaMode : this.filtersBound;
     }
 
     public FilterSettings getFilterSettings(int filterId)
@@ -136,9 +126,9 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         }
 
         ItemStack container = this.getContainerStack(filterId);
-
         NBTTagCompound nbt = null;
-        if (container != null)
+
+        if (container.isEmpty() == false)
         {
             nbt = NBTUtils.getCompoundTag(container, "AdvancedQuickStacker", false);
         }
@@ -168,12 +158,12 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             return this.getBaseItemHandler().getStackInSlot(filterId + NUM_TARGET_INVENTORIES);
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public boolean isInventoryAccessible(EntityPlayer player)
     {
-        return this.isAreaMode || this.getContainerStack() != null;
+        return this.isAreaMode || this.getContainerStack().isEmpty() == false;
     }
 
     @Override
@@ -251,7 +241,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         super.writeToNBT(nbt);
 
         nbt.setBoolean("AreaMode", this.isAreaMode());
-        nbt.setByte("EnabledTargets", (byte)this.enabledTargetsMask);
+        nbt.setByte("EnabledTargets", (byte) this.enabledTargetsMask);
         nbt.setByte("SelectedTarget", this.selectedTarget);
         nbt.setLong("EnabledSlots", this.slotMask);
         nbt.merge(this.filtersAreaMode.serializeNBT());
@@ -280,7 +270,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         if (this.isAreaMode() == false)
         {
             NBTTagCompound nbt = null;
-            if (container != null)
+
+            if (container.isEmpty() == false)
             {
                 nbt = NBTUtils.getCompoundTag(container, "AdvancedQuickStacker", false);
             }
@@ -307,6 +298,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         if (this.getWorld().isRemote == false)
         {
             Long last = this.clickTimes.get(player.getUniqueID());
+
             // Double left clicked fast enough - do the action
             if (last != null && this.getWorld().getTotalWorldTime() - last < 8)
             {
@@ -340,17 +332,21 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
             if ((this.enabledTargetsMask & bit) != 0)
             {
                 ItemStack lcStack = this.getBaseItemHandler().getStackInSlot(slot);
-                if (lcStack != null)
+
+                if (lcStack.isEmpty() == false)
                 {
                     TargetData target = TargetData.getTargetFromItem(lcStack);
+
                     if (target != null && this.getWorld().isBlockLoaded(target.pos, true) &&
                         target.dimension == this.getWorld().provider.getDimension() &&
                         PositionUtils.isWithinRange(target.pos, this.getPos(), 32, 32, 32) && target.isTargetBlockUnchanged())
                     {
                         TileEntity te = this.getWorld().getTileEntity(target.pos);
+
                         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
                         {
                             IItemHandler externalInv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
+
                             if (externalInv != null)
                             {
                                 FilterSettings filter = this.getFilterSettings(slot);
@@ -383,34 +379,35 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
     {
         Result ret = Result.MOVED_NONE;
         boolean movedAll = true;
-
         long bit = 0x1;
+
         for (int slotPlayer = 0; slotPlayer < playerInv.getSlots(); slotPlayer++)
         {
             ItemStack stack = playerInv.getStackInSlot(slotPlayer);
 
             // Only take from slots that have been enabled
-            if ((slotMask & bit) != 0 && stack != null && (filter == null || filter.itemAllowedByFilter(stack)))
+            if ((slotMask & bit) != 0 && stack.isEmpty() == false && (filter == null || filter.itemAllowedByFilter(stack)))
             {
                 stack = playerInv.extractItem(slotPlayer, 64, false);
-                if (stack == null)
+
+                if (stack.isEmpty())
                 {
                     continue;
                 }
 
                 if (matchingOnly == false || InventoryUtils.getSlotOfLastMatchingItemStack(externalInv, stack) != -1)
                 {
-                    int sizeOrig = stack.stackSize;
+                    int sizeOrig = stack.getCount();
                     stack = InventoryUtils.tryInsertItemStackToInventory(externalInv, stack);
 
-                    if (ret == Result.MOVED_NONE && (stack == null || stack.stackSize != sizeOrig))
+                    if (ret == Result.MOVED_NONE && (stack.isEmpty() || stack.getCount() != sizeOrig))
                     {
                         ret = Result.MOVED_SOME;
                     }
                 }
 
                 // Return the items that were left over
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     playerInv.insertItem(slotPlayer, stack, false);
                     movedAll = false;
@@ -433,7 +430,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         quickStackToInventories(world, player, enabledSlotsMask, positions, null);
     }
 
-    public static void quickStackToInventories(World world, EntityPlayer player, long enabledSlotsMask, List<BlockPosDistance> positions, FilterSettings filter)
+    public static void quickStackToInventories(World world, EntityPlayer player, long enabledSlotsMask,
+            List<BlockPosDistance> positions, FilterSettings filter)
     {
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
         boolean movedSome = false;
@@ -441,6 +439,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         for (BlockPosDistance posDist : positions)
         {
             TileEntity te = world.getTileEntity(posDist.pos);
+
             if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
@@ -479,18 +478,20 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            if (stack.isEmpty())
             {
-                return true;
+                return false;
             }
 
             if (slot < NUM_TARGET_INVENTORIES)
             {
                 // Only allow Block type Link Crystals
-                return stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL && ((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK;
+                return stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL &&
+                       ((IModule) stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_BLOCK;
             }
 
-            return stack.getItem() == EnderUtilitiesItems.ENDER_PART && ((IModule)stack.getItem()).getModuleType(stack) == ModuleType.TYPE_MEMORY_CARD_MISC;
+            return stack.getItem() == EnderUtilitiesItems.ENDER_PART &&
+                   ((IModule) stack.getItem()).getModuleType(stack) == ModuleType.TYPE_MEMORY_CARD_MISC;
         }
     }
 
@@ -550,7 +551,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         if (this.isAreaMode() == false)
         {
             ItemStack container = this.getContainerStack();
-            if (container != null)
+
+            if (container.isEmpty() == false)
             {
                 NBTTagCompound nbt = NBTUtils.getCompoundTag(container, "AdvancedQuickStacker", true);
                 nbt.merge(filter.serializeNBT());
@@ -636,8 +638,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
                 return true;
             }
 
-            if (InventoryUtils.matchingStackFoundInSlotRange(this.filterInventory,
-                    new SlotRange(this.filterInventory), stack, ! this.matchMeta, ! this.matchNBT))
+            if (InventoryUtils.matchingStackFoundInSlotRange(this.filterInventory, new SlotRange(this.filterInventory),
+                stack, this.matchMeta == false, this.matchNBT == false))
             {
                 return this.isBlacklist == false;
             }

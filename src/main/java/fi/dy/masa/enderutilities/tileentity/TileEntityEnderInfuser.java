@@ -84,9 +84,9 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         boolean dirty = false;
 
         // Melt Ender Pearls or Eyes of Ender into... emm... Ender Goo?
-        if (this.getBaseItemHandler().getStackInSlot(SLOT_MATERIAL) != null)
+        if (this.getBaseItemHandler().getStackInSlot(SLOT_MATERIAL).isEmpty() == false)
         {
-            Item item = this.getBaseItemHandler().getStackInSlot(0).getItem();
+            Item item = this.getBaseItemHandler().getStackInSlot(SLOT_MATERIAL).getItem();
             int amount = 0;
 
             if (item == Items.ENDER_PEARL)
@@ -123,7 +123,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         ItemStack inputStack = this.getBaseItemHandler().getStackInSlot(SLOT_CAP_IN);
 
         // Charge IChargeable items with the Ender Goo
-        if (inputStack != null)
+        if (inputStack.isEmpty() == false)
         {
             ItemStack chargeableStack = inputStack;
             Item item = inputStack.getItem();
@@ -141,7 +141,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                 {
                     chargeableStack = UtilItemModular.getSelectedModuleStack(inputStack, ModuleType.TYPE_ENDERCAPACITOR);
 
-                    if (chargeableStack != null && chargeableStack.getItem() instanceof IChargeable)
+                    if (chargeableStack.isEmpty() == false && chargeableStack.getItem() instanceof IChargeable)
                     {
                         iChargeable = (IChargeable) chargeableStack.getItem();
                         isModular = true;
@@ -195,7 +195,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
                     this.chargeableItemCapacity = 0;
 
                     // Move the item from the input slot to the output slot
-                    if (this.getBaseItemHandler().insertItem(SLOT_CAP_OUT, this.getBaseItemHandler().extractItem(SLOT_CAP_IN, 1, true), true) == null)
+                    if (this.getBaseItemHandler().insertItem(SLOT_CAP_OUT, this.getBaseItemHandler().extractItem(SLOT_CAP_IN, 1, true), true).isEmpty())
                     {
                         this.getBaseItemHandler().insertItem(SLOT_CAP_OUT, this.getBaseItemHandler().extractItem(SLOT_CAP_IN, 1, false), false);
                         dirty = true;
@@ -227,16 +227,17 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            if (stack.isEmpty())
             {
-                return true;
+                return false;
             }
 
             // Only accept chargeable items to the item input slot
             if (slot == SLOT_CAP_IN)
             {
                 Item item = stack.getItem();
-                return item instanceof IChargeable || (item instanceof IModular && ((IModular)item).getInstalledModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0);
+                return item instanceof IChargeable ||
+                       (item instanceof IModular && ((IModular) item).getInstalledModuleCount(stack, ModuleType.TYPE_ENDERCAPACITOR) > 0);
             }
 
             // Only allow Ender Pearls and Eyes of Ender to the material slot

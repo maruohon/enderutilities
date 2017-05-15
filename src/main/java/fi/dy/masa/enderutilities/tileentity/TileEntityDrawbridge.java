@@ -244,7 +244,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
         ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
 
-        if (stack != null && stack.getItem() instanceof ItemBlock)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlock)
         {
             ItemBlock itemBlock = (ItemBlock) stack.getItem();
             int meta = itemBlock.getMetadata(stack.getMetadata());
@@ -264,7 +264,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         IBlockState placementState = this.getPlacementStateForPosition(invPosition, world, pos, player);
         ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
 
-        if (placementState != null && stack != null && world.isBlockLoaded(pos, world.isRemote == false) &&
+        if (placementState != null && stack.isEmpty() == false && world.isBlockLoaded(pos, world.isRemote == false) &&
             world.getBlockState(pos).getBlock().isReplaceable(world, pos))
         {
             if (world.mayPlace(placementState.getBlock(), pos, true, EnumFacing.UP, null) == false)
@@ -286,7 +286,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
             // This fixes TE data loss on the placed blocks in case blocks with stored TE data
             // were manually placed into the slots, and not taken from the world by the drawbridge
-            if (nbt == null && stack != null && stack.getTagCompound() != null &&
+            if (nbt == null && stack.isEmpty() == false && stack.getTagCompound() != null &&
                 stack.getTagCompound().hasKey("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
             {
                 nbt = stack.getTagCompound().getCompoundTag("BlockEntityTag");
@@ -337,7 +337,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             ItemStack stack = BlockUtils.getPickBlockItemStack(world, pos, player, EnumFacing.UP);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 NBTTagCompound nbt = null;
 
@@ -352,7 +352,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                     }
                 }
 
-                if (this.itemHandlerDrawbridge.insertItem(invPosition, stack, false) == null)
+                if (this.itemHandlerDrawbridge.insertItem(invPosition, stack, false).isEmpty())
                 {
                     if (this.blocks[invPosition] == null)
                     {
@@ -488,7 +488,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
             for (int slot = this.getSlotCount() - 1; slot >= newSize && slot >= 1; slot--)
             {
-                if (this.itemHandlerDrawbridge.getStackInSlot(slot) == null)
+                if (this.itemHandlerDrawbridge.getStackInSlot(slot).isEmpty())
                 {
                     changeFinal--;
                 }
@@ -563,7 +563,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             ItemStack stack = super.extractItem(slot, amount, simulate);
 
             // Clear the stored block info to prevent duplicating or transmuting stuff
-            if (simulate == false && this.getStackInSlot(slot) == null)
+            if (simulate == false && this.getStackInSlot(slot).isEmpty())
             {
                 TileEntityDrawbridge.this.blocks[slot] = null;
             }
@@ -582,7 +582,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            return stack != null && stack.getItem() instanceof ItemBlock;
+            return stack.isEmpty() == false && stack.getItem() instanceof ItemBlock;
         }
     }
 

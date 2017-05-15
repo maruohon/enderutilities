@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -46,7 +47,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     private int outputSideIndex;
     private boolean isFiltered;
     private boolean disableUpdateScheduling;
-    private ItemStack[] cachedFilterStacks = new ItemStack[0];
+    private NonNullList<ItemStack> cachedFilterStacks;
 
     public TileEntityInserter()
     {
@@ -65,6 +66,11 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void setIsFiltered(boolean isFiltered)
     {
         this.isFiltered = isFiltered;
+
+        if (isFiltered)
+        {
+            this.cachedFilterStacks = NonNullList.create();
+        }
     }
 
     public int getUpdateDelay()
@@ -380,7 +386,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         if (this.shouldOperate())
         {
             // Currently holding items, try to push them out
-            if (this.itemHandlerBase.getStackInSlot(0) != null)
+            if (this.itemHandlerBase.getStackInSlot(0).isEmpty() == false)
             {
                 if (this.tryPushOutItems(world, pos))
                 {
@@ -433,7 +439,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                     stack = InventoryUtils.getItemsFromFirstNonEmptySlot(inv, this.itemHandlerBase.getInventoryStackLimit(), false);
                 }
 
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
                     this.itemHandlerBase.insertItem(0, stack, false);
                     this.disableUpdateScheduling = false;
@@ -456,18 +462,18 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         {
             ItemStack stack = inv.getStackInSlot(slot);
 
-            if (stack != null && this.itemAllowedByFilters(stack))
+            if (stack.isEmpty() == false && this.itemAllowedByFilters(stack))
             {
                 return inv.extractItem(slot, this.itemHandlerBase.getInventoryStackLimit(), false);
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     private boolean itemAllowedByFilters(@Nonnull ItemStack stack)
     {
-        boolean match = InventoryUtils.matchingStackFoundInArray(
+        boolean match = InventoryUtils.matchingStackFoundOnList(
                 this.cachedFilterStacks, stack,
                 this.isFilterSettingEnabled(FilterSetting.MATCH_META) == false,
                 this.isFilterSettingEnabled(FilterSetting.MATCH_NBT) == false);
@@ -531,7 +537,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
             if (inv != null)
             {
                 ItemStack stack = this.itemHandlerBase.extractItem(0, 64, false);
-                int sizeOrig = stack.stackSize;
+                int sizeOrig = stack.getCount();
                 boolean movedSome = false;
 
                 // This is used to prevent scheduling a new update because of an adjacent inventory changing
@@ -543,13 +549,13 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 this.disableUpdateScheduling = false;
 
                 // Return the items that couldn't be moved
-                if (stack != null)
+                if (stack.isEmpty() == false)
                 {
-                    movedSome = stack.stackSize != sizeOrig;
+                    movedSome = stack.getCount() != sizeOrig;
                     this.itemHandlerBase.insertItem(0, stack, false);
                 }
 
-                return stack == null || movedSome;
+                return stack.isEmpty() || movedSome;
             }
         }
 
@@ -612,7 +618,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            return null;
+            return ItemStack.EMPTY;
         }
     }
 

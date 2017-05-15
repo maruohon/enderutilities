@@ -19,7 +19,7 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder
@@ -102,8 +102,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
         this.itemHandlerToolSlot.deserializeNBT(nbt);
         this.itemHandlerRenameSlot.deserializeNBT(nbt);
-
-        this.compatibilityReadItemsFromPre_0_6_6_Format(nbt);
     }
 
     @Override
@@ -123,41 +121,11 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         nbt.merge(this.itemHandlerRenameSlot.serializeNBT());
     }
 
-    private void compatibilityReadItemsFromPre_0_6_6_Format(NBTTagCompound nbt)
-    {
-        // Compatibility code for reading the two last slots from the old style combined 11-slot inventory
-        if (nbt.getInteger("DataVersion") < 6600)
-        {
-            ItemStack stacks[] = new ItemStack[11];
-            NBTUtils.readStoredItemsFromTag(nbt, stacks, "Items");
-
-            if (this.itemHandlerToolSlot.getStackInSlot(0) == null && stacks[0] != null)
-            {
-                this.itemHandlerToolSlot.setStackInSlot(0, stacks[0]);
-            }
-
-            for (int slot = 0; slot < 8; slot++)
-            {
-                this.itemHandlerBase.setStackInSlot(slot, this.itemHandlerBase.getStackInSlot(slot + 1));
-            }
-
-            if (stacks[9] != null)
-            {
-                this.itemHandlerBase.setStackInSlot(8, stacks[9]);
-            }
-
-            if (this.itemHandlerRenameSlot.getStackInSlot(0) == null && stacks[10] != null)
-            {
-                this.itemHandlerRenameSlot.setStackInSlot(0, stacks[10]);
-            }
-        }
-    }
-
     public void renameItem(String name)
     {
         ItemStack stack = this.itemHandlerRenameSlot.getStackInSlot(0);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             if (StringUtils.isBlank(name))
             {
@@ -167,19 +135,15 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
             {
                 stack.setStackDisplayName(name);
             }
+
+            this.itemHandlerRenameSlot.setStackInSlot(0, stack);
         }
     }
 
     public String getItemName()
     {
         ItemStack stack = this.itemHandlerRenameSlot.getStackInSlot(0);
-
-        if (stack != null)
-        {
-            return stack.getDisplayName();
-        }
-
-        return "";
+        return stack.isEmpty() == false ? stack.getDisplayName() : EUStringUtils.EMPTY;
     }
 
     private class ItemHandlerWrapperToolSlot extends ItemHandlerWrapperSelectiveModifiable
@@ -192,7 +156,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            return stack == null || stack.getItem() instanceof IModular;
+            return stack.isEmpty() == false && stack.getItem() instanceof IModular;
         }
     }
 
@@ -209,7 +173,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (super.isItemValidForSlot(slot, stack) == false || stack == null)
+            if (stack.isEmpty() || super.isItemValidForSlot(slot, stack) == false)
             {
                 return false;
             }
@@ -228,7 +192,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
          */
         private ModuleType getModuleTypeForSlot(int slot, ItemStack toolStack)
         {
-            if (toolStack != null && (toolStack.getItem() instanceof IModular))
+            if (toolStack.isEmpty() == false && (toolStack.getItem() instanceof IModular))
             {
                 IModular iModular = (IModular) toolStack.getItem();
                 int modules = 0;
@@ -265,9 +229,8 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            return stack == null ||
-                    ((stack.getItem() instanceof IModule) &&
-                      (UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false));
+            return stack.isEmpty() == false && (stack.getItem() instanceof IModule) &&
+                   UtilItemModular.moduleTypeEquals(stack, ModuleType.TYPE_INVALID) == false;
         }
     }
 

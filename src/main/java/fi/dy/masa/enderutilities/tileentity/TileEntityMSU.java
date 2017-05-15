@@ -14,7 +14,7 @@ import fi.dy.masa.enderutilities.inventory.container.ContainerMSU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
-public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements ITieredStorage
+public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
 {
     public static final int GUI_ACTION_TOGGLE_CREATIVE = 1;
     private ItemStackHandlerLockable itemHandlerLockable;
@@ -43,7 +43,6 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
         return this.itemHandlerLockable;
     }
 
-    @Override
     public void setStorageTier(int tier)
     {
         this.tier = MathHelper.clamp(tier, 0, 1);
@@ -51,7 +50,6 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory implements 
         this.initStorage();
     }
 
-    @Override
     public int getStorageTier()
     {
         return this.tier;

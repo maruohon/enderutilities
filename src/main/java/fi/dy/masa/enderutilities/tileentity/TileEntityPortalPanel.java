@@ -38,8 +38,8 @@ import fi.dy.masa.enderutilities.util.nbt.TargetData;
 public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 {
     private final ItemHandlerWrapper inventoryWrapper;
-    private byte activeTargetId;
-    private byte portalTargetId;
+    private int activeTargetId;
+    private int portalTargetId;
     private String displayName = EUStringUtils.EMPTY;
     private String[] targetDisplayNames = new String[9];
     private int[] colors = new int[9];
@@ -65,33 +65,19 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     private TargetData getActiveTarget()
     {
-        int slot = this.getActiveTargetId();
-        ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
-
-        if (stack != null)
-        {
-            return TargetData.getTargetFromItem(stack);
-        }
-
-        return null;
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(this.getActiveTargetId());
+        return stack.isEmpty() == false ? TargetData.getTargetFromItem(stack) : null;
     }
 
     private OwnerData getOwner()
     {
-        int slot = this.getActiveTargetId();
-        ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
-
-        if (stack != null)
-        {
-            return OwnerData.getOwnerDataFromItem(stack);
-        }
-
-        return null;
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(this.getActiveTargetId());
+        return stack.isEmpty() == false ? OwnerData.getOwnerDataFromItem(stack) : null;
     }
 
     public void setActiveTargetId(int target)
     {
-        this.activeTargetId = (byte)MathHelper.clamp(target, 0, 7);
+        this.activeTargetId = MathHelper.clamp(target, 0, 7);
     }
 
     public int getActiveColor()
@@ -104,14 +90,14 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         // The large button in the center will take the color of the active target
         if (target == 8)
         {
-            target = this.activeTargetId;
+            target = this.getActiveTargetId();
         }
 
         if (target >= 0 && target < 8)
         {
             ItemStack stack = this.itemHandlerBase.getStackInSlot(target + 8);
 
-            if (stack != null && stack.getItem() == Items.DYE)
+            if (stack.isEmpty() == false && stack.getItem() == Items.DYE)
             {
                 return EnumDyeColor.byDyeDamage(stack.getMetadata()).getMapColor().colorValue;
             }
@@ -122,13 +108,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public int getColor(int target)
     {
-        target = MathHelper.clamp(target, 0, 8);
-        return this.colors[target];
+        return this.colors[MathHelper.clamp(target, 0, 8)];
     }
 
     private String getActiveName()
     {
-        return this.getTargetName(this.activeTargetId);
+        return this.getTargetName(this.getActiveTargetId());
     }
 
     private String getTargetName(int targetId)
@@ -137,7 +122,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         {
             ItemStack stack = this.itemHandlerBase.getStackInSlot(targetId);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 return stack.getDisplayName();
             }
@@ -164,11 +149,13 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     public void setTargetName(String name)
     {
-        if (this.activeTargetId >= 0 && this.activeTargetId < 8)
-        {
-            ItemStack stack = this.itemHandlerBase.getStackInSlot(this.activeTargetId);
+        int id = this.getActiveTargetId();
 
-            if (stack != null)
+        if (id >= 0 && id < 8)
+        {
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(id);
+
+            if (stack.isEmpty() == false)
             {
                 if (StringUtils.isBlank(name))
                 {
@@ -179,7 +166,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                     stack.setStackDisplayName(name);
                 }
 
-                this.itemHandlerBase.setStackInSlot(this.activeTargetId, stack);
+                this.itemHandlerBase.setStackInSlot(id, stack);
             }
         }
     }
@@ -198,8 +185,8 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("SelectedTarget", this.activeTargetId);
-        nbt.setByte("PortalTarget", this.portalTargetId);
+        nbt.setByte("SelectedTarget", (byte) this.activeTargetId);
+        nbt.setByte("PortalTarget", (byte) this.portalTargetId);
 
         return nbt;
     }
@@ -209,8 +196,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     {
         nbt = super.getUpdatePacketTag(nbt);
 
-        nbt.setByte("s", this.activeTargetId);
+        nbt.setByte("s", (byte) this.activeTargetId);
         String name = this.getActiveName();
+
         if (StringUtils.isBlank(name) == false)
         {
             nbt.setString("n", name);
@@ -285,7 +273,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            if (stack.isEmpty())
             {
                 return false;
             }

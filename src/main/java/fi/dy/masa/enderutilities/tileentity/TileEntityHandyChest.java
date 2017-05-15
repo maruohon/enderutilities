@@ -34,7 +34,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.SlotRange;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
-public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements ITieredStorage, IModularInventoryHolder
+public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory implements IModularInventoryHolder
 {
     public static final int GUI_ACTION_SELECT_MODULE    = 0;
     public static final int GUI_ACTION_LOCK_MODULE      = 1;
@@ -191,13 +191,11 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         this.itemInventory.setContainerItemStack(this.getContainerStack());
     }
 
-    @Override
     public int getStorageTier()
     {
         return this.chestTier;
     }
 
-    @Override
     public void setStorageTier(int tier)
     {
         this.chestTier = MathHelper.clamp(tier, 0, MAX_TIER);
@@ -215,6 +213,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         }
 
         Long last = this.clickTimes.get(player.getUniqueID());
+
         if (last != null && this.getWorld().getTotalWorldTime() - last < 5)
         {
             // Double left clicked fast enough (< 5 ticks) - do the selected item moving action
@@ -238,9 +237,9 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            if (stack == null)
+            if (stack.isEmpty())
             {
-                return true;
+                return false;
             }
 
             if ((stack.getItem() instanceof IModule) == false)
@@ -262,7 +261,7 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     {
         ItemStack stack = this.itemHandlerMemoryCards.getStackInSlot(cardIndex);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             OwnerData ownerData = OwnerData.getOwnerDataFromItem(stack);
 

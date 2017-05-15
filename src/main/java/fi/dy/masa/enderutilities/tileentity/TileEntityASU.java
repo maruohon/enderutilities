@@ -122,7 +122,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 
             for (int slot = this.getInvSize() - 1; slot >= newSize && slot >= 1; slot--)
             {
-                if (this.itemHandlerLockable.getStackInSlot(slot) == null)
+                if (this.itemHandlerLockable.getStackInSlot(slot).isEmpty())
                 {
                     changeFinal--;
                 }

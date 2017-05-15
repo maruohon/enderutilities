@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -1023,16 +1024,18 @@ public class InventoryUtils
     /**
      * Checks if there is a matching ItemStack in the provided array of stacks
      */
-    public static boolean matchingStackFoundInArray(ItemStack[] stackArray, @Nonnull ItemStack stackTemplate, boolean ignoreMeta, boolean ignoreNbt)
+    public static boolean matchingStackFoundOnList(NonNullList<ItemStack> list,
+            @Nonnull ItemStack stackTemplate, boolean ignoreMeta, boolean ignoreNbt)
     {
         Item item = stackTemplate.getItem();
         int meta = stackTemplate.getMetadata();
+        final int size = list.size();
 
-        for (int i = 0; i < stackArray.length; i++)
+        for (int i = 0; i < size; i++)
         {
-            ItemStack stackTmp = stackArray[i];
+            ItemStack stackTmp = list.get(i);
 
-            if (stackTmp == null || stackTmp.getItem() != item)
+            if (stackTmp.isEmpty() || stackTmp.getItem() != item)
             {
                 continue;
             }
@@ -1259,60 +1262,66 @@ public class InventoryUtils
     }
 
     /**
-     * Creates a copy of the whole inventory and returns it in a new ItemStack array.
+     * Creates a copy of the whole inventory and returns it in a new NonNullList.
      * @param inv
-     * @return an array of ItemStacks containing a copy of the entire inventory
+     * @return a NonNullList containing a copy of the entire inventory
      */
-    public static ItemStack[] createInventorySnapshot(IItemHandler inv)
+    public static NonNullList<ItemStack> createInventorySnapshot(IItemHandler inv)
     {
-        ItemStack[] items = new ItemStack[inv.getSlots()];
+        final int slots = inv.getSlots();
+        NonNullList<ItemStack> items = NonNullList.withSize(slots, ItemStack.EMPTY);
 
-        for (int i = 0; i < items.length; i++)
+        for (int i = 0; i < slots; i++)
         {
             ItemStack stack = inv.getStackInSlot(i);
-            items[i] = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+
+            if (stack.isEmpty() == false)
+            {
+                items.set(i, stack.copy());
+            }
         }
 
         return items;
     }
 
     /**
-     * Creates a copy of the non-empty stacks in the inventory and returns it in a new ItemStack array.
+     * Creates a copy of the non-empty stacks in the inventory and returns it in a new NonNullList.
      * @param inv
-     * @return an array of ItemStacks containing copies of the non-empty stacks
+     * @return a NonNullList containing copies of the non-empty stacks
      */
-    public static ItemStack[] createInventorySnapshotOfNonEmptySlots(IItemHandler inv)
+    public static NonNullList<ItemStack> createInventorySnapshotOfNonEmptySlots(IItemHandler inv)
     {
-        int slots = inv.getSlots();
-        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        final int slots = inv.getSlots();
+        NonNullList<ItemStack> items = NonNullList.create();
 
         for (int i = 0; i < slots; i++)
         {
             ItemStack stack = inv.getStackInSlot(i);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
-                stacks.add(stack.copy());
+                items.add(stack.copy());
             }
         }
 
-        return stacks.toArray(new ItemStack[stacks.size()]);
+        return items;
     }
 
     /**
-     * If there are items in the invTarget inventory that do not match the template array, then those are tried to move
-     * to invStorage
+     * If there are items in the invTarget inventory that do not match the template list,
+     * then those are attempted to move to invStorage
      * @param invTarget
      * @param invStorage
      * @param template
      */
-    public static void clearInventoryToMatchTemplate(IItemHandler invTarget, IItemHandler invStorage, ItemStack[] template)
+    public static void clearInventoryToMatchTemplate(IItemHandler invTarget, IItemHandler invStorage, NonNullList<ItemStack> template)
     {
+        final int slots = Math.min(invTarget.getSlots(), template.size());
         SlotRange rangeStorage = new SlotRange(invStorage);
 
-        for (int i = 0; i < template.length && i < invTarget.getSlots(); i++)
+        for (int i = 0; i < slots; i++)
         {
-            if (areItemStacksEqual(template[i], invTarget.getStackInSlot(i)) == false)
+            if (areItemStacksEqual(template.get(i), invTarget.getStackInSlot(i)) == false)
             {
                 tryMoveAllItemsWithinSlotRange(invTarget, invStorage, new SlotRange(i, 1), rangeStorage);
             }
@@ -1320,9 +1329,9 @@ public class InventoryUtils
     }
 
     /**
-     * Adds amountPerStack items to all the stacks in invTarget based on the template inventory contents array <b>template</b>.
+     * Adds amountPerStack items to all the stacks in invTarget based on the template inventory in <b>template</b>.
      * If the existing stack doesn't match the template, then nothing will be added to that stack.
-     * If the existing stack is null, then it will be set to a new stack based on the template.
+     * If the existing stack is empty, then it will be set to a new stack based on the template.
      * All the items are taken from the inventory <b>invStorage</b>.
      * If emptySlotsOnly is true, then only slots that are empty in the target inventory will be re-stocked.
      * If useOreDict is true, then any matches via OreDictionary are also accepted.
@@ -1332,42 +1341,44 @@ public class InventoryUtils
      * @param amountPerStack
      * @param emptySlotsOnly
      * @param useOreDict
-     * @return true if ALL the items from the template inventory contents and in the quantity amountPerStack were successfully added
+     * @return true if ALL the items from the template inventory and in the quantity amountPerStack were successfully added
      */
-    public static boolean restockInventoryBasedOnTemplate(IItemHandler invTarget, IItemHandler invStorage, ItemStack[] template,
-            int amountPerStack, boolean emptySlotsOnly, boolean useOreDict)
+    public static boolean restockInventoryBasedOnTemplate(IItemHandler invTarget, IItemHandler invStorage,
+            NonNullList<ItemStack> template, int amountPerStack, boolean emptySlotsOnly, boolean useOreDict)
     {
         int i = 0;
         int amount = 0;
         boolean allSuccess = true;
 
-        for (i = 0; i < template.length && i < invTarget.getSlots(); i++)
+        for (i = 0; i < template.size() && i < invTarget.getSlots(); i++)
         {
-            if (template[i] == null)
+            ItemStack stackTemplate = template.get(i);
+
+            if (stackTemplate.isEmpty())
             {
                 continue;
             }
 
             ItemStack stackExisting = invTarget.getStackInSlot(i);
 
-            if (emptySlotsOnly && stackExisting != null)
+            if (emptySlotsOnly && stackExisting.isEmpty() == false)
             {
                 continue;
             }
 
-            amount = Math.min(amountPerStack, template[i].getMaxStackSize());
+            amount = Math.min(amountPerStack, stackTemplate.getMaxStackSize());
 
             // The existing stack doesn't match the template, skip it
-            if (stackExisting != null)
+            if (stackExisting.isEmpty() == false)
             {
-                if ((useOreDict == false && areItemStacksEqual(stackExisting, template[i]) == false) ||
-                    (useOreDict && areItemStacksOreDictMatch(stackExisting, template[i]) == false))
+                if ((useOreDict == false && areItemStacksEqual(stackExisting, stackTemplate) == false) ||
+                    (useOreDict && areItemStacksOreDictMatch(stackExisting, stackTemplate) == false))
                 {
                     allSuccess = false;
                     continue;
                 }
 
-                amount = Math.max(amount - stackExisting.stackSize, 0);
+                amount = Math.max(amount - stackExisting.getCount(), 0);
             }
 
             if (amount <= 0)
@@ -1376,33 +1387,33 @@ public class InventoryUtils
                 continue;
             }
 
-            ItemStack stackNew = collectItemsFromInventory(invStorage, template[i], amount, false, useOreDict);
+            ItemStack stackNew = collectItemsFromInventory(invStorage, stackTemplate, amount, false, useOreDict);
 
-            if (stackNew == null)
+            if (stackNew.isEmpty())
             {
                 allSuccess = false;
                 continue;
             }
 
-            if (stackNew.stackSize < amount)
+            if (stackNew.getCount() < amount)
             {
                 allSuccess = false;
             }
 
             // Used oreDict matches to collect the items, and they are not identical to the existing items
             // => we need to convert the new items to the existing item's type before they can be inserted
-            if (useOreDict && stackExisting != null && areItemStacksEqual(stackExisting, stackNew) == false)
+            if (useOreDict && stackExisting.isEmpty() == false && areItemStacksEqual(stackExisting, stackNew) == false)
             {
-                int size = stackNew.stackSize;
+                int size = stackNew.getCount();
                 stackNew = stackExisting.copy();
-                stackNew.stackSize = size;
+                stackNew.setCount(size);
             }
 
             // Try to insert the collected stack to the target slot
             stackNew = invTarget.insertItem(i, stackNew, false);
 
             // Failed to insert all the items, return them to the original inventory
-            if (stackNew != null)
+            if (stackNew.isEmpty() == false)
             {
                 tryInsertItemStackToInventory(invStorage, stackNew);
             }
