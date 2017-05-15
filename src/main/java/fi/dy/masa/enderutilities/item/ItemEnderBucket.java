@@ -427,6 +427,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         }
 
         BucketMode mode = BucketMode.fromStack(stack);
+
         // Not in drain-only mode && (empty || (space && same fluid && (not sneaking || fill-only mode))) => trying to pick up fluid
         if (mode != BucketMode.DRAIN &&
             (storedFluidAmount == 0 || (this.getCapacityAvailable(stack, targetFluidStack, player) >= Fluid.BUCKET_VOLUME &&
@@ -534,7 +535,8 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             float y = pos.getY();
             float z = pos.getZ();
 
-            world.playSound(null, x + 0.5F, y + 0.5F, z + 0.5F, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
+            world.playSound(null, x + 0.5F, y + 0.5F, z + 0.5F, SoundEvents.BLOCK_FIRE_EXTINGUISH,
+                    SoundCategory.BLOCKS, 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
 
             for (int l = 0; l < 8; ++l)
             {
@@ -563,7 +565,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-            if (moduleStack != null)
+            if (moduleStack.isEmpty() == false)
             {
                 NBTTagCompound moduleNbt = moduleStack.getTagCompound();
 
@@ -630,7 +632,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-        if (moduleStack != null)
+        if (moduleStack.isEmpty() == false)
         {
             NBTTagCompound moduleNbt = moduleStack.getTagCompound();
 
@@ -661,7 +663,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
         {
             ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-            if (moduleStack != null && moduleStack.getTagCompound() != null)
+            if (moduleStack.isEmpty() == false && moduleStack.getTagCompound() != null)
             {
                 NBTTagCompound moduleNbt = moduleStack.getTagCompound();
                 IFluidHandler handler = this.getLinkedTank(stack);
@@ -749,7 +751,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             {
                 ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
 
-                if (moduleStack != null && moduleStack.getTagCompound() != null)
+                if (moduleStack.isEmpty() == false && moduleStack.getTagCompound() != null)
                 {
                     if (moduleStack.getTagCompound().hasKey("FluidCached", Constants.NBT.TAG_COMPOUND))
                     {
@@ -1037,7 +1039,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }

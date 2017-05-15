@@ -70,7 +70,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             player = (EntityPlayer) livingBase;
         }
 
-        if (this.isBroken(stack) == true)
+        if (this.isBroken(stack))
         {
             return;
         }
@@ -78,7 +78,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         byte mode = this.getBowMode(stack);
 
         // Do nothing on the client side
-        if (world.isRemote == true || (mode == BOW_MODE_TP_TARGET && player != null &&
+        if (world.isRemote || (mode == BOW_MODE_TP_TARGET && player != null &&
                 OwnerData.canAccessSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, player) == false))
         {
             return;
@@ -90,7 +90,8 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             return;
         }
 
-        if (player != null && player.capabilities.isCreativeMode == false && player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)) == false)
+        if (player != null && player.capabilities.isCreativeMode == false &&
+            player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)) == false)
         {
             return;
         }
@@ -106,6 +107,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         if (mode == BOW_MODE_TP_TARGET)
         {
             TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
             // If we want to TP the target, we must have a valid target set
             if (target == null)
             {
@@ -134,7 +136,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             stack.damageItem(1, player);
 
             // Tool just broke FIXME this doesn't work when called for the player, for some reason...
-            if (this.isBroken(stack) == true)
+            if (this.isBroken(stack))
             {
                 player.renderBrokenItemStack(stack);
             }
@@ -176,7 +178,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         ItemStack stack = player.getHeldItem(hand);
         // This method needs to also be executed on the client, otherwise the bow won't be set to in use
 
-        if (this.isBroken(stack) == true)
+        if (this.isBroken(stack))
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -192,7 +194,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             }
         }
 
-        if (player.capabilities.isCreativeMode == true || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)) == true)
+        if (player.capabilities.isCreativeMode || player.inventory.hasItemStack(new ItemStack(EnderUtilitiesItems.ENDER_ARROW)))
         {
             player.setActiveHand(hand);
 
@@ -266,9 +268,9 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         }
     }
 
-    public byte getBowMode(ItemStack stack)
+    private byte getBowMode(ItemStack stack)
     {
-        if (stack != null && stack.getTagCompound() != null)
+        if (stack.getTagCompound() != null)
         {
             return stack.getTagCompound().getByte("Mode");
         }
@@ -352,7 +354,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
                 {
                     stack = entityIn.getActiveItemStack();
 
-                    if (stack != null)
+                    if (stack.isEmpty() == false)
                     {
                         return (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F;
                     }
@@ -374,7 +376,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemEnderBow.this.isBroken(stack) ? 1.0F : 0.0F;
+                return ItemEnderBow.this.isBroken(stack) ? 1.0F : 0.0F;
             }
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "mode"), new IItemPropertyGetter()
@@ -382,7 +384,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemEnderBow.this.getBowMode(stack) == BOW_MODE_TP_SELF ? 1.0F : 0.0F;
+                return ItemEnderBow.this.getBowMode(stack) == BOW_MODE_TP_SELF ? 1.0F : 0.0F;
             }
         });
     }

@@ -82,9 +82,11 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         Mode mode = Mode.getMode(stack);
+
         if (mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, player.getEntityWorld(), livingBase.getPosition(), livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
+            return this.releaseEntity(stack, player.getEntityWorld(), livingBase.getPosition(),
+                    livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
         }
 
         return this.captureEntity(stack, player, livingBase);
@@ -98,6 +100,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         int count = this.getStoredEntityCount(stack);
+
         if (count < MAX_ENTITIES_PER_CARD)
         {
             return this.storeEntity(stack, livingBase);
@@ -111,12 +114,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     private EnumActionResult releaseEntity(ItemStack containerStack, World world, BlockPos pos, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
+
+        if (moduleStack.isEmpty())
         {
             return EnumActionResult.PASS;
         }
 
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
+
         if (tagList == null || tagList.tagCount() == 0)
         {
             return EnumActionResult.PASS;
@@ -124,12 +129,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         int current = NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
         int numEntities = tagList.tagCount();
+
         if (current >= numEntities)
         {
             current = (numEntities > 0) ? numEntities - 1 : 0;
         }
 
         NBTTagCompound tag = tagList.getCompoundTagAt(current);
+
         if (tag != null)
         {
             boolean isShulker = false;
@@ -153,6 +160,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             }
 
             Entity entity = EntityList.createEntityFromNBT(tag, world);
+
             if (entity == null)
             {
                 return EnumActionResult.FAIL;
@@ -179,6 +187,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         numEntities = tagList.tagCount();
+
         if (current >= numEntities)
         {
             current = (numEntities > 0) ? numEntities - 1 : 0;
@@ -194,7 +203,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
-        if (this.canStoreEntity(livingBase) == false || moduleStack == null)
+        if (moduleStack.isEmpty() || this.canStoreEntity(livingBase) == false)
         {
             return EnumActionResult.PASS;
         }
@@ -204,6 +213,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         livingBase.removePassengers();
 
         NBTTagCompound nbtEntity = new NBTTagCompound();
+
         if (livingBase.writeToNBTOptional(nbtEntity) == false)
         {
             return EnumActionResult.FAIL;
@@ -224,13 +234,14 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     private int getStoredEntityCount(ItemStack containerStack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
+
+        if (moduleStack.isEmpty() == false)
         {
-            return 0;
+            NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
+            return tagList != null ? tagList.tagCount() : 0;
         }
 
-        NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
-        return tagList != null ? tagList.tagCount() : 0;
+        return 0;
     }
 
     /**
@@ -239,12 +250,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     private int getCurrentIndex(ItemStack containerStack)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
-        {
-            return 0;
-        }
-
-        return NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
+        return moduleStack.isEmpty() ? 0 : NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
     }
 
     /*
@@ -266,7 +272,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
-        if (moduleStack == null)
+        if (moduleStack.isEmpty())
         {
             return null;
         }
@@ -318,7 +324,8 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     private void changeEntitySelection(ItemStack containerStack, boolean reverse)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
+
+        if (moduleStack.isEmpty())
         {
             return;
         }
@@ -366,7 +373,8 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             if (str.length() >= 14)
             {
@@ -437,17 +445,19 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
 
         // Memory Cards installed
-        if (memoryCardStack != null)
+        if (memoryCardStack.isEmpty() == false)
         {
             if (verbose)
             {
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
+
                 list.add(I18n.format("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
 
                 NBTTagList tagList = NBTUtils.getTagList(memoryCardStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, false);
+
                 if (tagList == null)
                 {
                     return;
@@ -522,7 +532,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }

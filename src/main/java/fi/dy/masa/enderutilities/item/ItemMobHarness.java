@@ -67,6 +67,7 @@ public class ItemMobHarness extends ItemEnderUtilities
         if (player.isSneaking())
         {
             RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
+
             if (rayTraceResult != null && rayTraceResult.typeOfHit != RayTraceResult.Type.ENTITY
                 && player.rotationPitch > 80.0f)
             {
@@ -184,9 +185,9 @@ public class ItemMobHarness extends ItemEnderUtilities
         return stack;
     }
 
-    public boolean mountTarget(ItemStack stack, World world, EntityPlayer player, Entity targetEntity)
+    private boolean mountTarget(ItemStack stack, World world, EntityPlayer player, Entity targetEntity)
     {
-        if (stack == null || stack.getTagCompound() == null || targetEntity == null)
+        if (stack.getTagCompound() == null || targetEntity == null)
         {
             return false;
         }
@@ -272,7 +273,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             @SideOnly(Side.CLIENT)
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
-                return stack != null && ItemMobHarness.this.hasTarget(stack) ? 1.0F : 0.0F;
+                return ItemMobHarness.this.hasTarget(stack) ? 1.0F : 0.0F;
             }
         });
     }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockOldLeaf;
@@ -71,20 +72,10 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.BlockInfo;
-import fi.dy.masa.enderutilities.util.BlockPosEU;
-import fi.dy.masa.enderutilities.util.BlockPosStateDist;
-import fi.dy.masa.enderutilities.util.BlockUtils;
-import fi.dy.masa.enderutilities.util.EUStringUtils;
-import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.*;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.PositionUtils;
-import fi.dy.masa.enderutilities.util.TemplateEnderUtilities;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.ReplaceMode;
-import fi.dy.masa.enderutilities.util.TemplateManagerEU;
 import fi.dy.masa.enderutilities.util.TemplateManagerEU.FileInfo;
-import fi.dy.masa.enderutilities.util.TemplateMetadata;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
@@ -241,6 +232,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (last == null || (world.getTotalWorldTime() - last) >= 4)
         {
             Mode mode = Mode.getMode(stack);
+
             // Sneak + left click: Set the selected block type (in the appropriate modes)
             if (player.isSneaking() && (mode.isAreaMode() == false ||
                     (mode == Mode.REPLACE_3D && WandOption.BIND_MODE.isEnabled(stack, mode))))
@@ -276,11 +268,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             EntityPlayer player = (EntityPlayer) livingBase;
             BlockPosEU pos = this.getPosition(stack, POS_START);
+
             if (pos != null)
             {
                 if (this.useWand(stack, world, player, pos) == EnumActionResult.SUCCESS)
                 {
-                    player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.4f, 0.7f);
+                    player.getEntityWorld().playSound(null, player.getPosition(),
+                            SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.4f, 0.7f);
                 }
             }
         }
@@ -296,6 +290,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public String getItemStackDisplayName(ItemStack stack)
     {
         String itemName = this.getBaseItemDisplayName(stack);
+
         if (stack.getTagCompound() == null)
         {
             return itemName;
@@ -330,14 +325,15 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
         String strYes = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         String strNo = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
+        String str;
 
         Mode mode = Mode.getMode(stack);
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + pre + mode.getDisplayName() + rst);
 
         int sel = this.getSelectionIndex(stack);
+
         if (mode.isAreaMode() && mode != Mode.REPLACE_3D)
         {
-            String str;
             if (mode == Mode.COPY || mode == Mode.PASTE)
             {
                 str = I18n.format("enderutilities.tooltip.item.selectedtemplate");
@@ -346,30 +342,35 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 str = I18n.format("enderutilities.tooltip.item.area");
             }
+
             list.add(str + ": " + preGreen + (sel + 1) + rst);
         }
         else if (sel >= 0)
         {
-            BlockInfo blockInfo = getSelectedFixedBlockType(stack, false);
+            BlockInfo blockInfo = this.getSelectedFixedBlockType(stack, false);
+
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
-                if (blockStack != null && blockStack.getItem() != null)
+
+                if (blockStack.isEmpty() == false)
                 {
-                    String str = I18n.format("enderutilities.tooltip.item.build.target");
+                    str = I18n.format("enderutilities.tooltip.item.build.target");
                     list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
                 }
             }
 
             if (mode == Mode.REPLACE_3D)
             {
-                blockInfo = getSelectedFixedBlockType(stack, true);
+                blockInfo = this.getSelectedFixedBlockType(stack, true);
+
                 if (blockInfo != null)
                 {
                     ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
-                    if (blockStack != null && blockStack.getItem() != null)
+
+                    if (blockStack.isEmpty() == false)
                     {
-                        String str = I18n.format("enderutilities.tooltip.item.build.replacement");
+                        str = I18n.format("enderutilities.tooltip.item.build.replacement");
                         list.add(str + ": " + pre + blockStack.getDisplayName() + rst);
                     }
                 }
@@ -377,7 +378,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
         else
         {
-            String str = I18n.format("enderutilities.tooltip.item.selectedblock");
+            str = I18n.format("enderutilities.tooltip.item.selectedblock");
+
             if (sel == BLOCK_TYPE_TARGETED)
             {
                 list.add(str + ": " + pre + I18n.format("enderutilities.tooltip.item.blocktype.targeted") + rst);
@@ -388,7 +390,6 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             }
         }
 
-        String str;
         if (mode.isAreaMode())
         {
             str = I18n.format("enderutilities.tooltip.item.rotation") + ": ";
@@ -397,6 +398,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             list.add(str + str2 + rst);
 
             str2 = I18n.format("enderutilities.tooltip.item.mirror") + ": ";
+
             if (this.isMirrored(stack))
             {
                 list.add(str2 + preGreen + (this.getMirror(stack) == Mirror.FRONT_BACK ? "x" : "z") + rst);
@@ -410,7 +412,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             str = I18n.format("enderutilities.tooltip.item.area.flipped");
 
-            if (this.getAreaFlipped(stack))
+            if (this.isAreaFlipped(stack))
             {
                 list.add(str + ": " + strYes + rst);
 
@@ -496,6 +498,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (mode == Mode.PASTE)
         {
             NBTTagCompound tag = this.getSelectedTemplateTag(stack, mode, false);
+
             if (tag == null)
             {
                 return null;
@@ -508,6 +511,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             BlockPosEU posStartSrc = this.getPerTemplateAreaCorner(stack, Mode.MOVE_SRC, true);
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, Mode.MOVE_SRC, false);
+
             if (posStartSrc == null || posEnd == null)
             {
                 return null;
@@ -519,6 +523,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         else
         {
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, mode, false);
+
             if (posEnd == null)
             {
                 return null;
@@ -623,6 +628,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             // Update the base rotation to the current area when changing corners
             BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, true);
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, mode, false);
+
             if (posStart != null && posEnd != null)
             {
                 this.setAreaFacing(stack, mode, PositionUtils.getFacingFromPositions(posStart, posEnd));
@@ -634,9 +640,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         NBTTagCompound tag = this.getModeTag(stack, mode);
 
         String tagName = isStart ? "Pos1" : "Pos2";
+
         if (tag.hasKey(tagName, Constants.NBT.TAG_COMPOUND))
         {
             BlockPosEU oldPos = BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
+
             if (oldPos != null && oldPos.equals(pos))
             {
                 tag.removeTag(tagName);
@@ -670,6 +678,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPosEU posEnd = this.getPosition(stack, POS_END);
 
         Mode mode = Mode.getMode(stack);
+
         if (mode == Mode.CUBE)
         {
             this.getBlockPositionsCube(stack, world, positions, posStart, posEnd);
@@ -725,6 +734,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
             // Offset the start position by one after a build operation completes, but not for Walls and Cube modes
             BlockPosEU pos = this.getPosition(stack, POS_START);
+
             if (pos != null && mode != Mode.WALLS && mode != Mode.CUBE &&
                 mode != Mode.REPLACE && WandOption.MOVE_POSITION.isEnabled(stack, mode))
             {
@@ -801,7 +811,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return false;
         }
 
-        ItemStack targetStack = null;
+        ItemStack targetStack = ItemStack.EMPTY;
         Block blockNew = newState.getBlock();
 
         if (requireItems)
@@ -810,7 +820,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             targetStack = getAndConsumeBuildItem(wandStack, world, pos, newState, player, true);
         }
 
-        if (requireItems == false || targetStack != null)
+        if (requireItems == false || targetStack.isEmpty() == false)
         {
             // Break the existing block
             if (replace && isAir == false && player instanceof EntityPlayerMP)
@@ -876,30 +886,31 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         return player.capabilities.isCreativeMode || (hasEnoughCharge(stack, player) &&
                 BlockUtils.canChangeBlock(world, posIn.toBlockPos(), player, true, Configs.buildersWandMaxBlockHardness) &&
-                getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true) != null);
+                getAndConsumeBuildItem(stack, world, posIn.toBlockPos(), posIn.blockInfo.blockState, player, true).isEmpty() == false);
     }
 
     public static ItemStack getAndConsumeBuildItem(ItemStack wandStack, World world, BlockPos pos, IBlockState newState, EntityPlayer player, boolean simulate)
     {
         ItemStack templateStack = BlockUtils.getPickBlockItemStack(world, pos, newState, player, EnumFacing.UP);
 
-        if (templateStack == null)
+        if (templateStack.isEmpty())
         {
             templateStack = BlockUtils.getSilkTouchDrop(newState);
         }
 
-        if (templateStack == null)
+        if (templateStack.isEmpty())
         {
-            return null;
+            return ItemStack.EMPTY;
         }
 
         IItemHandler inv = UtilItemModular.getPlayerOrBoundInventoryWithItems(wandStack, templateStack, player);
-        return inv != null ? InventoryUtils.extractMatchingItems(inv, templateStack, 1, simulate) : null;
+        return inv != null ? InventoryUtils.extractMatchingItems(inv, templateStack, 1, simulate) : ItemStack.EMPTY;
     }
 
     private void setSelectedFixedBlockType(ItemStack stack, EntityPlayer player, World world, BlockPos pos, boolean secondary)
     {
         int sel = this.getSelectionIndex(stack, secondary);
+
         if (sel < 0)
         {
             return;
@@ -919,7 +930,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         tag.setByte("BlockMeta", (byte)state.getBlock().getMetaFromState(state));
 
         ItemStack stackTmp = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
-        int itemMeta = stackTmp != null ? stackTmp.getMetadata() : 0;
+        int itemMeta = stackTmp.isEmpty() == false ? stackTmp.getMetadata() : 0;
 
         tag.setShort("ItemMeta", (short)itemMeta);
     }
@@ -932,6 +943,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public BlockInfo getSelectedFixedBlockType(ItemStack stack, boolean secondary)
     {
         int sel = this.getSelectionIndex(stack, secondary);
+
         if (sel < 0)
         {
             return null;
@@ -1021,7 +1033,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return Mirror.NONE;
     }
 
-    public boolean getAreaFlipped(ItemStack stack)
+    public boolean isAreaFlipped(ItemStack stack)
     {
         return this.getModeTag(stack, Mode.getMode(stack)).getBoolean("Flip");
     }
@@ -1061,7 +1073,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             axisRight = BlockPosEU.getRotation(face, EnumFacing.SOUTH);
         }
 
-        if (this.getAreaFlipped(stack))
+        if (this.isAreaFlipped(stack))
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, face);
             axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
@@ -1088,7 +1100,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             axisUp = BlockPosEU.getRotation(face, axisRight);
         }
 
-        if (this.getAreaFlipped(stack))
+        if (this.isAreaFlipped(stack))
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, face);
             axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
@@ -1101,6 +1113,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         Mode mode = Mode.getMode(stack);
         BlockPosEU pos = this.getPosition(stack, POS_START);
+
         if (pos == null || mode == Mode.PASTE || mode == Mode.MOVE_DST)
         {
             return;
@@ -1141,7 +1154,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         EnumFacing axisRight = this.getAxisRight(stack, pos);
         EnumFacing axisUp = this.getAxisUp(stack, pos);
 
-        boolean isFlipped = this.getAreaFlipped(stack);
+        boolean isFlipped = this.isAreaFlipped(stack);
         EnumFacing flipAxis = this.getAreaFlipAxis(stack, faceAxis);
         EnumFacing faceAxisFlipped = isFlipped ? BlockPosEU.getRotation(faceAxis, flipAxis) : faceAxis;
 
@@ -1182,6 +1195,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPosEU posStart = mode == Mode.CUBE || mode == Mode.WALLS ?
                 this.getPosition(stack, mode, POS_START) : this.getPerTemplateAreaCorner(stack, mode, POS_START);
         BlockPosEU posEnd = this.getPosition(stack, mode, POS_END);
+
         if (posEnd == null)
         {
             posEnd = posStart;
@@ -1462,6 +1476,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             BlockPos posAdj = pos.offset(side);
             IBlockState stateAdj = world.getBlockState(posAdj);
             Block blockAdj = stateAdj.getBlock();
+
             // The block must have a non-full block on the front face to be valid for replacing
             if (blockAdj.isAir(stateAdj, world, posAdj) || stateAdj.isSideSolid(world, posAdj, side.getOpposite()) == false)
             {
@@ -1515,6 +1530,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     private BlockInfo getBlockInfoForTargeted(ItemStack stack, World world, BlockPos pos)
     {
         int blockType = this.getSelectionIndex(stack);
+
         if (blockType == BLOCK_TYPE_TARGETED || blockType == BLOCK_TYPE_ADJACENT)
         {
             return BlockInfo.getBlockInfo(world, pos);
@@ -1570,11 +1586,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             axisUp = BlockPosEU.getRotation(side, axisRight);
         }
 
-        if (this.getAreaFlipped(stack))
+        if (this.isAreaFlipped(stack))
         {
             EnumFacing flipAxis = this.getAreaFlipAxis(stack, side);
             axisRight = BlockPosEU.getRotation(axisRight, flipAxis);
             axisUp = BlockPosEU.getRotation(axisUp, flipAxis);
+
             if (flipAxis.getAxis() != center.getFacing().getAxis())
             {
                 flippedCenter = new BlockPosEU(center.toBlockPos(), center.getDimension(), BlockPosEU.getRotation(center.getFacing(), flipAxis));
@@ -1590,7 +1607,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         int dim = world.provider.getDimension();
         boolean continueThrough = WandOption.CONTINUE_THROUGH.isEnabled(stack, mode);
 
-        switch(mode)
+        switch (mode)
         {
             case COLUMN:
                 for (int i = 0; i <= area.rPosH; i++)
@@ -1996,6 +2013,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         BlockPosEU posSrc1EU = this.getPosition(stack, Mode.MOVE_SRC, true);
         BlockPosEU posSrc2EU = this.getPosition(stack, Mode.MOVE_SRC, false);
+
         if (posSrc1EU == null || posSrc2EU == null || posDst1EU == null || posDst2EU == null)
         {
             return EnumActionResult.FAIL;
@@ -2018,10 +2036,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         BlockPos posSrc2 = posSrc2EU.toBlockPos();
         EnumFacing origFacing = PositionUtils.getFacingFromPositions(posSrc1, posSrc2);
         EnumFacing areaFacing = this.getAreaFacing(stack, Mode.MOVE_DST);
+
         if (areaFacing == null)
         {
             areaFacing = origFacing;
         }
+
         Rotation rotation = PositionUtils.getRotation(origFacing, areaFacing);
         Mirror mirror = this.getMirror(stack, Mode.MOVE_DST);
 
@@ -2093,6 +2113,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         }
 
         BlockInfo biBound = getSelectedFixedBlockType(stack);
+
         if (biBound == null || biBound.blockState == world.getBlockState(center.toBlockPos()))
         {
             return EnumActionResult.FAIL;
@@ -2118,6 +2139,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         BlockPosEU pos1 = this.getPosition(stack, true);
         BlockPosEU pos2 = this.getPosition(stack, false);
+
         if (pos1 == null || pos2 == null)
         {
             return EnumActionResult.FAIL;
@@ -2267,6 +2289,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public String getTemplateName(ItemStack stack, Mode mode)
     {
         NBTTagCompound nbt = this.getSelectedTemplateTag(stack, mode, false);
+
         if (nbt != null && nbt.hasKey("TemplateName"))
         {
             return nbt.getString("TemplateName");
@@ -2301,17 +2324,20 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return new ResourceLocation(Reference.MOD_ID, name + "_" + uuid.toString() + "_" + id);
     }
 
+    @Nullable
     private TemplateManagerEU getTemplateManager()
     {
         File saveDir = DimensionManager.getCurrentSaveRootDirectory();
-        if (saveDir == null)
+
+        if (saveDir != null)
         {
-            return null;
+            return new TemplateManagerEU(new File(new File(saveDir, Reference.MOD_ID), this.name));
         }
 
-        return new TemplateManagerEU(new File(new File(saveDir, Reference.MOD_ID), this.name));
+        return null;
     }
 
+    @Nullable
     private NBTTagCompound getSelectedTemplateTag(ItemStack stack, Mode mode, boolean create)
     {
         int sel = this.getSelectionIndex(stack);
@@ -2362,6 +2388,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             BlockPosEU posStart = this.getPerTemplateAreaCorner(stack, mode, true);
             BlockPosEU posEnd = this.getPerTemplateAreaCorner(stack, mode, false);
+
             if (posStart != null && posEnd != null)
             {
                 return PositionUtils.getFacingFromPositions(posStart, posEnd);
@@ -2386,6 +2413,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     {
         EnumFacing facing = this.getTemplateFacing(stack);
         EnumFacing areaFacing = this.getAreaFacing(stack, Mode.PASTE);
+
         if (areaFacing == null)
         {
             areaFacing = facing;
@@ -2543,7 +2571,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public void handleString(EntityPlayer player, ItemStack stack, String text)
     {
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             this.setTemplateName(stack, player, text);
         }
@@ -2586,7 +2614,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }
@@ -2974,7 +3002,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 {
                     stack = entityIn.getActiveItemStack();
 
-                    if (stack != null)
+                    if (stack.isEmpty() == false)
                     {
                         return (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 50.0F;
                     }

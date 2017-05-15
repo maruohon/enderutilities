@@ -90,6 +90,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         if (player.isSneaking())
         {
             RayTraceResult rayTraceResult = this.rayTrace(world, player, true);
+
             if (rayTraceResult != null && rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK)
             {
                 return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -240,8 +241,8 @@ public class ItemEnderPorter extends ItemLocationBoundModular
                 }
                 else
                 {
-                    ItemStack itemstack = entityIn.getActiveItemStack();
-                    return itemstack != null && itemstack.getItem() == EnderUtilitiesItems.ENDER_PORTER ?
+                    ItemStack stackActive = entityIn.getActiveItemStack();
+                    return stackActive.isEmpty() == false && stackActive.getItem() == EnderUtilitiesItems.ENDER_PORTER ?
                             (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 60.0F : 0.0F;
                 }
             }

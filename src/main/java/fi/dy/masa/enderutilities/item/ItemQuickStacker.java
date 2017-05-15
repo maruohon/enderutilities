@@ -66,7 +66,8 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     {
         if (world.isRemote == false)
         {
-            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_QUICK_STACKER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_QUICK_STACKER, world,
+                    (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
@@ -123,6 +124,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
+
         if (isEnabled(containerStack))
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
@@ -133,6 +135,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " +
                     preRed + I18n.format("enderutilities.tooltip.item.no");
         }
+
         list.add(str);
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
@@ -162,7 +165,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
             }
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public static long getEnabledSlotsMask(ItemStack stack)
@@ -177,6 +180,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
         Result ret = TileEntityQuickStackerAdvanced.quickStackItems(playerInv, inventory,
                 getEnabledSlotsMask(stackerStack), player.isSneaking() == false, null);
+
         if (ret != Result.MOVED_NONE)
         {
             player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
@@ -187,16 +191,16 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
 
     public static void quickStackItems(EntityPlayer player)
     {
-        ItemStack stackerStack = getEnabledItem(player);
-        if (stackerStack == null)
-        {
-            return;
-        }
+        ItemStack stack = getEnabledItem(player);
 
-        //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
-        TileEntityQuickStackerAdvanced.quickStackToInventories(player.getEntityWorld(), player, getEnabledSlotsMask(stackerStack),
-                PositionUtils.getTileEntityPositions(player.getEntityWorld(),
-                        player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL, MAX_RANGE_VERTICAL));
+        if (stack.isEmpty() == false)
+        {
+            //PlayerTaskScheduler.getInstance().addTask(player, new TaskPositionDebug(world, getPositions(player), 2), 2);
+
+            TileEntityQuickStackerAdvanced.quickStackToInventories(player.getEntityWorld(), player, getEnabledSlotsMask(stack),
+                    PositionUtils.getTileEntityPositions(player.getEntityWorld(),
+                            player.getPosition(), MAX_RANGE_HORIZONTAL, MAX_RANGE_VERTICAL, MAX_RANGE_VERTICAL));
+        }
     }
 
     @Override
@@ -205,9 +209,9 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         // Re-fetch the item to check if it's enabled
         stack = getEnabledItem(player);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
-            ((ItemQuickStacker)stack.getItem()).doKeyBindingAction(player, stack, key);
+            ((ItemQuickStacker) stack.getItem()).doKeyBindingAction(player, stack, key);
         }
     }
 
@@ -237,8 +241,9 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     {
         if (player.openContainer instanceof ContainerQuickStacker)
         {
-            ItemStack stack = ((ContainerQuickStacker)player.openContainer).getContainerItem();
-            if (stack != null && stack.getItem() == EnderUtilitiesItems.QUICK_STACKER)
+            ItemStack stack = ((ContainerQuickStacker) player.openContainer).getContainerItem();
+
+            if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.QUICK_STACKER)
             {
                 if (action == GUI_ACTION_CHANGE_PRESET && element >= 0 && element < NUM_PRESETS)
                 {

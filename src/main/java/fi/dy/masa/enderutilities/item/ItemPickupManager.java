@@ -99,7 +99,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             NBTUtils.getUUIDFromItemStack(stack, "UUID", true);
             player.openContainer.detectAndSendChanges();
 
-            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+            player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, world,
+                    (int)player.posX, (int)player.posY, (int)player.posZ);
         }
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
@@ -122,6 +123,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
         String str = " - pre: " + pre + (preset + 1) + rst + " LC: " + pre + lc + rst;
         String target = this.getTargetDisplayName(stack);
+
         if (target != null)
         {
             str = str + " - " + pre + target + rst;
@@ -143,6 +145,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String str;
+
         if (isEnabled(containerStack))
         {
             str = I18n.format("enderutilities.tooltip.item.enabled") + ": " + preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
@@ -162,15 +165,17 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
     public static NBTTagCompound getSelectedPresetTag(ItemStack stack, boolean create)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return null;
         }
 
         NBTTagCompound containerTag = NBTUtils.getCompoundTag(stack, TAG_NAME_CONTAINER, create);
+
         if (containerTag != null)
         {
             int selection = containerTag.getByte(TAG_NAME_PRESET_SELECTION);
+
             if (containerTag.hasKey(TAG_NAME_PRESET + selection, Constants.NBT.TAG_COMPOUND))
             {
                 return containerTag.getCompoundTag(TAG_NAME_PRESET + selection);
@@ -215,6 +220,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         for (int slot : slots)
         {
             ItemStack stack = playerInv.getStackInSlot(slot);
+
             if (isEnabled(stack))
             {
                 enabledItems.add(stack);
@@ -230,27 +236,28 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public static ItemStack getFirstEnabledItem(EntityPlayer player)
     {
         List<ItemStack> items = getEnabledItems(player);
-        return items.size() > 0 ? items.get(0) : null;
+        return items.size() > 0 ? items.get(0) : ItemStack.EMPTY;
     }
 
     public boolean tryTransportItemsFromTransportSlot(InventoryItem inv, EntityPlayer player, ItemStack manager)
     {
         ItemStack stack = inv.getStackInSlot(0);
-        if (stack == null)
+
+        if (stack.isEmpty())
         {
             return false;
         }
 
-        int sizeOrig = stack.stackSize;
+        int sizeOrig = stack.getCount();
         int max = stack.getMaxStackSize();
         stack = inv.extractItem(0, max, false);
 
-        while (stack != null && stack.stackSize > 0)
+        while (stack.isEmpty() == false)
         {
             stack = this.tryTransportItems(player, manager, stack);
 
             // Could not transport the whole stack (anymore)
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 inv.insertItem(0, stack, false);
                 break;
@@ -261,27 +268,31 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         stack = inv.getStackInSlot(0);
 
-        return stack == null || stack.stackSize != sizeOrig;
+        return stack.isEmpty() || stack.getCount() != sizeOrig;
     }
 
     public ItemStack tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(manager, ModuleType.TYPE_LINKCRYSTAL);
-        if (moduleStack == null || itemsIn == null)
+
+        if (moduleStack.isEmpty() || itemsIn.isEmpty())
         {
             return itemsIn;
         }
 
         OwnerData owner = OwnerData.getOwnerDataFromItem(moduleStack);
+
         if (owner != null && owner.canAccess(player) == false)
         {
             return itemsIn;
         }
 
         TargetData target = TargetData.getTargetFromItem(moduleStack);
+
         if (target != null)
         {
             World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+
             // Force load the target chunk with a 30 second unload delay.
             if (world == null || ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
                     target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)
@@ -290,9 +301,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             }
 
             TileEntity te = world.getTileEntity(target.pos);
+
             if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
             {
                 IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
+
                 if (inv == null)
                 {
                     return itemsIn;
@@ -302,34 +315,36 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                 ItemStack stackToSend = itemsIn.copy();
 
                 int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
+
                 // Not enough Ender Charge to send all the items
-                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.stackSize, true) == false)
+                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.getCount(), true) == false)
                 {
                     int available = UtilItemModular.getAvailableEnderCharge(manager);
+
                     if (available < cost)
                     {
                         return itemsIn;
                     }
 
-                    stackToSend.stackSize = Math.min(itemsIn.stackSize, available / cost);
+                    stackToSend.setCount(Math.min(itemsIn.getCount(), available / cost));
                 }
 
-                int numTransported = stackToSend.stackSize;
+                int numTransported = stackToSend.getCount();
                 ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory(inv, stackToSend);
 
-                if (itemsRemaining != null)
+                if (itemsRemaining.isEmpty() == false)
                 {
-                    numTransported -= itemsRemaining.stackSize;
+                    numTransported -= itemsRemaining.getCount();
                 }
 
-                itemsIn.stackSize -= numTransported;
+                itemsIn.shrink(numTransported);
 
                 // Get the final charge amount
                 UtilItemModular.useEnderCharge(manager, numTransported * cost, false);
 
-                if (itemsIn.stackSize <= 0)
+                if (itemsIn.isEmpty())
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
         }
@@ -361,14 +376,15 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             if ((mode != 0 && match) || (mode == 0 && match == false))
             {
                 ItemStack stackTmp = this.tryTransportItems(player, manager, itemsIn);
+
                 // All items successfully transported
-                if (stackTmp == null)
+                if (stackTmp.isEmpty())
                 {
                     return Result.TRANSPORTED;
                 }
                 else
                 {
-                    itemsIn.stackSize = stackTmp.stackSize;
+                    itemsIn.setCount(stackTmp.getCount());
                 }
             }
         }
@@ -422,7 +438,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         {
             ItemStack stackIn = iter.next();
 
-            if (stackIn == null)
+            if (stackIn.isEmpty())
             {
                 continue;
             }
@@ -430,7 +446,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             //int i = 0;
             for (ItemStack manager : managers)
             {
-                Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stackIn);
+                Result result = ((ItemPickupManager) manager.getItem()).handleItems(player, manager, stackIn);
 
                 //System.out.println("i: " + i++ + " result: " + result);
                 // Blacklisted or successfully transported, cancel further processing
@@ -487,13 +503,12 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         ItemStack stack = entityItem.getEntityItem();
         EntityPlayer player = event.getEntityPlayer();
 
-        if (player.getEntityWorld().isRemote || entityItem.isDead ||
-            stack == null || stack.getItem() == null || stack.stackSize <= 0)
+        if (player.getEntityWorld().isRemote || entityItem.isDead || stack.isEmpty())
         {
             return true;
         }
 
-        int origStackSize = stack.stackSize;
+        int origStackSize = stack.getCount();
         List<ItemStack> managers = getEnabledItems(player);
         // If there are enabled managers in the player's inventory, then initialize to "deny"
         boolean deny = managers.size() > 0;
@@ -501,7 +516,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         //int i = 0;
         for (ItemStack manager : managers)
         {
-            Result result = ((ItemPickupManager)manager.getItem()).handleItems(player, manager, stack);
+            Result result = ((ItemPickupManager) manager.getItem()).handleItems(player, manager, stack);
 
             //System.out.println("i: " + i++ + " result: " + result);
             // Blacklisted or successfully transported, cancel further processing
@@ -531,7 +546,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         }
 
         // At least some items were picked up
-        if (stack.stackSize != origStackSize || entityItem.isDead)
+        if (stack.getCount() != origStackSize || entityItem.isDead)
         {
             if (entityItem.isSilent() == false)
             {
@@ -539,7 +554,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
                         ((player.getEntityWorld().rand.nextFloat() - player.getEntityWorld().rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 
-            if (stack.stackSize <= 0 || entityItem.isDead)
+            if (stack.isEmpty() || entityItem.isDead)
             {
                 FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
                 player.onItemPickup(entityItem, origStackSize);
@@ -584,7 +599,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         ContainerPickupManager container = (ContainerPickupManager)player.openContainer;
         ItemStack stack = container.getContainerItem();
-        if (stack == null || (stack.getItem() instanceof ItemPickupManager) == false)
+
+        if (stack.isEmpty() || (stack.getItem() instanceof ItemPickupManager) == false)
         {
             return;
         }

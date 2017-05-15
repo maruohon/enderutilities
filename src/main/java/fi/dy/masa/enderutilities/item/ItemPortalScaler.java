@@ -64,6 +64,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         }
 
         Block block = world.getBlockState(pos).getBlock();
+
         // When right clicking on a Nether Portal block, shut down the portal
         if (block == Blocks.PORTAL)
         {
@@ -140,7 +141,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         Vec3d normalDest = this.getNormalDestinationPosition(player, dimDst);
         Vec3d posDest = this.getDestinationPosition(stack, player, dimDst);
         int cost = this.getTeleportCostEstimate(player, posDest, dimDst);
-        System.out.printf("cost estimate: %d normal: %s new: %s\n", cost, normalDest, posDest);
+        //System.out.printf("cost estimate: %d normal: %s new: %s\n", cost, normalDest, posDest);
 
         if (UtilItemModular.useEnderCharge(stack, cost, true))
         {
@@ -225,7 +226,8 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     {
         String str = "";
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack != null)
+
+        if (moduleStack.isEmpty() == false)
         {
             String preGreen = TextFormatting.GREEN.toString();
             String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
@@ -236,10 +238,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 str = " " + preGreen + TextFormatting.ITALIC.toString() + moduleStack.getDisplayName() + rst;
             }
 
-            NBTTagCompound moduleNbt = moduleStack.getTagCompound();
             if (this.memoryCardHasScaleFactor(moduleStack))
             {
-                NBTTagCompound tag = moduleNbt.getCompoundTag("PortalScaler");
+                NBTTagCompound tag = moduleStack.getTagCompound().getCompoundTag("PortalScaler");
                 byte x = tag.getByte("scaleX");
                 byte y = tag.getByte("scaleY");
                 byte z = tag.getByte("scaleZ");
@@ -247,6 +248,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 String sy = preGreen + (y < 0 ? "1/" + (-y) : String.valueOf(y)) + rst;
                 String sz = preGreen + (z < 0 ? "1/" + (-z) : String.valueOf(z)) + rst;
                 str = str + String.format(" x: %s y: %s z: %s", sx, sy, sz);
+
                 return super.getItemStackDisplayName(stack) + str + rst;
             }
         }
@@ -270,7 +272,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         // Memory Cards installed
-        if (memoryCardStack != null)
+        if (memoryCardStack.isEmpty() == false)
         {
             if (this.memoryCardHasScaleFactor(memoryCardStack))
             {
@@ -281,6 +283,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 String sx = x < 0 ? "1/" + (-x) : String.valueOf(x);
                 String sy = y < 0 ? "1/" + (-y) : String.valueOf(y);
                 String sz = z < 0 ? "1/" + (-z) : String.valueOf(z);
+
                 list.add(String.format("x: %s%s%s y: %s%s%s z: %s%s%s", preBlue, sx, rst, preBlue, sy, rst, preBlue, sz, rst));
             }
             else
@@ -293,6 +296,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
                 int num = UtilItemModular.getInstalledModuleCount(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
                 int sel = UtilItemModular.getClampedModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_MISC) + 1;
                 String dName = (memoryCardStack.hasDisplayName() ? preWhiteIta + memoryCardStack.getDisplayName() + rst + " " : "");
+
                 list.add(I18n.format("enderutilities.tooltip.item.selectedmemorycard.short") +
                          String.format(" %s(%s%d%s / %s%d%s)", dName, preBlue, sel, rst, preBlue, num, rst));
             }
@@ -306,7 +310,8 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         {
             // Ender Capacitor charge, if one has been installed
             ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-            if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+
+            if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {
                 ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
             }
@@ -349,13 +354,14 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     {
         ItemStack cardStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
-        return cardStack != null && this.memoryCardHasScaleFactor(cardStack);
+        return cardStack.isEmpty() == false && this.memoryCardHasScaleFactor(cardStack);
     }
 
     public void changeCoordinateScaleFactor(ItemStack stack, EntityPlayer player, int amount)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
+
+        if (moduleStack.isEmpty())
         {
             return;
         }
@@ -417,7 +423,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }

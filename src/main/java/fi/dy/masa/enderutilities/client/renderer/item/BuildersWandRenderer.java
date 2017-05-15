@@ -459,7 +459,7 @@ public class BuildersWandRenderer
                 if (mode != Mode.REPLACE)
                 {
                     str = I18n.format("enderutilities.tooltip.item.area.flipped");
-                    str += ": " + (wand.getAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
+                    str += ": " + (wand.isAreaFlipped(stack) ? preGreen + wand.getAreaFlipAxis(stack, EnumFacing.UP) : preRed + strNo) + rst;
 
                     str += " - " + I18n.format("enderutilities.tooltip.item.move");
                     lines.add(str + ": " + (WandOption.MOVE_POSITION.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);

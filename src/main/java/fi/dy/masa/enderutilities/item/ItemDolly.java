@@ -167,7 +167,7 @@ public class ItemDolly extends ItemEnderUtilities
 
         ItemStack stackBlock = state.getBlock().getPickBlock(state, EntityUtils.getRayTraceFromPlayer(world, player, false), world, pos, player);
 
-        if (stackBlock != null)
+        if (stackBlock.isEmpty() == false)
         {
             tagCarrying.setString("DisplayName", stackBlock.getDisplayName());
         }

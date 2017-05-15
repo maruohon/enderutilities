@@ -62,11 +62,11 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         ItemStack stack = player.getHeldItem(hand);
         ItemStack useStack = this.getItemForUse(stack, player);
 
-        if (useStack != null && world.isBlockModifiable(player, pos.offset(facing)))
+        if (useStack.isEmpty() == false && world.isBlockModifiable(player, pos.offset(facing)))
         {
             EnumActionResult result = useStack.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
-            if (useStack.stackSize > 0)
+            if (useStack.isEmpty() == false)
             {
                 tryInsertItemsToNullifier(useStack, stack, player);
             }
@@ -151,13 +151,12 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         ItemStack stackItems = entityItem.getEntityItem();
         EntityPlayer player = event.getEntityPlayer();
 
-        if (player.getEntityWorld().isRemote || entityItem.isDead ||
-            stackItems == null || stackItems.getItem() == null || stackItems.stackSize <= 0)
+        if (player.getEntityWorld().isRemote || entityItem.isDead || stackItems.isEmpty())
         {
             return true;
         }
 
-        int origStackSize = stackItems.stackSize;
+        int origStackSize = stackItems.getCount();
         boolean ret = false;
 
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -169,11 +168,11 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
             ItemStack nullifierStack = playerInv.getStackInSlot(slot);
 
             // Nullifier is not disabled
-            if (nullifierStack != null && isNullifierEnabled(nullifierStack))
+            if (nullifierStack.isEmpty() == false && isNullifierEnabled(nullifierStack))
             {
                 stackItems = handleItems(stackItems, nullifierStack, player);
 
-                if (stackItems == null || stackItems.stackSize <= 0)
+                if (stackItems.isEmpty())
                 {
                     entityItem.setDead();
                     FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
@@ -192,7 +191,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         }
 
         // At least some items were picked up
-        if (entityItem.isSilent() == false && (entityItem.isDead || stackItems.stackSize != origStackSize))
+        if (entityItem.isSilent() == false && (entityItem.isDead || stackItems.getCount() != origStackSize))
         {
             player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER,
                     0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
@@ -225,7 +224,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         {
             ItemStack stack = iter.next();
 
-            if (stack == null)
+            if (stack.isEmpty())
             {
                 iter.remove();
                 continue;
@@ -237,19 +236,19 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
                 ItemStack nullifierStack = playerInv.getStackInSlot(slot);
 
                 // Nullifier is not disabled
-                if (nullifierStack != null && isNullifierEnabled(nullifierStack))
+                if (nullifierStack.isEmpty() == false && isNullifierEnabled(nullifierStack))
                 {
                     ItemStack stackOrig = stack;
                     stack = handleItems(stack, nullifierStack, player);
 
-                    if (stack == null)
+                    if (stack.isEmpty())
                     {
                         iter.remove();
                         pickedUp = true;
                     }
-                    else if (stackOrig.stackSize != stack.stackSize)
+                    else if (stackOrig.getCount() != stack.getCount())
                     {
-                        stackOrig.stackSize = stack.stackSize;
+                        stackOrig.setCount(stack.getCount());
                         pickedUp = true;
                     }
                 }
@@ -279,7 +278,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         // First try to fill all existing stacks in the player's inventory
         itemsIn = InventoryUtils.tryInsertItemStackToExistingStacksInInventory(playerInv, itemsIn);
 
-        if (itemsIn != null)
+        if (itemsIn.isEmpty() == false)
         {
             itemsIn = tryInsertItemsToNullifier(itemsIn, nullifierStack, player);
         }
@@ -297,9 +296,9 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
 
             // Couldn't insert all items, check if there are matching items in the nullifier
             // and if so, then we just delete the excess items that didn't fit.
-            if (itemsIn != null && InventoryUtils.getSlotOfFirstMatchingItemStack(nullifierInv, itemsIn) != -1)
+            if (itemsIn.isEmpty() == false && InventoryUtils.getSlotOfFirstMatchingItemStack(nullifierInv, itemsIn) != -1)
             {
-                itemsIn = null;
+                return ItemStack.EMPTY;
             }
         }
 
@@ -312,7 +311,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         {
             ItemStack stack = ((ContainerNullifier) player.openContainer).getContainerItem();
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
                 if (action == GUI_ACTION_SELECT_SLOT)
                 {
@@ -353,7 +352,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         int slot = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION) + 1;
         ItemStack selectedStack = getSelectedStack(stack);
 
-        if (selectedStack != null)
+        if (selectedStack.isEmpty() == false)
         {
             return name + " - " + slot + " / " + NUM_SLOTS + " - " + selectedStack.getDisplayName();
         }
@@ -430,7 +429,10 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         {
             // Only allow in stackable, non-damageable items without NBT, so that there hopefully
             // won't be many issues with item usage not consuming the item or changing it...
-            return stack != null && stack.getMaxStackSize() > 1 && stack.isItemStackDamageable() == false && stack.getTagCompound() == null;
+            return stack.isEmpty() == false &&
+                   stack.getMaxStackSize() > 1 &&
+                   stack.isItemStackDamageable() == false &&
+                   stack.getTagCompound() == null;
         }
     }
 }

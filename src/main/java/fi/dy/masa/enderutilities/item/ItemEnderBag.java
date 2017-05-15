@@ -55,7 +55,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         ItemStack stack = player.getHeldItem(hand);
 
-        if (stack == null || stack.getTagCompound() == null)
+        if (stack.getTagCompound() == null)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
@@ -64,13 +64,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         bagNbt.removeTag("IsOpen");
 
         TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
         if (targetData == null || targetData.blockName == null)
         {
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
         }
 
         // Access is allowed for everyone to a vanilla Ender Chest
-        if (targetData.blockName.equals("minecraft:ender_chest") == true)
+        if (targetData.blockName.equals("minecraft:ender_chest"))
         {
             if (UtilItemModular.useEnderCharge(stack, ENDER_CHARGE_COST, false) == false)
             {
@@ -204,7 +205,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     @Override
     public int getMaxModules(ItemStack containerStack, ItemStack moduleStack)
     {
-        if (moduleStack == null || (moduleStack.getItem() instanceof IModule) == false)
+        if (moduleStack.isEmpty() || (moduleStack.getItem() instanceof IModule) == false)
         {
             return 0;
         }
@@ -224,6 +225,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public static boolean targetNeedsToBeLoadedOnClient(ItemStack stack)
     {
         TargetData targetData = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
         if (targetData == null || targetData.blockName == null)
         {
             return false;
@@ -241,6 +243,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public static boolean targetOutsideOfPlayerRange(ItemStack stack, EntityPlayer player)
     {
         TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
         if (target == null)
         {
             return true;
@@ -250,9 +253,9 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
 
         WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
-        if ((player instanceof EntityPlayerMP) == false ||
-             world == null ||
-             world.getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP)player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
+
+        if ((player instanceof EntityPlayerMP) == false || world == null ||
+             world.getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP) player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)
         {
             return true;
         }
@@ -264,12 +267,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
+
         if (target != null)
         {
             if ("minecraft:ender_chest".equals(target.blockName))
             {
                 ItemStack targetStack = new ItemStack(Block.getBlockFromName(target.blockName), 1, target.blockMeta & 0xF);
-                String targetName = (targetStack != null && targetStack.getItem() != null ? targetStack.getDisplayName() : "");
+                String targetName = (targetStack.isEmpty() == false ? targetStack.getDisplayName() : "");
 
                 String textPre = TextFormatting.DARK_GREEN.toString();
                 String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
@@ -277,9 +281,10 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                 // Ender Capacitor charge, if one has been installed
                 ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
-                if (capacitorStack != null && capacitorStack.getItem() instanceof ItemEnderCapacitor)
+
+                if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
                 {
-                    ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
+                    ((ItemEnderCapacitor) capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
                 }
 
                 return;
@@ -322,7 +327,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         OwnerData playerData = OwnerData.getOwnerDataFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
         String locked = (playerData != null && playerData.getIsPublic() == false) ? "locked=true" : "locked=false";
         String mode = (target != null && "minecraft:ender_chest".equals(target.blockName)) ? ",mode=ender" : ",mode=normal";
-        String isOpen = (stack.getTagCompound() != null && stack.getTagCompound().getBoolean("IsOpen") == true) ? "_open" : "_closed";
+        String isOpen = (stack.getTagCompound() != null && stack.getTagCompound().getBoolean("IsOpen")) ? "_open" : "_closed";
 
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, locked + mode + isOpen);
     }

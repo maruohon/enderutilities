@@ -77,8 +77,10 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
             bottomEntity.startRiding(pearl);
         }
 
-        --stack.stackSize;
-        world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ENDERPEARL_THROW, SoundCategory.MASTER, 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
+        stack.shrink(1);
+
+        world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ENDERPEARL_THROW,
+                SoundCategory.MASTER, 0.5f, 0.4f / (itemRand.nextFloat() * 0.4f + 0.8f));
 
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
     }
