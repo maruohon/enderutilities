@@ -59,9 +59,9 @@ public class SlotItemHandlerModule extends SlotItemHandlerGeneric
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
-            return true;
+            return false;
         }
 
         if ((stack.getItem() instanceof IModule) == false)
@@ -72,7 +72,7 @@ public class SlotItemHandlerModule extends SlotItemHandlerGeneric
         IModule module = (IModule)stack.getItem();
         ModuleType type = module.getModuleType(stack);
 
-        if (type.equals(ModuleType.TYPE_INVALID) == false && super.isItemValid(stack) == true)
+        if (type.equals(ModuleType.TYPE_INVALID) == false && super.isItemValid(stack))
         {
             if (this.moduleType.equals(ModuleType.TYPE_ANY))
             {

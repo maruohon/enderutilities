@@ -84,30 +84,31 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
                 return false;
             }
 
-            if (stackCursor != null)
+            if (stackCursor.isEmpty() == false)
             {
                 ItemStack stackTmp = stackCursor.copy();
-                stackTmp.stackSize = 1;
+                stackTmp.setCount(1);
                 slot.putStack(stackTmp);
             }
             else
             {
-                slot.putStack(null);
+                slot.putStack(ItemStack.EMPTY);
             }
         }
-        else if (this.isDragging == true)
+        else if (this.isDragging)
         {
             // End of dragging
             if (clickType == ClickType.QUICK_CRAFT && (button == 2 || button == 6))
             {
-                if (stackCursor != null)
+                if (stackCursor.isEmpty() == false)
                 {
                     ItemStack stackTmp = stackCursor.copy();
-                    stackTmp.stackSize = 1;
+                    stackTmp.setCount(1);
 
                     for (int i : this.draggedSlots)
                     {
                         SlotItemHandlerGeneric slotTmp = this.getSlotItemHandler(i);
+
                         if (slotTmp != null && slotTmp.getItemHandler() == this.inventoryFilters &&
                             this.teqsa.isInventoryAccessible(player))
                         {
@@ -143,10 +144,10 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
-        if (this.filterSlots.contains(slotNum) == true)
+        if (this.filterSlots.contains(slotNum))
         {
             this.fakeSlotClick(slotNum, dragType, clickType, player);
-            return null;
+            return ItemStack.EMPTY;
         }
 
         // (Starting) or ending a drag and the dragged slots include at least one of our fake slots
@@ -154,10 +155,10 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
         {
             for (int i : this.draggedSlots)
             {
-                if (this.filterSlots.contains(i) == true)
+                if (this.filterSlots.contains(i))
                 {
                     this.fakeSlotClick(i, dragType, clickType, player);
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
         }
@@ -165,16 +166,17 @@ public class ContainerQuickStackerAdvanced extends ContainerTileEntityInventory
         else if (clickType == ClickType.CLONE && dragType == 2)
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
+
             if (invSlotNum == -1 || (invSlotNum >= 36 && invSlotNum != 40))
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             long mask = this.teqsa.getEnabledSlotsMask();
             mask ^= (0x1L << invSlotNum);
             this.teqsa.setEnabledSlotsMask(mask);
 
-            return null;
+            return ItemStack.EMPTY;
         }
 
         ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);

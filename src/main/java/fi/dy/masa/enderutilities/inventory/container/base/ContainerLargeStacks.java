@@ -29,7 +29,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
         // Our inventory
-        if (slot instanceof SlotItemHandler && ((SlotItemHandler)slot).getItemHandler() == this.inventory)
+        if (slot instanceof SlotItemHandler && ((SlotItemHandler) slot).getItemHandler() == this.inventory)
         {
             return slot.getItemStackLimit(stack);
         }
@@ -83,7 +83,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
                 slotNum >= 0 && slotNum < inv.getSlots())
             {
                 this.toggleSlotLocked(slotNum, inv, false);
-                return null;
+                return ItemStack.EMPTY;
             }
         }
 

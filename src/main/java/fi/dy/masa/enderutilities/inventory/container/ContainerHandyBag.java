@@ -34,13 +34,13 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     private final InventoryCrafting craftMatrix;
     private final IItemHandler craftMatrixWrapper;
     private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
-    private ItemStack modularStackLast;
+    private ItemStack modularStackLast = ItemStack.EMPTY;
     private int craftingSlot = 0;
 
     public ContainerHandyBag(EntityPlayer player, ItemStack containerStack)
     {
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
-        this.inventoryItemModular = (InventoryItemModular)this.inventory;
+        this.inventoryItemModular = (InventoryItemModular) this.inventory;
         this.inventoryItemModular.setHostInventory(this.playerInv);
         this.craftMatrix = new InventoryCrafting(this, 2, 2);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
@@ -110,6 +110,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             }
         }
 
+        // Large Handy Bag
         if (this.getBagTier() == 1)
         {
             int xOffXtra = 8;
@@ -123,6 +124,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
             }
 
             xOffXtra = 214;
+
             // Right side extra slots
             for(int i = 0; i < 7; i++)
             {
@@ -164,18 +166,18 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             ItemStack stack = this.craftMatrix.removeStackFromSlot(i);
 
-            if (stack != null)
+            if (stack.isEmpty() == false)
             {
-                player.dropItem(stack, true);
+                this.player.dropItem(stack, true);
             }
         }
 
-        this.craftResult.setStackInSlot(0, (ItemStack)null);
+        this.craftResult.setStackInSlot(0, ItemStack.EMPTY);
     }
 
     public int getBagTier()
     {
-        if (this.inventoryItemModular.getModularItemStack() != null)
+        if (this.inventoryItemModular.getModularItemStack().isEmpty() == false)
         {
             return this.inventoryItemModular.getModularItemStack().getMetadata() == 1 ? 1 : 0;
         }
@@ -202,21 +204,20 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         }
 
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
-        if (stackSlot == null)
-        {
-            return;
-        }
 
-        ItemStack stackOrig = stackSlot.copy();
-        int num = 64;
-
-        while (num-- > 0)
+        if (slot != null && slot.getHasStack())
         {
-            // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
-            if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+            ItemStack stackOrig = slot.getStack().copy();
+            int num = 64;
+
+            while (num-- > 0)
             {
-                break;
+                // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+                if (this.transferStackFromSlot(player, slotNum) == false ||
+                    InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                {
+                    break;
+                }
             }
         }
     }
@@ -232,12 +233,11 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         }
 
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
 
-        if (stackSlot != null)
+        if (slot != null && slot.getHasStack())
         {
-            ItemStack stackOrig = stackSlot.copy();
-            int num = stackOrig.getMaxStackSize() / stackOrig.stackSize;
+            ItemStack stackOrig = slot.getStack().copy();
+            int num = stackOrig.getMaxStackSize() / stackOrig.getCount();
 
             while (num-- > 0)
             {
@@ -257,7 +257,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     {
         ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
 
-        if (modularStack != null && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.INV_HOTBAR)
+        if (modularStack.isEmpty() == false && ShiftMode.getEffectiveMode(modularStack) == ShiftMode.INV_HOTBAR)
         {
             if (this.playerHotbarSlots.contains(slotNum))
             {
@@ -279,7 +279,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         {
             ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
 
-            // The Bag's stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            // The Bag's stack has changed (ie. to/from empty, or different instance), re-read the inventory contents.
             if (modularStack != this.modularStackLast)
             {
                 this.inventoryItemModular.readFromContainerItemStack();

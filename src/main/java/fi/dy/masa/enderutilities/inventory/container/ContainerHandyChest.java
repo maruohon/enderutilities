@@ -149,7 +149,7 @@ public class ContainerHandyChest extends ContainerLargeStacksTile
 
         // Clicked on slot is a Memory Card slot, and that slot has been locked to prevent card removal
         // by the owner of that card
-        if (slotNum >= 0 && this.cardSlots.contains(slotNum) &&
+        if (this.cardSlots.contains(slotNum) &&
             (mask & (1 << (slotNum - this.cardSlots.first))) != 0 && this.getSlot(slotNum).getHasStack())
         {
             ItemStack cardStack = this.getSlot(slotNum).getStack();
@@ -157,7 +157,7 @@ public class ContainerHandyChest extends ContainerLargeStacksTile
 
             if (ownerData != null && ownerData.isOwner(player) == false)
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             super.slotClick(slotNum, dragType, clickType, player);
@@ -170,7 +170,7 @@ public class ContainerHandyChest extends ContainerLargeStacksTile
                 this.tehc.setLockMask(mask);
             }
 
-            return null;
+            return ItemStack.EMPTY;
         }
 
         return super.slotClick(slotNum, dragType, clickType, player);

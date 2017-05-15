@@ -37,7 +37,7 @@ public class SlotItemHandlerArmor extends SlotItemHandlerGeneric
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             return false;
         }

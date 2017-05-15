@@ -12,7 +12,8 @@ public class PlayerMainInvWrapperNoSync extends RangedWrapper
     public PlayerMainInvWrapperNoSync(InventoryPlayer inv)
     {
         super(new InvWrapper(inv), 0, inv.mainInventory.size());
-        inventoryPlayer = inv;
+
+        this.inventoryPlayer = inv;
     }
 
     @Override
@@ -20,12 +21,12 @@ public class PlayerMainInvWrapperNoSync extends RangedWrapper
     {
         ItemStack stackRemaining = super.insertItem(slot, stack, simulate);
 
-        if (stackRemaining == null || stackRemaining.stackSize != stack.stackSize)
+        if (stackRemaining.isEmpty() || stackRemaining.getCount() != stack.getCount())
         {
             // the stack in the slot changed, animate it
-            ItemStack stackSlot = getStackInSlot(slot);
+            ItemStack stackSlot = this.getStackInSlot(slot);
 
-            if(stackSlot != null)
+            if (stackSlot.isEmpty() == false)
             {
                 if (this.getInventoryPlayer().player.getEntityWorld().isRemote)
                 {

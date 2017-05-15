@@ -11,7 +11,7 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class InventoryItemModular extends InventoryItemPermissions
 {
-    protected ItemStack modularItemStack;
+    protected ItemStack modularItemStack = ItemStack.EMPTY;
     protected InventoryItemMemoryCards moduleInventory;
     protected ModuleType moduleType;
 
@@ -123,7 +123,7 @@ public class InventoryItemModular extends InventoryItemPermissions
     {
         if (stack.isEmpty())
         {
-            return super.isItemValidForSlot(slotNum, stack);
+            return false;
         }
 
         ItemStack modularStack = this.getModularItemStack();

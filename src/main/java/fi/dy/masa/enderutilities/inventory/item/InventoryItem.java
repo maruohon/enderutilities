@@ -13,7 +13,7 @@ import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class InventoryItem extends ItemStackHandlerBasic
 {
-    protected ItemStack containerStack;
+    protected ItemStack containerStack = ItemStack.EMPTY;
     protected boolean isRemote;
     protected UUID containerUUID;
     protected IItemHandler hostInventory;
@@ -46,10 +46,7 @@ public class InventoryItem extends ItemStackHandlerBasic
 
     protected void clearInventory()
     {
-        for (int i = 0; i < this.items.size(); i++)
-        {
-            this.items.set(i, ItemStack.EMPTY);
-        }
+        this.items.clear();
     }
 
     public UUID getContainerUUID()

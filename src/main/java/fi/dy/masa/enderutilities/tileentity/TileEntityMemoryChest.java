@@ -167,7 +167,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
     {
         if (slotNum < this.templateStacks.size())
         {
-            this.templateStacks.set(slotNum, stack);
+            this.templateStacks.set(slotNum, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
     }
 

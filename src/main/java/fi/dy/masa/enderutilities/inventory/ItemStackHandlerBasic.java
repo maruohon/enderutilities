@@ -12,6 +12,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 {
     protected final NonNullList<ItemStack> items;
     private final boolean allowCustomStackSizes;
+    private final int inventorySize;
     private int stackLimit;
     private String tagName;
 
@@ -22,6 +23,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
     public ItemStackHandlerBasic(int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName)
     {
+        this.inventorySize = invSize;
         this.tagName = tagName;
         this.allowCustomStackSizes = allowCustomStackSizes;
         this.items = NonNullList.withSize(invSize, ItemStack.EMPTY);
@@ -31,7 +33,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public int getSlots()
     {
-        return this.items.size();
+        return this.inventorySize;
     }
 
     @Override
@@ -116,8 +118,10 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
             return stackRemaining;
         }
-
-        return ItemStack.EMPTY;
+        else
+        {
+            return ItemStack.EMPTY;
+        }
     }
 
     @Override
@@ -162,9 +166,9 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
                     this.items.set(slot, ItemStack.EMPTY);
                 }
             }
-        }
 
-        this.onContentsChanged(slot);
+            this.onContentsChanged(slot);
+        }
 
         return stack;
     }
@@ -184,20 +188,18 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public int getInventoryStackLimit()
     {
-        //System.out.println("ItemStackHandlerBasic.getInventoryStackLimit()");
         return this.stackLimit;
     }
 
     @Override
     public int getItemStackLimit(int slot, ItemStack stack)
     {
-        //System.out.println("ItemStackHandlerBasic.getItemStackLimit(stack)");
-        if (this.allowCustomStackSizes || (stack.isEmpty() == false && this.getInventoryStackLimit() < stack.getMaxStackSize()))
+        if (this.allowCustomStackSizes)
         {
             return this.getInventoryStackLimit();
         }
 
-        return stack.getMaxStackSize();
+        return Math.min(stack.getMaxStackSize(), this.getSlotLimit(slot));
     }
 
     @Override

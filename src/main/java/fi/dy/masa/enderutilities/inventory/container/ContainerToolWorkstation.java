@@ -22,7 +22,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     private final TileEntityToolWorkstation tetw;
     private int slotTool;
     private int slotRename;
-    private ItemStack toolStackLast;
+    private ItemStack toolStackLast = ItemStack.EMPTY;
 
     public ContainerToolWorkstation(EntityPlayer player, TileEntityToolWorkstation te)
     {
@@ -42,6 +42,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
 
         // Item's module slots
         int x = 80, y = 19;
+
         for (int i = 0; i < NUM_MODULE_SLOTS; x += 18, i++)
         {
             // We initially add all the slots as invalid. When the player inserts a tool into the tool slot,
@@ -58,7 +59,8 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
 
         // Module storage inventory slots
         x = 8; y = 66;
-        for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, ++i)
+
+        for (int i = 0; i < NUM_STORAGE_SLOTS; x += 18, i++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, i, x, y));
         }
@@ -70,6 +72,7 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
         this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
 
         this.setModuleSlotTypes();
+
         // This fixes the slot module types not updating the first time if there is a tool in the tool slot when opening the GUI
         this.toolStackLast = this.getContainerItem();
     }
@@ -150,12 +153,14 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         super.syncStackInSlot(slotId, stack);
 
-        if (slotId == this.slotTool && this.getContainerItem() != this.toolStackLast)
+        ItemStack containerStack = this.getContainerItem();
+
+        if (slotId == this.slotTool && containerStack != this.toolStackLast)
         {
             // This just fixes a minor de-sync with the module slot types,
             // if another player changes the item in the tool slot
             this.setModuleSlotTypes();
-            this.toolStackLast = this.getContainerItem();
+            this.toolStackLast = containerStack;
         }
     }
 
@@ -164,14 +169,15 @@ public class ContainerToolWorkstation extends ContainerTileEntityInventory imple
     {
         super.detectAndSendChanges();
 
+        ItemStack containerStack = this.getContainerItem();
+
         // We are just using this detectAndSendChanges() method to constantly check
         // when the tool stack changes, and then update the slot types
-        if (this.getContainerItem() != this.toolStackLast)
+        if (containerStack != this.toolStackLast)
         {
             this.setModuleSlotTypes();
+            this.toolStackLast = containerStack;
         }
-
-        this.toolStackLast = this.getContainerItem();
     }
 
     @Override

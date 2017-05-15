@@ -31,7 +31,7 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
     {
         if (this.getHasStack())
         {
-            this.amountCrafted += Math.min(amount, this.getStack().stackSize);
+            this.amountCrafted += Math.min(amount, this.getStack().getCount());
         }
 
         return super.decrStackSize(amount);

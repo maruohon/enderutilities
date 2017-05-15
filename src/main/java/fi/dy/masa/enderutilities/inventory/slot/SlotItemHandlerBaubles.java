@@ -30,12 +30,7 @@ public class SlotItemHandlerBaubles extends SlotItemHandlerGeneric
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        if (stack == null)
-        {
-            return false;
-        }
-
-        return validator.isItemValidForSlot(this, stack);
+        return stack.isEmpty() == false && validator.isItemValidForSlot(this, stack);
     }
 
     public ContainerEnderUtilities getContainer()

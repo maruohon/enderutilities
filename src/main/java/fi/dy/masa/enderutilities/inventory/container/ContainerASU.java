@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
@@ -12,7 +13,7 @@ public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlo
 {
     protected final TileEntityASU teasu;
     private final boolean[] lockedLast = new boolean[9];
-    private final ItemStack[] templateStacksLast = new ItemStack[9];
+    private final NonNullList<ItemStack> templateStacksLast = NonNullList.withSize(9, ItemStack.EMPTY);
     private int stackLimitLast;
     private int slotCountLast;
 

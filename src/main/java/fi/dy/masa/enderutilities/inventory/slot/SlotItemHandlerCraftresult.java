@@ -38,7 +38,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
     {
         if (this.getHasStack())
         {
-            this.amountCrafted += Math.min(amount, this.getStack().stackSize);
+            this.amountCrafted += Math.min(amount, this.getStack().getCount());
         }
 
         return super.decrStackSize(amount);
@@ -125,21 +125,22 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
             ItemStack stackInSlot = this.craftMatrix.getStackInSlot(i);
             ItemStack remainingItemsInSlot = remainingItems.get(i);
 
-            if (stackInSlot != null)
+            if (stackInSlot.isEmpty() == false)
             {
                 this.craftMatrix.decrStackSize(i, 1);
                 stackInSlot = this.craftMatrix.getStackInSlot(i);
             }
 
-            if (remainingItemsInSlot != null)
+            if (remainingItemsInSlot.isEmpty() == false)
             {
-                if (stackInSlot == null)
+                if (stackInSlot.isEmpty())
                 {
                     this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
                 }
-                else if (ItemStack.areItemsEqual(stackInSlot, remainingItemsInSlot) && ItemStack.areItemStackTagsEqual(stackInSlot, remainingItemsInSlot))
+                else if (ItemStack.areItemsEqual(stackInSlot, remainingItemsInSlot) &&
+                         ItemStack.areItemStackTagsEqual(stackInSlot, remainingItemsInSlot))
                 {
-                    remainingItemsInSlot.stackSize += stackInSlot.stackSize;
+                    remainingItemsInSlot.grow(stackInSlot.getCount());
                     this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
                 }
                 else if (this.player.inventory.addItemStackToInventory(remainingItemsInSlot) == false)
@@ -148,5 +149,7 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
                 }
             }
         }
+
+        return stack;
     }
 }

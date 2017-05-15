@@ -33,7 +33,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     @Nullable
     public ItemStack getStackInSlot(int slot)
     {
-        return slot >= this.getSizeInventory() ? null : this.craftMatrix.getStackInSlot(slot);
+        return slot >= this.getSizeInventory() ? ItemStack.EMPTY : this.craftMatrix.getStackInSlot(slot);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     {
         ItemStack stack = this.craftMatrix.extractItem(slot, amount, false);
 
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             this.markDirty();
         }
@@ -58,7 +58,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     }
 
     @Override
-    public void setInventorySlotContents(int slot, @Nullable ItemStack stack)
+    public void setInventorySlotContents(int slot, ItemStack stack)
     {
         this.craftMatrix.setStackInSlot(slot, stack);
         this.markDirty();
@@ -95,7 +95,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     {
         for (int slot = 0; slot < this.craftMatrix.getSlots(); slot++)
         {
-            this.craftMatrix.setStackInSlot(slot, null);
+            this.craftMatrix.setStackInSlot(slot, ItemStack.EMPTY);
         }
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -52,12 +53,14 @@ public class ContainerEnderUtilities extends Container
         this.inventory = inventory;
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
-        this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
-        this.playerMainSlotsIncHotbar = new MergeSlotRange(0, 0);
-        this.playerMainSlots = new MergeSlotRange(0, 0);
-        this.playerHotbarSlots = new MergeSlotRange(0, 0);
-        this.playerOffhandSlots = new MergeSlotRange(0, 0);
-        this.playerArmorSlots = new MergeSlotRange(0, 0);
+
+        // Init the ranges to an empty range by default
+        this.customInventorySlots       = new MergeSlotRange(0, 0);
+        this.playerMainSlotsIncHotbar   = new MergeSlotRange(0, 0);
+        this.playerMainSlots            = new MergeSlotRange(0, 0);
+        this.playerHotbarSlots          = new MergeSlotRange(0, 0);
+        this.playerOffhandSlots         = new MergeSlotRange(0, 0);
+        this.playerArmorSlots           = new MergeSlotRange(0, 0);
     }
 
     /**
@@ -149,7 +152,7 @@ public class ContainerEnderUtilities extends Container
         return (slot instanceof SlotItemHandler) &&
                 (slot instanceof SlotItemHandlerCraftresult) == false &&
                 (slot instanceof SlotItemHandlerFurnaceOutput) == false &&
-                this.inventoryPlayer.getItemStack() != null;
+                this.inventoryPlayer.getItemStack().isEmpty() == false;
     }
 
     @Override
@@ -218,7 +221,7 @@ public class ContainerEnderUtilities extends Container
     public ItemStack transferStackInSlot(EntityPlayer player, int slotNum)
     {
         this.transferStackFromSlot(player, slotNum);
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -290,27 +293,25 @@ public class ContainerEnderUtilities extends Container
         }
 
         ItemStack stack = slot.getStack().copy();
-        int amount = Math.min(stack.stackSize, stack.getMaxStackSize());
-        stack.stackSize = amount;
+        int amount = Math.min(stack.getCount(), stack.getMaxStackSize());
+        stack.setCount(amount);
 
         // Simulate the merge
         stack = this.mergeItemStack(stack, slotRange, reverse, true);
 
-        // If the item can't be put back to the slot, then we need to make sure that the whole
-        // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
-        if (slot.isItemValid(stack) == false && stack != null)
+        if (stack.isEmpty() == false)
         {
-            return false;
-        }
+            // If the item can't be put back to the slot, then we need to make sure that the whole
+            // stack can be merged elsewhere before trying to (partially) merge it. Important for crafting slots!
+            // Or if nothing could be merged, then also abort.
+            if (slot.isItemValid(stack) == false || stack.getCount() == amount)
+            {
+                return false;
+            }
 
-        // Could not merge anything
-        if (stack != null && stack.stackSize == amount)
-        {
-            return false;
+            // Can merge at least some of the items, get the amount that can be merged
+            amount -= stack.getCount();
         }
-
-        // Can merge at least some of the items, get the amount that can be merged
-        amount = stack != null ? amount - stack.stackSize : amount;
 
         // Get the actual stack for non-simulated merging
         stack = slot.decrStackSize(amount);
@@ -321,9 +322,10 @@ public class ContainerEnderUtilities extends Container
 
         // If they couldn't fit after all, then return them.
         // This shouldn't happen, and will cause some issues like gaining XP from nothing in furnaces.
-        if (stack != null)
+        if (stack.isEmpty() == false)
         {
             slot.insertItem(stack, false);
+
             EnderUtilities.logger.warn("Failed to merge all items in '{}'. This shouldn't happen and should be reported.",
                     this.getClass().getSimpleName());
         }
@@ -336,7 +338,7 @@ public class ContainerEnderUtilities extends Container
      */
     protected int getMaxStackSizeFromSlotAndStack(Slot slot, ItemStack stack)
     {
-        return stack != null ? Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize()) : slot.getSlotStackLimit();
+        return stack.isEmpty() == false ? Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize()) : slot.getSlotStackLimit();
     }
 
     /**
@@ -361,7 +363,7 @@ public class ContainerEnderUtilities extends Container
         int slotIndex = (reverse ? slotEndExclusive - 1 : slotStart);
 
         // First try to merge the stack into existing stacks in the container
-        while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
+        while (stack.isEmpty() == false && slotIndex >= slotStart && slotIndex < slotEndExclusive)
         {
             SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
@@ -374,11 +376,11 @@ public class ContainerEnderUtilities extends Container
         }
 
         // If there are still items to merge after merging to existing stacks, then try to add it to empty slots
-        if (stack != null && slotRange.existingOnly == false)
+        if (stack.isEmpty() == false && slotRange.existingOnly == false)
         {
             slotIndex = (reverse ? slotEndExclusive - 1 : slotStart);
 
-            while (stack != null && slotIndex >= slotStart && slotIndex < slotEndExclusive)
+            while (stack.isEmpty() == false && slotIndex >= slotStart && slotIndex < slotEndExclusive)
             {
                 SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotIndex);
 
@@ -428,11 +430,12 @@ public class ContainerEnderUtilities extends Container
      * @param typeId The id that is used in the MessageSyncCustomSlot packet
      * @param progressBarId The id to use in the sendProgressBarUpdate for the locked status
      * @param lockedLast an array for caching the locked status
-     * @param templateStacksLast an array for caching the template stacks
+     * @param templateStacksLast a list for caching the template stacks
      */
-    protected void syncLockableSlots(ItemStackHandlerLockable inv, int typeId, int progressBarId, boolean[] lockedLast, ItemStack[] templateStacksLast)
+    protected void syncLockableSlots(ItemStackHandlerLockable inv, int typeId, int progressBarId,
+            boolean[] lockedLast, NonNullList<ItemStack> templateStacksLast)
     {
-        int numSlots = inv.getSlots();
+        final int numSlots = inv.getSlots();
 
         for (int slot = 0; slot < numSlots; slot++)
         {
@@ -450,7 +453,7 @@ public class ContainerEnderUtilities extends Container
 
             ItemStack templateStack = inv.getTemplateStackInSlot(slot);
 
-            if (InventoryUtils.areItemStacksEqual(templateStacksLast[slot], templateStack) == false)
+            if (InventoryUtils.areItemStacksEqual(templateStacksLast.get(slot), templateStack) == false)
             {
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
@@ -463,7 +466,7 @@ public class ContainerEnderUtilities extends Container
                     }
                 }
 
-                templateStacksLast[slot] = templateStack.copy();
+                templateStacksLast.set(slot, templateStack.copy());
             }
         }
     }

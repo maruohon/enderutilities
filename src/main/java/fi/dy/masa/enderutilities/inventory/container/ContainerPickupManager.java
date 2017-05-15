@@ -32,7 +32,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
     public InventoryItem inventoryItemFilters;
     protected UUID containerUUID;
     protected SlotRange filterSlots;
-    private ItemStack stackLast;
+    private ItemStack stackLast = ItemStack.EMPTY;
 
     public ContainerPickupManager(EntityPlayer player, ItemStack containerStack)
     {
@@ -49,7 +49,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         this.inventoryItemFilters.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemFilters.readFromContainerItemStack();
 
-        this.inventoryItemTransmit = (InventoryItem)this.inventory;
+        this.inventoryItemTransmit = (InventoryItem) this.inventory;
         this.inventoryItemTransmit.setHostInventory(this.playerInv, this.containerUUID);
         this.inventoryItemTransmit.readFromContainerItemStack();
 
@@ -95,8 +95,10 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         posX = 116;
         posY = 29;
         start = this.inventorySlots.size();
+
         // The Storage Module slots
         int first = UtilItemModular.getFirstIndexOfModuleType(this.inventoryItemModules.getContainerItemStack(), ModuleType.TYPE_LINKCRYSTAL);
+
         for (int slot = first, i = 0; i < NUM_LINK_CRYSTAL_SLOTS; slot++, i++)
         {
             this.addSlotToContainer(new SlotModuleModularItem(this.inventoryItemModules, slot, posX + i * 18, posY, ModuleType.TYPE_LINKCRYSTAL, this));
@@ -124,15 +126,15 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
                 return false;
             }
 
-            if (stackCursor != null)
+            if (stackCursor.isEmpty() == false)
             {
                 ItemStack stackTmp = stackCursor.copy();
-                stackTmp.stackSize = 1;
+                stackTmp.setCount(1);
                 slot.putStack(stackTmp);
             }
             else
             {
-                slot.putStack(null);
+                slot.putStack(ItemStack.EMPTY);
             }
 
             return true;
@@ -142,14 +144,15 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
             // End of dragging
             if (clickType == ClickType.QUICK_CRAFT && (button == 2 || button == 6))
             {
-                if (stackCursor != null)
+                if (stackCursor.isEmpty() == false)
                 {
                     ItemStack stackTmp = stackCursor.copy();
-                    stackTmp.stackSize = 1;
+                    stackTmp.setCount(1);
 
                     for (int i : this.draggedSlots)
                     {
                         SlotItemHandlerGeneric slotTmp = this.getSlotItemHandler(i);
+
                         if (slotTmp != null && slotTmp.getItemHandler() == this.inventoryItemFilters)
                         {
                             slotTmp.putStack(stackTmp.copy());
@@ -183,7 +186,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         {
             ItemStack stack = this.getContainerItem();
 
-            // The IPM stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            // The IPM stack has changed (ie. to/from empty, or different instance), re-read the inventory contents.
             if (stack != this.stackLast)
             {
                 this.inventoryItemTransmit.readFromContainerItemStack();
@@ -202,7 +205,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
         if (this.filterSlots.contains(slotNum))
         {
             this.fakeSlotClick(slotNum, dragType, clickType, player);
-            return null;
+            return ItemStack.EMPTY;
         }
 
         // (Starting) or ending a drag and the dragged slots include at least one of our fake slots
@@ -213,7 +216,7 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
                 if (this.filterSlots.contains(i))
                 {
                     this.fakeSlotClick(i, dragType, clickType, player);
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
         }
@@ -222,15 +225,17 @@ public class ContainerPickupManager extends ContainerLargeStacks implements ICon
 
         ItemStack modularStackPost = this.getContainerItem();
 
-        if (player.getEntityWorld().isRemote == false && modularStackPost != null && modularStackPost.getItem() == EnderUtilitiesItems.PICKUP_MANAGER)
+        if (player.getEntityWorld().isRemote == false && modularStackPost.isEmpty() == false &&
+            modularStackPost.getItem() == EnderUtilitiesItems.PICKUP_MANAGER)
         {
-            boolean sent = ((ItemPickupManager)modularStackPost.getItem()).tryTransportItemsFromTransportSlot(this.inventoryItemTransmit, player, modularStackPost);
+            boolean sent = ((ItemPickupManager) modularStackPost.getItem()).tryTransportItemsFromTransportSlot(
+                    this.inventoryItemTransmit, player, modularStackPost);
 
             // The change is not picked up by detectAndSendChanges() because the items are transported out
             // immediately, so the client side container will get out of sync without a forced sync
             if (sent && player instanceof EntityPlayerMP)
             {
-                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, 0, this.getSlot(0).getStack()), (EntityPlayerMP)player);
+                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, 0, this.getSlot(0).getStack()), (EntityPlayerMP) player);
             }
         }
 

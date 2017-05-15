@@ -8,6 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
@@ -42,7 +43,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
-    private final ItemStack[] recipeStacks;
+    private final NonNullList<ItemStack> recipeStacks = NonNullList.withSize(18, ItemStack.EMPTY);
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
     {
@@ -58,7 +59,6 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         this.craftMatrices[1] = new InventoryCraftingWrapper(this, 3, 3, this.craftMatrixWrappers[1]);
 
         this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
-        this.recipeStacks = new ItemStack[18];
 
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.itemHandlerLargeStacks = (ItemHandlerWrapperPermissions) this.inventory;
@@ -177,8 +177,10 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         // Our main item inventory or the furnace inventory
         if (slot instanceof SlotItemHandler)
         {
-            SlotItemHandler slotItemHandler = (SlotItemHandler)slot;
-            if (slotItemHandler.getItemHandler() == this.inventory || slotItemHandler.getItemHandler() == this.tecs.getFurnaceInventory())
+            SlotItemHandler slotItemHandler = (SlotItemHandler) slot;
+
+            if (slotItemHandler.getItemHandler() == this.inventory ||
+                slotItemHandler.getItemHandler() == this.tecs.getFurnaceInventory())
             {
                 return slotItemHandler.getItemStackLimit(stack);
             }
@@ -208,7 +210,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
             MergeSlotRange range = new MergeSlotRange(inv);
             ItemStack stackSlot = this.getSlot(slotNum).getStack();
 
-            if (stackSlot != null && InventoryUtils.matchingStackFoundInSlotRange(inv, range, stackSlot, false, false))
+            if (stackSlot.isEmpty() == false && InventoryUtils.matchingStackFoundInSlotRange(inv, range, stackSlot, false, false))
             {
                 ret = super.transferStackToSlotRange(player, slotNum, range, false);
             }
@@ -245,21 +247,19 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         }
 
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
-        if (stackSlot == null)
-        {
-            return;
-        }
 
-        ItemStack stackOrig = stackSlot.copy();
-        int num = 64;
-
-        while (num-- > 0)
+        if (slot != null && slot.getHasStack())
         {
-            // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
-            if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+            ItemStack stackOrig = slot.getStack().copy();
+            int num = 64;
+
+            while (num-- > 0)
             {
-                break;
+                // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
+                if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                {
+                    break;
+                }
             }
         }
     }
@@ -275,12 +275,11 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         }
 
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-        ItemStack stackSlot = slot != null ? slot.getStack() : null;
 
-        if (stackSlot != null)
+        if (slot != null && slot.getHasStack())
         {
-            ItemStack stackOrig = stackSlot.copy();
-            int num = stackOrig.getMaxStackSize() / stackOrig.stackSize;
+            ItemStack stackOrig = slot.getStack().copy();
+            int num = stackOrig.getMaxStackSize() / stackOrig.getCount();
 
             while (num-- > 0)
             {
@@ -302,7 +301,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         {
             if (this.craftingGridSlotsLeft.contains(slotNum) || this.craftingGridSlotsRight.contains(slotNum))
             {
-                return null;
+                return ItemStack.EMPTY;
             }
         }
 
@@ -324,7 +323,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
 
             if (this.tecs.canCraftItems(this.craftMatrixWrappers[invId], invId) == false)
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
@@ -409,15 +408,15 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
     {
         int start = this.inventorySlots.size();
 
-        for (int slot = 0; slot < this.recipeStacks.length; slot++)
+        for (int slot = 0; slot < this.recipeStacks.size(); slot++)
         {
-            ItemStack currentStack = this.tecs.getRecipeItems(slot / 9)[slot % 9];
-            ItemStack prevStack = this.recipeStacks[slot];
+            ItemStack currentStack = this.tecs.getRecipeItems(slot / 9).get(slot % 9);
+            ItemStack prevStack = this.recipeStacks.get(slot);
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {
                 prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
-                this.recipeStacks[slot] = prevStack;
+                this.recipeStacks.set(slot, prevStack);
 
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
@@ -441,7 +440,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
         // Syncing the recipe items
         if (slotId >= size)
         {
-            this.recipeStacks[slotId - size] = stack;
+            this.recipeStacks.set(slotId - size, stack);
         }
         else
         {
@@ -451,7 +450,7 @@ public class ContainerCreationStation extends ContainerLargeStacksTile
 
     public ItemStack getRecipeItem(int invId, int slot)
     {
-        return this.recipeStacks[invId * 9 + slot];
+        return this.recipeStacks.get(invId * 9 + slot);
     }
 
     @Override

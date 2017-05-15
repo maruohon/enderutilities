@@ -16,14 +16,14 @@ public class InventoryItemMemoryCards extends InventoryItemModularModules
     public boolean isItemValidForSlot(int slotNum, ItemStack stack)
     {
         //System.out.println("InventoryItemMemoryCards#isItemValidForSlot(" + slotNum + ", " + stack + ") - " + (this.isRemote ? "client" : "server"));
-        if (super.isItemValidForSlot(slotNum, stack) == false || stack.isEmpty())
+        if (stack.isEmpty() || super.isItemValidForSlot(slotNum, stack) == false)
         {
             return false;
         }
 
-        if (stack.getItem() instanceof IModule && ((IModule)stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
+        if (stack.getItem() instanceof IModule && ((IModule) stack.getItem()).getModuleType(stack).equals(ModuleType.TYPE_MEMORY_CARD_ITEMS))
         {
-            IModule module = (IModule)stack.getItem();
+            IModule module = (IModule) stack.getItem();
             return module.getModuleTier(stack) >= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_6B &&
                    module.getModuleTier(stack) <= ItemEnderPart.MEMORY_CARD_TYPE_ITEMS_12B;
         }

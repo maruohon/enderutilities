@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
@@ -13,7 +14,7 @@ public class ContainerMSU extends ContainerLargeStacksTile implements ICustomSlo
 {
     protected final TileEntityMSU temsu;
     private final boolean[] lockedLast;
-    private final ItemStack[] templateStacksLast;
+    private final NonNullList<ItemStack> templateStacksLast;
 
     public ContainerMSU(EntityPlayer player, TileEntityMSU te)
     {
@@ -23,7 +24,7 @@ public class ContainerMSU extends ContainerLargeStacksTile implements ICustomSlo
 
         int numSlots = this.itemHandlerLargeStacks.getSlots();
         this.lockedLast = new boolean[numSlots];
-        this.templateStacksLast = new ItemStack[numSlots];
+        this.templateStacksLast = NonNullList.withSize(numSlots, ItemStack.EMPTY);
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 57);

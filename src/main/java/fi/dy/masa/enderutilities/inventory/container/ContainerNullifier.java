@@ -16,7 +16,7 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
 {
     public final ItemHandlerNullifier inventoryItem;
     private final UUID containerUUID;
-    private ItemStack stackLast;
+    private ItemStack stackLast = ItemStack.EMPTY;
 
     public ContainerNullifier(EntityPlayer player, ItemStack containerStack)
     {
@@ -57,7 +57,7 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
         {
             ItemStack stack = this.getContainerItem();
 
-            // The Nullifier stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            // The Nullifier stack has changed (ie. to/from empty, or different instance), re-read the inventory contents.
             if (stack != this.stackLast)
             {
                 this.inventoryItem.readFromContainerItemStack();

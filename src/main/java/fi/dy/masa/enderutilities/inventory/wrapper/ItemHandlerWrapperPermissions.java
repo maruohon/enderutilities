@@ -60,7 +60,7 @@ public class ItemHandlerWrapperPermissions implements IItemHandlerModifiable, II
             return this.baseHandler.getStackInSlot(slot);
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ItemHandlerWrapperPermissions implements IItemHandlerModifiable, II
             return this.baseHandler.extractItem(slot, amount, simulate);
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override

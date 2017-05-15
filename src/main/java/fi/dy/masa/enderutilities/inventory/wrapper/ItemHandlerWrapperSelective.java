@@ -30,7 +30,7 @@ public class ItemHandlerWrapperSelective extends ItemHandlerWrapperSize implemen
             return this.baseHandler.extractItem(slot, amount, simulate);
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override

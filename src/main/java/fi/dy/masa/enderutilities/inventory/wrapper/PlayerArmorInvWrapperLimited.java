@@ -14,25 +14,25 @@ public class PlayerArmorInvWrapperLimited extends PlayerArmorInvWrapper
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        if (this.getStackInSlot(slot) != null || stack == null)
+        if (this.getStackInSlot(slot).isEmpty() == false || stack.isEmpty())
         {
             return stack;
         }
 
-        if (stack.stackSize > 1)
+        if (stack.getCount() > 1)
         {
             ItemStack newStack = stack.copy();
-            newStack.stackSize = 1;
+            newStack.setCount(1);
 
             newStack = super.insertItem(slot, newStack, simulate);
 
-            if (newStack != null)
+            if (newStack.isEmpty() == false)
             {
                 return stack;
             }
 
             newStack = stack.copy();
-            newStack.stackSize--;
+            newStack.shrink(1);
 
             return newStack;
         }

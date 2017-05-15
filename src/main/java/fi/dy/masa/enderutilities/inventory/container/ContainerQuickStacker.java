@@ -30,20 +30,19 @@ public class ContainerQuickStacker extends ContainerCustomSlotClick implements I
         ItemStack stack = ItemQuickStacker.getEnabledItem(player);
 
         // Middle click
-        if (stack != null && clickType == ClickType.CLONE && dragType == 2)
+        if (clickType == ClickType.CLONE && dragType == 2 && stack.isEmpty() == false)
         {
             int invSlotNum = this.getSlot(slotNum) != null ? this.getSlot(slotNum).getSlotIndex() : -1;
-            if (invSlotNum == -1)
+
+            if (invSlotNum != -1)
             {
-                return null;
+                byte selected = NBTUtils.getByte(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET_SELECTION);
+                long mask = NBTUtils.getLong(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET + selected);
+                mask ^= (0x1L << invSlotNum);
+                NBTUtils.setLong(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET + selected, mask);
             }
 
-            byte selected = NBTUtils.getByte(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET_SELECTION);
-            long mask = NBTUtils.getLong(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET + selected);
-            mask ^= (0x1L << invSlotNum);
-            NBTUtils.setLong(stack, ItemQuickStacker.TAG_NAME_CONTAINER, ItemQuickStacker.TAG_NAME_PRESET + selected, mask);
-
-            return null;
+            return ItemStack.EMPTY;
         }
 
         return super.slotClick(slotNum, dragType, clickType, player);

@@ -45,7 +45,8 @@ public class ContainerEnderFurnace extends ContainerLargeStacksTile
         super.detectAndSendChanges();
 
         IContainerListener listener;
-        for (int i = 0; i < this.listeners.size(); ++i)
+
+        for (int i = 0; i < this.listeners.size(); i++)
         {
             listener = this.listeners.get(i);
 
@@ -55,10 +56,12 @@ public class ContainerEnderFurnace extends ContainerLargeStacksTile
                 || this.teef.cookTime != this.cookTime)
             {
                 int b = 0, c = 0;
+
                 if (this.teef.burnTimeFresh != 0)
                 {
                     b = 100 * this.teef.burnTimeRemaining / this.teef.burnTimeFresh;
                 }
+
                 c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
                 // smelting progress and fuel burning progress are both 0..100, we send the smelting progress in the upper byte of the short
@@ -83,6 +86,7 @@ public class ContainerEnderFurnace extends ContainerLargeStacksTile
         super.addListener(listener);
 
         int b = 0;
+
         if (this.teef.burnTimeFresh != 0)
         {
             b = 100 * this.teef.burnTimeRemaining / this.teef.burnTimeFresh;
@@ -104,9 +108,11 @@ public class ContainerEnderFurnace extends ContainerLargeStacksTile
                 this.fuelProgress = val & 0x7F; // value is 0..100, mask it to he lowest 7 bits (0..127)
                 this.smeltingProgress = MathHelper.clamp((val >>> 8) & 0x7F, 0, 100);
                 break;
+
             case 1:
                 this.outputToEnderChest = (val == 1);
                 break;
+
             default:
         }
     }

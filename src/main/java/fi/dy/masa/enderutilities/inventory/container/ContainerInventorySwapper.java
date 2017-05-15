@@ -23,7 +23,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 {
     private static BaublesInvProviderBase baublesProvider = new BaublesInvProviderBase();
     public final InventoryItemModular inventoryItemModular;
-    private ItemStack modularStackLast;
+    private ItemStack modularStackLast = ItemStack.EMPTY;
     private MergeSlotRange moduleSlots = new MergeSlotRange(0, 0);;
     private MergeSlotRange playerBaublesSlots = new MergeSlotRange(0, 0);;
     private MergeSlotRange swapperBaublesSlots = new MergeSlotRange(0, 0);;
@@ -175,7 +175,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         {
             ItemStack modularStack = this.inventoryItemModular.getModularItemStack();
 
-            // The Bag's stack has changed (ie. to/from null, or different instance), re-read the inventory contents.
+            // The Bag's stack has changed (ie. to/from empty, or different instance), re-read the inventory contents.
             if (modularStack != this.modularStackLast)
             {
                 this.inventoryItemModular.readFromContainerItemStack();
@@ -192,7 +192,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
         ItemStack stack = this.getContainerItem();
 
         // Middle click
-        if (clickType == ClickType.CLONE && dragType == 2 && stack != null &&
+        if (clickType == ClickType.CLONE && dragType == 2 && stack.isEmpty() == false &&
             (this.playerMainSlotsIncHotbar.contains(slotNum) ||
              this.playerArmorSlots.contains(slotNum) ||
              this.playerOffhandSlots.contains(slotNum) ||
@@ -207,7 +207,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
 
             if (invSlotNum == -1)
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             byte selected = NBTUtils.getByte(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET_SELECTION);
@@ -215,7 +215,7 @@ public class ContainerInventorySwapper extends ContainerCustomSlotClick implemen
             mask ^= (0x1L << invSlotNum);
             NBTUtils.setLong(stack, ItemInventorySwapper.TAG_NAME_CONTAINER, ItemInventorySwapper.TAG_NAME_PRESET + selected, mask);
 
-            return null;
+            return ItemStack.EMPTY;
         }
 
         stack = super.slotClick(slotNum, dragType, clickType, player);

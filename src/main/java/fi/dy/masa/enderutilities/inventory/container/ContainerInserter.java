@@ -133,15 +133,15 @@ public class ContainerInserter extends ContainerTileEntityInventory
                 return false;
             }
 
-            if (stackCursor != null)
+            if (stackCursor.isEmpty() == false)
             {
                 ItemStack stackTmp = stackCursor.copy();
-                stackTmp.stackSize = 1;
+                stackTmp.setCount(1);
                 slot.insertItem(stackTmp, false);
             }
             else
             {
-                slot.putStack(null);
+                slot.putStack(ItemStack.EMPTY);
             }
 
             return true;
@@ -151,10 +151,10 @@ public class ContainerInserter extends ContainerTileEntityInventory
             // End of dragging
             if (clickType == ClickType.QUICK_CRAFT && (button == 2 || button == 6))
             {
-                if (stackCursor != null)
+                if (stackCursor.isEmpty() == false)
                 {
                     ItemStack stackTmp = stackCursor.copy();
-                    stackTmp.stackSize = 1;
+                    stackTmp.setCount(1);
 
                     for (int i : this.draggedSlots)
                     {
@@ -162,7 +162,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
 
                         if (slotTmp != null && slotTmp.getItemHandler() == this.invFilters)
                         {
-                            slotTmp.insertItem(stackTmp, false);
+                            slotTmp.insertItem(stackTmp.copy(), false);
                         }
                     }
                 }
@@ -194,7 +194,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
             if (this.filterSlots.contains(slotNum))
             {
                 this.fakeSlotClick(slotNum, dragType, clickType, player);
-                return null;
+                return ItemStack.EMPTY;
             }
 
             // (Starting) or ending a drag and the dragged slots include at least one of our fake slots
@@ -205,7 +205,7 @@ public class ContainerInserter extends ContainerTileEntityInventory
                     if (this.filterSlots.contains(i))
                     {
                         this.fakeSlotClick(i, dragType, clickType, player);
-                        return null;
+                        return ItemStack.EMPTY;
                     }
                 }
             }

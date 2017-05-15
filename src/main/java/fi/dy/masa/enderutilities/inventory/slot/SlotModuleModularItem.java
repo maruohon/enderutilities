@@ -25,9 +25,9 @@ public class SlotModuleModularItem extends SlotItemHandlerModule
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
-            return true;
+            return false;
         }
 
         if ((stack.getItem() instanceof IModule) == false)
@@ -35,15 +35,15 @@ public class SlotModuleModularItem extends SlotItemHandlerModule
             return false;
         }
 
-        ModuleType type = ((IModule)stack.getItem()).getModuleType(stack);
+        ModuleType type = ((IModule) stack.getItem()).getModuleType(stack);
         ItemStack modularStack = this.container.getContainerItem();
 
-        if (type.equals(ModuleType.TYPE_INVALID) == false && modularStack != null && super.isItemValid(stack) == true)
+        if (type.equals(ModuleType.TYPE_INVALID) == false && modularStack.isEmpty() == false && super.isItemValid(stack))
         {
             // Matching basic module type, check for the sub-type based on the host modular item
-            if ((this.moduleType.equals(ModuleType.TYPE_ANY) || this.moduleType.equals(type) == true) && modularStack.getItem() instanceof IModular)
+            if ((this.moduleType.equals(ModuleType.TYPE_ANY) || this.moduleType.equals(type)) && modularStack.getItem() instanceof IModular)
             {
-                return ((IModular)modularStack.getItem()).getMaxModules(modularStack, stack) > 0;
+                return ((IModular) modularStack.getItem()).getMaxModules(modularStack, stack) > 0;
             }
         }
 

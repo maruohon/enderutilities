@@ -1,13 +1,12 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
@@ -19,7 +18,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 public class ContainerMemoryChest extends ContainerTileEntityInventory implements ICustomSlotSync
 {
     protected TileEntityMemoryChest temc;
-    protected List<ItemStack> templateStacksLast;
+    protected NonNullList<ItemStack> templateStacksLast;
     protected long templateMask;
     protected boolean isPublic;
 
@@ -27,7 +26,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     {
         super(player, te);
         this.temc = te;
-        this.templateStacksLast = new ArrayList<ItemStack>();
+        this.templateStacksLast = NonNullList.create();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, this.inventorySlots.get(this.inventorySlots.size() - 1).yPos + 32);
@@ -88,7 +87,8 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
                 ItemStack stackSlot = this.inventory.getStackInSlot(invSlotNum);
                 ItemStack stackCursor = this.player.inventory.getItemStack();
 
-                if (stackCursor != null && stackSlot == null && (this.temc.getTemplateMask() & (1L << invSlotNum)) == 0)
+                if (stackCursor.isEmpty() == false && stackSlot.isEmpty() &&
+                    (this.temc.getTemplateMask() & (1L << invSlotNum)) == 0)
                 {
                     this.temc.setTemplateStack(invSlotNum, stackCursor);
                 }
@@ -100,7 +100,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
                 this.temc.toggleTemplateMask(invSlotNum);
             }
 
-            return null;
+            return ItemStack.EMPTY;
         }
 
         ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
@@ -118,7 +118,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     @Override
     protected Slot addSlotToContainer(Slot slot)
     {
-        this.templateStacksLast.add(null);
+        this.templateStacksLast.add(ItemStack.EMPTY);
 
         return super.addSlotToContainer(slot);
     }
@@ -134,7 +134,7 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
     {
         super.detectAndSendChanges();
 
-        if (this.temc.getWorld().isRemote == true)
+        if (this.temc.getWorld().isRemote)
         {
             return;
         }
@@ -146,15 +146,16 @@ public class ContainerMemoryChest extends ContainerTileEntityInventory implement
 
             if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
             {
-                prevStack = currentStack != null ? currentStack.copy() : null;
+                prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 this.templateStacksLast.set(i, prevStack);
 
                 for (int j = 0; j < this.listeners.size(); j++)
                 {
                     IContainerListener listener = this.listeners.get(j);
+
                     if (listener instanceof EntityPlayerMP)
                     {
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP)listener);
+                        PacketHandler.INSTANCE.sendTo(new MessageSyncCustomSlot(this.windowId, 0, i, prevStack), (EntityPlayerMP) listener);
                     }
                 }
             }
