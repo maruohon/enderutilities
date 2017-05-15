@@ -22,7 +22,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
 
     public TileEntityMSU()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_MSU, true);
+        super(ReferenceNames.NAME_TILE_MSU, true);
         this.initStorage();
     }
 

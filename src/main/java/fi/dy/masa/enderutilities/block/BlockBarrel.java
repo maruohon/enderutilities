@@ -64,13 +64,13 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Override
     protected String[] generateUnlocalizedNames()
     {
-        return new String[] { ReferenceNames.NAME_TILE_ENTITY_BARREL };
+        return new String[] { ReferenceNames.NAME_TILE_BARREL };
     }
 
     @Override
     protected String[] generateTooltipNames()
     {
-        return new String[] { ReferenceNames.NAME_TILE_ENTITY_BARREL };
+        return new String[] { ReferenceNames.NAME_TILE_BARREL };
     }
 
     @Override

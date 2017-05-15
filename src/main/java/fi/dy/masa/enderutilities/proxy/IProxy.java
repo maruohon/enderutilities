@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public interface IProxy
@@ -10,6 +11,8 @@ public interface IProxy
     public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z);
 
     public void registerColorHandlers();
+
+    public ModFixs getDataFixer();
 
     public void registerEntities();
 

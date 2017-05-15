@@ -194,14 +194,14 @@ public class GuiToolWorkstation extends GuiEnderUtilities
         if (slot != null && slot.slotNumber == this.containerTW.getSlotTool() && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.tool"));
+            list.add(I18n.format("enderutilities.gui.label.tool_workstation.tool"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
         else if (slot != null && slot.slotNumber == this.containerTW.getSlotRename() && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.itemtorename"));
-            list.add(I18n.format("enderutilities.gui.label.toolworkstation.useemptynametoreset"));
+            list.add(I18n.format("enderutilities.gui.label.tool_workstation.itemtorename"));
+            list.add(I18n.format("enderutilities.gui.label.tool_workstation.useemptynametoreset"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
     }

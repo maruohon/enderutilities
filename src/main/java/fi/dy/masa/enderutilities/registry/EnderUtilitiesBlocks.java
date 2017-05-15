@@ -17,9 +17,9 @@ import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 
 public class EnderUtilitiesBlocks
 {
-    public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ENTITY_ASU,             6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_ENTITY_BARREL,       4.0f,   10f, 1, Material.IRON);
-    public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAWBRIDGE,      4.0f,   10f, 1, Material.IRON);
+    public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ASU,             6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_BARREL,       4.0f,   10f, 1, Material.IRON);
+    public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAW_BRIDGE,     4.0f,   10f, 1, Material.IRON);
     public static final BlockEnderUtilities ELEVATOR            = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities ELEVATOR_SLAB       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities ELEVATOR_LAYER      = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
@@ -29,7 +29,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities INSERTER            = new BlockInserter(ReferenceNames.NAME_TILE_INSERTER,          2.0f,    6f, 1, Material.ROCK);
     public static final BlockEnderUtilities MACHINE_1           = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities MOLECULAR_EXCITER   = new BlockMolecularExciter(ReferenceNames.NAME_TILE_MOLECULAR_EXCITER, 3.0f, 20f, 1, Material.ROCK);
-    public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_ENTITY_MSU,             6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_MSU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,            2.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities PORTAL              = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
     public static final BlockEnderUtilities PORTAL_FRAME        = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);

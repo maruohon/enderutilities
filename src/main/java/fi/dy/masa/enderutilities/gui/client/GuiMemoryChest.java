@@ -32,7 +32,7 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
     {
         super(container, 176, 176, "gui.container." + te.getTEName() + "." + (te.getStorageTier() < 3 ? te.getStorageTier() : 0));
 
-        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.memorychest");
+        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea." + te.getTEName());
         this.temc = te;
         this.inventory = this.container.inventory;
         this.chestTier = te.getStorageTier();
@@ -71,7 +71,8 @@ public class GuiMemoryChest extends GuiEnderUtilities implements IButtonStateCal
             default:
         }
 
-        this.fontRenderer.drawString(I18n.format("enderutilities.container.memorychest"), 8, 15, 0x404040);
+        String str = this.temc.hasCustomName() ? this.temc.getName() : I18n.format(this.temc.getName());
+        this.fontRenderer.drawString(str, 8, 15, 0x404040);
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, y, 0x404025);
     }
 

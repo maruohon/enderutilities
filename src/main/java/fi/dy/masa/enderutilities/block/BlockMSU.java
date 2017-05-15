@@ -51,8 +51,8 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_MSU + "_0",
-                ReferenceNames.NAME_TILE_ENTITY_MSU + "_1"
+                ReferenceNames.NAME_TILE_MSU + "_0",
+                ReferenceNames.NAME_TILE_MSU + "_1"
         };
     }
 
@@ -177,8 +177,8 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
 
     public static enum EnumStorageType implements IStringSerializable
     {
-        MASSIVE_STORAGE_UNIT    (0, ReferenceNames.NAME_TILE_ENTITY_MSU + "_0"),
-        MASSIVE_STORAGE_BUNDLE  (1, ReferenceNames.NAME_TILE_ENTITY_MSU + "_1");
+        MASSIVE_STORAGE_UNIT    (0, ReferenceNames.NAME_TILE_MSU + "_0"),
+        MASSIVE_STORAGE_BUNDLE  (1, ReferenceNames.NAME_TILE_MSU + "_1");
 
         private final String name;
         private final int meta;

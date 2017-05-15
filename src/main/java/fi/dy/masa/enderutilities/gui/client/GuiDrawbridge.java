@@ -22,7 +22,7 @@ public class GuiDrawbridge extends GuiEnderUtilities
 
     public GuiDrawbridge(ContainerDrawbridge container, TileEntityDrawbridge te)
     {
-        super(container, 176, 136, "gui.container.drawbridge_normal");
+        super(container, 176, 136, "gui.container.draw_bridge_normal");
 
         this.tedb = te;
         this.advanced = te.isAdvanced();
@@ -30,10 +30,10 @@ public class GuiDrawbridge extends GuiEnderUtilities
         if (this.advanced)
         {
             this.ySize = 210;
-            this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.drawbridge_advanced");
+            this.guiTexture = ReferenceTextures.getGuiTexture("gui.container.draw_bridge_advanced");
         }
 
-        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.drawbridge");
+        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.draw_bridge");
     }
 
     @Override
@@ -47,26 +47,26 @@ public class GuiDrawbridge extends GuiEnderUtilities
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRenderer.drawString(I18n.format("enderutilities.container.drawbridge" + (this.advanced ? "_advanced" : "")), 8, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("enderutilities.container.draw_bridge" + (this.advanced ? "_advanced" : "")), 8, 5, 0x404040);
 
         if (this.advanced)
         {
             this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 117, 0x404040);
 
-            String str = I18n.format("enderutilities.gui.label.drawbridge.delay_num", this.tedb.getDelay());
+            String str = I18n.format("enderutilities.gui.label.draw_bridge.delay_num", this.tedb.getDelay());
             this.fontRenderer.drawString(str, 54, 19, 0x404040);
 
-            str = I18n.format("enderutilities.gui.label.drawbridge.length_num", this.tedb.getMaxLength());
+            str = I18n.format("enderutilities.gui.label.draw_bridge.length_num", this.tedb.getMaxLength());
             this.fontRenderer.drawString(str, 54, 31, 0x404040);
         }
         else
         {
             this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 43, 0x404040);
 
-            String str = I18n.format("enderutilities.gui.label.drawbridge.delay_num", this.tedb.getDelay());
+            String str = I18n.format("enderutilities.gui.label.draw_bridge.delay_num", this.tedb.getDelay());
             this.fontRenderer.drawString(str, 114, 19, 0x404040);
 
-            str = I18n.format("enderutilities.gui.label.drawbridge.length_num", this.tedb.getMaxLength());
+            str = I18n.format("enderutilities.gui.label.draw_bridge.length_num", this.tedb.getMaxLength());
             this.fontRenderer.drawString(str, 114, 31, 0x404040);
         }
     }
@@ -106,24 +106,24 @@ public class GuiDrawbridge extends GuiEnderUtilities
         if (this.advanced)
         {
             this.buttonList.add(new GuiButtonHoverText(0, x + 18, y + 24, 14, 14, 60, 42,
-                    this.guiTextureWidgets, 14, 0, "enderutilities.gui.label.drawbridge.take_blocks"));
+                    this.guiTextureWidgets, 14, 0, "enderutilities.gui.label.draw_bridge.take_blocks"));
 
             this.buttonList.add(new GuiButtonHoverText(1, x + 39, y + 19, 8, 8, 0, 120,
-                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.drawbridge.delay"));
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.draw_bridge.delay"));
 
             this.buttonList.add(new GuiButtonHoverText(2, x + 39, y + 30, 8, 8, 0, 120,
-                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.drawbridge.block_count"));
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.draw_bridge.block_count"));
         }
         else
         {
             this.buttonList.add(new GuiButtonHoverText(0, x + 62, y + 22, 14, 14, 60, 42,
-                    this.guiTextureWidgets, 14, 0, "enderutilities.gui.label.drawbridge.take_blocks"));
+                    this.guiTextureWidgets, 14, 0, "enderutilities.gui.label.draw_bridge.take_blocks"));
 
             this.buttonList.add(new GuiButtonHoverText(1, x + 100, y + 19, 8, 8, 0, 120,
-                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.drawbridge.delay"));
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.draw_bridge.delay"));
 
             this.buttonList.add(new GuiButtonHoverText(2, x + 100, y + 31, 8, 8, 0, 120,
-                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.drawbridge.block_count"));
+                    this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.draw_bridge.block_count"));
         }
     }
 

@@ -34,7 +34,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
 
     public GuiHandyChest(ContainerHandyChest container, TileEntityHandyChest te)
     {
-        super(container, 176, 256, "gui.container.handychest." + te.getStorageTier());
+        super(container, 176, 256, "gui.container.handy_chest." + te.getStorageTier());
         this.tehc = te;
         this.chestTier = te.getStorageTier();
         this.invSize = container.inventory.getSlots();
@@ -70,7 +70,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         int y = this.chestTier == 3 ? 3 : 6;
-        this.fontRenderer.drawString(I18n.format("enderutilities.container.handychest"), 8, y, 0x404040);
+        String str = this.tehc.hasCustomName() ? this.tehc.getName() : I18n.format(this.tehc.getName());
+        this.fontRenderer.drawString(str, 8, y, 0x404040);
     }
 
     @Override

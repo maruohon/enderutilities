@@ -41,9 +41,9 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {
-        super(container, 240, 256, "gui.container.creationstation");
+        super(container, 240, 256, "gui.container." + te.getTEName());
 
-        this.infoArea = new InfoArea(223, 88, 11, 11, "enderutilities.gui.infoarea.creationstation");
+        this.infoArea = new InfoArea(223, 88, 11, 11, "enderutilities.gui.infoarea." + te.getTEName());
         this.tecs = te;
         this.containerCS = container;
         this.invSize = container.inventory.getSlots();
@@ -62,7 +62,8 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRenderer.drawString(I18n.format("enderutilities.container.creationstation"), 80, 6, 0x404040);
+        String str = this.tecs.hasCustomName() ? this.tecs.getName() : I18n.format(this.tecs.getName());
+        this.fontRenderer.drawString(str, 80, 6, 0x404040);
     }
 
     @Override

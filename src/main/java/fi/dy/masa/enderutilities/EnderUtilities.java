@@ -1,10 +1,15 @@
 package fi.dy.masa.enderutilities;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -13,6 +18,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -28,6 +34,7 @@ import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.PlacementProperties;
+import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
 
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
@@ -36,6 +43,8 @@ import fi.dy.masa.enderutilities.util.PlacementProperties;
      acceptedMinecraftVersions = "1.11.2")
 public class EnderUtilities
 {
+    public static final int DATA_FIXER_VERSION = 922;
+
     @Instance(Reference.MOD_ID)
     public static EnderUtilities instance;
 
@@ -75,6 +84,16 @@ public class EnderUtilities
     }
 
     @EventHandler
+    public void onServerAboutToStartEvent(FMLServerAboutToStartEvent event)
+    {
+        // Register data fixers
+        ModFixs dataFixer = proxy.getDataFixer();
+        TileEntityID renames = new TileEntityID();
+        dataFixer.registerFix(FixTypes.BLOCK_ENTITY, renames);
+        dataFixer.registerFix(FixTypes.ITEM_INSTANCE, renames);
+    }
+
+    @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
         //EnderUtilities.logger.info("Clearing chunk loading timeouts");
@@ -88,38 +107,47 @@ public class EnderUtilities
     public void onMissingMappingEvent(FMLMissingMappingsEvent event)
     {
         List<MissingMapping> list = event.get();
+        Map<String, String> renameMap = TileEntityID.getMap();
 
         for (MissingMapping mapping : list)
         {
             if (mapping.type == GameRegistry.Type.BLOCK)
             {
                 ResourceLocation oldLoc = mapping.resourceLocation;
-                ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
 
-                if (newLoc.equals(oldLoc) == false)
+                if (oldLoc.getResourceDomain().equals(Reference.MOD_ID))
                 {
-                    EnderUtilities.logger.info(String.format("Re-mapping block '%s' to '%s'", oldLoc, newLoc));
-                    Block block = ForgeRegistries.BLOCKS.getValue(newLoc);
+                    String newName = renameMap.get(oldLoc.toString());
 
-                    if (block != null)
+                    if (newName != null)
                     {
-                        mapping.remap(block);
+                        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(newName));
+
+                        if (block != null && block != Blocks.AIR)
+                        {
+                            mapping.remap(block);
+                            EnderUtilities.logger.info("Re-mapped block '{}' to '{}'", oldLoc, newName);
+                        }
                     }
                 }
             }
             else if (mapping.type == GameRegistry.Type.ITEM)
             {
                 ResourceLocation oldLoc = mapping.resourceLocation;
-                ResourceLocation newLoc = new ResourceLocation(oldLoc.getResourceDomain(), oldLoc.getResourcePath().replaceAll("\\.", "_"));
 
-                if (newLoc.equals(oldLoc) == false)
+                if (oldLoc.getResourceDomain().equals(Reference.MOD_ID))
                 {
-                    EnderUtilities.logger.info(String.format("Re-mapping item '%s' to '%s'", oldLoc, newLoc));
-                    Item item = ForgeRegistries.ITEMS.getValue(newLoc);
+                    String newName = renameMap.get(oldLoc.toString());
 
-                    if (item != null)
+                    if (newName != null)
                     {
-                        mapping.remap(item);
+                        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(newName));
+
+                        if (item != null && item != Items.AIR)
+                        {
+                            mapping.remap(item);
+                            EnderUtilities.logger.info("Re-mapped item '{}' to '{}'", oldLoc, newName);
+                        }
                     }
                 }
             }

@@ -6,17 +6,17 @@
     },
     "variants": {
         "type": {
-            "energybridge_resonator": {
+            "energy_bridge_resonator": {
                 "textures": {
                     "front":    "#resonator_front",
-                    "back":     "enderutilities:blocks/energybridge_resonator_back",
+                    "back":     "enderutilities:blocks/energy_bridge_resonator_back",
                     "left":     "#resonator_side",
                     "right":    "#resonator_side",
                     "top":      "#resonator_top",
                     "bottom":   "#resonator_top"
                 }
             },
-            "energybridge_receiver":    {
+            "energy_bridge_receiver":    {
                 "textures": {
                     "front":    "#transmitter_top",
                     "back":     "#transmitter_top",
@@ -26,7 +26,7 @@
                     "bottom":   "#transmitter_top"
                 }
             },
-            "energybridge_transmitter": {
+            "energy_bridge_transmitter": {
                 "textures": {
                     "front":    "#transmitter_side",
                     "back":     "#transmitter_side",
@@ -40,20 +40,20 @@
         "active": {
             "true": {
                 "textures": {
-                    "resonator_front":  "enderutilities:blocks/energybridge_resonator_front_active",
-                    "resonator_top":    "enderutilities:blocks/energybridge_resonator_top_active",
-                    "resonator_side":   "enderutilities:blocks/energybridge_resonator_side_active",
-                    "transmitter_top":  "enderutilities:blocks/energybridge_transmitter_top_active",
-                    "transmitter_side": "enderutilities:blocks/energybridge_transmitter_side_active"
+                    "resonator_front":  "enderutilities:blocks/energy_bridge_resonator_front_active",
+                    "resonator_top":    "enderutilities:blocks/energy_bridge_resonator_top_active",
+                    "resonator_side":   "enderutilities:blocks/energy_bridge_resonator_side_active",
+                    "transmitter_top":  "enderutilities:blocks/energy_bridge_transmitter_top_active",
+                    "transmitter_side": "enderutilities:blocks/energy_bridge_transmitter_side_active"
                 }
             },
             "false": {
                 "textures": {
-                    "resonator_front":  "enderutilities:blocks/energybridge_resonator_front_off",
-                    "resonator_top":    "enderutilities:blocks/energybridge_resonator_top_off",
-                    "resonator_side":   "enderutilities:blocks/energybridge_resonator_side_off",
-                    "transmitter_top":  "enderutilities:blocks/energybridge_transmitter_top_off",
-                    "transmitter_side": "enderutilities:blocks/energybridge_transmitter_side_off"
+                    "resonator_front":  "enderutilities:blocks/energy_bridge_resonator_front_off",
+                    "resonator_top":    "enderutilities:blocks/energy_bridge_resonator_top_off",
+                    "resonator_side":   "enderutilities:blocks/energy_bridge_resonator_side_off",
+                    "transmitter_top":  "enderutilities:blocks/energy_bridge_transmitter_top_off",
+                    "transmitter_side": "enderutilities:blocks/energy_bridge_transmitter_side_off"
                 }
             }
         },

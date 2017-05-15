@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ModFixs;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -53,6 +55,15 @@ public class CommonProxy implements IProxy
     public void registerColorHandlers() { }
 
     @Override
+    public ModFixs getDataFixer()
+    {
+        // On a server, the DataFixer gets created for and is stored inside MinecraftServer,
+        // but in single player the DataFixer is stored in the client Minecraft class
+        // over world reloads.
+        return FMLCommonHandler.instance().getDataFixer().init(Reference.MOD_ID, EnderUtilities.DATA_FIXER_VERSION);
+    }
+
+    @Override
     public void registerEntities()
     {
         int id = 0;
@@ -65,12 +76,16 @@ public class CommonProxy implements IProxy
 
     private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
     {
-        EntityRegistry.registerModEntity(new ResourceLocation(Reference.MOD_ID, entityName), entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
+        String prefixedName = Reference.MOD_ID + ":" + entityName;
+        ResourceLocation registryName = new ResourceLocation(Reference.MOD_ID, entityName);
+        EntityRegistry.registerModEntity(registryName, entityClass, prefixedName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
     private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary)
     {
-        EntityRegistry.registerModEntity(new ResourceLocation(Reference.MOD_ID, entityName), entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates, eggPrimary, eggSecondary);
+        String prefixedName = Reference.MOD_ID + ":" + entityName;
+        ResourceLocation registryName = new ResourceLocation(Reference.MOD_ID, entityName);
+        EntityRegistry.registerModEntity(registryName, entityClass, prefixedName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates, eggPrimary, eggSecondary);
     }
 
     @Override
@@ -112,25 +127,24 @@ public class CommonProxy implements IProxy
     @Override
     public void registerTileEntities()
     {
-        this.registerTileEntityWithAlternatives(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
-        this.registerTileEntityWithAlternatives(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
-        this.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.registerTileEntityWithAlternatives(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.registerTileEntityWithAlternatives(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
-        this.registerTileEntityWithAlternatives(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
-        this.registerTileEntityWithAlternatives(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.registerTileEntityWithAlternatives(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
-        this.registerTileEntityWithAlternatives(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
-        this.registerTileEntityWithAlternatives(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
-        this.registerTileEntityWithAlternatives(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
-
-        this.registerTileEntity(TileEntityASU.class,                    ReferenceNames.NAME_TILE_ENTITY_ASU);
-        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
-        this.registerTileEntity(TileEntityDrawbridge.class,             ReferenceNames.NAME_TILE_DRAWBRIDGE);
+        this.registerTileEntity(TileEntityASU.class,                    ReferenceNames.NAME_TILE_ASU);
+        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_BARREL);
+        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
+        this.registerTileEntity(TileEntityDrawbridge.class,             ReferenceNames.NAME_TILE_DRAW_BRIDGE);
+        this.registerTileEntity(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
+        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
+        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
+        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENERGY_BRIDGE);
+        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
         this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
-        this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);
+        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
+        this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_MSU);
+        this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
+        this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
+        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED);
         this.registerTileEntity(TileEntitySoundBlock.class,             ReferenceNames.NAME_TILE_SOUND_BLOCK);
+        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
     }
 
     @Override
@@ -149,13 +163,6 @@ public class CommonProxy implements IProxy
     public boolean isAltKeyDown()
     {
         return false;
-    }
-
-    private void registerTileEntityWithAlternatives(Class<? extends TileEntity> clazz, String id)
-    {
-        // TODO Remove at some point
-        String oldName = Reference.MOD_ID + "." + id.replaceAll("_", ".");
-        GameRegistry.registerTileEntityWithAlternatives(clazz, Reference.MOD_ID + ":" + id, ReferenceNames.getPrefixedName(id), oldName);
     }
 
     private void registerTileEntity(Class<? extends TileEntity> clazz, String id)

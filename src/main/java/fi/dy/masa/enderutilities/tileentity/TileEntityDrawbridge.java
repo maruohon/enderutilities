@@ -54,7 +54,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
     public TileEntityDrawbridge()
     {
-        super(ReferenceNames.NAME_TILE_DRAWBRIDGE);
+        super(ReferenceNames.NAME_TILE_DRAW_BRIDGE);
 
         this.initStorage();
     }

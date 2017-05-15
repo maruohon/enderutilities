@@ -1,7 +1,7 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:enderelevator",
+        "model": "enderutilities:ender_elevator_slab",
         "transform": "forge:default-block"
     },
     "variants": {

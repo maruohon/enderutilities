@@ -10,58 +10,43 @@ enderutilities.key.togglemode=切换模式
 # Container/inventory names:
 ############################
 
-enderutilities.container.creationstation=创造台
-enderutilities.container.enderfurnace=末影熔炉
-enderutilities.container.enderinfuser=末影加工台
+enderutilities.container.creation_station=创造台
+enderutilities.container.ender_furnace=末影熔炉
+enderutilities.container.ender_infuser=末影加工台
 enderutilities.container.handybag=手提包
-enderutilities.container.handychest=便捷箱子
+enderutilities.container.handy_chest=便捷箱子
 enderutilities.container.inventoryswapper=交易袋
-enderutilities.container.memorychest=记忆箱子
+enderutilities.container.memory_chest=记忆箱子
 enderutilities.container.pickupmanager=拾物管理器
 enderutilities.container.portal_panel=传送门控制台
 enderutilities.container.quickstacker=快速整理器
-enderutilities.container.quickstacker.advanced=快速整理台
-enderutilities.container.toolworkstation=工具工作台
+enderutilities.container.quick_stacker_advanced=快速整理台
+enderutilities.container.tool_workstation=工具工作台
 
 
 ##############
 # Block names:
 ##############
 
-tile.enderutilities.creationstation.name=创造台
-tile.enderutilities.enderelevator_white.name=末影电梯 (白色)
-tile.enderutilities.enderelevator_orange.name=末影电梯 (橙色)
-tile.enderutilities.enderelevator_magenta.name=末影电梯 (品红色)
-tile.enderutilities.enderelevator_light_blue.name=末影电梯 (浅蓝色)
-tile.enderutilities.enderelevator_yellow.name=末影电梯 (黄色)
-tile.enderutilities.enderelevator_lime.name=末影电梯 (黄绿色)
-tile.enderutilities.enderelevator_pink.name=末影电梯 (粉色)
-tile.enderutilities.enderelevator_gray.name=末影电梯 (灰色)
-tile.enderutilities.enderelevator_silver.name=末影电梯 (浅灰色)
-tile.enderutilities.enderelevator_cyan.name=末影电梯 (青色)
-tile.enderutilities.enderelevator_purple.name=末影电梯 (紫色)
-tile.enderutilities.enderelevator_blue.name=末影电梯 (蓝色)
-tile.enderutilities.enderelevator_brown.name=末影电梯 (棕色)
-tile.enderutilities.enderelevator_green.name=末影电梯 (绿色)
-tile.enderutilities.enderelevator_red.name=末影电梯 (红色)
-tile.enderutilities.enderelevator_black.name=末影电梯 (黑色)
-tile.enderutilities.enderfurnace.name=末影熔炉
-tile.enderutilities.enderinfuser.name=末影加工台
+tile.enderutilities.creation_station.name=创造台
+tile.enderutilities.ender_elevator.name=末影电梯 ({COLOR})
+tile.enderutilities.ender_furnace.name=末影熔炉
+tile.enderutilities.ender_infuser.name=末影加工台
 tile.enderutilities.energybridge_transmitter.name=能量桥发送器
 tile.enderutilities.energybridge_receiver.name=能量桥接收器
 tile.enderutilities.energybridge_resonator.name=能量桥谐振器
 tile.enderutilities.frame.name=传送门框架
-tile.enderutilities.handychest_0.name=便捷箱子 (小型)
-tile.enderutilities.handychest_1.name=便捷箱子 (中型)
-tile.enderutilities.handychest_2.name=便捷箱子 (大型)
-tile.enderutilities.handychest_3.name=便捷箱子 (巨型)
-tile.enderutilities.memorychest_0.name=小型记忆箱子
-tile.enderutilities.memorychest_1.name=记忆箱子
-tile.enderutilities.memorychest_2.name=大型记忆箱子
+tile.enderutilities.handy_chest_0.name=便捷箱子 (小型)
+tile.enderutilities.handy_chest_1.name=便捷箱子 (中型)
+tile.enderutilities.handy_chest_2.name=便捷箱子 (大型)
+tile.enderutilities.handy_chest_3.name=便捷箱子 (巨型)
+tile.enderutilities.memory_chest_0.name=小型记忆箱子
+tile.enderutilities.memory_chest_1.name=记忆箱子
+tile.enderutilities.memory_chest_2.name=大型记忆箱子
 tile.enderutilities.portal.name=传送门
 tile.enderutilities.portal_panel.name=传送门控制台
-tile.enderutilities.quickstackeradvanced.name=快速整理台
-tile.enderutilities.toolworkstation.name=工具工作台
+tile.enderutilities.quick_stacker_advanced.name=快速整理台
+tile.enderutilities.tool_workstation.name=工具工作台
 
 
 #############
@@ -175,22 +160,22 @@ item.enderutilities_pickupmanager.tooltips=- 控制拾取特定的物品|lf- 可
 item.enderutilities_quickstacker.tooltips=- 把玩家物品栏中的物品|lf  移至附近的容器中|lf- 按模式键激活|lf- 不在玩家手中也能工作|lf- 默认仅移动匹配的物品|lf- 激活时潜行可以移动非匹配物品|lf- Can also be sneak + right clicked on|lf  inventories to quick stack to that inventory
 item.enderutilities_ruler.tooltips=Measure distances and visualize positions|lf- 用左/右键设置起始点/终点位置|lf- 潜行可设置目标方块, 而非空位|lf- Shift+滚动: 循环选择目标点|lf- Ctrl+滚动: 循环选择内存卡|lf- Alt+模式键: Toggle render when unselected|lf- Ctrl+Alt+模式键: 切换测距模式|lf- Alt+Shift+模式键: 切换渲染所有目标点|lf- 模式键: Toggle "render with all" for selected point
 
-tile.enderutilities.creationstation.tooltips=把两个合成台 (新增合成表保存,|lf快速填充等功能), 两个熔炉与一些模块化存储装置结合在一起
-tile.enderutilities.enderfurnace.tooltips=- 比原版熔炉更快|lf  (普通模式下3秒产出一件物品, )|lf- 可以用末影珍珠, 末影之眼和烈焰粉末当作燃料|lf- 也可以用从流体容器中输出的岩浆作为燃料|lf  例如末影桶或TE4中的Portable Tanks|lf- 它也可以在无燃料的情况下工作 (每60秒产出一件物品)|lf- 缓慢模式下每个燃料的持续时间比在原版熔炉中|lf  高出1.5倍|lf- 快速模式下燃料的消耗速度比在缓慢模式中高出6倍|lf  (等于0.75倍于原版熔炉)|lf- 末影熔炉可以直接将成品输出到所有者的原版末影箱子|lf- 它本身就拥有一个可提供缓存1024件成品的输出槽位
-tile.enderutilities.enderinfuser.tooltips=- 可充能末影电容|lf- 使用末影珍珠或末影之眼作为"燃料"|lf- One of the three charging options atm
-tile.enderutilities.enderelevator_white.tooltips=- 让实体于最近的, 颜色相同的两个电梯间上下传送Teleports an entity to the closest matching colored elevator|lf- 最大传送范围是垂直256格的高度, 水平64格的长度|lf- 跳跃向上, 潜行向下|lf- 也可被红石信号所激活 (rising edge)|lf- 信号强度小于8则向上|lf  大于或等于8时则向下|lf- 用染料右击一个电梯就可对其覆盖染色
+tile.enderutilities.creation_station.tooltips=把两个合成台 (新增合成表保存,|lf快速填充等功能), 两个熔炉与一些模块化存储装置结合在一起
+tile.enderutilities.ender_furnace.tooltips=- 比原版熔炉更快|lf  (普通模式下3秒产出一件物品, )|lf- 可以用末影珍珠, 末影之眼和烈焰粉末当作燃料|lf- 也可以用从流体容器中输出的岩浆作为燃料|lf  例如末影桶或TE4中的Portable Tanks|lf- 它也可以在无燃料的情况下工作 (每60秒产出一件物品)|lf- 缓慢模式下每个燃料的持续时间比在原版熔炉中|lf  高出1.5倍|lf- 快速模式下燃料的消耗速度比在缓慢模式中高出6倍|lf  (等于0.75倍于原版熔炉)|lf- 末影熔炉可以直接将成品输出到所有者的原版末影箱子|lf- 它本身就拥有一个可提供缓存1024件成品的输出槽位
+tile.enderutilities.ender_infuser.tooltips=- 可充能末影电容|lf- 使用末影珍珠或末影之眼作为"燃料"|lf- One of the three charging options atm
+tile.enderutilities.ender_elevator_white.tooltips=- 让实体于最近的, 颜色相同的两个电梯间上下传送Teleports an entity to the closest matching colored elevator|lf- 最大传送范围是垂直256格的高度, 水平64格的长度|lf- 跳跃向上, 潜行向下|lf- 也可被红石信号所激活 (rising edge)|lf- 信号强度小于8则向上|lf  大于或等于8时则向下|lf- 用染料右击一个电梯就可对其覆盖染色
 tile.enderutilities.energybridge_transmitter.tooltips=- 开启的能量桥可自动的给|lf  组装在模块化工具上的|lf  末影电容充能|lf  模块化工具须在玩家背包中|lf- 你需要在末地放置一台发送器|lf- 当然它并不需要加载区块就能工作|lf  (it doesn't actually actively do anything)|lf- 将发送器放置在末影水晶附近|lf  (即在末地的黑曜石柱顶部)|lf- 在水晶上保留两格的空气方块|lf  然后放置一台发送器|lf- 将四台谐振器放置在和末影水晶同一高度|lf  且距离它两格空方块的位置上|lf- 每台谐振器必须面向水晶|lf  (建议在背向水晶时放置它们)|lf- 发送器的上方直到天空|lf  只可存在透明方块
 tile.enderutilities.energybridge_receiver.tooltips=- 开启的能量桥可自动的给|lf  组装在模块化工具上的|lf  末影电容充能|lf  模块化工具须在玩家背包中|lf- 你需要在身处的维度中安置一台接收器|lf  才能使其工作|lf- 当然它并不需要加载区块就能工作|lf  (it doesn't actually actively do anything)|lf- 将接收器放置在四台|lf- 同一高度的谐振器的中央|lf  并与每台谐振器保持两格的空气方块|lf- 每台谐振器必须面向接收器|lf  (建议在背向接收器时放置它们)|lf- 接收器的上方直到天空|lf  与下方直到基岩|lf  只可存在透明方块
 tile.enderutilities.energybridge_resonator.tooltips=- 查看发送器与接收器的描述|lf- 谐振器之间必须不存在任何阻拦物|lf  (因为在谐振器之间, 以及谐振器和接收器之间|lf  会产生对角射线)
-tile.enderutilities.handychest_0.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
-tile.enderutilities.handychest_1.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
-tile.enderutilities.handychest_2.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
-tile.enderutilities.handychest_3.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
-tile.enderutilities.memorychest_0.tooltips=每个格子都能固定存放一种种类的物品
-tile.enderutilities.memorychest_1.tooltips=每个格子都能固定存放一种种类的物品
-tile.enderutilities.memorychest_2.tooltips=每个格子都能固定存放一种种类的物品
-tile.enderutilities.quickstackeradvanced.tooltips=- 一个更多功能化的, 台桌式的快速整理器
-tile.enderutilities.toolworkstation.tooltips=- 用来对模块化工具中的模块进行存取
+tile.enderutilities.handy_chest_0.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
+tile.enderutilities.handy_chest_1.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
+tile.enderutilities.handy_chest_2.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
+tile.enderutilities.handy_chest_3.tooltips=- 便捷的物品栏管理器|lf- 中键互换两组物品|lf  的位置|lf- Shift+单击移动按钮|lf  以设置它为一个快捷操作|lf- 双击箱子|lf  执行选定的快捷操作
+tile.enderutilities.memory_chest_0.tooltips=每个格子都能固定存放一种种类的物品
+tile.enderutilities.memory_chest_1.tooltips=每个格子都能固定存放一种种类的物品
+tile.enderutilities.memory_chest_2.tooltips=每个格子都能固定存放一种种类的物品
+tile.enderutilities.quick_stacker_advanced.tooltips=- 一个更多功能化的, 台桌式的快速整理器
+tile.enderutilities.tool_workstation.tooltips=- 用来对模块化工具中的模块进行存取
 
 ###################################
 # GUI and item labels/tooltips etc:
@@ -198,15 +183,15 @@ tile.enderutilities.toolworkstation.tooltips=- 用来对模块化工具中的模
 
 enderutilities.gui.infoarea.inventoryswapper=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行交易操作|lf- 中键切换到单个格子
 enderutilities.gui.infoarea.quickstacker=- 玩家物品栏中被标记为蓝色|lf  的格子可以进行快速整理|lf- 中键切换到单个格子|lf- 默认情况下仅移动出现在|lf  目标物品栏中的物品|lf- 使用模式键来启动|lf- 潜行状态下移动所有蓝色格子中的物品|lf- Can also be sneak + right clicked on|lf  inventories to quick stack matching items to|lf  that inventory
-enderutilities.gui.infoarea.quickstackeradvanced=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
+enderutilities.gui.infoarea.quick_stacker_advanced=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Double left-click the block to activate|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 
 enderutilities.gui.label.blacklist=黑名单
 enderutilities.gui.label.blockquickactions=禁用快捷操作
 enderutilities.gui.label.builderswand.template=模板名称
 enderutilities.gui.label.clearcraftinggrid=清空表格
 enderutilities.gui.label.portalpanel.dyeslot=染色
-enderutilities.gui.label.enderinfuser.input=末影珍珠或末影之眼
-enderutilities.gui.label.enderinfuser.chargeableinput=可充能的物品
+enderutilities.gui.label.ender_infuser.input=末影珍珠或末影之眼
+enderutilities.gui.label.ender_infuser.chargeableinput=可充能的物品
 enderutilities.gui.label.fillstacks=填满所有物品组
 enderutilities.gui.label.filtergroup.disabled=忽略这组过滤设置
 enderutilities.gui.label.filtergroup.enabled=使用这组过滤设置
@@ -214,7 +199,7 @@ enderutilities.gui.label.filterpresets=预设过滤设置
 enderutilities.gui.label.filters.disabled=无视过滤设置
 enderutilities.gui.label.filters.enabled=采用过滤设置
 enderutilities.gui.label.holdshifttoincludehotbar=(按住Shift应用到快捷栏)
-enderutilities.gui.label.toolworkstation.itemtorename=改名物品
+enderutilities.gui.label.tool_workstation.itemtorename=改名物品
 enderutilities.gui.label.leaveonefilledstack=保留一组各种类物品
 enderutilities.gui.label.leaveoneitemongrid=保留单个物品
 enderutilities.gui.label.memorycards=内存卡
@@ -235,8 +220,8 @@ enderutilities.gui.label.renameitems=重命名物品
 enderutilities.gui.label.setname=设置名称
 enderutilities.gui.label.settargetname=设置目标名称
 enderutilities.gui.label.sortitems=排序物品
-enderutilities.gui.label.toolworkstation.tool=改造工具或物品
-enderutilities.gui.label.toolworkstation.useemptynametoreset=保存为空白可恢复到默认名称
+enderutilities.gui.label.tool_workstation.tool=改造工具或物品
+enderutilities.gui.label.tool_workstation.useemptynametoreset=保存为空白可恢复到默认名称
 enderutilities.gui.label.transportitemsslot=把物品远程传送至容器中
 enderutilities.gui.label.use.areablock=使用方块周围区域
 enderutilities.gui.label.use.areaplayer=使用玩家周围区域

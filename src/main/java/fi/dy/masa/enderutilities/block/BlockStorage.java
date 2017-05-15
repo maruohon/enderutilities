@@ -110,7 +110,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
             case HANDY_CHEST_2:
             case HANDY_CHEST_3:
                 TileEntityHandyChest tehc = new TileEntityHandyChest();
-                tehc.setStorageTier(state.getValue(TYPE).getTier());
+                tehc.setStorageTier(worldIn, state.getValue(TYPE).getTier());
                 return tehc;
 
             case JSU:

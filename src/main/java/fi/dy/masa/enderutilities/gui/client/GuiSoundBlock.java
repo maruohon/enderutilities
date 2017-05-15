@@ -44,7 +44,7 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
 
     public GuiSoundBlock(ContainerSoundBlock container, TileEntitySoundBlock te)
     {
-        super(container, 176, 256, "gui.container.sound_block");
+        super(container, 176, 256, "gui.container." + te.getTEName());
 
         this.tesb = te;
         this.scrollBar = new ScrollBar(0, 152, 38, 212, 0, 12, 98, 0, this, this.guiTexture);
@@ -90,10 +90,10 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
             this.fontRenderer.drawString(this.selectedName, 8, 140, 0x404040);
         }
 
-        String str = I18n.format("enderutilities.gui.label.soundblock.pitch") + String.format(": %.3f", this.tesb.getPitch());
+        String str = I18n.format("enderutilities.gui.label.sound_block.pitch") + String.format(": %.3f", this.tesb.getPitch());
         this.fontRenderer.drawString(str, 60, 152, 0x404040);
 
-        str = I18n.format("enderutilities.gui.label.soundblock.volume") + String.format(": %.3f", this.tesb.getVolume());
+        str = I18n.format("enderutilities.gui.label.sound_block.volume") + String.format(": %.3f", this.tesb.getVolume());
         this.fontRenderer.drawString(str, 60, 163, 0x404040);
     }
 
@@ -289,23 +289,23 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
         int y = (this.height - this.ySize) / 2;
 
         this.buttonList.add(new GuiButtonStateCallback(0, x + 38, y + 152, 8, 8, 8, 0, this.guiTextureWidgets, this,
-                ButtonState.createTranslate(0, 40, "enderutilities.gui.label.soundblock.repeat.disabled"),
-                ButtonState.createTranslate(0, 88, "enderutilities.gui.label.soundblock.repeat.enabled")));
+                ButtonState.createTranslate(0, 40, "enderutilities.gui.label.sound_block.repeat.disabled"),
+                ButtonState.createTranslate(0, 88, "enderutilities.gui.label.sound_block.repeat.enabled")));
 
         this.buttonList.add(new GuiButtonHoverText(1, x + 49, y + 152, 8, 8, 0, 120,
-                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.soundblock.pitch"));
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sound_block.pitch"));
 
         this.buttonList.add(new GuiButtonHoverText(2, x + 49, y + 163, 8, 8, 0, 120,
-                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.soundblock.volume"));
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.sound_block.volume"));
 
         this.buttonList.add(new GuiButtonHoverText(10, x + 8, y + 152, 12, 12, 176, 0,
-                this.guiTexture, 12, 0, "enderutilities.gui.label.soundblock.play"));
+                this.guiTexture, 12, 0, "enderutilities.gui.label.sound_block.play"));
 
         this.buttonList.add(new GuiButtonHoverText(11, x + 23, y + 152, 12, 12, 176, 24,
-                this.guiTexture, 12, 0, "enderutilities.gui.label.soundblock.stop"));
+                this.guiTexture, 12, 0, "enderutilities.gui.label.sound_block.stop"));
 
         this.buttonList.add(new GuiButtonHoverText(20, x + 152, y + 24, 12, 12, 176, 48,
-                this.guiTexture, 12, 0, "enderutilities.gui.label.soundblock.clear"));
+                this.guiTexture, 12, 0, "enderutilities.gui.label.sound_block.clear"));
     }
 
     @Override

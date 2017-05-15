@@ -50,7 +50,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
                 ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER,
                 ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION,
                 ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION,
-                ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED
+                ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED
         };
     }
 
@@ -135,7 +135,7 @@ public class BlockMachine extends BlockEnderUtilitiesInventory
         ENDER_INFUSER       (0, ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER),
         TOOL_WORKSTATION    (1, ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION),
         CREATION_STATION    (2, ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION),
-        QUICK_STACKER       (3, ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        QUICK_STACKER       (3, ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED);
 
         private final String name;
         private final int meta;

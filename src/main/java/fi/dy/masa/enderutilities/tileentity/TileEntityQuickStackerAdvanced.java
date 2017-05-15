@@ -73,7 +73,7 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
 
     public TileEntityQuickStackerAdvanced()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED);
+        super(ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_TARGET_INVENTORIES * 2, 1, false, "Items", this);
         this.inventoryFiltersAreaMode = new ItemStackHandlerTileEntity(1, 36, 1, false, "FilterItems", this);

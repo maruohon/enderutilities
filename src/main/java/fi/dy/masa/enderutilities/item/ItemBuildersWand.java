@@ -49,6 +49,7 @@ import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -2331,7 +2332,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (saveDir != null)
         {
-            return new TemplateManagerEU(new File(new File(saveDir, Reference.MOD_ID), this.name));
+            return new TemplateManagerEU(new File(new File(saveDir, Reference.MOD_ID), this.name), FMLCommonHandler.instance().getDataFixer());
         }
 
         return null;

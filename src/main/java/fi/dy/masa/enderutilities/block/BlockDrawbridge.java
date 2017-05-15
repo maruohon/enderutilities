@@ -46,8 +46,8 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_DRAWBRIDGE,
-                ReferenceNames.NAME_TILE_DRAWBRIDGE + "_advanced"
+                ReferenceNames.NAME_TILE_DRAW_BRIDGE,
+                ReferenceNames.NAME_TILE_DRAW_BRIDGE + "_advanced"
         };
     }
 
@@ -63,8 +63,8 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     {
         ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
         item.setHasPlacementProperties(true);
-        item.addPlacementProperty("drawbridge.delay", Constants.NBT.TAG_INT, 1, 72000);
-        item.addPlacementProperty("drawbridge.length", Constants.NBT.TAG_BYTE, 1, 64);
+        item.addPlacementProperty("draw_bridge.delay", Constants.NBT.TAG_INT, 1, 72000);
+        item.addPlacementProperty("draw_bridge.length", Constants.NBT.TAG_BYTE, 1, 64);
         return item;
     }
 

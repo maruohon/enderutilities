@@ -58,7 +58,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     public TileEntityBarrel()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_BARREL, true);
+        super(ReferenceNames.NAME_TILE_BARREL, true);
 
         this.initStorage();
     }

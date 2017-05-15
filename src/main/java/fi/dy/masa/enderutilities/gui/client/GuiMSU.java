@@ -49,7 +49,8 @@ public class GuiMSU extends GuiContainerLargeStacks implements IButtonStateCallb
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        this.fontRenderer.drawString(I18n.format("enderutilities.container.msu." + this.tier), 8, 5, 0x404040);
+        String str = this.temsu.hasCustomName() ? this.temsu.getName() : I18n.format("enderutilities.container.msu." + this.tier);
+        this.fontRenderer.drawString(str, 8, 5, 0x404040);
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 46, 0x404040);
     }
 

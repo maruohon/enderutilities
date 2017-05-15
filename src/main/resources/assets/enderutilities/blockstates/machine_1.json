@@ -6,36 +6,36 @@
     },
     "variants": {
         "type": {
-            "creationstation": {
+            "creation_station": {
                 "textures": {
-                    "front":    "enderutilities:blocks/creationstation_front",
-                    "side":     "enderutilities:blocks/creationstation_side",
-                    "top":      "enderutilities:blocks/creationstation_top",
-                    "bottom":   "enderutilities:blocks/creationstation_side"
+                    "front":    "enderutilities:blocks/creation_station_front",
+                    "side":     "enderutilities:blocks/creation_station_side",
+                    "top":      "enderutilities:blocks/creation_station_top",
+                    "bottom":   "enderutilities:blocks/creation_station_side"
                 }
             },
-            "enderinfuser":    {
+            "ender_infuser":    {
                 "textures": {
-                    "front":    "enderutilities:blocks/enderinfuser_front",
-                    "side":     "enderutilities:blocks/enderinfuser_side",
-                    "top":      "enderutilities:blocks/enderinfuser_top",
-                    "bottom":   "enderutilities:blocks/enderinfuser_bottom"
+                    "front":    "enderutilities:blocks/ender_infuser_front",
+                    "side":     "enderutilities:blocks/ender_infuser_side",
+                    "top":      "enderutilities:blocks/ender_infuser_top",
+                    "bottom":   "enderutilities:blocks/ender_infuser_bottom"
                 }
             },
-            "quickstackeradvanced":    {
+            "quick_stacker_advanced":    {
                 "textures": {
-                    "front":    "enderutilities:blocks/quickstackeradvanced_front",
-                    "side":     "enderutilities:blocks/enderinfuser_side",
-                    "top":      "enderutilities:blocks/enderinfuser_top",
-                    "bottom":   "enderutilities:blocks/enderinfuser_bottom"
+                    "front":    "enderutilities:blocks/quick_stacker_advanced_front",
+                    "side":     "enderutilities:blocks/ender_infuser_side",
+                    "top":      "enderutilities:blocks/ender_infuser_top",
+                    "bottom":   "enderutilities:blocks/ender_infuser_bottom"
                 }
             },
-            "toolworkstation": {
+            "tool_workstation": {
                 "textures": {
-                    "front":    "enderutilities:blocks/toolworkstation_front",
-                    "side":     "enderutilities:blocks/toolworkstation_side",
-                    "top":      "enderutilities:blocks/toolworkstation_top",
-                    "bottom":   "enderutilities:blocks/toolworkstation_bottom"
+                    "front":    "enderutilities:blocks/tool_workstation_front",
+                    "side":     "enderutilities:blocks/tool_workstation_side",
+                    "top":      "enderutilities:blocks/tool_workstation_top",
+                    "bottom":   "enderutilities:blocks/tool_workstation_bottom"
                 }
             }
         },

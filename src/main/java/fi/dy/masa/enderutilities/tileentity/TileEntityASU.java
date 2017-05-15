@@ -25,7 +25,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 
     public TileEntityASU()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ASU);
+        super(ReferenceNames.NAME_TILE_ASU);
 
         this.initStorage();
     }

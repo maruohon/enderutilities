@@ -39,10 +39,10 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     static
     {
         IBlockState defaultState = EnderUtilitiesBlocks.ENERGY_BRIDGE.getDefaultState();
-        IProperty<BlockEnergyBridge.EnumMachineType> type = BlockEnergyBridge.TYPE;
-        BlockEnergyBridge.EnumMachineType transmitter = BlockEnergyBridge.EnumMachineType.TRANSMITTER;
-        BlockEnergyBridge.EnumMachineType receiver = BlockEnergyBridge.EnumMachineType.RECEIVER;
-        BlockEnergyBridge.EnumMachineType resonator = BlockEnergyBridge.EnumMachineType.RESONATOR;
+        IProperty<BlockEnergyBridge.BridgeType> type = BlockEnergyBridge.TYPE;
+        BlockEnergyBridge.BridgeType transmitter = BlockEnergyBridge.BridgeType.TRANSMITTER;
+        BlockEnergyBridge.BridgeType receiver = BlockEnergyBridge.BridgeType.RECEIVER;
+        BlockEnergyBridge.BridgeType resonator = BlockEnergyBridge.BridgeType.RESONATOR;
 
         STRUCTURE_TRANSMITTER[0] = new BlockInfo(BlockPos.ORIGIN.up(3),    defaultState.withProperty(type, transmitter).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.NORTH));
         STRUCTURE_TRANSMITTER[1] = new BlockInfo(BlockPos.ORIGIN.north(3), defaultState.withProperty(type, resonator).withProperty(BlockEnderUtilities.FACING_H, EnumFacing.SOUTH));
@@ -59,7 +59,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     public TileEntityEnergyBridge()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);
+        super(ReferenceNames.NAME_TILE_ENERGY_BRIDGE);
         this.timer = 0;
     }
 

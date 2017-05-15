@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -196,12 +197,12 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
         return this.chestTier;
     }
 
-    public void setStorageTier(int tier)
+    public void setStorageTier(World world, int tier)
     {
         this.chestTier = MathHelper.clamp(tier, 0, MAX_TIER);
         this.invSize = INV_SIZES[this.chestTier];
 
-        this.initStorage(this.invSize, this.getWorld().isRemote);
+        this.initStorage(this.invSize, world.isRemote);
     }
 
     @Override

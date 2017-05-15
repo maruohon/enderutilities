@@ -448,8 +448,8 @@ public class ConfigReader
 
         prop = getProp(currentCategory, "livingMatterManipulatorBlackList",
                 new String[] {
-                        "EnderDragon",
-                        "WitherBoss"
+                        "minecraft:ender_dragon",
+                        "minecraft:wither"
                         }, false);
         prop.setComment("List of entity names the LMM is not allowed to store, if 'livingMatterManipulatorListType' is 'blacklist'.");
         Configs.lmmBlacklist = prop.getStringList();
@@ -460,9 +460,9 @@ public class ConfigReader
 
         prop = getProp(currentCategory, "teleportBlackList",
                 new String[] {
-                        "EnderDragon",
-                        "EnderCrystal",
-                        "WitherBoss"
+                        "minecraft:ender_dragon",
+                        "minecraft:ender_crystal",
+                        "minecraft:wither"
                         }, false);
         prop.setComment("Entities that are not allowed to be teleported using any methods");
         Configs.teleportBlacklist = prop.getStringList();

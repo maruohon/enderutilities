@@ -24,8 +24,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
 {
     public static final PropertyBool ACTIVE = PropertyBool.create("active");
-    public static final PropertyEnum<BlockEnergyBridge.EnumMachineType> TYPE =
-            PropertyEnum.<BlockEnergyBridge.EnumMachineType>create("type", BlockEnergyBridge.EnumMachineType.class);
+    public static final PropertyEnum<BridgeType> TYPE =
+            PropertyEnum.<BridgeType>create("type", BridgeType.class);
 
     public BlockEnergyBridge(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -34,7 +34,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
         this.setDefaultState(this.getBlockState().getBaseState()
                 .withProperty(ACTIVE, false)
                 .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING)
-                .withProperty(TYPE, BlockEnergyBridge.EnumMachineType.RESONATOR));
+                .withProperty(TYPE, BridgeType.RESONATOR));
     }
 
     @Override
@@ -47,9 +47,9 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR,
-                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER,
-                ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER
+                BridgeType.RESONATOR.getName(),
+                BridgeType.RECEIVER.getName(),
+                BridgeType.TRANSMITTER.getName()
         };
     }
 
@@ -96,7 +96,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TYPE, EnumMachineType.fromMeta(meta));
+        return this.getDefaultState().withProperty(TYPE, BridgeType.fromMeta(meta));
     }
 
     @Override
@@ -129,22 +129,22 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int i = 0; i < EnumMachineType.values().length; i++)
+        for (int i = 0; i < BridgeType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, EnumMachineType.values()[i].getMeta()));
+            list.add(new ItemStack(item, 1, BridgeType.values()[i].getMeta()));
         }
     }
 
-    public static enum EnumMachineType implements IStringSerializable
+    public static enum BridgeType implements IStringSerializable
     {
-        RESONATOR   (0, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RESONATOR),
-        RECEIVER    (1, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_RECEIVER),
-        TRANSMITTER (2, ReferenceNames.NAME_TILE_ENERGY_BRIDGE_TRANSMITTER);
+        RESONATOR   (0, ReferenceNames.NAME_TILE_ENERGY_BRIDGE + "_resonator"),
+        RECEIVER    (1, ReferenceNames.NAME_TILE_ENERGY_BRIDGE + "_receiver"),
+        TRANSMITTER (2, ReferenceNames.NAME_TILE_ENERGY_BRIDGE + "_transmitter");
 
         private final String name;
         private final int meta;
 
-        private EnumMachineType(int meta, String name)
+        private BridgeType(int meta, String name)
         {
             this.meta = meta;
             this.name = name;
@@ -165,7 +165,7 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
             return this.meta;
         }
 
-        public static EnumMachineType fromMeta(int meta)
+        public static BridgeType fromMeta(int meta)
         {
             return meta < values().length ? values()[meta] : RESONATOR;
         }

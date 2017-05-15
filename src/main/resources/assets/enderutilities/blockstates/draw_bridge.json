@@ -4,18 +4,18 @@
         "model": "enderutilities:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":    "enderutilities:blocks/drawbridge_front_normal",
-            "top":      "enderutilities:blocks/drawbridge_side",
-            "bottom":   "enderutilities:blocks/drawbridge_side",
-            "left":     "enderutilities:blocks/drawbridge_side",
-            "right":    "enderutilities:blocks/drawbridge_side",
-            "back":     "enderutilities:blocks/drawbridge_back"
+            "front":    "enderutilities:blocks/draw_bridge_front_normal",
+            "top":      "enderutilities:blocks/draw_bridge_side",
+            "bottom":   "enderutilities:blocks/draw_bridge_side",
+            "left":     "enderutilities:blocks/draw_bridge_side",
+            "right":    "enderutilities:blocks/draw_bridge_side",
+            "back":     "enderutilities:blocks/draw_bridge_back"
         }
     },
     "variants": {
         "advanced": {
             "false": {},
-            "true": { "textures": { "front": "enderutilities:blocks/drawbridge_front_advanced" } }
+            "true": { "textures": { "front": "enderutilities:blocks/draw_bridge_front_advanced" } }
         },
         "facing": {
             "north": {},

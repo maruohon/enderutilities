@@ -22,10 +22,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
@@ -55,6 +57,7 @@ import fi.dy.masa.enderutilities.event.InputEventHandler;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
@@ -65,6 +68,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class ClientProxy extends CommonProxy
 {
+    private ModFixs dataFixer = null;
+
     @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
@@ -78,6 +83,20 @@ public class ClientProxy extends CommonProxy
                 EnderUtilities.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
         }
+    }
+
+    @Override
+    public ModFixs getDataFixer()
+    {
+        // On a server, the DataFixer gets created for and is stored inside MinecraftServer,
+        // but in single player the DataFixer is stored in the client Minecraft class
+        // over world reloads.
+        if (this.dataFixer == null)
+        {
+            this.dataFixer = FMLCommonHandler.instance().getDataFixer().init(Reference.MOD_ID, EnderUtilities.DATA_FIXER_VERSION);
+        }
+
+        return this.dataFixer;
     }
 
     @Override

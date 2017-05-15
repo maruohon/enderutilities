@@ -3,19 +3,19 @@
     "defaults": {
         "model": "enderutilities:orientable_ftbs",
         "textures": {
-            "front":  "#enderfurnace_front",
-            "side":   "enderutilities:blocks/enderfurnace_side",
-            "top":    "enderutilities:blocks/enderfurnace_top",
-            "bottom": "enderutilities:blocks/enderfurnace_top"
+            "front":  "#ender_furnace_front",
+            "side":   "enderutilities:blocks/ender_furnace_side",
+            "top":    "enderutilities:blocks/ender_furnace_top",
+            "bottom": "enderutilities:blocks/ender_furnace_top"
         },
         "transform": "forge:default-block"
     },
     "variants": {
         "mode": {
-            "off":       { "textures": { "enderfurnace_front": "enderutilities:blocks/enderfurnace_front_off"       } },
-            "on_nofuel": { "textures": { "enderfurnace_front": "enderutilities:blocks/enderfurnace_front_on_nofuel" } },
-            "on_normal": { "textures": { "enderfurnace_front": "enderutilities:blocks/enderfurnace_front_on_normal" } },
-            "on_fast":   { "textures": { "enderfurnace_front": "enderutilities:blocks/enderfurnace_front_on_fast"   } }
+            "off":       { "textures": { "ender_furnace_front": "enderutilities:blocks/ender_furnace_front_off"       } },
+            "on_nofuel": { "textures": { "ender_furnace_front": "enderutilities:blocks/ender_furnace_front_on_nofuel" } },
+            "on_normal": { "textures": { "ender_furnace_front": "enderutilities:blocks/ender_furnace_front_on_normal" } },
+            "on_fast":   { "textures": { "ender_furnace_front": "enderutilities:blocks/ender_furnace_front_on_fast"   } }
         },
         "facing": {
             "north": {},

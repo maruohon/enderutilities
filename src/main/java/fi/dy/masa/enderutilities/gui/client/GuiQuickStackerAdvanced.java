@@ -24,9 +24,9 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities implements IButto
 
     public GuiQuickStackerAdvanced(ContainerQuickStackerAdvanced container, TileEntityQuickStackerAdvanced te)
     {
-        super(container, 192, 256, "gui.container.quickstacker.advanced");
+        super(container, 192, 256, "gui.container." + te.getTEName());
 
-        this.infoArea = new InfoArea(176, 4, 11, 11, "enderutilities.gui.infoarea.quickstackeradvanced");
+        this.infoArea = new InfoArea(176, 4, 11, 11, "enderutilities.gui.infoarea." + te.getTEName());
         this.teqsa = te;
     }
 
@@ -40,7 +40,7 @@ public class GuiQuickStackerAdvanced extends GuiEnderUtilities implements IButto
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        String str = I18n.format("enderutilities.container.quickstacker.advanced");
+        String str = this.teqsa.hasCustomName() ? this.teqsa.getName() : I18n.format(this.teqsa.getName());
         this.fontRenderer.drawString(str, this.xSize / 2 - this.fontRenderer.getStringWidth(str) / 2, 5, 0x404040);
     }
 

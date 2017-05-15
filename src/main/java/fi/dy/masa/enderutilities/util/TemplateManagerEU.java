@@ -13,6 +13,9 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 
@@ -22,13 +25,15 @@ public class TemplateManagerEU
     protected final Map<String, TemplateEnderUtilities> templates;
     protected final Map<String, TemplateMetadata> templateMetas;
     protected final File directory;
+    private final DataFixer fixer;
 
-    public TemplateManagerEU(File directory)
+    public TemplateManagerEU(File directory, DataFixer dataFixer)
     {
         this.server = FMLCommonHandler.instance().getMinecraftServerInstance();
         this.templates = Maps.<String, TemplateEnderUtilities>newHashMap();
         this.templateMetas = Maps.<String, TemplateMetadata>newHashMap();
         this.directory = directory;
+        this.fixer = dataFixer;
     }
 
     public TemplateEnderUtilities getTemplate(ResourceLocation id)
@@ -79,8 +84,14 @@ public class TemplateManagerEU
     private void readTemplateFromStream(String id, InputStream stream) throws IOException
     {
         NBTTagCompound nbt = CompressedStreamTools.readCompressed(stream);
+
+        if (nbt.hasKey("DataVersion", Constants.NBT.TAG_ANY_NUMERIC) == false)
+        {
+            nbt.setInteger("DataVersion", 500);
+        }
+
         TemplateEnderUtilities template = new TemplateEnderUtilities();
-        template.read(nbt);
+        template.read(this.fixer.process(FixTypes.STRUCTURE, nbt));
         this.templates.put(id, template);
     }
 
@@ -120,7 +131,7 @@ public class TemplateManagerEU
             }
             catch (IOException e)
             {
-                EnderUtilities.logger.warn("Failed to write template to file '{}'", templateFile);
+                EnderUtilities.logger.warn("Failed to write template to file '{}'", templateFile, e);
             }
             finally
             {

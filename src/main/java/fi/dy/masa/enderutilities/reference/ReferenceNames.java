@@ -5,8 +5,8 @@ public class ReferenceNames
     public static final String NAME_ENTITY_ENDER_ARROW          = "enderarrow";
     public static final String NAME_ENTITY_ENDER_PEARL_REUSABLE = "enderpearlreusable";
     public static final String NAME_ENTITY_ENDERMAN_FIGHTER     = "endermanfighter";
-    public static final String NAME_ENTITY_CHAIR                = Reference.MOD_ID + ":chair";
-    public static final String NAME_ENTITY_FALLING_BLOCK        = Reference.MOD_ID + ":fallingblock";
+    public static final String NAME_ENTITY_CHAIR                = "chair";
+    public static final String NAME_ENTITY_FALLING_BLOCK        = "fallingblock";
 
     public static final String NAME_ITEM_ENDERPART                  = "enderpart";
     public static final String NAME_ITEM_ENDERPART_BARREL_UPGRADE   = "barrel_upgrade";
@@ -56,40 +56,37 @@ public class ReferenceNames
     public static final String NAME_ITEM_VOID_PICKAXE           = "void_pickaxe";
 
 
-    public static final String NAME_TILE_DRAWBRIDGE             = "drawbridge";
-    public static final String NAME_TILE_ENDER_ELEVATOR         = "enderelevator";
-    public static final String NAME_TILE_ENDER_ELEVATOR_SLAB    = "enderelevator_slab";
-    public static final String NAME_TILE_ENDER_ELEVATOR_LAYER   = "enderelevator_layer";
-    public static final String NAME_TILE_ENERGY_BRIDGE          = "energybridge";
+    /*******************
+     * NOTE: Remember to keep the data fixers (in util.datafixers.*) up-to-date!
+     ******************/
+    public static final String NAME_TILE_ASU                    = "asu";
+    public static final String NAME_TILE_BARREL                 = "barrel";
+    public static final String NAME_TILE_DRAW_BRIDGE            = "draw_bridge";
+    public static final String NAME_TILE_ENDER_ELEVATOR         = "ender_elevator";
+    public static final String NAME_TILE_ENDER_ELEVATOR_SLAB    = "ender_elevator_slab";
+    public static final String NAME_TILE_ENDER_ELEVATOR_LAYER   = "ender_elevator_layer";
+    public static final String NAME_TILE_ENERGY_BRIDGE          = "energy_bridge";
     public static final String NAME_TILE_FLOOR                  = "floor";
     public static final String NAME_TILE_FRAME                  = "frame";
     public static final String NAME_TILE_INSERTER               = "inserter";
     public static final String NAME_TILE_MACHINE_0              = "machine_0";
     public static final String NAME_TILE_MACHINE_1              = "machine_1";
     public static final String NAME_TILE_MOLECULAR_EXCITER      = "molecular_exciter";
+    public static final String NAME_TILE_MSU                    = "msu";
     public static final String NAME_TILE_PHASING                = "phasing";
     public static final String NAME_TILE_PORTAL                 = "portal";
     public static final String NAME_TILE_PORTAL_PANEL           = "portal_panel";
+    public static final String NAME_TILE_QUICK_STACKER_ADVANCED = "quick_stacker_advanced";
     public static final String NAME_TILE_SOUND_BLOCK            = "sound_block";
     public static final String NAME_TILE_STORAGE_0              = "storage_0";
 
-    public static final String NAME_TILE_ENERGY_BRIDGE_TRANSMITTER   = "energybridge_transmitter";
-    public static final String NAME_TILE_ENERGY_BRIDGE_RECEIVER      = "energybridge_receiver";
-    public static final String NAME_TILE_ENERGY_BRIDGE_RESONATOR     = "energybridge_resonator";
-
-
-    public static final String NAME_TILE_ENTITY_ASU                  = "asu";
-    public static final String NAME_TILE_ENTITY_BARREL               = "barrel";
-    public static final String NAME_TILE_ENTITY_CREATION_STATION     = "creationstation";
-    public static final String NAME_TILE_ENTITY_ENDER_FURNACE        = "enderfurnace";
-    public static final String NAME_TILE_ENTITY_ENDER_INFUSER        = "enderinfuser";
-    public static final String NAME_TILE_ENTITY_ENERGY_BRIDGE        = "energybridge";
-    public static final String NAME_TILE_ENTITY_HANDY_CHEST          = "handychest";
-    public static final String NAME_TILE_ENTITY_JSU                  = "jsu";
-    public static final String NAME_TILE_ENTITY_MSU                  = "msu";
-    public static final String NAME_TILE_ENTITY_MEMORY_CHEST         = "memorychest";
-    public static final String NAME_TILE_ENTITY_QUICK_STACKER_ADVANCED = "quickstackeradvanced";
-    public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION     = "toolworkstation";
+    public static final String NAME_TILE_ENTITY_CREATION_STATION    = "creation_station";
+    public static final String NAME_TILE_ENTITY_ENDER_FURNACE       = "ender_furnace";
+    public static final String NAME_TILE_ENTITY_ENDER_INFUSER       = "ender_infuser";
+    public static final String NAME_TILE_ENTITY_HANDY_CHEST         = "handy_chest";
+    public static final String NAME_TILE_ENTITY_JSU                 = "jsu";
+    public static final String NAME_TILE_ENTITY_MEMORY_CHEST        = "memory_chest";
+    public static final String NAME_TILE_ENTITY_TOOL_WORKSTATION    = "tool_workstation";
 
 
     public static final String NAME_MATERIAL_ENDERALLOY_ADVANCED = Reference.MOD_ID + "_enderalloy_advanced";
