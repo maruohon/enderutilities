@@ -253,20 +253,6 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return moduleStack.isEmpty() ? 0 : NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current");
     }
 
-    /*
-    public void setCurrentIndex(ItemStack containerStack, byte index)
-    {
-        ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
-        if (moduleStack == null)
-        {
-            return;
-        }
-
-        NBTUtils.setByte(moduleStack, WRAPPER_TAG_NAME, "Current", index);
-        this.setSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC, moduleStack);
-    }
-    */
-
     @Nullable
     private String getEntityName(ItemStack containerStack, int index, boolean useDisplayNameFormatting)
     {

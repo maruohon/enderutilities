@@ -666,7 +666,7 @@ public class NBTUtils
                 NBTTagCompound tag = tagList.getCompoundTagAt(i);
                 ItemStack stackTmp = loadItemStackFromTag(tag);
 
-                if (stackTmp != null)
+                if (stackTmp.isEmpty() == false)
                 {
                     stacks.add(stackTmp);
                 }

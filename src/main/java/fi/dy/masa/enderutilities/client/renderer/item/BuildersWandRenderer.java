@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -510,10 +511,12 @@ public class BuildersWandRenderer
         if (index >= 0)
         {
             BlockInfo blockInfo = wand.getSelectedFixedBlockType(stack, secondary);
+
             if (blockInfo != null)
             {
                 ItemStack blockStack = new ItemStack(blockInfo.block, 1, blockInfo.itemMeta);
-                if (blockStack != null && blockStack.getItem() != null)
+
+                if (blockStack.isEmpty() == false && blockStack.getItem() != null && blockStack.getItem() != Items.AIR)
                 {
                     return TextFormatting.GREEN.toString() + blockStack.getDisplayName();
                 }

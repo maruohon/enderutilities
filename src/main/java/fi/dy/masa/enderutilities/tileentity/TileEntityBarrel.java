@@ -244,7 +244,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     {
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
-            if (this.itemHandlerUpgrades.getStackInSlot(0) == null)
+            if (this.itemHandlerUpgrades.getStackInSlot(0).isEmpty())
             {
                 this.labels.clear();
             }

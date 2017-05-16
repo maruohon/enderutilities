@@ -201,7 +201,7 @@ public class OwnerData
     /*
     public static boolean isOwnerOfItem(ItemStack stack, Entity entity)
     {
-        if (stack != null && stack.getTagCompound() != null)
+        if (stack.isEmpty() == false && stack.getTagCompound() != null)
         {
             OwnerData data = getOwnerDataFromItem(stack);
             return data != null && data.isOwner(entity);

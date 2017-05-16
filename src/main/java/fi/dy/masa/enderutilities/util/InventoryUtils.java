@@ -488,7 +488,7 @@ public class InventoryUtils
 
     /**
      * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize).
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @return The slot number of the first slot with a matching ItemStack, or -1 if there were no matches.
      */
     public static int getSlotOfFirstMatchingItemStack(IItemHandler inv, @Nonnull ItemStack stackIn)
@@ -498,7 +498,7 @@ public class InventoryUtils
 
     /**
      * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize) within the given slot range.
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @return The slot number of the first slot with a matching ItemStack, or -1 if there were no matches.
      */
     public static int getSlotOfFirstMatchingItemStackWithinSlotRange(IItemHandler inv, @Nonnull ItemStack stackIn, SlotRange slotRange)
@@ -520,7 +520,7 @@ public class InventoryUtils
 
     /**
      * Get the slot number of the last slot containing a matching ItemStack (including NBT, ignoring stackSize).
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @param inv
      * @param item
      * @return The slot number of the last slot with a matching ItemStack, or -1 if there were no matches.
@@ -532,7 +532,7 @@ public class InventoryUtils
 
     /**
      * Get the slot number of the last slot containing a matching ItemStack (including NBT, ignoring stackSize) within the given slot range.
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @return The slot number of the last slot with a matching ItemStack, or -1 if there were no matches.
      */
     public static int getSlotOfLastMatchingItemStackWithinSlotRange(IItemHandler inv, @Nonnull ItemStack stackIn, SlotRange slotRange)
@@ -591,7 +591,7 @@ public class InventoryUtils
 
     /**
      * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize).
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
      */
     public static List<Integer> getSlotNumbersOfMatchingStacks(IItemHandler inv, @Nonnull ItemStack stackIn)
@@ -601,7 +601,7 @@ public class InventoryUtils
 
     /**
      * Get all the slot numbers that have matching ItemStacks (including NBT, ignoring stackSize) within the given slot range.
-     * Note: stackIn can be null.
+     * Note: stackIn can be empty.
      * @return an ArrayList containing the slot numbers of the slots with matching ItemStacks
      */
     public static List<Integer> getSlotNumbersOfMatchingStacksWithinSlotRange(IItemHandler inv, @Nonnull ItemStack stackIn, SlotRange slotRange)
