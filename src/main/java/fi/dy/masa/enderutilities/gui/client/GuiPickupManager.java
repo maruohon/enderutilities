@@ -9,8 +9,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
-import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
+import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
+import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerPickupManager;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItem;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModules;
@@ -22,7 +24,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
-public class GuiPickupManager extends GuiContainerLargeStacks
+public class GuiPickupManager extends GuiContainerLargeStacks implements IButtonStateCallback
 {
     public static final int NUM_LINK_CRYSTAL_SLOTS = 3;
 
@@ -51,13 +53,6 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     {
         super.initGui();
         this.createButtons();
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks)
-    {
-        this.createButtons(); // Re-create the buttons to reflect the current state
-        super.drawScreen(mouseX, mouseY, gameTicks);
     }
 
     @Override
@@ -163,19 +158,6 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         }
     }
 
-    protected void addConditionalButton(int id, int x, int y, int w, int h, ItemStack stack, String tag,
-            int u1, int v1, int u2, int v2, String s1, String s2)
-    {
-        if (ItemPickupManager.getSettingValue(stack, tag) == 0)
-        {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u1, v1, this.guiTextureWidgets, w, 0, s1));
-        }
-        else
-        {
-            this.buttonList.add(new GuiButtonHoverText(id, x, y, w, h, u2, v2, this.guiTextureWidgets, w, 0, s2));
-        }
-    }
-
     protected void createButtons()
     {
         this.buttonList.clear();
@@ -183,57 +165,91 @@ public class GuiPickupManager extends GuiContainerLargeStacks
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        int id = 0;
         // Add the Link Crystal selection buttons
         for (int i = 0; i < NUM_LINK_CRYSTAL_SLOTS; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 120 + i * 18, y + 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(i, x + 120 + i * 18, y + 18, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
         }
 
         // Add the preset selection buttons
         for (int i = 0; i < ItemPickupManager.NUM_PRESETS; i++)
         {
-            this.buttonList.add(new GuiButtonIcon(id++, x + 102 + i * 18, y + 163, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
+            this.buttonList.add(new GuiButtonIcon(i + 3, x + 102 + i * 18, y + 163, 8, 8, 0, 128 + i * 8, this.guiTextureWidgets, 8, 0));
         }
-
-        ItemStack containerStack = this.containerPickupManager.getContainerItem();
 
         // Add the transport filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  9, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED,
-                60, 98, 60, 28, "enderutilities.gui.label.filtergroup.disabled", "enderutilities.gui.label.filtergroup.enabled");
+        this.buttonList.add(new GuiButtonStateCallback( 7, x +  9, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.filtergroup.disabled"),
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.filtergroup.enabled")));
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 27, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_MODE,
-                60, 70, 60, 84, "enderutilities.gui.label.blacklist", "enderutilities.gui.label.whitelist");
+        this.buttonList.add(new GuiButtonStateCallback( 8, x + 27, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 70, "enderutilities.gui.label.blacklist"),
+                ButtonState.createTranslate(60, 84, "enderutilities.gui.label.whitelist")));
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 45, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_META,
-                60, 112, 60, 126, "enderutilities.gui.label.meta.match", "enderutilities.gui.label.meta.ignore");
+        this.buttonList.add(new GuiButtonStateCallback( 9, x + 45, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 112, "enderutilities.gui.label.meta.match"),
+                ButtonState.createTranslate(60, 126, "enderutilities.gui.label.meta.ignore")));
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 63, y + 29, 14, 14, containerStack, ItemPickupManager.TAG_NAME_TXFILTER_NBT,
-                60, 154, 60, 140, "enderutilities.gui.label.nbt.ignore", "enderutilities.gui.label.nbt.match");
-
+        this.buttonList.add(new GuiButtonStateCallback(10, x + 63, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 154, "enderutilities.gui.label.nbt.ignore"),
+                ButtonState.createTranslate(60, 140, "enderutilities.gui.label.nbt.match")));
 
         // Add the inventory filter settings buttons
 
         // Match or ignore this group of filters
-        this.addConditionalButton(id++, x +  9, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED,
-                60, 98, 60, 28, "enderutilities.gui.label.filtergroup.disabled", "enderutilities.gui.label.filtergroup.enabled");
+        this.buttonList.add(new GuiButtonStateCallback(11, x +  9, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.filtergroup.disabled"),
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.filtergroup.enabled")));
 
         // Blacklist or Whitelist
-        this.addConditionalButton(id++, x + 27, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_MODE,
-                60, 70, 60, 84, "enderutilities.gui.label.blacklist", "enderutilities.gui.label.whitelist");
+        this.buttonList.add(new GuiButtonStateCallback(12, x + 27, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 70, "enderutilities.gui.label.blacklist"),
+                ButtonState.createTranslate(60, 84, "enderutilities.gui.label.whitelist")));
 
         // Match or ignore damage/metadata
-        this.addConditionalButton(id++, x + 45, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_META,
-                60, 112, 60, 126, "enderutilities.gui.label.meta.match", "enderutilities.gui.label.meta.ignore");
+        this.buttonList.add(new GuiButtonStateCallback(13, x + 45, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 112, "enderutilities.gui.label.meta.match"),
+                ButtonState.createTranslate(60, 126, "enderutilities.gui.label.meta.ignore")));
 
         // Match or ignore NBT
-        this.addConditionalButton(id++, x + 63, y + 105, 14, 14, containerStack, ItemPickupManager.TAG_NAME_INVFILTER_NBT,
-                60, 154, 60, 140, "enderutilities.gui.label.nbt.ignore", "enderutilities.gui.label.nbt.match");
+        this.buttonList.add(new GuiButtonStateCallback(14, x + 63, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
+                ButtonState.createTranslate(60, 154, "enderutilities.gui.label.nbt.ignore"),
+                ButtonState.createTranslate(60, 140, "enderutilities.gui.label.nbt.match")));
+    }
+
+    @Override
+    public int getButtonStateIndex(int callbackId)
+    {
+        ItemStack stack = this.containerPickupManager.getContainerItem();
+
+        if (stack.isEmpty() == false)
+        {
+            switch (callbackId)
+            {
+                case  7: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_TXFILTER_ENABLED) == 0 ? 0 : 1;
+                case  8: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_TXFILTER_MODE) == 0 ? 0 : 1;
+                case  9: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_TXFILTER_META) == 0 ? 0 : 1;
+                case 10: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_TXFILTER_NBT) == 0 ? 0 : 1;
+
+                case 11: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_INVFILTER_ENABLED) == 0 ? 0 : 1;
+                case 12: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_INVFILTER_MODE) == 0 ? 0 : 1;
+                case 13: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_INVFILTER_META) == 0 ? 0 : 1;
+                case 14: return ItemPickupManager.getSettingValue(stack, ItemPickupManager.TAG_NAME_INVFILTER_NBT) == 0 ? 0 : 1;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
+    public boolean isButtonEnabled(int callbackId)
+    {
+        return true;
     }
 
     @Override
@@ -241,37 +257,25 @@ public class GuiPickupManager extends GuiContainerLargeStacks
     {
         super.actionPerformed(button);
 
-        int first = 0;
-
-        if (button.id >= first && button.id < (first + NUM_LINK_CRYSTAL_SLOTS))
+        if (button.id >= 0 && button.id <= 2)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_SELECT_MODULE, button.id - first));
-            return;
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_SELECT_MODULE, button.id));
         }
-        first += NUM_LINK_CRYSTAL_SLOTS;
-
-        if (button.id >= first && button.id < (first + ItemPickupManager.NUM_PRESETS))
+        else if (button.id >= 3 && button.id <= 6)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_CHANGE_PRESET, button.id - first));
-            return;
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_CHANGE_PRESET, button.id - 3));
         }
-        first += ItemPickupManager.NUM_PRESETS;
-
-        if (button.id >= first && button.id < (first + 4))
+        else if (button.id >= 7 && button.id <= 10)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_TRANSPORT_SETTINGS, button.id - first));
-            return;
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_TRANSPORT_SETTINGS, button.id - 7));
         }
-        first += 4;
-
-        if (button.id >= first && button.id < (first + 4))
+        else if (button.id >= 11 && button.id <= 14)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, new BlockPos(0, 0, 0),
-                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_INVENTORY_SETTINGS, button.id - first));
-            return;
+                ReferenceGuiIds.GUI_ID_PICKUP_MANAGER, ItemPickupManager.GUI_ACTION_TOGGLE_INVENTORY_SETTINGS, button.id - 11));
         }
     }
 }
