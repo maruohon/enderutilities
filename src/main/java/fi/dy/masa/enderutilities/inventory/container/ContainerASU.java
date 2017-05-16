@@ -14,15 +14,14 @@ public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlo
     protected final TileEntityASU teasu;
     private final boolean[] lockedLast = new boolean[9];
     private final NonNullList<ItemStack> templateStacksLast = NonNullList.withSize(9, ItemStack.EMPTY);
-    private int stackLimitLast;
-    private int slotCountLast;
+    private int stackLimitLast = -1;
+    private int slotCountLast = -1;
 
     public ContainerASU(EntityPlayer player, TileEntityASU te)
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.teasu = te;
         this.itemHandlerLargeStacks = te.getInventoryASU();
-        this.slotCountLast = te.getInvSize();
 
         this.reAddSlots();
     }
