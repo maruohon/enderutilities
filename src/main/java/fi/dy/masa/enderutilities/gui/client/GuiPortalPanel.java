@@ -133,6 +133,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         {
             Slot slot = this.container.getSlot(i);
 
+            // Draw the colored background for the selected target's slots
             if (i < 8 && active == i)
             {
                 //System.out.println("active: " + i);
@@ -140,6 +141,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
                 this.drawTexturedModalRect(x + slot.xPos - 1, y + slot.yPos - 1 + 18, 102, 54, 18, 18);
             }
 
+            // Draw the dye slot background for empty dye slots
             if (slot.getHasStack() == false)
             {
                 this.drawTexturedModalRect(x + slot.xPos, y + slot.yPos, u, v, 16, 16);
@@ -178,6 +180,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         int xOff = 57;
         int yOff = 56;
 
+        // Target/Link Crystal selection buttons
         for (int i = 0; i < 8; i++)
         {
             this.buttonList.add(new GuiButtonIcon(i, x + xOff, y + yOff, 8, 8, 0, 0, this.guiTextureWidgets, 8, 0));
@@ -190,6 +193,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
             }
         }
 
+        // Set Name button
         this.buttonList.add(new GuiButton(8, this.guiLeft + 108, this.guiTop + 144, 60, 20, I18n.format("enderutilities.gui.label.setname")));
     }
 
