@@ -3,13 +3,13 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.item.base.IStringInput;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
-public class ContainerPortalPanel extends ContainerTileEntityInventory implements IStringInput
+public class ContainerPortalPanel extends ContainerTile implements IStringInput
 {
     private final TileEntityPortalPanel tepp;
     private int targetLast;

@@ -12,7 +12,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotCraftingWrapper;
@@ -28,7 +28,7 @@ import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
-public class ContainerCreationStation extends ContainerLargeStacksTile
+public class ContainerCreationStation extends ContainerTileLargeStacks
 {
     protected final TileEntityCreationStation tecs;
     public int selectionsLast; // action mode and module selection

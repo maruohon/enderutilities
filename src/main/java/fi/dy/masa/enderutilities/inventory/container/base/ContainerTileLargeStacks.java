@@ -4,11 +4,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 
-public class ContainerLargeStacksTile extends ContainerLargeStacks
+public class ContainerTileLargeStacks extends ContainerLargeStacks
 {
     protected final TileEntityEnderUtilities te;
 
-    public ContainerLargeStacksTile(EntityPlayer player, IItemHandler inventory, TileEntityEnderUtilities te)
+    public ContainerTileLargeStacks(EntityPlayer player, IItemHandler inventory, TileEntityEnderUtilities te)
     {
         super(player, inventory);
 

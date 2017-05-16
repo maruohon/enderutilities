@@ -8,14 +8,14 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 
-public class ContainerMemoryChest extends ContainerTileEntityInventory implements ICustomSlotSync
+public class ContainerMemoryChest extends ContainerTile implements ICustomSlotSync
 {
     protected TileEntityMemoryChest temc;
     protected NonNullList<ItemStack> templateStacksLast;

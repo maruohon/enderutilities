@@ -4,12 +4,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileEntityInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 
-public class ContainerEnderInfuser extends ContainerTileEntityInventory
+public class ContainerEnderInfuser extends ContainerTile
 {
     private TileEntityEnderInfuser teef;
     public int amountStored;

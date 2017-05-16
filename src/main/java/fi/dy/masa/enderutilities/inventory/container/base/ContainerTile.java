@@ -3,11 +3,11 @@ package fi.dy.masa.enderutilities.inventory.container.base;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
-public class ContainerTileEntityInventory extends ContainerCustomSlotClick
+public class ContainerTile extends ContainerCustomSlotClick
 {
-    public final TileEntityEnderUtilitiesInventory te;
+    protected final TileEntityEnderUtilitiesInventory te;
 
-    public ContainerTileEntityInventory(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
+    public ContainerTile(EntityPlayer player, TileEntityEnderUtilitiesInventory te)
     {
         super(player, te.getWrappedInventoryForContainer(player));
         this.te = te;

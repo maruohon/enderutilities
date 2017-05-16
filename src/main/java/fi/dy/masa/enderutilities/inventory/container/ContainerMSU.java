@@ -5,12 +5,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 
-public class ContainerMSU extends ContainerLargeStacksTile implements ICustomSlotSync
+public class ContainerMSU extends ContainerTileLargeStacks implements ICustomSlotSync
 {
     protected final TileEntityMSU temsu;
     private final boolean[] lockedLast;

@@ -2,13 +2,13 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerScrollable;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
-public class ContainerJSU extends ContainerLargeStacksTile implements IScrollableInventory
+public class ContainerJSU extends ContainerTileLargeStacks implements IScrollableInventory
 {
     protected final TileEntityJSU tejsu;
     private int startRow;

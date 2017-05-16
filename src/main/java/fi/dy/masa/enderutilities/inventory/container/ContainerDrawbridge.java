@@ -1,12 +1,12 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
 
-public class ContainerDrawbridge extends ContainerLargeStacksTile
+public class ContainerDrawbridge extends ContainerTileLargeStacks
 {
     private final TileEntityDrawbridge tedb;
     private final boolean advanced;

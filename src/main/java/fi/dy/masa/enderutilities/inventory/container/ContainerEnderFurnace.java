@@ -5,13 +5,13 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 
-public class ContainerEnderFurnace extends ContainerLargeStacksTile
+public class ContainerEnderFurnace extends ContainerTileLargeStacks
 {
     protected TileEntityEnderFurnace teef;
     public int burnTimeRemaining;

@@ -4,12 +4,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import fi.dy.masa.enderutilities.inventory.ICustomSlotSync;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacksTile;
+import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 
-public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlotSync
+public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlotSync
 {
     protected final TileEntityASU teasu;
     private final boolean[] lockedLast = new boolean[9];
