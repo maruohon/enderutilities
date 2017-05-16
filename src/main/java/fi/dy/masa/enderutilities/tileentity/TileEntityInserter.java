@@ -36,7 +36,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
-    private final ItemStackHandlerTileEntity itemHandlerFilters;
+    private ItemStackHandlerTileEntity itemHandlerFilters;
     private final List<EnumFacing> enabledSides = new ArrayList<EnumFacing>();
     private final List<EnumFacing> validSides = new ArrayList<EnumFacing>();
     private EnumFacing facingOpposite = EnumFacing.SOUTH;
@@ -46,14 +46,13 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     private int outputSideIndex;
     private boolean isFiltered;
     private boolean disableUpdateScheduling;
-    private ItemStack[] cachedFilterStacks = new ItemStack[0];
+    private ItemStack[] cachedFilterStacks;
 
     public TileEntityInserter()
     {
         super(ReferenceNames.NAME_TILE_INSERTER);
 
-        this.itemHandlerBase    = new ItemStackHandlerTileEntity(0,  1,  1, false, "Items", this);
-        this.itemHandlerFilters = new ItemStackHandlerTileEntity(1, 27, 64, false, "ItemsFilter", this);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 1, 1, false, "Items", this);
         this.itemHandlerExternal = new ItemHandlerWrapperInserter(this.itemHandlerBase);
     }
 
@@ -65,6 +64,12 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void setIsFiltered(boolean isFiltered)
     {
         this.isFiltered = isFiltered;
+
+        if (isFiltered && this.itemHandlerFilters == null)
+        {
+            this.itemHandlerFilters = new ItemStackHandlerTileEntity(1, 27, 64, false, "ItemsFilter", this);
+            this.cachedFilterStacks = new ItemStack[0];
+        }
     }
 
     public int getUpdateDelay()
@@ -245,8 +250,13 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        this.itemHandlerFilters.deserializeNBT(nbt);
-        this.inventoryChanged(this.itemHandlerFilters.getInventoryId(), 0); // Update the cached array of stacks
+        if (this.itemHandlerFilters != null)
+        {
+            this.itemHandlerFilters.deserializeNBT(nbt);
+
+            // Update the cached array of stacks
+            this.inventoryChanged(this.itemHandlerFilters.getInventoryId(), 0);
+        }
 
         super.readItemsFromNBT(nbt);
     }
@@ -254,7 +264,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        nbt.merge(this.itemHandlerFilters.serializeNBT());
+        if (this.itemHandlerFilters != null)
+        {
+            nbt.merge(this.itemHandlerFilters.serializeNBT());
+        }
 
         super.writeItemsToNBT(nbt);
     }
@@ -283,19 +296,21 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        super.readFromNBTCustom(nbt);
-
         this.setSidesFromCombinedMask(nbt.getShort("Sides"));
         this.delay = nbt.getInteger("Delay");
         this.setStackLimit(nbt.getByte("StackLimit"));
         int mask = nbt.getShort("SettingsMask");
 
         this.filterMask      =  mask & 0x0F;
-        this.isFiltered      = (mask & 0x80) != 0;
         this.outputSideIndex = (mask >>> 8) & 0x7;
+
+        this.setIsFiltered((mask & 0x80) != 0);
         this.setRedstoneModeFromInteger((mask >>> 12) & 0x3);
 
         this.facingOpposite = this.getFacing().getOpposite();
+
+        // This needs to happen after reading the isFiltered flag
+        super.readFromNBTCustom(nbt);
     }
 
     @Override
@@ -344,14 +359,14 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
             if (state.getBlock() == EnderUtilitiesBlocks.INSERTER)
             {
-                this.isFiltered = state.getValue(BlockInserter.TYPE) == BlockInserter.InserterType.FILTERED;
+                this.setIsFiltered(state.getValue(BlockInserter.TYPE) == BlockInserter.InserterType.FILTERED);
 
                 if (updateHilightBoxes)
                 {
                     EnderUtilitiesBlocks.INSERTER.updateBlockHilightBoxes(world, this.getPos(), this.getFacing());
                 }
 
-                world.notifyBlockUpdate(this.getPos(), state, state, 3);
+                world.markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
             }
         }
     }
@@ -560,7 +575,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     public void inventoryChanged(int inventoryId, int slot)
     {
         // Filter inventory
-        if (inventoryId == 1)
+        if (inventoryId == 1 && this.itemHandlerFilters != null)
         {
             this.cachedFilterStacks = InventoryUtils.createInventorySnapshotOfNonEmptySlots(this.itemHandlerFilters);
         }
