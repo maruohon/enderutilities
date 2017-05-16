@@ -220,11 +220,16 @@ public class TaskMoveArea implements IPlayerTask
             {
                 if (nbt != null)
                 {
-                    TileEntity te = world.getTileEntity(posDst);
+                    // Re-creating the TE from NBT and then calling World#setTileEntity() causes
+                    // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
+                    // from Chunk#addTileEntity(), which should hopefully be more mod
+                    // friendly than just doing te.readFromNBT(tag).
+                    TileEntity te = TileEntity.create(world, nbt);
+
                     if (te != null)
                     {
-                        NBTUtils.setPositionInTileEntityNBT(nbt, posDst);
-                        te.readFromNBT(nbt);
+                        te.setPos(posDst);
+                        world.setTileEntity(posDst, te);
                         te.markDirty();
                     }
                 }
