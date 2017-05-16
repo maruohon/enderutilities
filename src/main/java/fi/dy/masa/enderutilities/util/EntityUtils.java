@@ -28,6 +28,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -1036,6 +1037,25 @@ public class EntityUtils
 
         return entityNew;
     }
+
+    /**
+     * Sets the held item, without playing the equip sound.
+     * @param player
+     * @param hand
+     * @param stack
+     */
+    public static void setHeldItemWithoutEquipSound(EntityPlayer player, EnumHand hand, ItemStack stack)
+    {
+        if (hand == EnumHand.MAIN_HAND)
+        {
+            player.inventory.mainInventory.set(player.inventory.currentItem, stack);
+        }
+        else if (hand == EnumHand.OFF_HAND)
+        {
+            player.inventory.offHandInventory.set(0, stack);
+        }
+    }
+
     /**
      * Drops/spawns EntityItems to the world from the provided ItemStack stack.
      * The number of items dropped is dictated by the parameter amountOverride.

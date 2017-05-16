@@ -32,6 +32,7 @@ import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -64,12 +65,15 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
 
         if (useStack.isEmpty() == false && world.isBlockModifiable(player, pos.offset(facing)))
         {
+            EntityUtils.setHeldItemWithoutEquipSound(player, hand, useStack);
             EnumActionResult result = useStack.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
             if (useStack.isEmpty() == false)
             {
                 tryInsertItemsToNullifier(useStack, stack, player);
             }
+
+            EntityUtils.setHeldItemWithoutEquipSound(player, hand, stack);
 
             return result;
         }
