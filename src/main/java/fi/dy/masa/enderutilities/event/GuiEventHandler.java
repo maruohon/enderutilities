@@ -48,7 +48,7 @@ public class GuiEventHandler
         {
             EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
 
-            if (this.handyBagShouldOpen && ItemHandyBag.getOpenableBag(player) != null)
+            if (this.handyBagShouldOpen && player != null && ItemHandyBag.getOpenableBag(player).isEmpty() == false)
             {
                 if (event.isCancelable())
                 {
