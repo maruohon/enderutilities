@@ -66,7 +66,7 @@ public class UtilItemModular
         // Read all the module ItemStacks from the tool
         for (int i = 0; i < listNumStacks; i++)
         {
-            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+            ItemStack moduleStack = NBTUtils.loadItemStackFromTag(nbtTagList.getCompoundTagAt(i));
 
             if (moduleTypeEquals(moduleStack, moduleType))
             {
@@ -99,7 +99,7 @@ public class UtilItemModular
         // Read all the module ItemStacks from the tool
         for (int i = 0; i < listNumStacks; ++i)
         {
-            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+            ItemStack moduleStack = NBTUtils.loadItemStackFromTag(nbtTagList.getCompoundTagAt(i));
 
             if (moduleTypeEquals(moduleStack, moduleType))
             {
@@ -219,7 +219,7 @@ public class UtilItemModular
 
             if (moduleTag.getByte("Slot") == slotNum)
             {
-                ItemStack moduleStack = new ItemStack(moduleTag);
+                ItemStack moduleStack = NBTUtils.loadItemStackFromTag(moduleTag);
 
                 if (moduleStack.isEmpty() == false &&
                     (moduleType.equals(ModuleType.TYPE_ANY) || moduleTypeEquals(moduleStack, moduleType)))
@@ -257,7 +257,7 @@ public class UtilItemModular
         // Get the selected-th TAG_Compound of the given module type
         for (int i = 0, count = -1; i < listNumStacks && count < selected; ++i)
         {
-            ItemStack moduleStack = new ItemStack(nbtTagList.getCompoundTagAt(i));
+            ItemStack moduleStack = NBTUtils.loadItemStackFromTag(nbtTagList.getCompoundTagAt(i));
 
             if (moduleStack.isEmpty() == false && moduleTypeEquals(moduleStack, moduleType))
             {
@@ -303,7 +303,7 @@ public class UtilItemModular
         {
             NBTTagCompound moduleTag = nbtTagList.getCompoundTagAt(i);
 
-            if (moduleTypeEquals(new ItemStack(moduleTag), moduleType))
+            if (moduleTypeEquals(NBTUtils.loadItemStackFromTag(moduleTag), moduleType))
             {
                 if (++count >= selected)
                 {
@@ -383,7 +383,7 @@ public class UtilItemModular
 
         int selected = getClampedModuleSelection(containerStack, moduleType);
 
-        if (reverse == true)
+        if (reverse)
         {
             if (--selected < 0)
             {
@@ -398,7 +398,7 @@ public class UtilItemModular
             }
         }
 
-        nbt.setByte("Selected_" + moduleType.getName(), (byte)selected);
+        nbt.setByte("Selected_" + moduleType.getName(), (byte) selected);
 
         return true;
     }
@@ -413,13 +413,13 @@ public class UtilItemModular
      */
     public static boolean changeSelectedModuleAbs(ItemStack containerStack, ModuleType moduleType, boolean reverse)
     {
-        if ((containerStack.getItem() instanceof IModular) == false ||
-           ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) <= 0)
+        if (containerStack.isEmpty() || (containerStack.getItem() instanceof IModular) == false ||
+           ((IModular) containerStack.getItem()).getMaxModules(containerStack, moduleType) <= 0)
         {
             return false;
         }
 
-        int maxOfType = ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType);
+        int maxOfType = ((IModular) containerStack.getItem()).getMaxModules(containerStack, moduleType);
         int current = getStoredModuleSelection(containerStack, moduleType);
 
         if (reverse)
@@ -451,19 +451,22 @@ public class UtilItemModular
      */
     public static void setModuleSelection(ItemStack containerStack, ModuleType moduleType, int index)
     {
-        NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
-
-        if (containerStack.getItem() instanceof IModular)
+        if (containerStack.isEmpty() == false)
         {
-            index = Math.min(index, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) - 1);
-        }
+            NBTTagCompound nbt = NBTUtils.getCompoundTag(containerStack, null, true);
 
-        if (index < 0)
-        {
-            index = 0;
-        }
+            if (containerStack.getItem() instanceof IModular)
+            {
+                index = Math.min(index, ((IModular)containerStack.getItem()).getMaxModules(containerStack, moduleType) - 1);
+            }
 
-        nbt.setByte("Selected_" + moduleType.getName(), (byte)index);
+            if (index < 0)
+            {
+                index = 0;
+            }
+
+            nbt.setByte("Selected_" + moduleType.getName(), (byte) index);
+        }
     }
 
     /**
@@ -553,7 +556,7 @@ public class UtilItemModular
      */
     public static int addEnderCharge(ItemStack containerStack, int amount, boolean doCharge)
     {
-        if ((containerStack.getItem() instanceof IModular) == false)
+        if (containerStack.isEmpty() || (containerStack.getItem() instanceof IModular) == false)
         {
             return 0;
         }
@@ -583,7 +586,7 @@ public class UtilItemModular
      */
     public static int getAvailableEnderCharge(ItemStack containerStack)
     {
-        if ((containerStack.getItem() instanceof IModular) == false)
+        if (containerStack.isEmpty() || (containerStack.getItem() instanceof IModular) == false)
         {
             return 0;
         }
@@ -614,7 +617,7 @@ public class UtilItemModular
             return true;
         }
 
-        if ((containerStack.getItem() instanceof IModular) == false)
+        if (containerStack.isEmpty() || (containerStack.getItem() instanceof IModular) == false)
         {
             return false;
         }
