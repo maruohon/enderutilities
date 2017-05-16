@@ -968,7 +968,8 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             this.cycleDropsMode(stack);
         }
         // Ctrl + Shift + Toggle mode: Toggle the creative-like breaking mode on/off
-        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL))
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL) &&
+                 ToolType.fromStack(stack) != ToolType.HOE)
         {
             this.cycleCreativeBreakingMode(stack);
         }
@@ -981,7 +982,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     @Override
     public int getMaxModules(ItemStack containerStack)
     {
-        return 6;
+        return ToolType.fromStack(containerStack) == ToolType.HOE ? 5 : 6;
     }
 
     @Override
@@ -997,7 +998,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             return 1;
         }
 
-        if (moduleType.equals(ModuleType.CREATIVE_BREAKING))
+        if (moduleType.equals(ModuleType.CREATIVE_BREAKING) && ToolType.fromStack(containerStack) != ToolType.HOE)
         {
             return 1;
         }
@@ -1055,6 +1056,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         String preBlue = TextFormatting.BLUE.toString();
 
         // Drops mode
+        ToolType type = ToolType.fromStack(stack);
         DropsMode mode = DropsMode.fromStack(stack);
         boolean powered = PowerStatus.fromStack(stack) == PowerStatus.POWERED;
         String str = (mode == DropsMode.NORMAL ? "enderutilities.tooltip.item.normal"
@@ -1063,7 +1065,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         str = I18n.format(str);
         list.add(I18n.format("enderutilities.tooltip.item.endertool.dropsmode") + ": " + preDGreen + str + rst);
 
-        if (ToolType.fromStack(stack).equals(ToolType.HOE))
+        if (type == ToolType.HOE)
         {
             str = (powered ? "enderutilities.tooltip.item.3x3" : "enderutilities.tooltip.item.1x1");
             str = I18n.format(str);
@@ -1079,6 +1081,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
         // Installed Ender Core type
         str = I18n.format("enderutilities.tooltip.item.endercore") + ": ";
+
         if (coreTier >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC && coreTier <= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED)
         {
             String coreType = (coreTier == ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_BASIC ? "enderutilities.tooltip.item.basic" :
@@ -1095,27 +1098,30 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
         list.add(str);
 
-        if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+        if (type != ToolType.HOE)
         {
-            str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
-        }
-        else
-        {
-            str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
-        }
+            if (this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0)
+            {
+                str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
+            }
+            else
+            {
+                str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
+            }
 
-        list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_installed", str));
+            list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_installed", str));
 
-        if (this.isCreativeLikeBreakingEnabled(stack))
-        {
-            str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
-        }
-        else
-        {
-            str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
-        }
+            if (this.isCreativeLikeBreakingEnabled(stack))
+            {
+                str = TextFormatting.GREEN.toString() + I18n.format("enderutilities.tooltip.item.yes") + rst;
+            }
+            else
+            {
+                str = TextFormatting.RED.toString() + I18n.format("enderutilities.tooltip.item.no") + rst;
+            }
 
-        list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_enabled", str));
+            list.add(I18n.format("enderutilities.tooltip.item.creative_breaking_enabled", str));
+        }
 
         // Link Crystals installed
         if (linkCrystalStack.isEmpty() == false && linkCrystalStack.getItem() instanceof ItemLinkCrystal)
