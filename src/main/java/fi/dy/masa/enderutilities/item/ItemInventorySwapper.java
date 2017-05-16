@@ -331,54 +331,16 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         final long mask = this.getEnabledSlotsMask(swapperStack);
         final int invMax = player.inventory.getInventoryStackLimit();
-        final int invSize = player.inventory.getSizeInventory();
+        final int playerInvSize = player.inventory.getSizeInventory();
         final int mainInvSize = player.inventory.mainInventory.size();
         long bit = 0x1;
 
-        for (int slot = 0; slot < invSize; slot++)
+        for (int slot = 0; slot < playerInvSize; slot++)
         {
             // Don't swap the swapper itself, and only swap slots that have been enabled
             if (slot != swapperSlot && (mask & bit) != 0)
             {
-                ItemStack tmpStack = swapperInv.getStackInSlot(slot);
-
-                // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
-                if (tmpStack.isEmpty() || (tmpStack.getCount() <= Math.min(tmpStack.getMaxStackSize(), invMax) &&
-                        player.inventory.isItemValidForSlot(slot, tmpStack)))
-                {
-                    // Armor slots
-                    if (slot >= mainInvSize && slot < (mainInvSize + 4))
-                    {
-                        int pos = -1;
-
-                        // Armor present in the swappers's inventory slot, get the corresponding armor slot
-                        if (tmpStack.isEmpty() == false)
-                        {
-                            EntityEquipmentSlot equipmentSlot = EntityLiving.getSlotForItemStack(tmpStack);
-
-                            if (tmpStack.getCount() == 1 && equipmentSlot.getSlotType() == EntityEquipmentSlot.Type.ARMOR)
-                            {
-                                pos = equipmentSlot.getIndex();
-                            }
-                        }
-                        else if (player.inventory.getStackInSlot(slot).isEmpty() == false)
-                        {
-                            pos = slot - mainInvSize;
-                        }
-
-                        if (pos >= 0 && pos == (slot - mainInvSize))
-                        {
-                            swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
-                            player.inventory.setInventorySlotContents(slot, tmpStack);
-                        }
-                    }
-                    // Main inventory and Off Hand slot
-                    else
-                    {
-                        swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
-                        player.inventory.setInventorySlotContents(slot, tmpStack);
-                    }
-                }
+                this.swapRegularSlot(swapperInv, slot, mainInvSize, invMax, player);
             }
 
             bit <<= 1;
@@ -388,57 +350,108 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         {
             IItemHandler baublesInv = ContainerInventorySwapper.getBaublesInvProvider().getBaublesInventory(player);
 
-            for (int slot = 0; baublesInv != null && slot < 7; slot++)
+            if (baublesInv != null)
             {
-                int slotInSwapper = 41 + slot;
-
-                // Don't swap the swapper itself, and only swap slots that have been enabled
-                if (slot != swapperSlot && (mask & bit) != 0)
+                for (int slotBaubles = 0; slotBaubles < 7; slotBaubles++)
                 {
-                    ItemStack swapperStackInSlot = swapperInv.getStackInSlot(slotInSwapper);
+                    int slotSwapper = slotBaubles + playerInvSize;
 
-                    // Check if the stack from the swapper can fit and is valid to be put into the baubles slot
-                    if (swapperStackInSlot.isEmpty() || swapperStackInSlot.getCount() == 1)
+                    // Don't swap the swapper itself, and only swap slots that have been enabled
+                    if (slotSwapper != swapperSlot && (mask & bit) != 0)
                     {
-                        ItemStack baublesStackInSlot = baublesInv.getStackInSlot(slot);
-
-                        // Existing baubles item
-                        if (baublesStackInSlot.isEmpty() == false)
-                        {
-                            baublesStackInSlot = baublesInv.extractItem(slot, baublesStackInSlot.getCount(), false);
-
-                            // Successfully extracted the existing item
-                            if (baublesStackInSlot.isEmpty() == false)
-                            {
-                                // The item in the swapper was valid for the baubles slot
-                                if (baublesInv.insertItem(slot, swapperStackInSlot, false).isEmpty())
-                                {
-                                    swapperInv.setStackInSlot(slotInSwapper, baublesStackInSlot);
-                                }
-                                // The item in the swapper was not a valid baubles item, put back the original baubles item
-                                else
-                                {
-                                    baublesInv.insertItem(slot, baublesStackInSlot, false);
-                                }
-                            }
-                        }
-                        // Empty baubles slot
-                        else
-                        {
-                            // The item in the swapper was valid for the baubles slot
-                            if (baublesInv.insertItem(slot, swapperStackInSlot, false).isEmpty())
-                            {
-                                swapperInv.setStackInSlot(slotInSwapper, ItemStack.EMPTY);
-                            }
-                        }
+                        this.swapBaublesSlot(swapperInv, baublesInv, slotSwapper, slotBaubles);
                     }
-                }
 
-                bit <<= 1;
+                    bit <<= 1;
+                }
             }
         }
 
         player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+    }
+
+    private void swapRegularSlot(InventoryItemModular swapperInv, final int slot, final int mainInvSize, final int invMax, EntityPlayer player)
+    {
+        ItemStack stackInSwapper = swapperInv.getStackInSlot(slot);
+
+        // Check if the stack from the swapper can fit and is valid to be put into the player's inventory
+        if (stackInSwapper.isEmpty() || (stackInSwapper.getCount() <= Math.min(stackInSwapper.getMaxStackSize(), invMax) &&
+            player.inventory.isItemValidForSlot(slot, stackInSwapper)))
+        {
+            // Armor slots
+            if (slot >= mainInvSize && slot < (mainInvSize + 4))
+            {
+                int pos = -1;
+
+                // Armor present in the swappers's inventory slot, get the corresponding armor slot
+                if (stackInSwapper.isEmpty() == false)
+                {
+                    EntityEquipmentSlot equipmentSlot = EntityLiving.getSlotForItemStack(stackInSwapper);
+
+                    if (stackInSwapper.getCount() == 1 && equipmentSlot.getSlotType() == EntityEquipmentSlot.Type.ARMOR)
+                    {
+                        pos = equipmentSlot.getIndex();
+                    }
+                }
+                else if (player.inventory.getStackInSlot(slot).isEmpty() == false)
+                {
+                    pos = slot - mainInvSize;
+                }
+
+                if (pos >= 0 && pos == (slot - mainInvSize))
+                {
+                    swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                    player.inventory.setInventorySlotContents(slot, stackInSwapper);
+                }
+            }
+            // Main inventory and Off Hand slot
+            else
+            {
+                swapperInv.setStackInSlot(slot, player.inventory.getStackInSlot(slot));
+                player.inventory.setInventorySlotContents(slot, stackInSwapper);
+            }
+        }
+    }
+
+    private void swapBaublesSlot(InventoryItemModular swapperInv, IItemHandler baublesInv, int slotSwapper, int slotBaubles)
+    {
+        ItemStack stackInSwapperInv = swapperInv.getStackInSlot(slotSwapper);
+
+        // Check if the stack from the swapper can fit and is valid to be put into the baubles slot
+        if (stackInSwapperInv.isEmpty() || stackInSwapperInv.getCount() == 1)
+        {
+            ItemStack stackInBaublesInv = baublesInv.getStackInSlot(slotBaubles);
+
+            // Existing baubles item
+            if (stackInBaublesInv.isEmpty() == false)
+            {
+                stackInBaublesInv = baublesInv.extractItem(slotBaubles, stackInBaublesInv.getCount(), false);
+
+                // Successfully extracted the existing item
+                if (stackInBaublesInv.isEmpty() == false)
+                {
+                    // The item in the swapper was valid for the baubles slot
+                    if (baublesInv.insertItem(slotBaubles, stackInSwapperInv, false).isEmpty())
+                    {
+                        swapperInv.setStackInSlot(slotSwapper, stackInBaublesInv);
+                    }
+                    // The item in the swapper was not a valid baubles item, put back the original baubles item
+                    else
+                    {
+                        baublesInv.insertItem(slotBaubles, stackInBaublesInv, false);
+                    }
+                }
+            }
+            // Empty baubles slot and items in the swapper
+            else if (stackInSwapperInv.isEmpty() == false)
+            {
+                // The item in the swapper was valid for the baubles slot
+                if (baublesInv.insertItem(slotBaubles, stackInSwapperInv, false).isEmpty())
+                {
+                    swapperInv.setStackInSlot(slotSwapper, ItemStack.EMPTY);
+                }
+            }
+        }
     }
 
     private void swapPlayerInventory(EntityPlayer player)
