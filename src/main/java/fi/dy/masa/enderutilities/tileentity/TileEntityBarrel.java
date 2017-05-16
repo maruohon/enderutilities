@@ -161,6 +161,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             NBTTagCompound tag = new NBTTagCompound();
             stack.writeToNBT(tag);
+            // Prevent overflowing the byte into negatives (or zero),
+            // which messes up with reading the stack back from NBT
+            tag.setByte("Count", (byte) (stack.getCount() & 0x7F));
             tag.setInteger("ac", stack.getCount());
             nbt.setTag("st", tag);
         }
@@ -191,9 +194,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         if (tag.hasKey("stlo", Constants.NBT.TAG_COMPOUND))
         {
-            NBTTagCompound tmp = tag.getCompoundTag("stlo");
-            ItemStack stack = new ItemStack(tmp);
-            this.itemHandlerLockable.setTemplateStackInSlot(0, stack.isEmpty() ? ItemStack.EMPTY : stack);
+            this.itemHandlerLockable.setTemplateStackInSlot(0, new ItemStack(tag.getCompoundTag("stlo")));
         }
 
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
@@ -316,6 +317,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             if (this.labels.contains(side) == false && side != this.getFacing())
             {
+                this.labels.add(side);
                 this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 70), false);
 
                 if (player.capabilities.isCreativeMode == false)
@@ -324,7 +326,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                     player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
                 }
 
-                this.labels.add(side);
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
             }
 
