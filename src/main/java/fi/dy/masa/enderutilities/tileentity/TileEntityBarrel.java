@@ -41,6 +41,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
@@ -159,20 +160,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         if (stack.isEmpty() == false)
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            stack.writeToNBT(tag);
-            // Prevent overflowing the byte into negatives (or zero),
-            // which messes up with reading the stack back from NBT
-            tag.setByte("Count", (byte) (stack.getCount() & 0x7F));
-            tag.setInteger("ac", stack.getCount());
-            nbt.setTag("st", tag);
+            nbt.setTag("st", NBTUtils.storeItemStackInTag(stack, new NBTTagCompound()));
         }
 
         stack = this.itemHandlerLockable.getTemplateStackInSlot(0);
 
         if (stack.isEmpty() == false)
         {
-            nbt.setTag("stlo", stack.writeToNBT(new NBTTagCompound()));
+            // The template stack is always size 1, no need to use our handler for it
+            nbt.setTag("stl", stack.writeToNBT(new NBTTagCompound()));
         }
 
         nbt.setBoolean("cr", this.isCreative());
@@ -192,22 +188,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         this.setLabelsFromMask(tag.getByte("la"));
         this.itemHandlerLockable.setSlotLocked(0, tag.getBoolean("lo"));
 
-        if (tag.hasKey("stlo", Constants.NBT.TAG_COMPOUND))
+        if (tag.hasKey("stl", Constants.NBT.TAG_COMPOUND))
         {
-            this.itemHandlerLockable.setTemplateStackInSlot(0, new ItemStack(tag.getCompoundTag("stlo")));
+            this.itemHandlerLockable.setTemplateStackInSlot(0, new ItemStack(tag.getCompoundTag("stl")));
         }
 
         if (tag.hasKey("st", Constants.NBT.TAG_COMPOUND))
         {
-            NBTTagCompound tmp = tag.getCompoundTag("st");
-            ItemStack stack = new ItemStack(tmp);
-
-            if (stack.isEmpty() == false && tmp.hasKey("ac", Constants.NBT.TAG_INT))
-            {
-                stack.setCount(tmp.getInteger("ac"));
-            }
-
-            this.itemHandlerLockable.setStackInSlot(0, stack.isEmpty() ? ItemStack.EMPTY : stack);
+            this.itemHandlerLockable.setStackInSlot(0, NBTUtils.loadItemStackFromTag(tag.getCompoundTag("st")));
         }
 
         this.setMaxStacks(tag.getInteger("mxs"));

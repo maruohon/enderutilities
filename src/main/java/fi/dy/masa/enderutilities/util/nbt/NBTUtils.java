@@ -589,22 +589,35 @@ public class NBTUtils
      * @param tag
      * @return
      */
-    @Nullable
+    @Nonnull
     public static ItemStack loadItemStackFromTag(@Nonnull NBTTagCompound tag)
     {
         ItemStack stack = new ItemStack(tag);
-
-        if (stack.isEmpty())
-        {
-            return ItemStack.EMPTY;
-        }
 
         if (tag.hasKey("ActualCount", Constants.NBT.TAG_INT))
         {
             stack.setCount(tag.getInteger("ActualCount"));
         }
 
-        return stack;
+        return stack.isEmpty() ? ItemStack.EMPTY : stack;
+    }
+
+    @Nonnull
+    public static NBTTagCompound storeItemStackInTag(@Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
+    {
+        if (stack.isEmpty() == false)
+        {
+            stack.writeToNBT(tag);
+
+            if (stack.getCount() > 127)
+            {
+                // Prevent overflow and negative stack sizes
+                tag.setByte("Count", (byte) (stack.getCount() & 0x7F));
+                tag.setInteger("ActualCount", stack.getCount());
+            }
+        }
+
+        return tag;
     }
 
     /**
@@ -694,9 +707,7 @@ public class NBTUtils
 
             if (stack.isEmpty() == false)
             {
-                NBTTagCompound tag = new NBTTagCompound();
-                stack.writeToNBT(tag);
-                tag.setInteger("ActualCount", stack.getCount());
+                NBTTagCompound tag = storeItemStackInTag(stack, new NBTTagCompound());
 
                 if (invSlots <= 127)
                 {

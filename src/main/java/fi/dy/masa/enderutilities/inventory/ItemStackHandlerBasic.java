@@ -52,7 +52,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack)
     {
-        this.items.set(slot, stack);
+        this.items.set(slot, stack.isEmpty() ? ItemStack.EMPTY : stack);
         this.onContentsChanged(slot);
     }
 
