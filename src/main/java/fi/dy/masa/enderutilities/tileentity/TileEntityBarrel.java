@@ -314,6 +314,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         {
             if (this.labels.contains(side) == false && side != this.getFacing())
             {
+                this.labels.add(side);
                 this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.enderPart, 1, 70), false);
 
                 if (player.capabilities.isCreativeMode == false)
@@ -322,7 +323,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                     player.setHeldItem(hand, stack.stackSize > 0 ? stack : null);
                 }
 
-                this.labels.add(side);
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
             }
 
