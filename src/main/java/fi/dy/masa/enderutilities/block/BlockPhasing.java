@@ -106,7 +106,7 @@ public class BlockPhasing extends BlockEnderUtilities
     }
 
     @Override
-    public boolean isFullyOpaque(IBlockState state)
+    public boolean isTopSolid(IBlockState state)
     {
         return this.isBlockNormalCube(state);
     }

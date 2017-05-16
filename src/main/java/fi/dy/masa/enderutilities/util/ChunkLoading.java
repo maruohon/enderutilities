@@ -329,7 +329,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
 
         public String toString()
         {
-            return this.dimension + "-" + this.chunkCoords.chunkXPos + "-" + this.chunkCoords.chunkZPos;
+            return this.dimension + "-" + this.chunkCoords.x + "-" + this.chunkCoords.z;
         }
 
         public boolean equals(DimChunkCoordTimeout dcct)

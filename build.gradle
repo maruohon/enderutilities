@@ -12,10 +12,13 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
 
 repositories {
     // JEI
-    maven { url "http://dvs1.progwml6.com/files/maven" }
+    maven {
+        url "http://dvs1.progwml6.com/files/maven"
+    }
 
     // ModMaven for Baubles
     maven {
@@ -77,10 +80,11 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}:api"
-    runtime "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
+    runtime      "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
 
     deobfCompile "mod.chiselsandbits:chiselsandbits:${config.cb_api_version}:api"
     deobfCompile "com.azanor.baubles:Baubles:${config.baubles_api_version}"
+    //deobfCompile "com.azanor.baubles:Baubles:${config.baubles_api_version}:api@zip"
 
     //compile fileTree (dir: 'libs', include: '*-api.jar')
 }

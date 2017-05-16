@@ -639,9 +639,9 @@ public class EntityEndermanFighter extends EntityMob
         }
 
         @Override
-        public boolean continueExecuting()
+        public boolean shouldContinueExecuting()
         {
-            if (this.shouldExecute() && super.continueExecuting())
+            if (this.shouldExecute() && super.shouldContinueExecuting())
             {
                 this.fighter.faceEntity(this.getTarget(), 10.0F, 10.0F);
                 return true;
