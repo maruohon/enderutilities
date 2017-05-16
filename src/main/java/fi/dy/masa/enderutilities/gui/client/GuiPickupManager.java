@@ -181,8 +181,8 @@ public class GuiPickupManager extends GuiContainerLargeStacks implements IButton
 
         // Match or ignore this group of filters
         this.buttonList.add(new GuiButtonStateCallback( 7, x +  9, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
-                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.filtergroup.disabled"),
-                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.filtergroup.enabled")));
+                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.pickup_manager.functionality.disabled"),
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.pickup_manager.functionality.enabled")));
 
         // Blacklist or Whitelist
         this.buttonList.add(new GuiButtonStateCallback( 8, x + 27, y + 29, 14, 14, 14, 0, this.guiTextureWidgets, this,
@@ -203,8 +203,8 @@ public class GuiPickupManager extends GuiContainerLargeStacks implements IButton
 
         // Match or ignore this group of filters
         this.buttonList.add(new GuiButtonStateCallback(11, x +  9, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
-                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.filtergroup.disabled"),
-                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.filtergroup.enabled")));
+                ButtonState.createTranslate(60, 98, "enderutilities.gui.label.pickup_manager.functionality.disabled"),
+                ButtonState.createTranslate(60, 28, "enderutilities.gui.label.pickup_manager.functionality.enabled")));
 
         // Blacklist or Whitelist
         this.buttonList.add(new GuiButtonStateCallback(12, x + 27, y + 105, 14, 14, 14, 0, this.guiTextureWidgets, this,
