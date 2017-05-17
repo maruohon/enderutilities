@@ -106,7 +106,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return this.storeEntity(stack, livingBase);
         }
 
-        player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"));
+        player.sendStatusMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"), true);
 
         return EnumActionResult.FAIL;
     }

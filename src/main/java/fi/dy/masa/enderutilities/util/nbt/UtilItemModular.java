@@ -799,7 +799,7 @@ public class UtilItemModular
         {
             // Remove the bind
             TargetData.removeTargetTagFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
-            player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"));
+            player.sendStatusMessage(new TextComponentTranslation("enderutilities.chat.message.bound.block.changed"), true);
             return null;
         }
 

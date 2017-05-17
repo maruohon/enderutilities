@@ -238,7 +238,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             }
             else if (storedEntity == null && world.isRemote == false)
             {
-                player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.mobharness.targetnotfoundoroutofrange"));
+                player.sendStatusMessage(new TextComponentTranslation("enderutilities.chat.message.mobharness.targetnotfoundoroutofrange"), true);
             }
         }
 

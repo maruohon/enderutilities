@@ -136,7 +136,9 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
                     if (te != null && te.isUseableByPlayer(player) == false)
                     {
-                        player.sendMessage(new TextComponentTranslation("enderutilities.chat.message.private.owned.by", te.getOwnerName()));
+                        TextComponentTranslation msg = new TextComponentTranslation(
+                                "enderutilities.chat.message.private.owned.by", te.getOwnerName());
+                        player.sendStatusMessage(msg, true);
                         return false;
                     }
                     break;
