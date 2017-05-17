@@ -27,7 +27,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.ItemUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 
 public class BlockMSU extends BlockEnderUtilitiesInventory
 {
@@ -109,7 +109,7 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
 
         if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
         {
-            return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+            return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }
 
         return stack;

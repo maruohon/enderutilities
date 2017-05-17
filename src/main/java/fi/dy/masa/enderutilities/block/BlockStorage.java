@@ -33,7 +33,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityHandyChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.ItemUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 
 public class BlockStorage extends BlockEnderUtilitiesInventory
 {
@@ -206,7 +206,7 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
         if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
         {
-            return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+            return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }
 
         return stack;

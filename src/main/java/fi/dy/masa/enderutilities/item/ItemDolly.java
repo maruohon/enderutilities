@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +32,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemDolly extends ItemEnderUtilities
@@ -213,24 +215,12 @@ public class ItemDolly extends ItemEnderUtilities
 
                 if (world.setBlockState(pos, state))
                 {
-                    NBTTagCompound teTag = tagCarrying.getCompoundTag("te");
                     TileEntity te = world.getTileEntity(pos);
 
-                    if (te != null && teTag != null)
+                    if (te != null && tagCarrying.hasKey("te", Constants.NBT.TAG_COMPOUND))
                     {
-                        // Re-creating the TE from NBT and then calling World#setTileEntity() causes
-                        // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
-                        // from Chunk#addTileEntity(), which should hopefully be more mod
-                        // friendly than just doing te.readFromNBT(tag).
-                        te = TileEntity.create(world, teTag);
-
-                        if (te != null)
-                        {
-                            te.setPos(pos);
-                            world.setTileEntity(pos, te);
-                            te.rotate(rotation);
-                            te.markDirty();
-                        }
+                        NBTTagCompound nbt = tagCarrying.getCompoundTag("te");
+                        TileUtils.createAndAddTileEntity(world, pos, nbt, rotation, Mirror.NONE);
                     }
 
                     NBTUtils.removeCompoundTag(stack, null, "Carrying");
