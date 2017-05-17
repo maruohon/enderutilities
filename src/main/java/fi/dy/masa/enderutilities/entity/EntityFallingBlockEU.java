@@ -29,6 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class EntityFallingBlockEU extends Entity
@@ -215,23 +216,7 @@ public class EntityFallingBlockEU extends Entity
 
                         if (this.tileEntityData != null && this.blockState.getBlock().hasTileEntity(this.blockState))
                         {
-                            TileEntity te = world.getTileEntity(pos);
-
-                            if (te != null)
-                            {
-                                // Re-creating the TE from NBT and then calling World#setTileEntity() causes
-                                // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
-                                // from Chunk#addTileEntity(), which should hopefully be more mod
-                                // friendly than just doing te.readFromNBT(tag).
-                                te = TileEntity.create(world, this.tileEntityData);
-
-                                if (te != null)
-                                {
-                                    te.setPos(pos);
-                                    world.setTileEntity(pos, te);
-                                    te.markDirty();
-                                }
-                            }
+                            TileUtils.createAndAddTileEntity(world, pos, this.tileEntityData);
                         }
 
                         this.setDead();

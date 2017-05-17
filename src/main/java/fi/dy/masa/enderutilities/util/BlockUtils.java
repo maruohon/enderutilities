@@ -23,7 +23,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BlockUtils
 {
@@ -186,14 +185,7 @@ public class BlockUtils
 
             if (nbt != null)
             {
-                NBTUtils.setPositionInTileEntityNBT(nbt, pos);
-                TileEntity te = TileEntity.create(world, nbt);
-
-                if (te != null)
-                {
-                    world.setTileEntity(pos, te);
-                    te.markDirty();
-                }
+                TileUtils.createAndAddTileEntity(world, pos, nbt);
             }
 
             world.restoringBlockSnapshots = false;

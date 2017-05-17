@@ -25,6 +25,7 @@ import fi.dy.masa.enderutilities.util.BlockPosBox;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TaskMoveArea implements IPlayerTask
@@ -220,18 +221,7 @@ public class TaskMoveArea implements IPlayerTask
             {
                 if (nbt != null)
                 {
-                    // Re-creating the TE from NBT and then calling World#setTileEntity() causes
-                    // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
-                    // from Chunk#addTileEntity(), which should hopefully be more mod
-                    // friendly than just doing te.readFromNBT(tag).
-                    TileEntity te = TileEntity.create(world, nbt);
-
-                    if (te != null)
-                    {
-                        te.setPos(posDst);
-                        world.setTileEntity(posDst, te);
-                        te.markDirty();
-                    }
+                    TileUtils.createAndAddTileEntity(world, posDst, nbt);
                 }
 
                 this.placedCount += 1;

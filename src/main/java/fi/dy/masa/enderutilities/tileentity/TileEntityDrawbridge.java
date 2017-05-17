@@ -36,7 +36,7 @@ import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockUtils;
-import fi.dy.masa.enderutilities.util.ItemUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 
 public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 {
@@ -293,23 +293,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
             if (placementState.getBlock().hasTileEntity(placementState) && nbt != null)
             {
-                TileEntity te = world.getTileEntity(pos);
-
-                if (te != null)
-                {
-                    // Re-creating the TE from NBT and then calling World#setTileEntity() causes
-                    // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
-                    // from Chunk#addTileEntity(), which should hopefully be more mod
-                    // friendly than just doing te.readFromNBT(tag).
-                    te = TileEntity.create(world, nbt);
-
-                    if (te != null)
-                    {
-                        te.setPos(pos);
-                        world.setTileEntity(pos, te);
-                        te.markDirty();
-                    }
-                }
+                TileUtils.createAndAddTileEntity(world, pos, nbt);
             }
 
             if (playPistonSound)
@@ -346,7 +330,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
                     if (te != null)
                     {
-                        ItemUtils.storeTileEntityInStack(stack, te, false);
+                        TileUtils.storeTileEntityInStack(stack, te, false);
                         nbt = te.writeToNBT(new NBTTagCompound());
                     }
                 }

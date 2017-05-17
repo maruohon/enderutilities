@@ -25,7 +25,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.ItemUtils;
+import fi.dy.masa.enderutilities.util.TileUtils;
 
 public class BlockBarrel extends BlockEnderUtilitiesInventory
 {
@@ -183,7 +183,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
 
         if (te != null)
         {
-            return ItemUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+            return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }
 
         return stack;
