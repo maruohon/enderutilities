@@ -18,7 +18,7 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.tedb = te;
         this.advanced = te.isAdvanced();
-        this.itemHandlerLargeStacks = te.getInventoryDrawbridge();
+        this.inventoryNonWrapped = te.getInventoryDrawbridge();
 
         this.detectAndSendChanges();
         this.reAddSlots();

@@ -28,7 +28,7 @@ public class ContainerHandyChest extends ContainerTileLargeStacks
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.tehc = te;
-        this.itemHandlerLargeStacks = (ItemHandlerWrapperPermissions) this.inventory;
+        this.inventoryNonWrapped = (ItemHandlerWrapperPermissions) this.inventory;
 
         this.addCustomInventorySlots();
 

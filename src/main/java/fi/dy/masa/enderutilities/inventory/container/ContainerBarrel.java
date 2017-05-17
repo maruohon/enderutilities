@@ -16,7 +16,7 @@ public class ContainerBarrel extends ContainerTileLargeStacks
         super(player, te.getWrappedInventoryForContainer(player), te);
 
         this.upgradeInv = te.getUpgradeInventory();
-        this.itemHandlerLargeStacks = te.getInventoryBarrel();
+        this.inventoryNonWrapped = te.getInventoryBarrel();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 93);

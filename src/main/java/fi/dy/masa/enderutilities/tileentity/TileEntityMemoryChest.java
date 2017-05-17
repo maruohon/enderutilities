@@ -1,92 +1,58 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.util.InventoryUtils;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
 {
     public static final int GUI_ACTION_TOGGLE_LOCKED = 1;
-    public static final int[] INV_SIZES = new int[] { 9, 27, 54 };
+    private static final int[] INV_SIZES = new int[] { 9, 27, 54 };
 
-    protected NonNullList<ItemStack> templateStacks;
-    protected List<Integer> enabledTemplateSlots;
-    protected int chestTier;
-    protected long templateMask;
-    protected int invSize;
+    private ItemStackHandlerLockable itemHandlerLockable;
+    private int chestTier;
+    private int invSize;
 
     public TileEntityMemoryChest()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.enabledTemplateSlots = new ArrayList<Integer>();
-        this.initStorage(54);
+
+        this.initStorage(0);
     }
 
     private void initStorage(int invSize)
     {
-        this.templateStacks = NonNullList.withSize(invSize, ItemStack.EMPTY);
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(invSize, this);
-        this.itemHandlerExternal = new ItemHandlerWrapperMemoryChestExternal(this.getBaseItemHandler(), this);
+        this.itemHandlerLockable    = new ItemStackHandlerLockable(0, invSize, 64, false, "Items", this);
+        this.itemHandlerBase        = this.itemHandlerLockable;
+        this.itemHandlerExternal    = new ItemHandlerWrapperSelective(this.itemHandlerLockable);
     }
 
-    @Override
-    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
+    public ItemStackHandlerLockable getInventory()
     {
-        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(),
-                new ItemHandlerWrapperMemoryChestContainer(this.getBaseItemHandler(), this));
+        return this.itemHandlerLockable;
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.chestTier = MathHelper.clamp(nbt.getByte("ChestTier"), 0, 2);
-        this.invSize = INV_SIZES[this.chestTier];
-        this.setTemplateMask(nbt.getLong("TemplateMask"));
+        this.setStorageTier(nbt.getByte("ChestTier"));
 
         super.readFromNBTCustom(nbt);
-    }
-
-    @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
-    {
-        // This creates the inventories themselves...
-        this.initStorage(this.invSize);
-        NBTUtils.readStoredItemsFromTag(nbt, this.templateStacks, "TemplateItems");
-
-        // ... and this de-serializes the items from NBT into the inventory
-        super.readItemsFromNBT(nbt);
-    }
-
-    @Override
-    public void writeItemsToNBT(NBTTagCompound nbt)
-    {
-        super.writeItemsToNBT(nbt);
-
-        NBTUtils.writeItemsToTag(nbt, this.templateStacks, "TemplateItems", true);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setByte("ChestTier", (byte) this.chestTier);
-        nbt.setLong("TemplateMask", this.templateMask);
 
         super.writeToNBT(nbt);
 
@@ -106,9 +72,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.chestTier = tag.getByte("tier");
-        this.invSize = INV_SIZES[this.chestTier];
-        this.initStorage(this.invSize);
+        this.setStorageTier(tag.getByte("tier"));
 
         super.handleUpdateTag(tag);
     }
@@ -120,164 +84,10 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
 
     public void setStorageTier(int tier)
     {
-        tier = MathHelper.clamp(tier, 0, 2);
-        this.chestTier = tier;
+        this.chestTier = MathHelper.clamp(tier, 0, 2);
         this.invSize = INV_SIZES[this.chestTier];
 
         this.initStorage(this.invSize);
-    }
-
-    public long getTemplateMask()
-    {
-        return this.templateMask;
-    }
-
-    public void toggleTemplateMask(int slotNum)
-    {
-        this.setTemplateMask(this.templateMask ^ (1L << slotNum));
-    }
-
-    public void setTemplateMask(long mask)
-    {
-        this.templateMask = mask;
-
-        this.enabledTemplateSlots.clear();
-        long bit = 0x1;
-
-        for (int i = 0; i < this.invSize; i++, bit <<= 1)
-        {
-            if ((this.templateMask & bit) != 0)
-            {
-                this.enabledTemplateSlots.add(i);
-            }
-        }
-    }
-
-    public ItemStack getTemplateStack(int slotNum)
-    {
-        if (slotNum < this.templateStacks.size())
-        {
-            return this.templateStacks.get(slotNum);
-        }
-
-        return ItemStack.EMPTY;
-    }
-
-    public void setTemplateStack(int slotNum, ItemStack stack)
-    {
-        if (slotNum < this.templateStacks.size())
-        {
-            this.templateStacks.set(slotNum, stack.isEmpty() ? ItemStack.EMPTY : stack);
-        }
-    }
-
-    private class ItemHandlerWrapperMemoryChestExternal extends ItemHandlerWrapperSelective
-    {
-        private final TileEntityMemoryChest temc;
-
-        public ItemHandlerWrapperMemoryChestExternal(IItemHandler baseHandler, TileEntityMemoryChest te)
-        {
-            super(baseHandler);
-            this.temc = te;
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.temc.isPublic() ? super.getStackInSlot(slot) : ItemStack.EMPTY;
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            return this.temc.isPublic() ? super.insertItem(slot, stack, simulate) : stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return this.temc.isPublic() ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-        }
-
-        @Override
-        public boolean isItemValidForSlot(int slot, ItemStack stack)
-        {
-            if (stack.isEmpty())
-            {
-                return false;
-            }
-
-            // Simple cases for allowing items in: no templated slots, or matching item already in the slot
-            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)))
-            {
-                return true;
-            }
-
-            // If trying to add into an empty slot, first make sure that there aren't templated slots
-            // for this item type, that still have free space
-            //int max = Math.min(((ItemStackHandlerBasic)this.getBaseHandler()).getInventoryStackLimit(), stack.getMaxStackSize());
-            int max = stack.getMaxStackSize();
-
-            for (int i : this.temc.enabledTemplateSlots)
-            {
-                if (slot == i)
-                {
-                    //System.out.println("isValid slot match - " + (this.worldObj.isRemote ? "client" : "server"));
-                    return InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks.get(slot));
-                }
-
-                ItemStack stackTmp = this.getStackInSlot(i);
-
-                // Space in the inventory slot for this template slot, and the input item matches the template item
-                // => disallow putting the input item in slotNum, unless slotNum was this slot (see above check)
-                if ((stackTmp.isEmpty() || stackTmp.getCount() < max) &&
-                    InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks.get(i)))
-                {
-                    //System.out.println("isValid denied - " + (this.worldObj.isRemote ? "client" : "server"));
-                    return false;
-                }
-            }
-
-            return true;
-
-            /*// This is the simple version with no templated slot prioritization
-            if ((this.templateMask & (1L << slotNum)) == 0)
-            {
-                return true;
-            }
-
-            return InventoryUtils.areItemStacksEqual(stack, this.templateStacks[slotNum]);
-            */
-        }
-    }
-
-    private class ItemHandlerWrapperMemoryChestContainer extends ItemHandlerWrapperSelective
-    {
-        private final TileEntityMemoryChest temc;
-
-        public ItemHandlerWrapperMemoryChestContainer(IItemHandler baseHandler, TileEntityMemoryChest te)
-        {
-            super(baseHandler);
-            this.temc = te;
-        }
-
-        @Override
-        public boolean isItemValidForSlot(int slot, ItemStack stack)
-        {
-            if (stack.isEmpty())
-            {
-                return false;
-            }
-
-            // Simple cases for allowing items in: no templated slots, or matching item already in the slot
-            if (this.temc.templateMask == 0 || InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)))
-            {
-                return true;
-            }
-
-            // No template locked for this slot, or the item matches with the template item
-            return (this.temc.templateMask & (1L << slot)) == 0 || InventoryUtils.areItemStacksEqual(stack, this.temc.templateStacks.get(slot));
-        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container.base;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -17,6 +18,13 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
+    /**
+     * This is a non-Container-wrapped, possible a lockable inventory.
+     * If this field is set, it is used for the stack size cycling
+     * and slot locking features, if applicable.
+     */
+    @Nullable
+    protected IItemHandlerSize inventoryNonWrapped;
     protected boolean isDragging;
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
@@ -697,10 +705,26 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         {
             this.leftDoubleClickSlot(slotNum, player);
         }
-        // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-        else if (clickType == ClickType.CLONE && dragType == 2)
+        else
         {
-            this.middleClickSlot(slotNum, player);
+            if (this.inventoryNonWrapped instanceof ItemStackHandlerLockable)
+            {
+                ItemStackHandlerLockable inv = (ItemStackHandlerLockable) this.inventoryNonWrapped;
+
+                // Middle click or middle click drag
+                if (((clickType == ClickType.CLONE && dragType == 2) ||
+                    (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
+                    slotNum >= 0 && slotNum < inv.getSlots())
+                {
+                    this.toggleSlotLocked(slotNum, inv, false);
+                    return ItemStack.EMPTY;
+                }
+            }
+            // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
+            else if (clickType == ClickType.CLONE && dragType == 2)
+            {
+                this.middleClickSlot(slotNum, player);
+            }
         }
 
         if (this.isClient == false)

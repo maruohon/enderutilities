@@ -20,9 +20,9 @@ public class ContainerMSU extends ContainerTileLargeStacks implements ICustomSlo
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.temsu = te;
-        this.itemHandlerLargeStacks = te.getInventoryMSU();
+        this.inventoryNonWrapped = te.getInventoryMSU();
 
-        int numSlots = this.itemHandlerLargeStacks.getSlots();
+        int numSlots = this.inventoryNonWrapped.getSlots();
         this.lockedLast = new boolean[numSlots];
         this.templateStacksLast = NonNullList.withSize(numSlots, ItemStack.EMPTY);
 

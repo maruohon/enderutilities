@@ -21,7 +21,7 @@ public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlo
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.teasu = te;
-        this.itemHandlerLargeStacks = te.getInventoryASU();
+        this.inventoryNonWrapped = te.getInventoryASU();
 
         this.reAddSlots();
     }
@@ -52,7 +52,7 @@ public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlo
     @Override
     public void detectAndSendChanges()
     {
-        int stackLimit = this.itemHandlerLargeStacks.getInventoryStackLimit();
+        int stackLimit = this.inventoryNonWrapped.getInventoryStackLimit();
         int slotCount = this.inventory.getSlots();
 
         for (int i = 0; i < this.listeners.size(); i++)

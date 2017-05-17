@@ -18,7 +18,7 @@ public class ContainerJSU extends ContainerTileLargeStacks implements IScrollabl
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
         this.tejsu = te;
-        this.itemHandlerLargeStacks = te.getBaseItemHandler();
+        this.inventoryNonWrapped = te.getBaseItemHandler();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 139);
