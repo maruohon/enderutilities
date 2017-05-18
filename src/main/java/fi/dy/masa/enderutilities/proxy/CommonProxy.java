@@ -29,7 +29,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityCreationStation;
 import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderFurnace;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderInfuser;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
@@ -119,7 +119,7 @@ public class CommonProxy implements IProxy
     public void registerTileEntities()
     {
         this.registerTileEntityWithAlternatives(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
-        this.registerTileEntityWithAlternatives(TileEntityEnderElevator.class,          ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
+        this.registerTileEntityWithAlternatives(TileEntityElevator.class,               ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
         this.registerTileEntityWithAlternatives(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
         this.registerTileEntityWithAlternatives(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
         this.registerTileEntityWithAlternatives(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENTITY_ENERGY_BRIDGE);

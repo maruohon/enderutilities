@@ -15,7 +15,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.reference.HotKeys;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import io.netty.buffer.ByteBuf;
@@ -109,11 +109,11 @@ public class MessageKeyPressed implements IMessage
             {
                 BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
                 World world = player.getEntityWorld();
-                TileEntityEnderElevator te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos, TileEntityEnderElevator.class);
+                TileEntityElevator te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos, TileEntityElevator.class);
 
                 if (te == null)
                 {
-                    te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos.down(), TileEntityEnderElevator.class);
+                    te = BlockEnderUtilitiesTileEntity.getTileEntitySafely(world, pos.down(), TileEntityElevator.class);
                 }
 
                 if (te != null)

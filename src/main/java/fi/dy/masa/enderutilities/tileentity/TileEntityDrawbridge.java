@@ -8,7 +8,6 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -16,7 +15,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -25,7 +23,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -38,6 +35,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.TileUtils;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 {
@@ -194,7 +192,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             if (this.blockInfoTaken[i] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                this.writeBlockStateToTag(i, this.blockInfoTaken[i].getState(), tag);
+                NBTUtils.writeBlockStateToTag(this.blockInfoTaken[i].getState(), tag);
 
                 if (this.blockInfoTaken[i].getTileEntityNBT() != null)
                 {
@@ -212,7 +210,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             if (this.blockStatesPlaced[i] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                this.writeBlockStateToTag(i, this.blockStatesPlaced[i], tag);
+                NBTUtils.writeBlockStateToTag(this.blockStatesPlaced[i], tag);
                 tag.setByte("pos", (byte) i);
                 listPlaced.appendTag(tag);
             }
@@ -232,7 +230,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             for (int i = 0; i < length; i++)
             {
                 NBTTagCompound tag = list.getCompoundTagAt(i);
-                IBlockState state = this.readBlockStateFromTag(tag);
+                IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
                 if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
@@ -257,7 +255,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             for (int i = 0; i < length; i++)
             {
                 NBTTagCompound tag = list.getCompoundTagAt(i);
-                IBlockState state = this.readBlockStateFromTag(tag);
+                IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
                 if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
@@ -266,32 +264,6 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 }
             }
         }
-    }
-
-    /**
-     * Writes the given IBlockState to the given tag.<br>
-     * @param position
-     * @param state
-     * @param tag
-     */
-    private void writeBlockStateToTag(int position, IBlockState state, @Nonnull NBTTagCompound tag)
-    {
-        tag.setString("name", state.getBlock().getRegistryName().toString());
-        tag.setByte("meta", (byte) state.getBlock().getMetaFromState(state));
-    }
-
-    @SuppressWarnings("deprecation")
-    @Nullable
-    private IBlockState readBlockStateFromTag(NBTTagCompound tag)
-    {
-        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("name")));
-
-        if (block != null && block != Blocks.AIR)
-        {
-            return block.getStateFromMeta(tag.getByte("meta"));
-        }
-
-        return null;
     }
 
     @Nullable

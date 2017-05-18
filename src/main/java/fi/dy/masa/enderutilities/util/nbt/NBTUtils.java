@@ -4,16 +4,21 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -881,5 +886,30 @@ public class NBTUtils
         tag.setInteger("x", pos.getX());
         tag.setInteger("y", pos.getY());
         tag.setInteger("z", pos.getZ());
+    }
+
+    /**
+     * Writes the given IBlockState to the given tag.
+     * @param state
+     * @param tag
+     */
+    public static void writeBlockStateToTag(IBlockState state, @Nonnull NBTTagCompound tag)
+    {
+        tag.setString("name", state.getBlock().getRegistryName().toString());
+        tag.setByte("meta", (byte) state.getBlock().getMetaFromState(state));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Nullable
+    public static IBlockState readBlockStateFromTag(NBTTagCompound tag)
+    {
+        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("name")));
+
+        if (block != null && block != Blocks.AIR)
+        {
+            return block.getStateFromMeta(tag.getByte("meta"));
+        }
+
+        return null;
     }
 }
