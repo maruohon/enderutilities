@@ -161,7 +161,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 
             if (te != null)
             {
-                te.onRightClick(playerIn, hand, side);
+                te.onRightClickBlock(playerIn, hand, side);
                 return true;
             }
         }

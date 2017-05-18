@@ -39,6 +39,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMSU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityMemoryChest;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortalFrame;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.tileentity.TileEntitySoundBlock;
@@ -136,6 +137,7 @@ public class CommonProxy implements IProxy
         this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
         this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_ENTITY_MSU);
+        this.registerTileEntity(TileEntityPortalFrame.class,            ReferenceNames.NAME_TILE_FRAME);
         this.registerTileEntity(TileEntitySoundBlock.class,             ReferenceNames.NAME_TILE_SOUND_BLOCK);
     }
 

@@ -41,7 +41,7 @@ import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelNullifierBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrelBaked;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelElevator;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlock;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
@@ -384,10 +384,10 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoaderBarrel());
 
-        ModelLoaderRegistry.registerLoader(new ModelElevator.ModelLoaderElevator());
-
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoaderInserter());
+
+        ModelLoaderRegistry.registerLoader(new ModelCamouflageBlock.ModelLoaderCamouflageBlocks());
     }
 
     private void registerItemBlockModels()

@@ -115,8 +115,13 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         if (tag.hasKey("camo", Constants.NBT.TAG_INT))
         {
             this.camoState = Block.getStateById(tag.getInteger("camo"));
-            this.notifyBlockUpdate();
         }
+        else
+        {
+            this.camoState = null;
+        }
+
+        this.notifyBlockUpdate();
     }
 
     @Override
@@ -125,7 +130,8 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         return oldState.getBlock() != newState.getBlock();
     }
 
-    public void onRightClick(EntityPlayer player, EnumHand hand, EnumFacing side)
+    @Override
+    public void onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side)
     {
         ItemStack stack = player.getHeldItem(hand);
 
@@ -145,15 +151,9 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         else if (player.isSneaking())
         {
             this.camoState = null;
-            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
             this.notifyBlockUpdate();
         }
-    }
-
-    private void notifyBlockUpdate()
-    {
-        IBlockState state = this.getWorld().getBlockState(this.getPos());
-        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     @Override
