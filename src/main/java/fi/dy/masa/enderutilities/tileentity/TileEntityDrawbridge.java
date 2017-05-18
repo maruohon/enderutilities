@@ -657,6 +657,12 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
+    protected boolean hasCamouflageAbility()
+    {
+        return true;
+    }
+
+    @Override
     public ContainerDrawbridge getContainer(EntityPlayer player)
     {
         return new ContainerDrawbridge(player, this);

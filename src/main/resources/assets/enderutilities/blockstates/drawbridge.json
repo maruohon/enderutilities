@@ -1,21 +1,12 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:orientable_directional_individual",
-        "transform": "forge:default-block",
-        "textures": {
-            "front":    "enderutilities:blocks/drawbridge_front_normal",
-            "top":      "enderutilities:blocks/drawbridge_side",
-            "bottom":   "enderutilities:blocks/drawbridge_side",
-            "left":     "enderutilities:blocks/drawbridge_side",
-            "right":    "enderutilities:blocks/drawbridge_side",
-            "back":     "enderutilities:blocks/drawbridge_back"
-        }
+        "transform": "forge:default-block"
     },
     "variants": {
         "advanced": {
-            "false": {},
-            "true": { "textures": { "front": "enderutilities:blocks/drawbridge_front_advanced" } }
+            "false": { "model": "enderutilities:custom/draw_bridge_normal"   },
+            "true": {  "model": "enderutilities:custom/draw_bridge_advanced" }
         },
         "facing": {
             "north": {},
