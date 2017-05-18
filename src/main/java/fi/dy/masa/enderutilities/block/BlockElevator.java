@@ -22,12 +22,16 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
+import fi.dy.masa.enderutilities.block.base.property.PropertyBlockState;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.tileentity.TileEntityEnderElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
@@ -36,6 +40,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     public static final AxisAlignedBB BOUNDS_SLAB   = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
     public static final AxisAlignedBB BOUNDS_LAYER  = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 2 / 16D, 1.0D);
     public static final PropertyEnum<EnumDyeColor> COLOR = PropertyEnum.<EnumDyeColor>create("color", EnumDyeColor.class);
+    public static final PropertyBlockState CAMOBLOCK = new PropertyBlockState("camo");
 
     public BlockElevator(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -48,7 +53,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { COLOR });
+        return new ExtendedBlockState(this, new IProperty[] { COLOR }, new IUnlistedProperty<?>[] { CAMOBLOCK });
     }
 
     @Override
@@ -63,13 +68,13 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     protected String[] generateTooltipNames()
     {
         // Use a common tooltip by adding exactly one entry into the array
-        return new String[] { this.blockName };
+        return new String[] { "ender_elevator" };
     }
 
     @Override
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
-        return new TileEntityEnderElevator();
+        return new TileEntityElevator();
     }
 
     @Override
@@ -112,6 +117,20 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
+    public IBlockState getExtendedState(IBlockState oldState, IBlockAccess world, BlockPos pos)
+    {
+        TileEntityElevator te = getTileEntitySafely(world, pos, TileEntityElevator.class);
+
+        if (te != null)
+        {
+            IExtendedBlockState state = (IExtendedBlockState) oldState;
+            return state.withProperty(CAMOBLOCK, te.getCamoState());
+        }
+
+        return oldState;
+    }
+
+    @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
@@ -134,6 +153,16 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
                     }
                 }
 
+                return true;
+            }
+        }
+        else
+        {
+            TileEntityElevator te = getTileEntitySafely(worldIn, pos, TileEntityElevator.class);
+
+            if (te != null)
+            {
+                te.onRightClick(playerIn, hand, side);
                 return true;
             }
         }

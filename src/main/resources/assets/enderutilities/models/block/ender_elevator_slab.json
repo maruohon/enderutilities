@@ -1,4 +1,5 @@
 {
+    "parent": "minecraft:block/block",
     "textures": {
         "particle": "enderutilities:blocks/ender_elevator_side",
         "top":      "enderutilities:blocks/ender_elevator_side",
