@@ -21,24 +21,20 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.block.BlockElevator;
-import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 
-public class ModelElevatorBaked implements IBakedModel
+public class ModelCamouflageBlockBaked implements IBakedModel
 {
-    private static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE =
+    public static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE =
             new HashMap<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>();
     private final ImmutableMap<String, String> textures;
     private final IBlockState defaultState;
@@ -46,10 +42,10 @@ public class ModelElevatorBaked implements IBakedModel
     private final IBakedModel bakedOverlayModel;
     private final TextureAtlasSprite particle;
 
-    public ModelElevatorBaked(ModelElevatorBase elevatorModel, IModel baseModel, IModel overlayModel, IBlockState defaultState,
+    public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, IModel overlayModel, IBlockState defaultState,
             IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        this.textures = ImmutableMap.copyOf(elevatorModel.getTextureMapping());
+        this.textures = ImmutableMap.copyOf(textureMapping.getTextureMapping());
         this.defaultState = defaultState;
         this.bakedBaseModel = ((IRetexturableModel) baseModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
         this.bakedOverlayModel = ((IRetexturableModel) overlayModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
@@ -102,7 +98,7 @@ public class ModelElevatorBaked implements IBakedModel
             return this.bakedBaseModel.getQuads(state, side, rand);
         }
 
-        IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockElevator.CAMOBLOCK);
+        IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCK);
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
         long id = 0;
 
@@ -167,21 +163,18 @@ public class ModelElevatorBaked implements IBakedModel
         return builder.build();
     }
 
-    private static abstract class ModelElevatorBase implements IModel
+    public static class ModelCamouflageBlockBase implements IModel, ITextureMapped
     {
         private final IBlockState defaultState;
         private final ResourceLocation baseModel;
         private final ResourceLocation overlayModel;
-        private final Map<String, String> textures = new HashMap<String, String>();
+        protected final Map<String, String> textures = new HashMap<String, String>();
 
-        private ModelElevatorBase(IBlockState defaultState, ResourceLocation baseModel, ResourceLocation overlayModel)
+        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModel, ResourceLocation overlayModel)
         {
             this.defaultState = defaultState;
             this.baseModel = baseModel;
             this.overlayModel = overlayModel;
-            this.textures.put("particle",   "enderutilities:blocks/enderelevator_side");
-            this.textures.put("side",       "enderutilities:blocks/enderelevator_side");
-            this.textures.put("overlay",    "enderutilities:blocks/enderelevator_top_overlay");
         }
 
         @Override
@@ -199,9 +192,14 @@ public class ModelElevatorBaked implements IBakedModel
         @Override
         public Collection<ResourceLocation> getTextures()
         {
-            return Lists.newArrayList(
-                    new ResourceLocation(this.textures.get("side")),
-                    new ResourceLocation(this.textures.get("overlay")));
+            List<ResourceLocation> textures = Lists.newArrayList();
+
+            for (String name : this.getTextureMapping().values())
+            {
+                textures.add(new ResourceLocation(name));
+            }
+
+            return textures;
         }
 
         @Override
@@ -217,83 +215,16 @@ public class ModelElevatorBaked implements IBakedModel
             }
             catch (Exception e)
             {
-                EnderUtilities.logger.warn("Failed to load a model for the Ender Elevator!");
+                EnderUtilities.logger.warn("Failed to load a model for a camouflage block", e);
             }
 
-            return new ModelElevatorBaked(this, baseModel, overlayModel, this.defaultState, state, format, bakedTextureGetter);
+            return new ModelCamouflageBlockBaked(this, baseModel, overlayModel, this.defaultState, state, format, bakedTextureGetter);
         }
 
+        @Override
         public ImmutableMap<String, String> getTextureMapping()
         {
             return ImmutableMap.copyOf(this.textures);
-        }
-    }
-
-    private static class ModelElevatorNormal extends ModelElevatorBase
-    {
-        private ModelElevatorNormal()
-        {
-            super(EnderUtilitiesBlocks.blockElevator.getDefaultState(),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator"),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator_overlay"));
-        }
-    }
-
-    private static class ModelElevatorSlab extends ModelElevatorBase
-    {
-        private ModelElevatorSlab()
-        {
-            super(EnderUtilitiesBlocks.blockElevatorSlab.getDefaultState(),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator_slab"),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator_slab_overlay"));
-        }
-    }
-
-    private static class ModelElevatorLayer extends ModelElevatorBase
-    {
-        private ModelElevatorLayer()
-        {
-            super(EnderUtilitiesBlocks.blockElevatorLayer.getDefaultState(),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator_layer"),
-                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator_layer_overlay"));
-        }
-    }
-
-    public static class ModelLoaderElevator implements ICustomModelLoader
-    {
-        private static final ResourceLocation FAKE_LOCATION_NORMAL = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator");
-        private static final ResourceLocation FAKE_LOCATION_SLAB   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator_slab");
-        private static final ResourceLocation FAKE_LOCATION_LAYER  = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator_layer");
-
-        @Override
-        public boolean accepts(ResourceLocation modelLocation)
-        {
-            return modelLocation.equals(FAKE_LOCATION_NORMAL) ||
-                   modelLocation.equals(FAKE_LOCATION_SLAB) ||
-                   modelLocation.equals(FAKE_LOCATION_LAYER);
-        }
-
-        @Override
-        public IModel loadModel(ResourceLocation modelLocation) throws Exception
-        {
-            if (modelLocation.equals(FAKE_LOCATION_NORMAL))
-            {
-                return new ModelElevatorNormal();
-            }
-            else if (modelLocation.equals(FAKE_LOCATION_SLAB))
-            {
-                return new ModelElevatorSlab();
-            }
-            else
-            {
-                return new ModelElevatorLayer();
-            }
-        }
-
-        @Override
-        public void onResourceManagerReload(IResourceManager resourceManager)
-        {
-            QUAD_CACHE.clear();
         }
     }
 }
