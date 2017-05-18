@@ -322,7 +322,7 @@ public class TeleportEntity
 
             player.setPositionAndUpdate(x, y, z);
             worldDst.updateEntityWithOptionalForce(player, false);
-            player.addExperience(0);
+            player.addExperienceLevel(0);
             player.setPlayerHealthUpdated();
             // TODO update food level?
         }
