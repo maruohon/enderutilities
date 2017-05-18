@@ -24,7 +24,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
@@ -41,12 +40,10 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
@@ -56,7 +53,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.event.PlayerItemPickupEvent;
@@ -74,6 +70,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
+import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -129,7 +126,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
         // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
         // then bind the crystal to the block clicked on.
-        if (player != null && player.isSneaking() && te != null &&
+        if (player.isSneaking() && te != null &&
             (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
             && UtilItemModular.getSelectedModuleTier(stack, ModuleType.TYPE_LINKCRYSTAL) == ItemLinkCrystal.TYPE_BLOCK)
         {
@@ -141,62 +138,55 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             return EnumActionResult.SUCCESS;
         }
         // Hoe
-        else if (ToolType.fromStack(stack).equals(ToolType.HOE))
-        {
-            if (world.isRemote)
-            {
-                return EnumActionResult.SUCCESS;
-            }
-
-            if (PowerStatus.fromStack(stack) == PowerStatus.POWERED)
-            {
-                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoeArea(stack, player, world, pos, side, 1, 1) == false)
-                {
-                    this.useHoeToPlantArea(stack, player, world, pos, side, hitX, hitY, hitZ, 1, 1);
-                }
-            }
-            else
-            {
-                // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
-                if (this.useHoe(stack, player, world, pos, side) == false)
-                {
-                    this.useHoeToPlant(stack, player, world, pos, side, hitX, hitY, hitZ);
-                }
-            }
-        }
-        // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
-        else if (player != null)
+        else if (ToolType.fromStack(stack) == ToolType.HOE)
         {
             if (world.isRemote == false)
             {
-                return this.placeBlock(stack, player, world, pos, side, hitX, hitY, hitZ);
+                if (PowerStatus.fromStack(stack) == PowerStatus.POWERED)
+                {
+                    // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                    if (this.useHoeArea(stack, player, world, pos, side, 1, 1) == false)
+                    {
+                        this.useHoeToPlantArea(stack, player, hand, world, pos, side, hitX, hitY, hitZ, 1, 1);
+                    }
+                }
+                else
+                {
+                    // Didn't till any soil; try to plant stuff from the player inventory or a remote inventory
+                    if (this.useHoe(stack, player, world, pos, side) == false)
+                    {
+                        this.useHoeToPlant(stack, player, hand, world, pos, side, hitX, hitY, hitZ);
+                    }
+                }
             }
 
             return EnumActionResult.SUCCESS;
         }
-
-        return EnumActionResult.PASS;
+        // Try to place a block from the slot right to the currently selected tool (or from slot 1 if tool is in slot 9)
+        else
+        {
+            return this.placeBlock(stack, player, hand, world, pos, side, hitX, hitY, hitZ);
+        }
     }
 
-    private EnumActionResult placeBlock(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    private EnumActionResult placeBlock(ItemStack stack, EntityPlayer playerIn, EnumHand hand,
+            World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        int origSlot = playerIn.inventory.currentItem;
-        int slot = -1;
-
-        ItemStack targetStack = playerIn.getHeldItemOffhand();
-
-        if (targetStack.isEmpty() || (targetStack.getItem() instanceof ItemBlock) == false)
+        // Items in the off-hand, let vanilla handle that case
+        if (playerIn.getHeldItemOffhand().isEmpty() == false)
         {
-            slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
-            targetStack = playerIn.inventory.getStackInSlot(slot);
+            return EnumActionResult.PASS;
+        }
 
-            // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
-            if (origSlot == 0 && (targetStack.isEmpty() || (targetStack.getItem() instanceof ItemBlock) == false))
-            {
-                slot = InventoryPlayer.getHotbarSize() - 1;
-                targetStack = playerIn.inventory.getStackInSlot(slot);
-            }
+        int origSlot = playerIn.inventory.currentItem;
+        int slot = (origSlot >= InventoryPlayer.getHotbarSize() - 1 ? 0 : origSlot + 1);
+        ItemStack targetStack = playerIn.inventory.getStackInSlot(slot);
+
+        // If the tool is in the first slot of the hotbar and there is no ItemBlock in the second slot, we fall back to the last slot
+        if (origSlot == 0 && (targetStack.isEmpty() || (targetStack.getItem() instanceof ItemBlock) == false))
+        {
+            slot = InventoryPlayer.getHotbarSize() - 1;
+            targetStack = playerIn.inventory.getStackInSlot(slot);
         }
 
         // If the target stack is an ItemBlock, we try to place that in the world
@@ -205,38 +195,21 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             // Check if we can place the block
             if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock) targetStack.getItem()).block))
             {
-                EnumActionResult result;
+                ItemStack stackTool = playerIn.getHeldItem(hand);
+                playerIn.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+                EntityUtils.setHeldItemWithoutEquipSound(playerIn, hand, targetStack);
 
-                // Off-hand
-                if (slot == -1)
+                EnumActionResult result = targetStack.onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
+
+                EntityUtils.setHeldItemWithoutEquipSound(playerIn, hand, stackTool);
+
+                // Items left, return them to the original slot
+                if (targetStack.isEmpty() == false)
                 {
-                    result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.OFF_HAND);
-
-                    if (targetStack.isEmpty())
-                    {
-                        playerIn.setHeldItem(EnumHand.OFF_HAND, ItemStack.EMPTY);
-                    }
-                }
-                else
-                {
-                    playerIn.inventory.currentItem = slot;
-                    result = ForgeHooks.onPlaceItemIntoWorld(targetStack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND);
-
-                    if (targetStack.isEmpty())
-                    {
-                        playerIn.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
-                    }
-
-                    playerIn.inventory.currentItem = origSlot;
+                    // Somewhere in the hotbar
+                    playerIn.inventory.setInventorySlotContents(slot, targetStack.isEmpty() ? ItemStack.EMPTY : targetStack);
                 }
 
-                if (result == EnumActionResult.SUCCESS)
-                {
-                    SoundEvent sound = ((ItemBlock)targetStack.getItem()).block.getSoundType(worldIn.getBlockState(pos), worldIn, pos, playerIn).getPlaceSound();
-                    worldIn.playSound(null, pos, sound, SoundCategory.BLOCKS, 1.0f, 1.0f);
-                }
-
-                playerIn.inventory.markDirty();
                 playerIn.inventoryContainer.detectAndSendChanges();
 
                 return result;
@@ -310,26 +283,23 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 return false;
             }
 
-            if (world.isRemote == false && newBlockState != null)
+            if (newBlockState != null)
             {
                 world.setBlockState(pos, newBlockState, 3);
-                // 0.4.2: No idea why this is needed to get the blocks to update to the client, as it should be called from setBlock() already...
-                world.notifyBlockUpdate(pos, state, state, 3);
-
                 this.addToolDamage(stack, 1, player, player);
 
                 world.playSound(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d,
                         SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
-            }
 
-            return true;
+                return true;
+            }
         }
 
         return false;
     }
 
-    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
-            float hitX, float hitY, float hitZ, int rWidth, int rHeight)
+    public boolean useHoeToPlantArea(ItemStack stack, EntityPlayer player, EnumHand hand,
+            World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int rWidth, int rHeight)
     {
         boolean northSouth = (((int)MathHelper.floor(player.rotationYaw * 4.0f / 360.0f + 0.5f)) & 1) == 0;
         boolean retValue = false;
@@ -345,14 +315,15 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         {
             for (int z = pos.getZ() - rHeight; z <= (pos.getZ() + rHeight); ++z)
             {
-                retValue |= this.useHoeToPlant(stack, player, world, new BlockPos(x, pos.getY(), z), side, hitX, hitY, hitZ);
+                retValue |= this.useHoeToPlant(stack, player, hand, world, new BlockPos(x, pos.getY(), z), side, hitX, hitY, hitZ);
             }
         }
 
         return retValue;
     }
 
-    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean useHoeToPlant(ItemStack toolStack, EntityPlayer player, EnumHand hand,
+            World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true) == false)
         {
@@ -365,7 +336,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         {
             for (int slot = 0; slot < inv.getSlots(); slot++)
             {
-                if (this.plantItemFromInventorySlot(world, player, inv, slot, pos, side, hitX, hitY, hitZ))
+                if (this.plantItemFromInventorySlot(world, player, hand, inv, slot, pos, side, hitX, hitY, hitZ))
                 {
                     // Use Ender Charge if planting from a remote inventory
                     if (DropsMode.fromStack(toolStack) == DropsMode.REMOTE)
@@ -383,7 +354,8 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         return false;
     }
 
-    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, IItemHandler inv, int slot, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    private boolean plantItemFromInventorySlot(World world, EntityPlayer player, EnumHand hand,
+            IItemHandler inv, int slot, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         boolean ret = false;
         ItemStack plantStack = inv.getStackInSlot(slot);
@@ -397,10 +369,15 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 return false;
             }
 
-            if (plantStack.onItemUse(player, world, pos, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ) == EnumActionResult.SUCCESS)
+            ItemStack stackHand = player.getHeldItem(hand);
+            EntityUtils.setHeldItemWithoutEquipSound(player, hand, plantStack);
+
+            if (plantStack.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ) == EnumActionResult.SUCCESS)
             {
                 ret = true;
             }
+
+            EntityUtils.setHeldItemWithoutEquipSound(player, hand, stackHand);
 
             if (plantStack.isEmpty() == false)
             {
@@ -412,10 +389,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 }
             }
 
-            if (inv instanceof PlayerMainInvWrapper && player instanceof EntityPlayerMP)
-            {
-                player.inventoryContainer.detectAndSendChanges();
-            }
+            player.inventoryContainer.detectAndSendChanges();
         }
 
         return ret;
