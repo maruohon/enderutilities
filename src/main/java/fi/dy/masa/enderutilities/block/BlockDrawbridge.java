@@ -8,16 +8,24 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.util.Constants;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -39,7 +47,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { ADVANCED, FACING });
+        return new ExtendedBlockState(this, new IProperty[] { ADVANCED, FACING }, new IUnlistedProperty<?>[] { CAMOBLOCK });
     }
 
     @Override
@@ -83,15 +91,38 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public int damageDropped(IBlockState state)
+    {
+        return this.getMetaFromState(state) & 0x1;
+    }
+
+    @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(ADVANCED, meta == 1);
+        return this.getDefaultState()
+                .withProperty(FACING, EnumFacing.getFront(meta >> 1))
+                .withProperty(ADVANCED, (meta & 0x1) == 1);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(ADVANCED) ? 1 : 0;
+        int meta = state.getValue(FACING).getIndex() << 1;
+        return state.getValue(ADVANCED) ? meta | 0x1 : meta;
+    }
+
+    @Override
+    public IBlockState getExtendedState(IBlockState oldState, IBlockAccess world, BlockPos pos)
+    {
+        TileEntityDrawbridge te = getTileEntitySafely(world, pos, TileEntityDrawbridge.class);
+
+        if (te != null)
+        {
+            IExtendedBlockState state = (IExtendedBlockState) oldState;
+            return state.withProperty(CAMOBLOCK, te.getCamoState());
+        }
+
+        return oldState;
     }
 
     @Override
@@ -111,6 +142,32 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
                 te.onScheduledBlockUpdate(world, pos, state, rand);
             }
         }
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
+            EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        TileEntityDrawbridge te = getTileEntitySafely(world, pos, TileEntityDrawbridge.class);
+
+        if (te != null && this.isTileEntityValid(te))
+        {
+            if (te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ))
+            {
+                return true;
+            }
+            else
+            {
+                if (world.isRemote == false)
+                {
+                    player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

@@ -36,16 +36,22 @@ public class ModelCamouflageBlockBaked implements IBakedModel
 {
     public static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE =
             new HashMap<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>();
-    private final ImmutableMap<String, String> textures;
-    private final IBlockState defaultState;
-    private final IBakedModel bakedBaseModel;
+    protected final ImmutableMap<String, String> textures;
+    protected final IBlockState defaultState;
+    protected final IBakedModel bakedBaseModel;
     @Nullable
-    private final IBakedModel bakedOverlayModel;
-    private final TextureAtlasSprite particle;
+    protected final IBakedModel bakedOverlayModel;
+    protected final IModel baseModel;
+    protected final VertexFormat format;
+    protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
+    protected final TextureAtlasSprite particle;
 
     public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
             IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
+        this.baseModel = baseModel;
+        this.format = format;
+        this.bakedTextureGetter = bakedTextureGetter;
         this.textures = ImmutableMap.copyOf(textureMapping.getTextureMapping());
         this.defaultState = defaultState;
         this.particle = bakedTextureGetter.apply(new ResourceLocation(this.textures.get("particle")));
@@ -118,7 +124,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         }
         else
         {
-            id = ((long) Block.getStateId(this.defaultState)) << 32;
+            id = ((long) Block.getStateId(state)) << 32;
         }
 
         quads = QUAD_CACHE.get(id);
@@ -132,7 +138,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
             }
             else
             {
-                quads = this.getCombinedQuads(this.bakedBaseModel, state, null, null);
+                quads = this.getCombinedQuads(this.getBakedBaseModel(state), state, null, null);
             }
 
             QUAD_CACHE.put(id, quads);
@@ -141,7 +147,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         return quads.get(Optional.fromNullable(side));
     }
 
-    private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
+    protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
             @Nonnull IBakedModel baseModel, @Nonnull IBlockState stateBase,
             @Nullable IBakedModel optionalModel, @Nullable IBlockState stateOptional)
     {
@@ -173,12 +179,17 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         return builder.build();
     }
 
+    protected IBakedModel getBakedBaseModel(IBlockState state)
+    {
+        return this.bakedBaseModel;
+    }
+
     public static class ModelCamouflageBlockBase implements IModel, ITextureMapped
     {
-        private final IBlockState defaultState;
-        private final ResourceLocation baseModelLocation;
+        protected final IBlockState defaultState;
+        protected final ResourceLocation baseModelLocation;
         @Nullable
-        private final ResourceLocation overlayModelLocation;
+        protected final ResourceLocation overlayModelLocation;
         protected final Map<String, String> textures = new HashMap<String, String>();
 
         public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModel, @Nullable ResourceLocation overlayModel)
