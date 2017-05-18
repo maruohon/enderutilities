@@ -28,7 +28,6 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
-import fi.dy.masa.enderutilities.block.base.property.PropertyBlockState;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
@@ -40,7 +39,6 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     public static final AxisAlignedBB BOUNDS_SLAB   = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
     public static final AxisAlignedBB BOUNDS_LAYER  = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 2 / 16D, 1.0D);
     public static final PropertyEnum<EnumDyeColor> COLOR = PropertyEnum.<EnumDyeColor>create("color", EnumDyeColor.class);
-    public static final PropertyBlockState CAMOBLOCK = new PropertyBlockState("camo");
 
     public BlockElevator(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
