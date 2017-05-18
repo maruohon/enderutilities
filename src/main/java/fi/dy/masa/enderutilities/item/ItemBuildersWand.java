@@ -1282,7 +1282,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             return null;
         }
 
-        if (world.isAirBlock(posTmp))
+        if (world.getBlockState(posTmp).getBlock().isReplaceable(world, posTmp))
         {
             if (mode == Mode.EXTEND_AREA || mode == Mode.EXTEND_CONTINUOUS)
             {
@@ -1607,6 +1607,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         Area area = new Area(this.getModeTag(stack, mode));
         int dim = world.provider.getDimension();
         boolean continueThrough = WandOption.CONTINUE_THROUGH.isEnabled(stack, mode);
+        BlockPos pos;
 
         switch (mode)
         {
@@ -1614,7 +1615,9 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 for (int i = 0; i <= area.rPosH; i++)
                 {
                     BlockPosEU posTmp = center.offset(side, i);
-                    if (world.isAirBlock(posTmp.toBlockPos()))
+                    pos = posTmp.toBlockPos();
+
+                    if (world.getBlockState(pos).getBlock().isReplaceable(world, pos))
                     {
                         positions.add(new BlockPosStateDist(posTmp, biTarget));
                     }
@@ -1629,7 +1632,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 for (int i = 0; i <= area.rPosH; i++)
                 {
                     BlockPos posTmp = center.offset(axisRight, i).toBlockPos();
-                    if (world.isAirBlock(posTmp))
+
+                    if (world.getBlockState(posTmp).getBlock().isReplaceable(world, posTmp))
                     {
                         positions.add(new BlockPosStateDist(posTmp, dim, side,
                                         this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
@@ -1643,7 +1647,8 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 for (int i = -1; -i <= area.rNegH; i--)
                 {
                     BlockPos posTmp = center.offset(axisRight, i).toBlockPos();
-                    if (world.isAirBlock(posTmp))
+
+                    if (world.getBlockState(posTmp).getBlock().isReplaceable(world, posTmp))
                     {
                         positions.add(new BlockPosStateDist(posTmp, dim, side,
                                         this.getBlockInfoForBlockType(world, posTmp, side, blockType, biTarget, biBound)));
@@ -2565,6 +2570,14 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             else if (mode.isAreaMode() == false)
             {
                 this.toggleAreaFlipped(stack, player);
+            }
+        }
+        // Alt + Toggle: FIXME Temporary key for toggling replace on build modes
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
+        {
+            if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
+            {
+                WandOption.REPLACE_EXISTING.toggle(stack, mode);
             }
         }
     }

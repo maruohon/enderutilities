@@ -469,7 +469,12 @@ public class BuildersWandRenderer
                 if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
                 {
                     str = I18n.format("enderutilities.tooltip.item.continuethrough");
-                    lines.add(str + ": " + (WandOption.CONTINUE_THROUGH.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst);
+                    str += ": " + (WandOption.CONTINUE_THROUGH.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
+
+                    str += " - " + I18n.format("enderutilities.tooltip.item.replace");
+                    str += ": " + (WandOption.REPLACE_EXISTING.isEnabled(stack, mode) ? preGreen + strYes : preRed + strNo) + rst;
+
+                    lines.add(str);
                 }
                 else if (mode == Mode.EXTEND_CONTINUOUS || (mode == Mode.REPLACE && WandOption.REPLACE_MODE_IS_AREA.isEnabled(stack, mode)))
                 {

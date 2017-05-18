@@ -84,7 +84,7 @@ public class BlockUtils
 
         float hardness = state.getBlockHardness(world, pos);
 
-        return world.isBlockModifiable(player, pos) && hardness >= 0 && hardness <= maxHardness &&
+        return world.isBlockModifiable(player, pos) && hardness >= 0 && (hardness <= maxHardness || state.getMaterial().isLiquid()) &&
                (allowTileEntities || world.getTileEntity(pos) == null);
     }
 
