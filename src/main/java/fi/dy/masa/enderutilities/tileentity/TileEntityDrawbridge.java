@@ -119,14 +119,14 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        if (tag.hasKey("drawbridge.delay", Constants.NBT.TAG_INT))
+        if (tag.hasKey("draw_bridge.delay", Constants.NBT.TAG_INT))
         {
-            this.setDelay(tag.getInteger("drawbridge.delay"));
+            this.setDelay(tag.getInteger("draw_bridge.delay"));
         }
 
-        if (tag.hasKey("drawbridge.length", Constants.NBT.TAG_BYTE))
+        if (tag.hasKey("draw_bridge.length", Constants.NBT.TAG_BYTE))
         {
-            this.setMaxLength(tag.getByte("drawbridge.length"));
+            this.setMaxLength(tag.getByte("draw_bridge.length"));
         }
 
         this.markDirty();
