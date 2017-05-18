@@ -11,6 +11,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntityDamageSource;
+import net.minecraft.util.EnumActionResult;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -60,13 +61,16 @@ public class EntityEventHandler
                 {
                     ((ItemLivingManipulator)item).handleInteraction(stack, player, (EntityLivingBase)event.getTarget());
                 }
+
                 event.setCanceled(true);
+                event.setCancellationResult(EnumActionResult.SUCCESS);
             }
         }
         else if (item == EnderUtilitiesItems.MOB_HARNESS && event.getTarget() instanceof EntityLivingBase)
         {
             ((ItemMobHarness) item).handleInteraction(stack, player, event.getTarget());
             event.setCanceled(true);
+            event.setCancellationResult(EnumActionResult.SUCCESS);
         }
         else if (item == EnderUtilitiesItems.ENDER_LASSO && event.getTarget() instanceof EntityLivingBase)
         {
@@ -83,6 +87,7 @@ public class EntityEventHandler
                     if (isRemote || TeleportEntity.teleportEntityUsingModularItem(event.getTarget(), stack, true, true) != null)
                     {
                         event.setCanceled(true);
+                        event.setCancellationResult(EnumActionResult.SUCCESS);
                     }
                 }
             }

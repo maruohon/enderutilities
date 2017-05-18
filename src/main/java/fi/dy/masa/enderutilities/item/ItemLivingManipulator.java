@@ -141,7 +141,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             boolean isShulker = false;
 
-            if (tag.getString("id").equals("Shulker"))
+            if (tag.getString("id").equals("minecraft:shulker") || tag.getString("id").equals("Shulker"))
             {
                 // Special case to update the Shulker's attached position and position
                 if (tag.hasKey("APX", Constants.NBT.TAG_INT))
@@ -219,6 +219,13 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             return EnumActionResult.FAIL;
         }
 
+        String str = EntityList.getEntityString(livingBase);
+
+        if (str != null)
+        {
+            nbtEntity.setString("EntityString", str);
+        }
+
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, true);
 
         tagList = NBTUtils.insertToTagList(tagList, nbtEntity, NBTUtils.getByte(moduleStack, WRAPPER_TAG_NAME, "Current"));
@@ -282,12 +289,24 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
             String rst = TextFormatting.RESET.toString() + (useDisplayNameFormatting ? TextFormatting.WHITE.toString() : TextFormatting.GRAY.toString());
 
             String name = tag.getString("CustomName");
+            String id = null;
 
-            if (tag.hasKey("id", Constants.NBT.TAG_STRING))
+            // EntityString added in the 1.11.2 port, because the id is now the
+            // registry name/ResourceLocation, and is not usable in the translation anymore
+            if (tag.hasKey("EntityString", Constants.NBT.TAG_STRING))
             {
-                String id = tag.getString("id");
+                id = tag.getString("EntityString");
+            }
+            else if (tag.hasKey("id", Constants.NBT.TAG_STRING))
+            {
+                id = tag.getString("id");
+            }
+
+            if (id != null)
+            {
                 String translated = I18n.format("entity." + id + ".name");
 
+                // Translation found
                 if (id.equals(translated) == false)
                 {
                     id = translated;
