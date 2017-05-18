@@ -1,11 +1,8 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "minecraft:cube_all",
-        "transform": "forge:default-block",
-        "textures": {
-            "all": "enderutilities:blocks/frame"
-        }
+        "model": "enderutilities:custom/frame",
+        "transform": "forge:default-block"
     },
     "variants": {
         "normal": [{}],

@@ -42,7 +42,7 @@ import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelNullifierBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrelBaked;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelElevator;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlock;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
@@ -410,10 +410,10 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoaderBarrel());
 
-        ModelLoaderRegistry.registerLoader(new ModelElevator.ModelLoaderElevator());
-
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoaderInserter());
+
+        ModelLoaderRegistry.registerLoader(new ModelCamouflageBlock.ModelLoaderCamouflageBlocks());
     }
 
     private void registerItemBlockModels()
@@ -430,14 +430,14 @@ public class ClientProxy extends CommonProxy
             this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_LAYER, i, "inventory");
         }
 
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,      (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,       (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_SLAB,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_LAYER, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1,    "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0,    "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU,               "type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1, "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0, "facing=north,type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU, "type=", "");
 
         this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 1, "advanced=true,facing=north");
@@ -448,9 +448,9 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(EnderUtilitiesBlocks.MOLECULAR_EXCITER, 0, "facing=north,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
         this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_FRAME,  0, "inventory");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.ENDER_FURNACE,    0, "facing=north,mode=off");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_PANEL,  0, "facing=north");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_FRAME, 0, "inventory");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.ENDER_FURNACE, 0, "facing=north,mode=off");
+        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_PANEL, 0, "facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.SOUND_BLOCK, 0, "inventory");
     }
 

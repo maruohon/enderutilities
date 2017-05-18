@@ -32,7 +32,7 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_MSU,             6.0f,   20f, 1, Material.IRON);
     public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,            2.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities PORTAL              = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
-    public static final BlockEnderUtilities PORTAL_FRAME        = new BlockEnderUtilities(ReferenceNames.NAME_TILE_FRAME,       4.0f,   20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities PORTAL_FRAME        = new BlockPortalFrame(ReferenceNames.NAME_TILE_FRAME,          4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities PORTAL_PANEL        = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
     public static final BlockEnderUtilities SOUND_BLOCK         = new BlockSound(ReferenceNames.NAME_TILE_SOUND_BLOCK,          4.0f,   10f, 1, Material.ROCK);
     public static final BlockEnderUtilities STORAGE_0           = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f,   60f, 1, Material.ROCK);

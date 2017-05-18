@@ -17,6 +17,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -127,6 +128,10 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData == null || this.ownerData.canAccess(player);
     }
 
+    public void onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side)
+    {
+    }
+
     public void onLeftClickBlock(EntityPlayer player)
     {
     }
@@ -148,6 +153,12 @@ public class TileEntityEnderUtilities extends TileEntity
             //System.out.printf("scheduleBlockUpdate(), actually scheduling for %s\n", this.getPos());
             world.scheduleUpdate(this.getPos(), this.getBlockType(), delay);
         }
+    }
+
+    protected void notifyBlockUpdate()
+    {
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     public boolean isPowered()
@@ -173,11 +184,8 @@ public class TileEntityEnderUtilities extends TileEntity
         this.readFromNBTCustom(nbt); // This call needs to be at the super-most custom TE class
     }
 
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    protected NBTTagCompound writeToNBTCustom(NBTTagCompound nbt)
     {
-        nbt = super.writeToNBT(nbt);
-
         nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Rotation", (byte)this.facing.getIndex());
 
@@ -185,6 +193,16 @@ public class TileEntityEnderUtilities extends TileEntity
         {
             this.ownerData.writeToNBT(nbt);
         }
+
+        return nbt;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        nbt = super.writeToNBT(nbt);
+
+        this.writeToNBTCustom(nbt);
 
         return nbt;
     }

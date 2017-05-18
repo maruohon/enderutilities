@@ -141,6 +141,7 @@ public class CommonProxy implements IProxy
         this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
         this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_MSU);
         this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
+        this.registerTileEntity(TileEntityPortalFrame.class,            ReferenceNames.NAME_TILE_FRAME);
         this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
         this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED);
         this.registerTileEntity(TileEntitySoundBlock.class,             ReferenceNames.NAME_TILE_SOUND_BLOCK);

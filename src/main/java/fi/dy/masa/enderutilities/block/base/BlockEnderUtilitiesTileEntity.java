@@ -97,11 +97,18 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     {
         TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
 
-        if (te != null && te.hasGui() && this.isTileEntityValid(te))
+        if (te != null && this.isTileEntityValid(te))
         {
             if (world.isRemote == false)
             {
-                player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
+                if (te.hasGui())
+                {
+                    player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
+                }
+                else
+                {
+                    te.onRightClickBlock(player, hand, side);
+                }
             }
 
             return true;

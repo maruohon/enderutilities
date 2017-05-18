@@ -39,17 +39,26 @@ public class ModelCamouflageBlockBaked implements IBakedModel
     private final ImmutableMap<String, String> textures;
     private final IBlockState defaultState;
     private final IBakedModel bakedBaseModel;
+    @Nullable
     private final IBakedModel bakedOverlayModel;
     private final TextureAtlasSprite particle;
 
-    public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, IModel overlayModel, IBlockState defaultState,
+    public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
             IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.textures = ImmutableMap.copyOf(textureMapping.getTextureMapping());
         this.defaultState = defaultState;
-        this.bakedBaseModel = ((IRetexturableModel) baseModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
-        this.bakedOverlayModel = ((IRetexturableModel) overlayModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
         this.particle = bakedTextureGetter.apply(new ResourceLocation(this.textures.get("particle")));
+        this.bakedBaseModel = ((IRetexturableModel) baseModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
+
+        if (overlayModel != null)
+        {
+            this.bakedOverlayModel = ((IRetexturableModel) overlayModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
+        }
+        else
+        {
+            this.bakedOverlayModel = null;
+        }
     }
 
     @Override
@@ -101,39 +110,40 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCK);
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
         long id = 0;
+        boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
 
-        if (camoState.getBlock() != Blocks.AIR)
+        if (validCamo)
         {
             id = ((long) Block.getStateId(state)) << 32 | Block.getStateId(camoState);
-            quads = QUAD_CACHE.get(id);
         }
         else
         {
             id = ((long) Block.getStateId(this.defaultState)) << 32;
-            quads = QUAD_CACHE.get(id);
         }
+
+        quads = QUAD_CACHE.get(id);
 
         if (quads == null)
         {
-            if (camoState.getBlock() != Blocks.AIR)
+            if (validCamo)
             {
                 IBakedModel camoModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
-                quads = this.getCombinedQuads(this.bakedOverlayModel, state, camoModel, camoState);
-                QUAD_CACHE.put(id, quads);
+                quads = this.getCombinedQuads(camoModel, camoState, this.bakedOverlayModel, state);
             }
             else
             {
                 quads = this.getCombinedQuads(this.bakedBaseModel, state, null, null);
-                QUAD_CACHE.put(id, quads);
             }
+
+            QUAD_CACHE.put(id, quads);
         }
 
         return quads.get(Optional.fromNullable(side));
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
-            @Nonnull IBakedModel overlayModel, @Nonnull IBlockState stateElevator,
-            @Nullable IBakedModel camoModel, @Nullable IBlockState stateCamo)
+            @Nonnull IBakedModel baseModel, @Nonnull IBlockState stateBase,
+            @Nullable IBakedModel optionalModel, @Nullable IBlockState stateOptional)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
 
@@ -141,23 +151,23 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-            if (camoModel != null)
+            if (optionalModel != null)
             {
-                quads.addAll(camoModel.getQuads(stateCamo, face, 0));
+                quads.addAll(optionalModel.getQuads(stateOptional, face, 0));
             }
 
-            quads.addAll(overlayModel.getQuads(stateElevator, face, 0));
+            quads.addAll(baseModel.getQuads(stateBase, face, 0));
             builder.put(Optional.of(face), quads.build());
         }
 
         ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-        if (camoModel != null)
+        if (optionalModel != null)
         {
-            quads.addAll(camoModel.getQuads(stateCamo, null, 0));
+            quads.addAll(optionalModel.getQuads(stateOptional, null, 0));
         }
 
-        quads.addAll(overlayModel.getQuads(stateElevator, null, 0));
+        quads.addAll(baseModel.getQuads(stateBase, null, 0));
         builder.put(Optional.<EnumFacing>absent(), quads.build());
 
         return builder.build();
@@ -166,15 +176,16 @@ public class ModelCamouflageBlockBaked implements IBakedModel
     public static class ModelCamouflageBlockBase implements IModel, ITextureMapped
     {
         private final IBlockState defaultState;
-        private final ResourceLocation baseModel;
-        private final ResourceLocation overlayModel;
+        private final ResourceLocation baseModelLocation;
+        @Nullable
+        private final ResourceLocation overlayModelLocation;
         protected final Map<String, String> textures = new HashMap<String, String>();
 
-        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModel, ResourceLocation overlayModel)
+        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModel, @Nullable ResourceLocation overlayModel)
         {
             this.defaultState = defaultState;
-            this.baseModel = baseModel;
-            this.overlayModel = overlayModel;
+            this.baseModelLocation = baseModel;
+            this.overlayModelLocation = overlayModel;
         }
 
         @Override
@@ -186,7 +197,14 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         @Override
         public Collection<ResourceLocation> getDependencies()
         {
-            return Lists.newArrayList(this.baseModel, this.overlayModel);
+            if (this.overlayModelLocation != null)
+            {
+                return Lists.newArrayList(this.baseModelLocation, this.overlayModelLocation);
+            }
+            else
+            {
+                return Lists.newArrayList(this.baseModelLocation);
+            }
         }
 
         @Override
@@ -210,8 +228,12 @@ public class ModelCamouflageBlockBaked implements IBakedModel
 
             try
             {
-                baseModel    = ModelLoaderRegistry.getModel(this.baseModel);
-                overlayModel = ModelLoaderRegistry.getModel(this.overlayModel);
+                baseModel = ModelLoaderRegistry.getModel(this.baseModelLocation);
+
+                if (this.overlayModelLocation != null)
+                {
+                    overlayModel = ModelLoaderRegistry.getModel(this.overlayModelLocation);
+                }
             }
             catch (Exception e)
             {

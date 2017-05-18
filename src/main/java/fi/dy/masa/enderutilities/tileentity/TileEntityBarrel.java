@@ -384,7 +384,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return false;
     }
 
-    public void onRightClick(EntityPlayer player, EnumHand hand, EnumFacing side)
+    @Override
+    public void onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side)
     {
         ItemStack stack = player.getHeldItem(hand);
 
