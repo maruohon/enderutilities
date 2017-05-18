@@ -129,10 +129,10 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        ItemStack stack = EntityUtils.getHeldItemOfType(playerIn, ItemDye.class);
+        ItemStack stack = EntityUtils.getHeldItemOfType(player, ItemDye.class);
 
         if (stack.isEmpty() == false)
         {
@@ -140,12 +140,12 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 
             if (state.getValue(COLOR) != stackColor)
             {
-                if (worldIn.isRemote == false)
+                if (world.isRemote == false)
                 {
-                    worldIn.setBlockState(pos, state.withProperty(COLOR, stackColor), 3);
-                    worldIn.playSound(null, pos, SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                    world.setBlockState(pos, state.withProperty(COLOR, stackColor), 3);
+                    world.playSound(null, pos, SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
 
-                    if (playerIn.capabilities.isCreativeMode == false)
+                    if (player.capabilities.isCreativeMode == false)
                     {
                         stack.shrink(1);
                     }
@@ -153,19 +153,13 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
 
                 return true;
             }
+
+            return false;
         }
         else
         {
-            TileEntityElevator te = getTileEntitySafely(worldIn, pos, TileEntityElevator.class);
-
-            if (te != null)
-            {
-                te.onRightClickBlock(playerIn, hand, side);
-                return true;
-            }
+            return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
         }
-
-        return false;
     }
 
     @Override

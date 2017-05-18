@@ -99,19 +99,19 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 
         if (te != null && this.isTileEntityValid(te))
         {
-            if (world.isRemote == false)
+            if (te.hasGui())
             {
-                if (te.hasGui())
+                if (world.isRemote == false)
                 {
                     player.openGui(EnderUtilities.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, world, pos.getX(), pos.getY(), pos.getZ());
                 }
-                else
-                {
-                    te.onRightClickBlock(player, hand, side);
-                }
-            }
 
-            return true;
+                return true;
+            }
+            else
+            {
+                return te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ);
+            }
         }
 
         return false;
