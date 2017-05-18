@@ -93,7 +93,7 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
             if (world.isRemote == false)
             {
                 TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
-                te.onRightClickBlock(player, hand, side);
+                te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ);
             }
 
             return true;

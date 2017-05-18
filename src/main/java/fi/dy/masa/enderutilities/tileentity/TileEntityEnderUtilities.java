@@ -10,6 +10,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -20,6 +23,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -46,6 +50,7 @@ public class TileEntityEnderUtilities extends TileEntity
     protected String tileEntityName;
     protected EnumFacing facing;
     protected OwnerData ownerData;
+    protected IBlockState camoState;
 
     public TileEntityEnderUtilities(String name)
     {
@@ -65,8 +70,7 @@ public class TileEntityEnderUtilities extends TileEntity
 
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            this.notifyBlockUpdate(this.getPos());
         }
     }
 
@@ -85,6 +89,14 @@ public class TileEntityEnderUtilities extends TileEntity
     public void rotate(Rotation rotationIn)
     {
         this.setFacing(rotationIn.rotate(this.getFacing()));
+    }
+
+    /**
+     * @return the current camouflage IBlockState. If none is set, then Blocks.AIR.getDefaultState() is returned.
+     */
+    public IBlockState getCamoState()
+    {
+        return this.camoState != null ? this.camoState : Blocks.AIR.getDefaultState();
     }
 
     public void setOwner(Entity entity)
@@ -128,8 +140,47 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData == null || this.ownerData.canAccess(player);
     }
 
-    public void onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side)
+    @SuppressWarnings("deprecation")
+    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        if (this.hasCamouflageAbility())
+        {
+            ItemStack stackOffHand = player.getHeldItemOffhand();
+
+            // Sneaking with an empty hand, clear the camo block
+            if (player.isSneaking())
+            {
+                if (this.camoState != null)
+                {
+                    this.camoState = null;
+                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                    this.notifyBlockUpdate(this.getPos());
+                    this.markDirty();
+                }
+
+                return true;
+            }
+            // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
+            else if (stackOffHand != null && stackOffHand.getItem() instanceof ItemBlock &&
+                     player.getHeldItemMainhand() == null)
+            {
+                ItemBlock item = (ItemBlock) stackOffHand.getItem();
+                int meta = item.getMetadata(stackOffHand.getMetadata());
+                IBlockState state = item.block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player);
+
+                if (state != this.camoState)
+                {
+                    this.camoState = state;
+                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                    this.notifyBlockUpdate(this.getPos());
+                    this.markDirty();
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void onLeftClickBlock(EntityPlayer player)
@@ -155,10 +206,10 @@ public class TileEntityEnderUtilities extends TileEntity
         }
     }
 
-    protected void notifyBlockUpdate()
+    protected void notifyBlockUpdate(BlockPos pos)
     {
-        IBlockState state = this.getWorld().getBlockState(this.getPos());
-        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+        IBlockState state = this.getWorld().getBlockState(pos);
+        this.getWorld().notifyBlockUpdate(pos, state, state, 3);
     }
 
     public boolean isPowered()
@@ -171,6 +222,18 @@ public class TileEntityEnderUtilities extends TileEntity
         if (nbt.hasKey("Rotation", Constants.NBT.TAG_BYTE))
         {
             this.facing = EnumFacing.getFront(nbt.getByte("Rotation"));
+        }
+
+        /*
+        if (nbt.hasKey("Camo", Constants.NBT.TAG_COMPOUND))
+        {
+            this.camoState = NBTUtils.readBlockStateFromTag(nbt.getCompoundTag("Camo"));
+        }
+        */
+
+        if (nbt.hasKey("Camo", Constants.NBT.TAG_INT))
+        {
+            this.camoState = Block.getStateById(nbt.getInteger("Camo"));
         }
 
         this.ownerData = OwnerData.getOwnerDataFromNBT(nbt);
@@ -187,7 +250,17 @@ public class TileEntityEnderUtilities extends TileEntity
     protected NBTTagCompound writeToNBTCustom(NBTTagCompound nbt)
     {
         nbt.setString("Version", Reference.MOD_VERSION);
-        nbt.setByte("Rotation", (byte)this.facing.getIndex());
+        nbt.setByte("Rotation", (byte) this.facing.getIndex());
+
+        if (this.camoState != null)
+        {
+            /*
+            NBTTagCompound tag = new NBTTagCompound();
+            NBTUtils.writeBlockStateToTag(this.camoState, tag);
+            nbt.setTag("Camo", tag);
+            */
+            nbt.setInteger("Camo", Block.getStateId(this.camoState));
+        }
 
         if (this.ownerData != null)
         {
@@ -215,6 +288,11 @@ public class TileEntityEnderUtilities extends TileEntity
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
         nbt.setByte("r", (byte)(this.facing.getIndex() & 0x07));
+
+        if (this.camoState != null)
+        {
+            nbt.setInteger("Camo", Block.getStateId(this.camoState));
+        }
 
         if (this.ownerData != null)
         {
@@ -264,8 +342,16 @@ public class TileEntityEnderUtilities extends TileEntity
             this.ownerData = new OwnerData(tag.getString("o"), tag.getBoolean("pu"));
         }
 
-        IBlockState state = this.getWorld().getBlockState(this.getPos());
-        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+        if (tag.hasKey("Camo", Constants.NBT.TAG_INT))
+        {
+            this.camoState = Block.getStateById(tag.getInteger("Camo"));
+        }
+        else
+        {
+            this.camoState = null;
+        }
+
+        this.notifyBlockUpdate(this.getPos());
     }
 
     @Override
@@ -308,6 +394,11 @@ public class TileEntityEnderUtilities extends TileEntity
     public boolean hasGui()
     {
         return true;
+    }
+
+    protected boolean hasCamouflageAbility()
+    {
+        return false;
     }
 
     public ContainerEnderUtilities getContainer(EntityPlayer player)

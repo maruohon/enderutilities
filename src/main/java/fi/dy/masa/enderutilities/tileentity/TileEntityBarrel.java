@@ -394,7 +394,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     }
 
     @Override
-    public void onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side)
+    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         ItemStack stack = player.getHeldItem(hand);
 
@@ -405,7 +405,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.applyStructureUpgrade(player, hand, stack) ||
                 this.applyCapacityUpgrade(player, hand, stack))
             {
-                return;
+                return true;
             }
 
             stack = InventoryUtils.tryInsertItemStackToInventory(this.itemHandlerExternal, stack);
@@ -422,6 +422,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
 
         this.rightClickTimes.put(player.getUniqueID(), time);
+
+        return true;
     }
 
     @Override
