@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -49,7 +50,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private int position;
     private int delay = 4;
     private int maxLength = 1;
-    private BlockInfo[] blocks = new BlockInfo[MAX_LENGTH_ADVANCED];
+    private BlockInfo[] blockInfoTaken = new BlockInfo[MAX_LENGTH_ADVANCED];
+    private IBlockState[] blockStatesPlaced = new IBlockState[MAX_LENGTH_ADVANCED];
     private FakePlayer fakePlayer;
 
     public TileEntityDrawbridge()
@@ -183,27 +185,41 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private void writeBlockInfoToNBT(NBTTagCompound nbt)
     {
         int length = this.isAdvanced() ? this.maxLength : 1;
-        NBTTagList list = new NBTTagList();
+        NBTTagList listTaken = new NBTTagList();
+        NBTTagList listPlaced = new NBTTagList();
 
+        // Taken blocks' BlockInfo
         for (int i = 0; i < length; i++)
         {
-            if (this.blocks[i] != null)
+            if (this.blockInfoTaken[i] != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("pos", (byte) i);
-                tag.setString("name", this.blocks[i].getState().getBlock().getRegistryName().toString());
-                tag.setByte("meta", (byte) this.blocks[i].getState().getBlock().getMetaFromState(this.blocks[i].getState()));
+                this.writeBlockStateToTag(i, this.blockInfoTaken[i].getState(), tag);
 
-                if (this.blocks[i].getTileEntityNBT() != null)
+                if (this.blockInfoTaken[i].getTileEntityNBT() != null)
                 {
-                    tag.setTag("nbt", this.blocks[i].getTileEntityNBT());
+                    tag.setTag("nbt", this.blockInfoTaken[i].getTileEntityNBT());
                 }
 
-                list.appendTag(tag);
+                tag.setByte("pos", (byte) i);
+                listTaken.appendTag(tag);
             }
         }
 
-        nbt.setTag("Blocks", list);
+        // Placed block states
+        for (int i = 0; i < this.maxLength; i++)
+        {
+            if (this.blockStatesPlaced[i] != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                this.writeBlockStateToTag(i, this.blockStatesPlaced[i], tag);
+                tag.setByte("pos", (byte) i);
+                listPlaced.appendTag(tag);
+            }
+        }
+
+        nbt.setTag("Blocks", listTaken);
+        nbt.setTag("Placed", listPlaced);
     }
 
     private void readBlockInfoFromNBT(NBTTagCompound nbt)
@@ -216,30 +232,75 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             for (int i = 0; i < length; i++)
             {
                 NBTTagCompound tag = list.getCompoundTagAt(i);
+                IBlockState state = this.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
-                if (pos >= 0 && pos < MAX_LENGTH_ADVANCED)
+                if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
                 {
-                    Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("name")));
+                    NBTTagCompound teTag = null;
 
-                    if (block != null)
+                    if (tag.hasKey("nbt", Constants.NBT.TAG_COMPOUND))
                     {
-                        @SuppressWarnings("deprecation")
-                        IBlockState state = block.getStateFromMeta(tag.getByte("meta"));
-                        this.blocks[i] = new BlockInfo(state, tag.getCompoundTag("nbt"));
+                        teTag = tag.getCompoundTag("nbt");
                     }
+
+                    this.blockInfoTaken[pos] = new BlockInfo(state, teTag);
                 }
             }
         }
+
+        if (nbt.hasKey("Placed", Constants.NBT.TAG_LIST))
+        {
+            NBTTagList list = nbt.getTagList("Placed", Constants.NBT.TAG_COMPOUND);
+            int length = list.tagCount();
+
+            for (int i = 0; i < length; i++)
+            {
+                NBTTagCompound tag = list.getCompoundTagAt(i);
+                IBlockState state = this.readBlockStateFromTag(tag);
+                int pos = tag.getByte("pos");
+
+                if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
+                {
+                    this.blockStatesPlaced[pos] = state;
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes the given IBlockState to the given tag.<br>
+     * @param position
+     * @param state
+     * @param tag
+     */
+    private void writeBlockStateToTag(int position, IBlockState state, @Nonnull NBTTagCompound tag)
+    {
+        tag.setString("name", state.getBlock().getRegistryName().toString());
+        tag.setByte("meta", (byte) state.getBlock().getMetaFromState(state));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Nullable
+    private IBlockState readBlockStateFromTag(NBTTagCompound tag)
+    {
+        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("name")));
+
+        if (block != null && block != Blocks.AIR)
+        {
+            return block.getStateFromMeta(tag.getByte("meta"));
+        }
+
+        return null;
     }
 
     @SuppressWarnings("deprecation")
     @Nullable
     private IBlockState getPlacementStateForPosition(int invPosition, World world, BlockPos pos, FakePlayer player)
     {
-        if (this.blocks[invPosition] != null)
+        if (this.blockInfoTaken[invPosition] != null)
         {
-            return this.blocks[invPosition].getState();
+            return this.blockInfoTaken[invPosition].getState();
         }
 
         ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
@@ -256,7 +317,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return null;
     }
 
-    private boolean extendOneBlock(int position, FakePlayer player, boolean playPistonSound)
+    private boolean extendOneBlock(int position, FakePlayer player, boolean playPistonSoundInsteadOfPlaceSound)
     {
         int invPosition = this.isAdvanced() ? position : 0;
         World world = this.getWorld();
@@ -264,24 +325,22 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         IBlockState placementState = this.getPlacementStateForPosition(invPosition, world, pos, player);
         ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
 
-        if (placementState != null && stack.isEmpty() == false && world.isBlockLoaded(pos, world.isRemote == false) &&
-            world.getBlockState(pos).getBlock().isReplaceable(world, pos))
+        if (placementState != null &&
+            stack.isEmpty() == false &&
+            world.isBlockLoaded(pos, world.isRemote == false) &&
+            world.getBlockState(pos).getBlock().isReplaceable(world, pos) &&
+            world.mayPlace(placementState.getBlock(), pos, true, EnumFacing.UP, null) &&
+            ((playPistonSoundInsteadOfPlaceSound && world.setBlockState(pos, placementState)) ||
+             (playPistonSoundInsteadOfPlaceSound == false && BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3))))
         {
-            if (world.mayPlace(placementState.getBlock(), pos, true, EnumFacing.UP, null) == false)
+            NBTTagCompound nbt = null;
+            this.blockStatesPlaced[position] = placementState;
+
+            if (this.blockInfoTaken[invPosition] != null)
             {
-                return false;
+                nbt = this.blockInfoTaken[invPosition].getTileEntityNBT();
             }
 
-            if (playPistonSound && world.setBlockState(pos, placementState) == false)
-            {
-                return false;
-            }
-            else if (playPistonSound == false && BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3) == false)
-            {
-                return false;
-            }
-
-            NBTTagCompound nbt = this.blocks[invPosition] != null ? this.blocks[invPosition].getTileEntityNBT() : null;
             stack = this.itemHandlerDrawbridge.extractItem(invPosition, 1, false);
 
             // This fixes TE data loss on the placed blocks in case blocks with stored TE data
@@ -297,7 +356,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 TileUtils.createAndAddTileEntity(world, pos, nbt);
             }
 
-            if (playPistonSound)
+            if (playPistonSoundInsteadOfPlaceSound)
             {
                 world.playSound(null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.5f, 0.8f);
             }
@@ -308,14 +367,20 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return false;
     }
 
-    private boolean contractOneBlock(int position, FakePlayer player, boolean playPistonSound)
+    private boolean contractOneBlock(int position, FakePlayer player, boolean takeNonPlaced, boolean playPistonSound)
     {
-        int invPosition = this.isAdvanced() ? position : 0;
         World world = this.getWorld();
         BlockPos pos = this.getPos().offset(this.getFacing(), position + 1);
+
+        if (world.isBlockLoaded(pos, world.isRemote == false) == false)
+        {
+            return false;
+        }
+
+        int invPosition = this.isAdvanced() ? position : 0;
         IBlockState state = world.getBlockState(pos);
 
-        if (world.isBlockLoaded(pos, world.isRemote == false) &&
+        if ((takeNonPlaced || state == this.blockStatesPlaced[position]) &&
             state.getBlock().isAir(state, world, pos) == false &&
             state.getBlockHardness(world, pos) >= 0f)
         {
@@ -338,9 +403,11 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
                 if (this.itemHandlerDrawbridge.insertItem(invPosition, stack, false).isEmpty())
                 {
-                    if (this.blocks[invPosition] == null)
+                    // This check is for the Normal variant, where the same BlockInfo
+                    // position is used for all block positions
+                    if (this.blockInfoTaken[invPosition] == null)
                     {
-                        this.blocks[invPosition] = new BlockInfo(state, nbt);
+                        this.blockInfoTaken[invPosition] = new BlockInfo(state, nbt);
                     }
 
                     world.restoringBlockSnapshots = true;
@@ -356,6 +423,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                     }
 
                     world.restoringBlockSnapshots = false;
+                    this.blockStatesPlaced[position] = null;
 
                     return true;
                 }
@@ -371,7 +439,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             for (int offset = 0; offset < this.maxLength; offset++)
             {
-                this.contractOneBlock(offset, this.getPlayer(), false);
+                this.contractOneBlock(offset, this.getPlayer(), true, false);
             }
 
             return true;
@@ -443,7 +511,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             while (this.position >= 0)
             {
-                if (this.contractOneBlock(this.position--, this.getPlayer(), true))
+                if (this.contractOneBlock(this.position--, this.getPlayer(), false, true))
                 {
                     break;
                 }
@@ -549,7 +617,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             // Clear the stored block info to prevent duplicating or transmuting stuff
             if (simulate == false && this.getStackInSlot(slot).isEmpty())
             {
-                TileEntityDrawbridge.this.blocks[slot] = null;
+                TileEntityDrawbridge.this.blockInfoTaken[slot] = null;
             }
 
             return stack;
