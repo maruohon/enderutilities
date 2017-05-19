@@ -214,6 +214,12 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         return super.getLightValue(state, world, pos);
     }
 
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return this.isCamoBlock() == false;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer()
