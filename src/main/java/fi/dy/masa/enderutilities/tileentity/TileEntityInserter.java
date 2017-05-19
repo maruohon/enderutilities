@@ -546,17 +546,16 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
             if (inv != null)
             {
+                // This is used to prevent scheduling a new update because of an adjacent inventory changing
+                // while we push out items, and our own inventory changing due to this extract.
+                // The update will be scheduled, if needed, after the push is complete.
+                this.disableUpdateScheduling = true;
+
                 ItemStack stack = this.itemHandlerBase.extractItem(0, 64, false);
                 int sizeOrig = stack.getCount();
                 boolean movedSome = false;
 
-                // This is used to prevent scheduling a new update because of an adjacent inventory changing
-                // while we push out items. The update will be scheduled, if needed, after the push is complete.
-                this.disableUpdateScheduling = true;
-
                 stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack);
-
-                this.disableUpdateScheduling = false;
 
                 // Return the items that couldn't be moved
                 if (stack.isEmpty() == false)
@@ -564,6 +563,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                     movedSome = stack.getCount() != sizeOrig;
                     this.itemHandlerBase.insertItem(0, stack, false);
                 }
+
+                this.disableUpdateScheduling = false;
 
                 return stack.isEmpty() || movedSome;
             }
