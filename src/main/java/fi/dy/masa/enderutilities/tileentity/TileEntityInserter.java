@@ -308,10 +308,10 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
         this.setIsFiltered((mask & 0x80) != 0);
         this.setRedstoneModeFromInteger((mask >>> 12) & 0x3);
 
-        this.facingOpposite = this.getFacing().getOpposite();
-
         // This needs to happen after reading the isFiltered flag
         super.readFromNBTCustom(nbt);
+
+        this.facingOpposite = this.getFacing().getOpposite();
     }
 
     @Override
@@ -392,7 +392,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        //System.out.printf("onScheduledBlockUpdate() @ %s (%s)\n", pos, world.isRemote ? "c" : "s");
+        //System.out.printf("onScheduledBlockUpdate() @ %s (%s)\n", pos, world.isRemote ? "client" : "server");
         if (this.shouldOperate())
         {
             // Currently holding items, try to push them out
@@ -402,6 +402,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 {
                     // Schedule a new update, if we managed to push out at least some items
                     this.scheduleBlockUpdate(this.delay, false);
+                    //System.out.printf("pushed @ %s\n", this.getPos());
                 }
             }
             // Not holding items, try to pull items in
@@ -411,6 +412,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
                 {
                     // Schedule a new update, if we managed to pull in at least some items
                     this.scheduleBlockUpdate(this.delay, false);
+                    //System.out.printf("pulled @ %s\n", this.getPos());
                 }
             }
         }
@@ -424,8 +426,8 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
      */
     private boolean tryPullInItems(World world, BlockPos posSelf)
     {
-        //System.out.printf("tryPullInItems() @ %s\n", posSelf);
         TileEntity te = world.getTileEntity(posSelf.offset(this.facingOpposite));
+        //System.out.printf("tryPullInItems() @ %s, from %s\n", posSelf, posSelf.offset(this.facingOpposite));
 
         // We don't ever want to pull in items from another Inserter,
         // but instead we operate on a push-basis. (The extract() method returns null anyways.)
@@ -584,6 +586,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
 
         if (this.disableUpdateScheduling == false)
         {
+            //System.out.printf("inv changed? @ %s (%s)\n", this.getPos(), this.getWorld().isRemote ? "client" : "server");
             this.scheduleBlockUpdate(this.delay, false);
         }
     }
