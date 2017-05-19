@@ -17,10 +17,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -92,6 +90,12 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    protected boolean isCamoBlock()
+    {
+        return true;
+    }
+
+    @Override
     public int damageDropped(IBlockState state)
     {
         return this.getMetaFromState(state) & 0x1;
@@ -110,20 +114,6 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     {
         int meta = state.getValue(FACING).getIndex() << 1;
         return state.getValue(ADVANCED) ? meta | 0x1 : meta;
-    }
-
-    @Override
-    public IBlockState getExtendedState(IBlockState oldState, IBlockAccess world, BlockPos pos)
-    {
-        TileEntityDrawbridge te = getTileEntitySafely(world, pos, TileEntityDrawbridge.class);
-
-        if (te != null)
-        {
-            IExtendedBlockState state = (IExtendedBlockState) oldState;
-            return state.withProperty(CAMOBLOCK, te.getCamoState());
-        }
-
-        return oldState;
     }
 
     @Override

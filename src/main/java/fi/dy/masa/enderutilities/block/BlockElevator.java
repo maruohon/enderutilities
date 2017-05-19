@@ -12,7 +12,6 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
@@ -23,10 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -91,6 +87,12 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
+    protected boolean isCamoBlock()
+    {
+        return true;
+    }
+
+    @Override
     public int damageDropped(IBlockState state)
     {
         return state.getValue(COLOR).getMetadata();
@@ -113,20 +115,6 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     {
         // Don't try to set the facing as the elevator doesn't have one, which is what the super would do
         return state;
-    }
-
-    @Override
-    public IBlockState getExtendedState(IBlockState oldState, IBlockAccess world, BlockPos pos)
-    {
-        TileEntityElevator te = getTileEntitySafely(world, pos, TileEntityElevator.class);
-
-        if (te != null)
-        {
-            IExtendedBlockState state = (IExtendedBlockState) oldState;
-            return state.withProperty(CAMOBLOCK, te.getCamoState());
-        }
-
-        return oldState;
     }
 
     @Override
@@ -212,11 +200,4 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         }
     }
     */
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public BlockRenderLayer getBlockLayer()
-    {
-        return BlockRenderLayer.CUTOUT;
-    }
 }
