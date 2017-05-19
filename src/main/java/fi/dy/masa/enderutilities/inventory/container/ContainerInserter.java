@@ -15,10 +15,10 @@ public class ContainerInserter extends ContainerTileEntityInventory
     private final TileEntityInserter tef;
     private final IItemHandler invFilters;
     private SlotRange filterSlots = new SlotRange(0, 0);
-    private int delayLast;
-    private int stackLimitLast;
-    private int filtersLast;
-    private int redstoneLast;
+    private int delayLast = -1;
+    private int stackLimitLast = -1;
+    private int filtersLast = -1;
+    private int redstoneLast = -1;
 
     public ContainerInserter(EntityPlayer player, TileEntityInserter te)
     {
