@@ -305,8 +305,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         // Check if we need to sync some stuff to the clients
         if (this.isBurningLast != this.isBurning() || this.isCookingLast != canSmelt)
         {
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            this.notifyBlockUpdate(this.getPos());
             this.getWorld().checkLight(this.getPos());
         }
 

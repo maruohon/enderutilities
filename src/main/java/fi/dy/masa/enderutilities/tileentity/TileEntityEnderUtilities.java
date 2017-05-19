@@ -140,44 +140,55 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData == null || this.ownerData.canAccess(player);
     }
 
-    @SuppressWarnings("deprecation")
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (this.hasCamouflageAbility())
         {
-            ItemStack stackOffHand = player.getHeldItemOffhand();
+            return this.tryApplyCamouflage(player, hand, side, hitX, hitY, hitZ);
+        }
 
-            // Sneaking with an empty hand, clear the camo block
-            if (player.isSneaking())
+        return false;
+    }
+
+    private boolean tryApplyCamouflage(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        ItemStack stackOffHand = player.getHeldItemOffhand();
+
+        // Sneaking with an empty hand, clear the camo block
+        if (player.isSneaking())
+        {
+            if (this.camoState != null)
             {
-                if (this.camoState != null)
-                {
-                    this.camoState = null;
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                    this.notifyBlockUpdate(this.getPos());
-                    this.markDirty();
-                }
-
-                return true;
+                this.camoState = null;
+                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                this.notifyBlockUpdate(this.getPos());
+                // Check light changes in case the camo block emits light
+                this.getWorld().checkLight(this.getPos());
+                this.markDirty();
             }
-            // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
-            else if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock &&
-                     player.getHeldItemMainhand().isEmpty())
+
+            return true;
+        }
+        // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
+        else if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock &&
+                 player.getHeldItemMainhand().isEmpty())
+        {
+            ItemBlock item = (ItemBlock) stackOffHand.getItem();
+            int meta = item.getMetadata(stackOffHand.getMetadata());
+            @SuppressWarnings("deprecation")
+            IBlockState state = item.block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player);
+
+            if (state != this.camoState)
             {
-                ItemBlock item = (ItemBlock) stackOffHand.getItem();
-                int meta = item.getMetadata(stackOffHand.getMetadata());
-                IBlockState state = item.block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player);
-
-                if (state != this.camoState)
-                {
-                    this.camoState = state;
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                    this.notifyBlockUpdate(this.getPos());
-                    this.markDirty();
-                }
-
-                return true;
+                this.camoState = state;
+                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                this.notifyBlockUpdate(this.getPos());
+                // Check light changes in case the camo block emits light
+                this.getWorld().checkLight(this.getPos());
+                this.markDirty();
             }
+
+            return true;
         }
 
         return false;

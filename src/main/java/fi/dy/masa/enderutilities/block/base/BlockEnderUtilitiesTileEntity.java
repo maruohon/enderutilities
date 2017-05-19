@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
@@ -15,7 +16,10 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.property.PropertyBlockState;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -44,6 +48,16 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     protected abstract TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state);
+
+    /**
+     * Return true if this block has camouflage ability.
+     * This is used to get the extendedState and the light value in such cases.
+     * @return true if this block has camouflage ability
+     */
+    protected boolean isCamoBlock()
+    {
+        return false;
+    }
 
     public boolean isTileEntityValid(TileEntity te)
     {
@@ -162,6 +176,49 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         }
 
         return state;
+    }
+
+    @Override
+    public IBlockState getExtendedState(IBlockState oldState, IBlockAccess world, BlockPos pos)
+    {
+        if (this.isCamoBlock())
+        {
+            TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+            if (te != null)
+            {
+                IExtendedBlockState state = (IExtendedBlockState) oldState;
+                return state.withProperty(CAMOBLOCK, te.getCamoState());
+            }
+        }
+
+        return oldState;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+        if (this.isCamoBlock())
+        {
+            IExtendedBlockState extendedState = (IExtendedBlockState) this.getExtendedState(state.getActualState(world, pos), world, pos);
+            IBlockState stateCamo = extendedState.getValue(CAMOBLOCK);
+
+            if (stateCamo != null)
+            {
+                // Can't call this same world sensitive method here, because it might/will recurse back here!
+                return stateCamo.getLightValue();
+            }
+        }
+
+        return super.getLightValue(state, world, pos);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public BlockRenderLayer getBlockLayer()
+    {
+        return this.isCamoBlock() ? BlockRenderLayer.CUTOUT : BlockRenderLayer.SOLID;
     }
 
     @Override
