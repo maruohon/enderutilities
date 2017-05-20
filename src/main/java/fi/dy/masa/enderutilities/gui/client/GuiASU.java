@@ -4,6 +4,7 @@ import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.gui.client.base.GuiContainerLargeStacks;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
@@ -18,7 +19,7 @@ public class GuiASU extends GuiContainerLargeStacks
 
     public GuiASU(ContainerASU container, TileEntityASU te)
     {
-        super(container, 176, 139, "gui.container.asu");
+        super(container, 176, 175, "gui.container.asu");
 
         this.teasu = te;
         this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.asu");
@@ -37,7 +38,7 @@ public class GuiASU extends GuiContainerLargeStacks
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         this.fontRenderer.drawString(I18n.format("enderutilities.container.asu"), 8, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 46, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 82, 0x404040);
 
         String str = String.valueOf(this.teasu.getBaseItemHandler().getInventoryStackLimit());
         this.fontRenderer.drawString(str, 116 - this.fontRenderer.getStringWidth(str), 16, 0x404040);
@@ -52,7 +53,14 @@ public class GuiASU extends GuiContainerLargeStacks
         int y = (this.height - this.ySize) / 2;
 
         // Draw the slot backgrounds according to how many slots this tier has
-        this.drawTexturedModalRect(x + 7, y + 26, 7, 56, this.teasu.getInvSize() * 18, 18);
+        int invSize = this.teasu.getInvSize();
+        int rows = Math.max((int) (Math.ceil((double) invSize / 9)), 1);
+
+        for (int row = 0; row < rows; row++)
+        {
+            int rowLen = MathHelper.clamp(invSize - (row * 9), 1, 9);
+            this.drawTexturedModalRect(x + 7, y + 26 + row * 18, 7, 92, rowLen * 18, 18);
+        }
 
         this.drawLockedSlotBackgrounds(this.teasu.getInventoryASU());
         this.drawTemplateStacks(this.teasu.getInventoryASU());
@@ -94,8 +102,16 @@ public class GuiASU extends GuiContainerLargeStacks
                 amount = GuiScreen.isShiftKeyDown() ? TileEntityASU.MAX_STACK_SIZE : -TileEntityASU.MAX_STACK_SIZE;
             }
 
-            if (GuiScreen.isShiftKeyDown()) { amount *= 16; }
-            if (GuiScreen.isCtrlKeyDown())  { amount *= 64; }
+            if (button.id == 0)
+            {
+                if (GuiScreen.isShiftKeyDown()) { amount *= 16; }
+                if (GuiScreen.isCtrlKeyDown())  { amount *= 64; }
+            }
+            else
+            {
+                if (GuiScreen.isShiftKeyDown()) { amount *= 9; }
+                if (GuiScreen.isCtrlKeyDown())  { amount *= 3; }
+            }
 
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.teasu.getPos(),
                 ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, amount));
