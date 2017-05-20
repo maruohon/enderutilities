@@ -179,6 +179,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
 
         // TileEntitySkullRenderer alters both of these options on, but does not restore them.
         GlStateManager.enableCull();
+        // This extra enable toggle is to fix a render glitch with items in Item Frames on screen,
+        // and then hovering over a stack in an inventory... Rendering... always lovely...
+        GlStateManager.enableRescaleNormal();
         GlStateManager.disableRescaleNormal();
 
         // GL_POLYGON_OFFSET is used to offset flat icons toward the viewer (-Z) in screen space,
