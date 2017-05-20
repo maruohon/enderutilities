@@ -1,14 +1,18 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -33,12 +37,18 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
     {
         this.itemHandlerLockable    = new ItemStackHandlerLockable(0, invSize, 64, false, "Items", this);
         this.itemHandlerBase        = this.itemHandlerLockable;
-        this.itemHandlerExternal    = new ItemHandlerWrapperSelective(this.itemHandlerLockable);
+        this.itemHandlerExternal    = new ItemHandlerWrapperMemoryChestExternal(this.itemHandlerLockable, this);
     }
 
     public ItemStackHandlerLockable getInventory()
     {
         return this.itemHandlerLockable;
+    }
+
+    @Override
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
+    {
+        return new ItemHandlerWrapperContainerMemoryChest(this.itemHandlerLockable, this.itemHandlerExternal);
     }
 
     @Override
@@ -104,6 +114,49 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
             {
                 this.setIsPublic(! this.isPublic());
             }
+        }
+    }
+
+    private class ItemHandlerWrapperMemoryChestExternal extends ItemHandlerWrapperSelective
+    {
+        private final TileEntityMemoryChest temc;
+
+        public ItemHandlerWrapperMemoryChestExternal(IItemHandler baseHandler, TileEntityMemoryChest te)
+        {
+            super(baseHandler);
+            this.temc = te;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return this.temc.isPublic() ? super.getStackInSlot(slot) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            return this.temc.isPublic() ? super.insertItem(slot, stack, simulate) : stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            return this.temc.isPublic() ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        }
+    }
+
+    private class ItemHandlerWrapperContainerMemoryChest extends ItemHandlerWrapperContainer
+    {
+        public ItemHandlerWrapperContainerMemoryChest(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler)
+        {
+            super(baseHandler, wrapperHandler);
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return this.baseHandlerModifiable.getStackInSlot(slot);
         }
     }
 
