@@ -125,6 +125,7 @@ item.enderutilities.enderpart_memorycard_items_2.name=Memory Card (items) 10 B
 item.enderutilities.enderpart_memorycard_items_3.name=Memory Card (items) 12 B
 item.enderutilities.enderpart_jailer.name=Jailer module
 item.enderutilities.enderpart_storage_key.name=Storage Key
+item.enderutilities.enderpart_storage_key_creative.name=Creative Storage Key
 item.enderutilities.enderpearlreusable.name=Ender Pearl (reusable)
 item.enderutilities.enderpearlreusable_elite.name=Elite Ender Pearl (reusable)
 item.enderutilities.enderporter.name=Ender Porter
@@ -190,6 +191,8 @@ item.enderutilities.enderpart_memorycard_items_1.tooltips=- Can store items in s
 item.enderutilities.enderpart_memorycard_items_2.tooltips=- Can store items in stacks up to 2^(bits) = 1024|lf- Right click to toggle Public/Private|lf- Sneak + right click to clear owner data
 item.enderutilities.enderpart_memorycard_items_3.tooltips=- Can store items in stacks up to 2^(bits) = 4096|lf- Right click to toggle Public/Private|lf- Sneak + right click to clear owner data
 item.enderutilities.enderpart_mobpersistence.tooltips=- Right click on a mob to prevent it from despawning|lf- Install into some modular items to achieve the same|lf- Using it directly consumes the item, modular items won't
+item.enderutilities.enderpart_storage_key.tooltips=- Right click on (some) storage blocks to lock the slots
+item.enderutilities.enderpart_storage_key_creative.tooltips=- Right click on (some) storage blocks to easily toggle the Creative mode on them
 item.enderutilities.enderpearlreusable_elite.tooltips=Lets you fly! w00t!
 item.enderutilities.enderporter.tooltips=- Shift + Toggle: Toggle Bind Locking|lf  (prevents accidentally binding)|lf- Can teleport the player or another|lf  entity inside the same dimension|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)|lf- Needs Link Crystals to store locations|lf- Needs an Ender Capacitor for power
 item.enderutilities.enderporter_advanced.tooltips=- Shift + Toggle: Toggle Bind Locking|lf  (prevents accidentally binding)|lf- Can teleport the player or another|lf  entity cross-dimensionally|lf- Self-TP: Hold right click until "charged", then release|lf- TP others: Sneak + left click the target|lf  (if the target is a player, they must sneak too)|lf- Needs Link Crystals to store locations|lf- Needs an Ender Capacitor for power

@@ -13,7 +13,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -86,24 +85,6 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     protected TileEntityEnderUtilities createTileEntityInstance(World worldIn, IBlockState state)
     {
         return new TileEntityBarrel();
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        if (player.isSneaking() == false || player.getHeldItem(hand).isEmpty() == false)
-        {
-            if (world.isRemote == false)
-            {
-                TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
-                te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ);
-            }
-
-            return true;
-        }
-
-        return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
     }
 
     @Override

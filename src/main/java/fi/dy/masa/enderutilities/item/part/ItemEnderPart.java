@@ -110,6 +110,8 @@ public class ItemEnderPart extends ItemModule
 
             case 80: // Storage Key
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY;
+            case 81: // Creative Storage Key
+                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY + "_creative";
         }
 
         return super.getUnlocalizedName();
@@ -372,7 +374,8 @@ public class ItemEnderPart extends ItemModule
 
     public enum ItemPartType
     {
-        STORAGE_KEY         (80);
+        STORAGE_KEY             (80),
+        CREATIVE_STORAGE_KEY    (81);
 
         private final int meta;
 
@@ -423,6 +426,7 @@ public class ItemEnderPart extends ItemModule
         list.add(new ItemStack(item, 1, 71)); // Barrel Structural Upgrade
         list.add(new ItemStack(item, 1, 72)); // Barrel Capacity Upgrade
         list.add(new ItemStack(item, 1, 80)); // Storage Key
+        list.add(new ItemStack(item, 1, 81)); // Creative Storage Key
     }
 
     @SideOnly(Side.CLIENT)
@@ -454,7 +458,8 @@ public class ItemEnderPart extends ItemModule
                 new ModelResourceLocation(rl, "tex=barrel_label"),
                 new ModelResourceLocation(rl, "tex=barrel_structure"),
                 new ModelResourceLocation(rl, "tex=barrel_capacity"),
-                new ModelResourceLocation(rl, "tex=storage_key")
+                new ModelResourceLocation(rl, "tex=storage_key"),
+                new ModelResourceLocation(rl, "tex=storage_key_creative")
         };
     }
 }

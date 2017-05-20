@@ -115,7 +115,11 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 
         if (te != null && this.isTileEntityValid(te))
         {
-            if (te.hasGui())
+            if (te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ))
+            {
+                return true;
+            }
+            else if (te.hasGui())
             {
                 if (world.isRemote == false)
                 {
@@ -123,10 +127,6 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
                 }
 
                 return true;
-            }
-            else
-            {
-                return te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ);
             }
         }
 

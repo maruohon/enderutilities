@@ -377,8 +377,19 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             int[] ints = new int[] { this.itemHandlerLockable.isSlotLocked(0) ? 1 : 0 };
             ItemStack[] stacks = new ItemStack[] { this.itemHandlerLockable.getTemplateStackInSlot(0) };
             this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), ints, stacks));
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 0.7f, 1f);
 
             return true;
+        }
+
+        return false;
+    }
+
+    private boolean toggleCreativeMode(EntityPlayer player, ItemStack stack)
+    {
+        if (ItemEnderPart.itemMatches(stack, ItemPartType.CREATIVE_STORAGE_KEY))
+        {
+            return this.toggleCreativeMode(player, true);
         }
 
         return false;
@@ -394,7 +405,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             if (this.toggleLocked(stack) ||
                 this.applyLabel(player, hand, stack, side) ||
                 this.applyStructureUpgrade(player, hand, stack) ||
-                this.applyCapacityUpgrade(player, hand, stack))
+                this.applyCapacityUpgrade(player, hand, stack) ||
+                this.toggleCreativeMode(player, stack))
             {
                 return true;
             }
@@ -414,7 +426,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.rightClickTimes.put(player.getUniqueID(), time);
 
-        return true;
+        // When this method returns false, then the GUI is opened
+        return player.isSneaking() == false;
     }
 
     @Override
@@ -448,20 +461,34 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
     }
 
+    private boolean toggleCreativeMode(EntityPlayer player, boolean isStorageKey)
+    {
+        if (isStorageKey || player.capabilities.isCreativeMode)
+        {
+            this.setCreative(! this.isCreative());
+            this.markDirty();
+
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            state = state.withProperty(BlockBarrel.CREATIVE, this.isCreative());
+            this.getWorld().setBlockState(this.getPos(), state);
+
+            if (isStorageKey)
+            {
+                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 0.7f, 1f);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
         if (action == 1)
         {
-            if (player.capabilities.isCreativeMode)
-            {
-                this.setCreative(! this.isCreative());
-                this.markDirty();
-
-                IBlockState state = this.getWorld().getBlockState(this.getPos());
-                state = state.withProperty(BlockBarrel.CREATIVE, this.isCreative());
-                this.getWorld().setBlockState(this.getPos(), state);
-            }
+            this.toggleCreativeMode(player, false);
         }
     }
 

@@ -1,7 +1,12 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -11,6 +16,8 @@ import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMSU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
+import fi.dy.masa.enderutilities.item.part.ItemEnderPart.ItemPartType;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
@@ -52,6 +59,24 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
     public int getStorageTier()
     {
         return this.tier;
+    }
+
+    @Override
+    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (stack.isEmpty() == false && ItemEnderPart.itemMatches(stack, ItemPartType.CREATIVE_STORAGE_KEY))
+        {
+            this.setCreative(! this.isCreative());
+            this.markDirty();
+            this.notifyBlockUpdate(this.getPos());
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 0.7f, 1f);
+
+            return true;
+        }
+
+        return super.onRightClickBlock(player, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
