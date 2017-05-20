@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 {
+    public static final int MAX_INV_SIZE = 27;
     public static final int MAX_STACK_SIZE = 1024;
     private ItemStackHandlerLockable itemHandlerLockable;
     private int inventorySize = 1;
@@ -32,7 +33,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 
     private void initStorage()
     {
-        this.itemHandlerLockable    = new ItemStackHandlerASU(0, 9, 1, true, "Items", this);
+        this.itemHandlerLockable    = new ItemStackHandlerASU(0, MAX_INV_SIZE, 1, true, "Items", this);
         this.itemHandlerBase        = this.itemHandlerLockable;
         this.itemHandlerExternal    = new ItemHandlerWrapperSelective(this.itemHandlerLockable);
     }
@@ -49,7 +50,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 
     public void setInvSize(int size)
     {
-        this.inventorySize = MathHelper.clamp(size, 1, 9);
+        this.inventorySize = MathHelper.clamp(size, 1, MAX_INV_SIZE);
     }
 
     public void setStackLimit(int limit)
@@ -113,7 +114,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
 
     private void changeInventorySize(int changeAmount)
     {
-        int newSize = MathHelper.clamp(this.getInvSize() + changeAmount, 1, 9);
+        int newSize = MathHelper.clamp(this.getInvSize() + changeAmount, 1, MAX_INV_SIZE);
 
         // Shrinking the inventory, only allowed if there are no items in the slots-to-be-removed
         if (changeAmount < 0)
@@ -132,10 +133,10 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
                 }
             }
 
-            newSize = MathHelper.clamp(this.getInvSize() + changeFinal, 1, 9);
+            newSize = MathHelper.clamp(this.getInvSize() + changeFinal, 1, MAX_INV_SIZE);
         }
 
-        if (newSize >= 1 && newSize <= 9)
+        if (newSize >= 1 && newSize <= MAX_INV_SIZE)
         {
             this.setInvSize(newSize);
 

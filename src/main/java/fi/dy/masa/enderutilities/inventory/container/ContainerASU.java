@@ -11,8 +11,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlotSync
 {
     protected final TileEntityASU teasu;
-    private final boolean[] lockedLast = new boolean[9];
-    private final ItemStack[] templateStacksLast = new ItemStack[9];
+    private final boolean[] lockedLast = new boolean[TileEntityASU.MAX_INV_SIZE];
+    private final ItemStack[] templateStacksLast = new ItemStack[TileEntityASU.MAX_INV_SIZE];
     private int stackLimitLast = -1;
     private int slotCountLast = -1;
 
@@ -30,7 +30,7 @@ public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlo
         this.inventorySlots.clear();
         this.inventoryItemStacks.clear();
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 57);
+        this.addPlayerInventorySlots(8, 93);
     }
 
     @Override
@@ -42,9 +42,17 @@ public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlo
 
         this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
 
-        for (int slot = 0; slot < slots; slot++)
+        for (int slot = 0, x = posX; slot < slots; slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, slot, posX + slot * 18, posY));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, slot, x, posY));
+
+            x += 18;
+
+            if (slot % 9 == 8)
+            {
+                x = posX;
+                posY += 18;
+            }
         }
     }
 
@@ -95,7 +103,7 @@ public class ContainerASU extends ContainerLargeStacksTile implements ICustomSlo
                 this.teasu.setStackLimit((data << 16) | this.stackLimitLast);
                 break;
             case 2:
-                this.teasu.getInventoryASU().setSlotLocked(data & 0xF, (data & 0x8000) != 0);
+                this.teasu.getInventoryASU().setSlotLocked(data & 0xFF, (data & 0x8000) != 0);
                 break;
             case 3:
                 this.teasu.setInvSize(data);

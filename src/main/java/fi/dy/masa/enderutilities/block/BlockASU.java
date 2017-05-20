@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -22,7 +23,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
 import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -51,8 +51,8 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     {
         ItemBlockEnderUtilities item = new ItemBlockStorage(this);
         item.setHasPlacementProperties(true);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
-        item.addPlacementProperty(ReferenceNames.NAME_TILE_ENTITY_ASU + ".slots", Constants.NBT.TAG_BYTE, 1, 9);
+        item.addPlacementProperty("asu.stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
+        item.addPlacementProperty("asu.slots", Constants.NBT.TAG_BYTE, 1, TileEntityASU.MAX_INV_SIZE);
         return item;
     }
 
@@ -133,7 +133,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
 
         if (te != null)
         {
-            state = state.withProperty(TIER, te.getInvSize());
+            state = state.withProperty(TIER, MathHelper.clamp(te.getInvSize(), 1, 9));
         }
 
         return state;

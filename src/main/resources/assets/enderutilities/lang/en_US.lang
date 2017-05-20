@@ -222,7 +222,7 @@ item.enderutilities.void_pickaxe.tooltips=- Destroyed blocks drop nothing, not e
 # Tooltips displayed on blocks (ItemBlocks):
 ############################################
 
-tile.enderutilities.asu.tooltips=- Adjustable number of slots, 1 to 9|lf- Adjustable max stack size, up to 1024
+tile.enderutilities.asu.tooltips=- Adjustable number of slots, 1 to 27|lf- Adjustable max stack size, up to 1024
 tile.enderutilities.creationstation.tooltips=- Combines two crafting tables, two furnaces and some modular storage|lf- Has recipe memory, quick fill crafting grids etc. functionality
 tile.enderutilities.drawbridge.tooltips=- Extends or contracts a line of blocks|lf- Max length is 64 for normal, 32 for Advanced|lf- Advanced version can use different blocks for each position|lf- Can be camouflaged by right clicking with an empty main hand,|lf  while holding the camo block in the off hand|lf- Sneak + right click with an empty hand to remove the camo block
 tile.enderutilities.enderfurnace.tooltips=- A lot faster than a vanilla furnace|lf  (3 seconds per item in normal mode, 1 second in fast)|lf- Can use Ender Pearls, Eyes of Ender and Blaze Powder|lf  as fuel in addition to the normal furnace fuels|lf- Can also use lava as fuel from fluid containers|lf  such as the Ender Bucket or portable tanks|lf- Can operate without fuel (1 item per 60 seconds)|lf- Slow mode cooks 1.5x the items per fuel|lf  compared to a vanilla furnace|lf- Fast mode uses fuel 6x faster than slow mode over time|lf  (= 0.75x the items per fuel vs. vanilla)|lf- Can output directly to the owner's vanilla Ender Chest
