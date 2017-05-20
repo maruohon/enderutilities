@@ -87,7 +87,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
