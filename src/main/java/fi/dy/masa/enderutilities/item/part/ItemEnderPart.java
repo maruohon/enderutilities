@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -31,7 +30,6 @@ import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
-import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderPart extends ItemModule
 {
@@ -185,6 +183,21 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
+    public NBTTagCompound getNBTShareTag(ItemStack stack)
+    {
+        int meta = stack.getMetadata();
+
+        // Memory Card (items) - omit the Items tag that stores the actual items
+        if (meta >= 51 && meta <= 54)
+        {
+            NBTTagCompound nbt = stack.getTagCompound();
+            return nbt != null ? NBTUtils.getCompoundExcludingTags(nbt, false, "Items") : null;
+        }
+
+        return super.getNBTShareTag(stack);
+    }
+
+    @Override
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         String preWh = TextFormatting.WHITE.toString();
@@ -238,20 +251,7 @@ public class ItemEnderPart extends ItemModule
         }
         else if (meta >= 51 && meta <= 54) // Memory Card (items)
         {
-            ArrayList<String> lines = new ArrayList<String>();
-            int itemCount = UtilItemModular.getFormattedItemListFromContainerItem(stack, lines, 20);
-
-            if (lines.size() > 0)
-            {
-                NBTTagList tagList = NBTUtils.getStoredItemsList(stack, false);
-                int stackCount = tagList != null ? tagList.tagCount() : 0;
-                list.add(I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount", stackCount, itemCount));
-                list.addAll(lines);
-            }
-            else
-            {
-                list.add(I18n.format("enderutilities.tooltip.item.memorycard.noitems"));
-            }
+            NBTUtils.getCachedInventoryStrings(stack, list, 9);
         }
 
         // Print the owner data after the contents if the player can access/see the contents

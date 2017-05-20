@@ -127,6 +127,7 @@ public class InventoryItem extends ItemStackHandlerBasic
             if (stack.isEmpty() == false && this.isCurrentlyAccessible())
             {
                 NBTUtils.writeItemsToContainerItem(stack, this.items, this.getItemStorageTagName(), true);
+                NBTUtils.storeCachedInventory(NBTUtils.getRootCompoundTag(stack, true), this, 16);
             }
         }
     }
