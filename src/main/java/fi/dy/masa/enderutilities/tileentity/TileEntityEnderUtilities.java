@@ -125,6 +125,7 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData != null ? this.ownerData.getOwnerName() : "";
     }
 
+    @Nullable
     public UUID getOwnerUUID()
     {
         return this.ownerData != null ? this.ownerData.getOwnerUUID() : null;
@@ -135,9 +136,19 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.ownerData == null || this.ownerData.getIsPublic();
     }
 
+    public boolean isOwner(EntityPlayer player)
+    {
+        return this.ownerData != null && this.ownerData.isOwner(player);
+    }
+
     public boolean isUseableByPlayer(EntityPlayer player)
     {
         return this.ownerData == null || this.ownerData.canAccess(player);
+    }
+
+    public boolean isMovableBy(EntityPlayer player)
+    {
+        return this.isPublic() || this.isOwner(player);
     }
 
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)

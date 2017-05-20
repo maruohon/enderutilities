@@ -30,6 +30,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.TileUtils;
@@ -147,8 +148,28 @@ public class ItemDolly extends ItemEnderUtilities
             return false;
         }
 
+        if (player.capabilities.isCreativeMode)
+        {
+            return true;
+        }
+
         TileEntity te = world.getTileEntity(pos);
-        return te != null && (te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) || te instanceof IInventory);
+
+        // Unbreakable block, player not in creative mode
+        if (world.getBlockState(pos).getBlockHardness(world, pos) < 0)
+        {
+            if ((te instanceof TileEntityEnderUtilitiesInventory) == false)
+            {
+                return false;
+            }
+
+            TileEntityEnderUtilitiesInventory teinv = (TileEntityEnderUtilitiesInventory) te;
+            // From the unbreakable blocks in this mod, only allow moving non-Creative mode storage blocks.
+            return teinv.isCreative() == false && teinv.isMovableBy(player);
+        }
+
+        return te instanceof TileEntityEnderUtilitiesInventory || te instanceof IInventory ||
+               (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side));
     }
 
     private boolean tryPickUpBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side)

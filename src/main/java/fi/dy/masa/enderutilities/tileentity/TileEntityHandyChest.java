@@ -206,6 +206,12 @@ public class TileEntityHandyChest extends TileEntityEnderUtilitiesInventory impl
     }
 
     @Override
+    public boolean isMovableBy(EntityPlayer player)
+    {
+        return this.getLockMask() == 0 || this.isOwner(player);
+    }
+
+    @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
         if (this.getWorld().isRemote)
