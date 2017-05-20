@@ -57,7 +57,7 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
 
     public void setVolume(float volume)
     {
-        this.volume = MathHelper.clamp(volume, 0f, 2f);
+        this.volume = MathHelper.clamp(volume, 0f, 4f);
     }
 
     public void setPitch(float pitch)
