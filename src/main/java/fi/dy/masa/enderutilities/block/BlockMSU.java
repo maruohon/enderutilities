@@ -38,13 +38,15 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.getBlockState().getBaseState().withProperty(TYPE, BlockMSU.EnumStorageType.MASSIVE_STORAGE_UNIT));
+        this.setDefaultState(this.getBlockState().getBaseState()
+                .withProperty(CREATIVE, false)
+                .withProperty(TYPE, BlockMSU.EnumStorageType.MASSIVE_STORAGE_UNIT));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE });
+        return new BlockStateContainer(this, new IProperty[] { CREATIVE, TYPE });
     }
 
     @Override
@@ -151,6 +153,13 @@ public class BlockMSU extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        TileEntityMSU te = getTileEntitySafely(world, pos, TileEntityMSU.class);
+
+        if (te != null)
+        {
+            state = state.withProperty(CREATIVE, te.isCreative());
+        }
+
         return state;
     }
 

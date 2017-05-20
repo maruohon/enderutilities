@@ -437,7 +437,7 @@ public class ClientProxy extends CommonProxy
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1, "facing=north,type=", "");
         this.registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0, "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU, "type=", "");
+        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU, "creative=false,type=", "");
 
         this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
         this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 1, "advanced=true,facing=north");

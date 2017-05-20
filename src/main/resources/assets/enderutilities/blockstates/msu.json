@@ -1,28 +1,37 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:orientable_ftbs",
-        "transform": "forge:default-block",
-        "textures": {
-            "front": "#side"
-        }
+        "model": "minecraft:cube_bottom_top",
+        "transform": "forge:default-block"
     },
     "variants": {
-        "type": {
-            "msu_0": {
-                "textures": {
-                    "top":      "enderutilities:blocks/msu_top_0",
-                    "bottom":   "enderutilities:blocks/msu_bottom_0",
-                    "side":     "enderutilities:blocks/msu_side_0"
-                }
-            },
-            "msu_1": {
-                "textures": {
-                    "top":      "enderutilities:blocks/msu_top_1",
-                    "bottom":   "enderutilities:blocks/msu_bottom_1",
-                    "side":     "enderutilities:blocks/msu_side_1"
-                }
+        "creative=false,type=msu_0" : [{
+            "textures": {
+                "top":      "enderutilities:blocks/msu_normal_top_0",
+                "bottom":   "enderutilities:blocks/msu_normal_bottom_0",
+                "side":     "enderutilities:blocks/msu_normal_side_0"
             }
-        }
+        }],
+        "creative=false,type=msu_1": [{
+            "textures": {
+                "top":      "enderutilities:blocks/msu_normal_top_1",
+                "bottom":   "enderutilities:blocks/msu_normal_bottom_1",
+                "side":     "enderutilities:blocks/msu_normal_side_1"
+            }
+        }],
+        "creative=true,type=msu_0" : [{
+            "textures": {
+                "top":      "enderutilities:blocks/msu_creative_top",
+                "bottom":   "enderutilities:blocks/msu_creative_bottom",
+                "side":     "enderutilities:blocks/msu_creative_side_0"
+            }
+        }],
+        "creative=true,type=msu_1": [{
+            "textures": {
+                "top":      "enderutilities:blocks/msu_creative_top",
+                "bottom":   "enderutilities:blocks/msu_creative_bottom",
+                "side":     "enderutilities:blocks/msu_creative_side_1"
+            }
+        }]
     }
 }

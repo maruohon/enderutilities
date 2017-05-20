@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.block.base;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,6 +29,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 
 public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
+    public static final PropertyBool CREATIVE = PropertyBool.create("creative");
     public static final PropertyBlockState CAMOBLOCK = new PropertyBlockState("camo");
 
     public BlockEnderUtilitiesTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)

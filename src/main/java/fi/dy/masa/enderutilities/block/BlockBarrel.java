@@ -29,7 +29,6 @@ import fi.dy.masa.enderutilities.util.TileUtils;
 
 public class BlockBarrel extends BlockEnderUtilitiesInventory
 {
-    public static final PropertyBool CREATIVE    = PropertyBool.create("creative");
     public static final PropertyBool LABEL_UP    = PropertyBool.create("up");
     public static final PropertyBool LABEL_DOWN  = PropertyBool.create("down");
     public static final PropertyBool LABEL_FRONT = PropertyBool.create("front");
@@ -42,10 +41,14 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING).withProperty(CREATIVE, false)
-                .withProperty(LABEL_UP, false).withProperty(LABEL_DOWN, false)
-                .withProperty(LABEL_FRONT, false).withProperty(LABEL_BACK, false)
-                .withProperty(LABEL_LEFT, false).withProperty(LABEL_RIGHT, false));
+                .withProperty(CREATIVE, false)
+                .withProperty(FACING_H, BlockEnderUtilities.DEFAULT_FACING)
+                .withProperty(LABEL_UP, false)
+                .withProperty(LABEL_DOWN, false)
+                .withProperty(LABEL_FRONT, false)
+                .withProperty(LABEL_BACK, false)
+                .withProperty(LABEL_LEFT, false)
+                .withProperty(LABEL_RIGHT, false));
     }
 
     @Override

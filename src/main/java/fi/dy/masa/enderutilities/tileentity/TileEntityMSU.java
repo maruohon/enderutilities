@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
@@ -116,9 +115,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
             {
                 this.setCreative(! this.isCreative());
                 this.markDirty();
-
-                IBlockState state = this.getWorld().getBlockState(this.getPos());
-                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+                this.notifyBlockUpdate(this.getPos());
             }
         }
     }
