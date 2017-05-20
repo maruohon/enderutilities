@@ -49,6 +49,7 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
         this.tesb = te;
         this.scrollBar = new ScrollBar(0, 152, 38, 212, 0, 12, 98, 0, this, this.guiTexture);
         this.areaSoundList = new GuiArea(8, 38, 142, 98);
+        this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.sound_block");
     }
 
     @Override
