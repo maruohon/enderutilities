@@ -16,6 +16,7 @@ import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -80,10 +81,9 @@ public class BlockFloor extends BlockEnderUtilities
 
     @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-            float hitZ, int meta, EntityLivingBase placer)
+            float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
     {
-        @SuppressWarnings("deprecation")
-        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer);
+        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand);
 
         if (facing != EnumFacing.UP && hitY > 0.5f)
         {

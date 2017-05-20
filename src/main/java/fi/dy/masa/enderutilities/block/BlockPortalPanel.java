@@ -143,12 +143,12 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
         return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
     }
 
-    @Deprecated
     @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing,
-            float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
+            float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
     {
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(FACING, facing);
+        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand)
+                .withProperty(FACING, facing);
     }
 
     @Override
