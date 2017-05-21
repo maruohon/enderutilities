@@ -124,16 +124,6 @@ public class ItemRuler extends ItemModular
             displayName = new StringBuilder(64).append(EUStringUtils.getInitialsWithDots(displayName.toString()));
         }
 
-        /*displayName.append(" - A: ");
-        if (this.getRenderAllLocations(rulerStack) == true)
-        {
-            displayName.append(preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst);
-        }
-        else
-        {
-            displayName.append(preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
-        }*/
-
         int count = this.getLocationCount(rulerStack);
 
         if (count > 0)
@@ -145,11 +135,11 @@ public class ItemRuler extends ItemModular
 
             if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
             {
-                displayName.append(preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst);
+                displayName.append(preGreen + "yes" + rst);
             }
             else
             {
-                displayName.append(preRed + I18n.format("enderutilities.tooltip.item.no") + rst);
+                displayName.append(preRed + "no" + rst);
             }
         }
 
