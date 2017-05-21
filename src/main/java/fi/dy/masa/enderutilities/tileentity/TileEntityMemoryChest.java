@@ -7,7 +7,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
@@ -48,7 +47,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
     @Override
     public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return new ItemHandlerWrapperContainerMemoryChest(this.itemHandlerLockable, this.itemHandlerExternal);
+        return new ItemHandlerWrapperContainer(this.itemHandlerLockable, this.itemHandlerLockable);
     }
 
     @Override
@@ -143,20 +142,6 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
             return this.temc.isPublic() ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
-        }
-    }
-
-    private class ItemHandlerWrapperContainerMemoryChest extends ItemHandlerWrapperContainer
-    {
-        public ItemHandlerWrapperContainerMemoryChest(IItemHandlerModifiable baseHandler, IItemHandler wrapperHandler)
-        {
-            super(baseHandler, wrapperHandler);
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.baseHandlerModifiable.getStackInSlot(slot);
         }
     }
 
