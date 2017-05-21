@@ -48,8 +48,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private int position;
     private int delay = 4;
     private int maxLength = 1;
-    private BlockInfo[] blockInfoTaken = new BlockInfo[MAX_LENGTH_ADVANCED];
-    private IBlockState[] blockStatesPlaced = new IBlockState[MAX_LENGTH_ADVANCED];
+    private BlockInfo[] blockInfoTaken = new BlockInfo[MAX_LENGTH_NORMAL];
+    private IBlockState[] blockStatesPlaced = new IBlockState[MAX_LENGTH_NORMAL];
     private FakePlayer fakePlayer;
 
     public TileEntityDrawbridge()
@@ -233,7 +233,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
-                if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
+                if (pos >= 0 && pos < MAX_LENGTH_NORMAL && state != null)
                 {
                     NBTTagCompound teTag = null;
 
@@ -258,7 +258,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
-                if (pos >= 0 && pos < MAX_LENGTH_ADVANCED && state != null)
+                if (pos >= 0 && pos < MAX_LENGTH_NORMAL && state != null)
                 {
                     this.blockStatesPlaced[pos] = state;
                 }
