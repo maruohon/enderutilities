@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -39,6 +38,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -121,25 +121,39 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public NBTTagCompound getNBTShareTag(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-        return nbt != null ? NBTUtils.getCompoundExcludingTags(nbt, false, "Items") : null;
-    }
-
-    @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
         String itemName = super.getItemStackDisplayName(stack);
+        String preGreenIta = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
         String preGreen = TextFormatting.GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
-        // Module not renamed, show the module index instead
         int slotNum = UtilItemModular.getStoredModuleSelection(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+        ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(stack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+        if (moduleStack.isEmpty() == false && moduleStack.getTagCompound() != null)
+        {
+            // If the currently selected module has been renamed, show that name
+            if (moduleStack.hasDisplayName())
+            {
+                if (itemName.length() >= 14)
+                {
+                    itemName = EUStringUtils.getInitialsWithDots(itemName) + " " + preGreenIta + moduleStack.getDisplayName() + rst;
+                }
+                else
+                {
+                    itemName = itemName + " " + preGreenIta + moduleStack.getDisplayName() + rst;
+                }
+            }
+
+            //return itemName + " " + pre + (NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1) + rst;
+        }
+
+        // Module not renamed, show the module index instead
         itemName = itemName + " MC: " + preGreen + (slotNum + 1) + rst;
 
-        byte preset = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
-        itemName = itemName + " P: " + preGreen + (preset + 1) + rst;
+        byte selected = NBTUtils.getByte(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
+        itemName = itemName + " P: " + preGreen + (selected + 1) + rst;
 
         return itemName;
     }
@@ -155,6 +169,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         String preGreen = TextFormatting.GREEN.toString();
         String preBlue = TextFormatting.BLUE.toString();
         String preRed = TextFormatting.RED.toString();
+        String preWhite = TextFormatting.WHITE.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
         String strYes = preGreen + I18n.format("enderutilities.tooltip.item.yes") + rst;
         String strNo = preRed + I18n.format("enderutilities.tooltip.item.no") + rst;
@@ -179,6 +194,30 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
 
         byte selected = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION);
         list.add(I18n.format("enderutilities.tooltip.item.preset") + ": " + preBlue + (selected + 1) + rst);
+
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+        if (installed > 0)
+        {
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
+            String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
+            ItemStack moduleStack = UtilItemModular.getModuleStackBySlotNumber(containerStack, slotNum, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (moduleStack.isEmpty() == false && moduleStack.getItem() == EnderUtilitiesItems.ENDER_PART)
+            {
+                String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
+                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
+
+                ((ItemEnderPart) moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                return;
+            }
+        }
+        else
+        {
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
+        }
     }
 
     @Override

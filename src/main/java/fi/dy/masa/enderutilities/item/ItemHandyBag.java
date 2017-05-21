@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -54,6 +53,7 @@ import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
+import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
@@ -153,10 +153,32 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public NBTTagCompound getNBTShareTag(ItemStack stack)
+    public String getItemStackDisplayName(ItemStack stack)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        return nbt != null ? NBTUtils.getCompoundExcludingTags(nbt, false, "Items") : null;
+        ItemStack moduleStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+        if (moduleStack.isEmpty() == false && moduleStack.getTagCompound() != null)
+        {
+            String itemName = super.getItemStackDisplayName(stack); //I18n.format(this.getUnlocalizedName(stack) + ".name").trim();
+            String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+
+            // If the currently selected module has been renamed, show that name
+            if (moduleStack.hasDisplayName())
+            {
+                String pre = TextFormatting.GREEN.toString() + TextFormatting.ITALIC.toString();
+
+                if (itemName.length() >= 14)
+                {
+                    return EUStringUtils.getInitialsWithDots(itemName) + " " + pre + moduleStack.getDisplayName() + rst;
+                }
+
+                return itemName + " " + pre + moduleStack.getDisplayName() + rst;
+            }
+
+            return itemName;
+        }
+
+        return super.getItemStackDisplayName(stack);
     }
 
     @Override
@@ -169,6 +191,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
         String preGreen = TextFormatting.GREEN.toString();
         String preRed = TextFormatting.RED.toString();
+        String preWhite = TextFormatting.WHITE.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
 
         String strPickupMode = I18n.format("enderutilities.tooltip.item.pickupmode" + (verbose ? "" : ".short")) + ": ";
@@ -211,6 +234,36 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         list.add(str);
+
+        int installed = this.getInstalledModuleCount(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+        if (installed > 0)
+        {
+            int slotNum = UtilItemModular.getStoredModuleSelection(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            String preBlue = TextFormatting.BLUE.toString();
+            String preWhiteIta = preWhite + TextFormatting.ITALIC.toString();
+            String strShort = I18n.format("enderutilities.tooltip.item.selectedmemorycard.short");
+            ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+            int max = this.getMaxModules(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (moduleStack.isEmpty() == false && moduleStack.getItem() == EnderUtilitiesItems.ENDER_PART)
+            {
+                String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
+                list.add(String.format("%s %s(%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
+
+                ((ItemEnderPart) moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                return;
+            }
+            else
+            {
+                String strNo = I18n.format("enderutilities.tooltip.item.selectedmemorycard.notinstalled");
+                list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, strNo, preBlue, slotNum + 1, rst, preBlue, max, rst));
+            }
+        }
+        else
+        {
+            list.add(I18n.format("enderutilities.tooltip.item.nomemorycards"));
+        }
     }
 
     private static InventoryItemModular getInventoryForBag(ItemStack bagStack, EntityPlayer player)
