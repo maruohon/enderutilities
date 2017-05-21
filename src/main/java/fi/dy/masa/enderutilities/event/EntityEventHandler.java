@@ -108,6 +108,12 @@ public class EntityEventHandler
     @SubscribeEvent
     public void onTravelToDimensionEvent(EntityTravelToDimensionEvent event)
     {
+        // Prevent recursion from this same event being fired from the teleport method
+        if (TeleportEntity.isTeleportInProgress())
+        {
+            return;
+        }
+
         Entity entity = event.getEntity();
         int dim = event.getDimension();
         int entityDim = entity.getEntityWorld().provider.getDimension();
