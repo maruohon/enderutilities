@@ -557,7 +557,7 @@ public class ItemHandyBag extends ItemInventoryModular
         }
 
         // Not everything was handled, update the stack
-        if (entityItem.isDead == false)
+        if (entityItem.isDead == false && stack.getCount() != origStackSize)
         {
             entityItem.setEntityItemStack(stack);
         }
