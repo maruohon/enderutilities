@@ -78,4 +78,10 @@ public interface IModular
      * @return
      */
     public boolean changeSelectedModule(ItemStack containerStack, ModuleType moduleType, boolean reverse);
+
+    /**
+     * Callback for when the modules in a modular item are changed in a Tool Workstation
+     * @param containerStack
+     */
+    public void onModulesChanged(ItemStack containerStack);
 }

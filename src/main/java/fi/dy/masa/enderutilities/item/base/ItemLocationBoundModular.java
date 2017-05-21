@@ -387,4 +387,9 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
+
+    @Override
+    public void onModulesChanged(ItemStack containerStack)
+    {
+    }
 }

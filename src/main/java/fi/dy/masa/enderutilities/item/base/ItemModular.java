@@ -66,4 +66,9 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
 
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
     }
+
+    @Override
+    public void onModulesChanged(ItemStack containerStack)
+    {
+    }
 }
