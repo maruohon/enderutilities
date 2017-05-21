@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.end.DragonFightManager;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -37,6 +38,13 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class TeleportEntity
 {
+    private static boolean teleportInProgress;
+
+    public static boolean isTeleportInProgress()
+    {
+        return teleportInProgress;
+    }
+
     public static void addTeleportSoundsAndParticles(World world, double x, double y, double z)
     {
         if (world.isRemote == false)
@@ -289,10 +297,15 @@ public class TeleportEntity
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         WorldServer worldDst = server.worldServerForDimension(dimDst);
 
-        if (worldDst == null || net.minecraftforge.common.ForgeHooks.onTravelToDimension(entity, dimDst) == false)
+        teleportInProgress = true;
+
+        if (worldDst == null || ForgeHooks.onTravelToDimension(entity, dimDst) == false)
         {
+            teleportInProgress = false;
             return null;
         }
+
+        teleportInProgress = false;
 
         // Load the chunk first
         int chunkX = (int) Math.floor(x / 16D);
