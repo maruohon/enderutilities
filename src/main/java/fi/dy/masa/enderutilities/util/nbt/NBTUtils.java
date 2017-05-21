@@ -839,6 +839,10 @@ public class NBTUtils
             wrapper.setLong("ti", items);
             nbt.setTag("InvCache", wrapper);
         }
+        else
+        {
+            nbt.removeTag("InvCache");
+        }
 
         return nbt;
     }
