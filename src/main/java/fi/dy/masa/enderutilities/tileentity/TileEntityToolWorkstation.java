@@ -217,24 +217,6 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
 
             return ModuleType.TYPE_INVALID;
         }
-
-        @Override
-        public void onContentsChanged(int slot)
-        {
-            super.onContentsChanged(slot);
-
-            if (this.te.getWorld().isRemote == false)
-            {
-                ItemStack stack = this.te.getToolSlotInventory().getStackInSlot(0);
-
-                if (stack.isEmpty() == false && stack.getItem() instanceof IModular)
-                {
-                    ((IModular) stack.getItem()).onModulesChanged(stack);
-                }
-
-                this.te.markDirty();
-            }
-        }
     }
 
     private class ItemHandlerWrapperModuleStorage extends ItemHandlerWrapperSelectiveModifiable
