@@ -185,7 +185,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         }
 
         // Not everything was handled, update the stack
-        if (entityItem.isDead == false)
+        if (entityItem.isDead == false && stackItems.stackSize != origStackSize)
         {
             entityItem.setEntityItemStack(stackItems);
         }
