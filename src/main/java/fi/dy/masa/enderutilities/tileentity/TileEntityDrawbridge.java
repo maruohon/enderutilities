@@ -137,7 +137,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     {
         super.readFromNBTCustom(nbt);
 
-        this.advanced = nbt.getBoolean("Advanced");
+        this.setIsAdvanced(nbt.getBoolean("Advanced"));
         this.redstoneState = nbt.getBoolean("Powered");
         this.position = nbt.getByte("Position");
         this.delay = nbt.getByte("Delay");
@@ -182,21 +182,24 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
     private void writeBlockInfoToNBT(NBTTagCompound nbt)
     {
-        int length = this.isAdvanced() ? this.maxLength : 1;
         NBTTagList listTaken = new NBTTagList();
         NBTTagList listPlaced = new NBTTagList();
+
+        int length = Math.min(this.maxLength, this.blockInfoTaken.length);
 
         // Taken blocks' BlockInfo
         for (int i = 0; i < length; i++)
         {
-            if (this.blockInfoTaken[i] != null)
+            BlockInfo info = this.blockInfoTaken[i];
+
+            if (info != null)
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                NBTUtils.writeBlockStateToTag(this.blockInfoTaken[i].getState(), tag);
+                NBTUtils.writeBlockStateToTag(info.getState(), tag);
 
-                if (this.blockInfoTaken[i].getTileEntityNBT() != null)
+                if (info.getTileEntityNBT() != null)
                 {
-                    tag.setTag("nbt", this.blockInfoTaken[i].getTileEntityNBT());
+                    tag.setTag("nbt", info.getTileEntityNBT());
                 }
 
                 tag.setByte("pos", (byte) i);
@@ -204,8 +207,10 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             }
         }
 
+        length = Math.min(this.maxLength, this.blockStatesPlaced.length);
+
         // Placed block states
-        for (int i = 0; i < this.maxLength; i++)
+        for (int i = 0; i < length; i++)
         {
             if (this.blockStatesPlaced[i] != null)
             {
@@ -225,15 +230,16 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         if (nbt.hasKey("Blocks", Constants.NBT.TAG_LIST))
         {
             NBTTagList list = nbt.getTagList("Blocks", Constants.NBT.TAG_COMPOUND);
-            int length = list.tagCount();
+            int count = list.tagCount();
+            int length = Math.min(this.maxLength, this.blockInfoTaken.length);
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < count; i++)
             {
                 NBTTagCompound tag = list.getCompoundTagAt(i);
                 IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
-                if (pos >= 0 && pos < MAX_LENGTH_NORMAL && state != null)
+                if (pos >= 0 && pos < length && state != null)
                 {
                     NBTTagCompound teTag = null;
 
@@ -250,15 +256,16 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         if (nbt.hasKey("Placed", Constants.NBT.TAG_LIST))
         {
             NBTTagList list = nbt.getTagList("Placed", Constants.NBT.TAG_COMPOUND);
-            int length = list.tagCount();
+            int count = list.tagCount();
+            int length = Math.min(this.maxLength, this.blockStatesPlaced.length);
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < count; i++)
             {
                 NBTTagCompound tag = list.getCompoundTagAt(i);
                 IBlockState state = NBTUtils.readBlockStateFromTag(tag);
                 int pos = tag.getByte("pos");
 
-                if (pos >= 0 && pos < MAX_LENGTH_NORMAL && state != null)
+                if (pos >= 0 && pos < length && state != null)
                 {
                     this.blockStatesPlaced[pos] = state;
                 }
@@ -288,6 +295,32 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return null;
     }
 
+    @Nullable
+    private NBTTagCompound getPlacementTileNBT(int invPosition)
+    {
+        NBTTagCompound nbt = null;
+
+        if (this.blockInfoTaken[invPosition] != null)
+        {
+            nbt = this.blockInfoTaken[invPosition].getTileEntityNBT();
+        }
+
+        // This extract will also clear the blockInfoTaken, if the slot becomes empty.
+        // This will prevent item duping exploits by swapping the item to something else
+        // after the drawbridge has taken the state and TE data from the world for a given block.
+        ItemStack stack = this.itemHandlerDrawbridge.extractItem(invPosition, 1, false);
+
+        // This fixes TE data loss on the placed blocks in case blocks with stored TE data
+        // were manually placed into the slots, and not taken from the world by the drawbridge
+        if (nbt == null && stack != null && stack.getTagCompound() != null &&
+            stack.getTagCompound().hasKey("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
+        {
+            nbt = stack.getTagCompound().getCompoundTag("BlockEntityTag");
+        }
+
+        return nbt;
+    }
+
     private boolean extendOneBlock(int position, FakePlayer player, boolean playPistonSoundInsteadOfPlaceSound)
     {
         int invPosition = this.isAdvanced() ? position : 0;
@@ -304,25 +337,10 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             ((playPistonSoundInsteadOfPlaceSound && world.setBlockState(pos, placementState)) ||
              (playPistonSoundInsteadOfPlaceSound == false && BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3))))
         {
-            NBTTagCompound nbt = null;
             this.blockStatesPlaced[position] = placementState;
+            NBTTagCompound nbt = this.getPlacementTileNBT(invPosition);
 
-            if (this.blockInfoTaken[invPosition] != null)
-            {
-                nbt = this.blockInfoTaken[invPosition].getTileEntityNBT();
-            }
-
-            stack = this.itemHandlerDrawbridge.extractItem(invPosition, 1, false);
-
-            // This fixes TE data loss on the placed blocks in case blocks with stored TE data
-            // were manually placed into the slots, and not taken from the world by the drawbridge
-            if (nbt == null && stack != null && stack.getTagCompound() != null &&
-                stack.getTagCompound().hasKey("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
-            {
-                nbt = stack.getTagCompound().getCompoundTag("BlockEntityTag");
-            }
-
-            if (placementState.getBlock().hasTileEntity(placementState) && nbt != null)
+            if (nbt != null && placementState.getBlock().hasTileEntity(placementState))
             {
                 TileUtils.createAndAddTileEntity(world, pos, nbt);
             }
@@ -338,7 +356,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return false;
     }
 
-    private boolean contractOneBlock(int position, FakePlayer player, boolean takeNonPlaced, boolean playPistonSound)
+    private boolean retractOneBlock(int position, FakePlayer player, boolean takeNonPlaced, boolean playPistonSound)
     {
         World world = this.getWorld();
         BlockPos pos = this.getPos().offset(this.getFacing(), position + 1);
@@ -375,7 +393,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 if (this.itemHandlerDrawbridge.insertItem(invPosition, stack, false) == null)
                 {
                     // This check is for the Normal variant, where the same BlockInfo
-                    // position is used for all block positions
+                    // position 0 is used for all block positions
                     if (this.blockInfoTaken[invPosition] == null)
                     {
                         this.blockInfoTaken[invPosition] = new BlockInfo(state, nbt);
@@ -394,6 +412,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                     }
 
                     world.restoringBlockSnapshots = false;
+
                     this.blockStatesPlaced[position] = null;
 
                     return true;
@@ -410,7 +429,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             for (int offset = 0; offset < this.maxLength; offset++)
             {
-                this.contractOneBlock(offset, this.getPlayer(), true, false);
+                this.retractOneBlock(offset, this.getPlayer(), true, false);
             }
 
             return true;
@@ -462,7 +481,10 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             while (this.position < this.maxLength)
             {
-                if (this.extendOneBlock(this.position++, this.getPlayer(), true))
+                boolean result = this.extendOneBlock(this.position, this.getPlayer(), true);
+                this.position++;
+
+                if (result)
                 {
                     break;
                 }
@@ -482,7 +504,10 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             while (this.position >= 0)
             {
-                if (this.contractOneBlock(this.position--, this.getPlayer(), false, true))
+                boolean result = this.retractOneBlock(this.position, this.getPlayer(), false, true);
+                this.position--;
+
+                if (result)
                 {
                     break;
                 }
