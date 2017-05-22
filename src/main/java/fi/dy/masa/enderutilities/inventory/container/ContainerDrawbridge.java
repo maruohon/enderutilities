@@ -10,8 +10,8 @@ public class ContainerDrawbridge extends ContainerLargeStacksTile
 {
     private final TileEntityDrawbridge tedb;
     private final boolean advanced;
-    private int lengthLast;
-    private int delayLast;
+    private int lengthLast = -1;
+    private int delayLast = -1;
 
     public ContainerDrawbridge(EntityPlayer player, TileEntityDrawbridge te)
     {
