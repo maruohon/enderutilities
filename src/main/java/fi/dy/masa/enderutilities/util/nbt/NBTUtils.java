@@ -1,9 +1,11 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.collect.Sets;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -183,22 +185,24 @@ public class NBTUtils
     }
 
     /**
-     * Returns a copy of the compound tag <b>tag</b>, but excludes a top-level member called <b>exclude</b>.
+     * Returns a copy of the compound tag <b>tag</b>, but excludes top-level members matching <b>exclude</b>.
      * If the resulting tag has no other keys, then null is returned instead of an empty compound.
      * @param tag
-     * @param exclude
+     * @param copyTags If true, the sub-tags are copied. If false, they are referenced directly.
+     * @param exclude the keys/tags to exclude
      * @return
      */
     @Nullable
-    public static NBTTagCompound copyCompoundExcludingTag(@Nonnull NBTTagCompound tag, String exclude)
+    public static NBTTagCompound getCompoundExcludingTags(@Nonnull NBTTagCompound tag, boolean copyTags, String... exclude)
     {
         NBTTagCompound newTag = new NBTTagCompound();
+        Set<String> excludeSet = Sets.newHashSet(exclude);
 
         for (String key : tag.getKeySet())
         {
-            if (key.equals(exclude) == false)
+            if (excludeSet.contains(key) == false)
             {
-                newTag.setTag(key, tag.getTag(key).copy());
+                newTag.setTag(key, copyTags ? tag.getTag(key).copy() : tag.getTag(key));
             }
         }
 
@@ -815,6 +819,12 @@ public class NBTUtils
         return nbt;
     }
 
+    /**
+     * Adds ready formatted description of the stored items in a cached tag to the list provided.
+     * @param stack
+     * @param lines
+     * @param maxItemLines
+     */
     @SideOnly(Side.CLIENT)
     public static void getCachedInventoryStrings(ItemStack stack, List<String> lines, int maxItemLines)
     {
@@ -826,21 +836,24 @@ public class NBTUtils
         }
 
         String preWhite = TextFormatting.WHITE.toString();
-        String rstGray = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+        String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
         NBTTagList list = wrapper.getTagList("il", Constants.NBT.TAG_COMPOUND);
-        int count = list.tagCount();
-        int totalStacks = wrapper.getInteger("ts");
+        final int totalStacks = wrapper.getInteger("ts");
+        final int numLines = Math.min(list.tagCount(), maxItemLines);
+        String countStr = EUStringUtils.formatNumberWithKSeparators(wrapper.getLong("ti"));
 
-        for (int i = 0; i < count && i < maxItemLines; i++)
+        lines.add(I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount", totalStacks, countStr));
+
+        for (int i = 0; i < numLines; i++)
         {
             NBTTagCompound tag = list.getCompoundTagAt(i);
-            String countStr = EUStringUtils.formatNumberWithKSeparators(tag.getInteger("c"));
-            lines.add(String.format("%s (%s%s%s)", tag.getString("dn"), preWhite, countStr, rstGray));
+            countStr = EUStringUtils.formatNumberWithKSeparators(tag.getInteger("c"));
+            lines.add(String.format("  %s%s%s %s", preWhite, countStr, rst, tag.getString("dn")));
         }
 
         if (totalStacks > maxItemLines)
         {
-            lines.add(I18n.format("enderutilities.tooltip.item.andmorestacksnotlisted", preWhite, totalStacks - maxItemLines, rstGray));
+            lines.add(I18n.format("enderutilities.tooltip.item.andmorestacksnotlisted", preWhite, totalStacks - maxItemLines, rst));
         }
     }
 

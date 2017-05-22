@@ -63,7 +63,7 @@ public class EUStringUtils
      * @param value
      * @return
      */
-    public static String formatNumberWithKSeparators(int value)
+    public static String formatNumberWithKSeparators(long value)
     {
         return NumberFormat.getNumberInstance(Locale.US).format(value);
     }
