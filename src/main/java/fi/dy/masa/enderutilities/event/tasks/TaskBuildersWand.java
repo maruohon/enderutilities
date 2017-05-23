@@ -59,7 +59,7 @@ public class TaskBuildersWand implements IPlayerTask
 
             for (int i = 0; i < this.blocksPerTick && this.listIndex < this.positions.size();)
             {
-                if (wand.placeBlockToPosition(stack, world, player, this.positions.get(this.listIndex)) == true)
+                if (wand.placeBlockToPosition(stack, world, player, this.positions.get(this.listIndex)))
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

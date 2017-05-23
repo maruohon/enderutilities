@@ -196,7 +196,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         {
             String key = entry.getKey();
             //System.out.printf("customData: %s => %s\n", key, entry.getValue());
-            if (key != null && key.startsWith("tr_") == true)
+            if (key != null && key.startsWith("tr_"))
             {
                 moduleTransforms.put(key, entry.getValue());
             }
@@ -211,7 +211,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         int capacitor = 0;
         int linkCrystal = 0;
 
-        if (customData.containsKey("mode") == true)
+        if (customData.containsKey("mode"))
         {
             try
             {
@@ -295,7 +295,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         private ModuleTransforms(ModelEnderTools parent, String tool, String module)
         {
             float tx = 0f, ty = 0f, tz = 0f, sx = 1.02f, sy = 1.02f, sz = 1.6f;
-            String id = tool.equals("sword") == true ? "w" : tool.substring(0, 1);
+            String id = tool.equals("sword") ? "w" : tool.substring(0, 1);
 
             try
             {

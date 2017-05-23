@@ -92,7 +92,7 @@ public class PositionHelper
         this.posZ += (facing.getFrontOffsetZ() * entity.width / 2);
 
         // Bottom side
-        if (facing.equals(EnumFacing.DOWN) == true)
+        if (facing.equals(EnumFacing.DOWN))
         {
             this.posY -= entity.height;
         }

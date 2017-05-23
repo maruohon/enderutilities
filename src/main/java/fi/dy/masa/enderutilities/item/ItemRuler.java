@@ -133,7 +133,7 @@ public class ItemRuler extends ItemModular
 
             displayName.append(" - R: ");
 
-            if (this.getAlwaysRenderLocation(rulerStack, sel) == true)
+            if (this.getAlwaysRenderLocation(rulerStack, sel))
             {
                 displayName.append(preGreen + "yes" + rst);
             }
@@ -412,7 +412,7 @@ public class ItemRuler extends ItemModular
             }
 
             NBTTagCompound tag = tagList.getCompoundTagAt(selected);
-            String tagName = isPos1 == true ? "Pos1" : "Pos2";
+            String tagName = isPos1 ? "Pos1" : "Pos2";
             BlockPosEU oldPos = BlockPosEU.readFromTag(tag.getCompoundTag(tagName));
 
             if (pos == null || pos.equals(oldPos))

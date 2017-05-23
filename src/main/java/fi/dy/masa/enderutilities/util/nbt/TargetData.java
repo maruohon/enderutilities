@@ -84,13 +84,13 @@ public class TargetData
 
         NBTTagCompound tag = nbt.getCompoundTag("Target");
         if (tag != null &&
-            tag.hasKey("posX", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("posY", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("posZ", Constants.NBT.TAG_INT) == true &&
-            tag.hasKey("Dim", Constants.NBT.TAG_INT) == true &&
-            //tag.hasKey("BlockName", Constants.NBT.TAG_STRING) == true &&
-            //tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) == true &&
-            tag.hasKey("BlockFace", Constants.NBT.TAG_BYTE) == true)
+            tag.hasKey("posX", Constants.NBT.TAG_INT) &&
+            tag.hasKey("posY", Constants.NBT.TAG_INT) &&
+            tag.hasKey("posZ", Constants.NBT.TAG_INT) &&
+            tag.hasKey("Dim", Constants.NBT.TAG_INT) &&
+            //tag.hasKey("BlockName", Constants.NBT.TAG_STRING) &&
+            //tag.hasKey("BlockMeta", Constants.NBT.TAG_BYTE) &&
+            tag.hasKey("BlockFace", Constants.NBT.TAG_BYTE))
         {
             return true;
         }
@@ -125,11 +125,11 @@ public class TargetData
         this.blockFace = tag.getByte("BlockFace");
         this.facing = EnumFacing.getFront(this.blockFace);
 
-        this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosX") : this.pos.getX() + 0.5d;
-        this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosY") : this.pos.getY();
-        this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) == true ? tag.getDouble("dPosZ") : this.pos.getZ() + 0.5d;
+        this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) ? tag.getDouble("dPosX") : this.pos.getX() + 0.5d;
+        this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) ? tag.getDouble("dPosY") : this.pos.getY();
+        this.dPosZ = tag.hasKey("dPosZ", Constants.NBT.TAG_DOUBLE) ? tag.getDouble("dPosZ") : this.pos.getZ() + 0.5d;
 
-        if (tag.hasKey("Yaw", Constants.NBT.TAG_FLOAT) == true && tag.hasKey("Pitch", Constants.NBT.TAG_FLOAT) == true)
+        if (tag.hasKey("Yaw", Constants.NBT.TAG_FLOAT) && tag.hasKey("Pitch", Constants.NBT.TAG_FLOAT))
         {
             this.hasRotation = true;
             this.yaw = tag.getFloat("Yaw");
@@ -174,7 +174,7 @@ public class TargetData
         tag.setShort("ItemMeta", (short)itemMeta);
         tag.setByte("BlockFace", (byte)side.getIndex());
 
-        if (hasAngle == true)
+        if (hasAngle)
         {
             tag.setFloat("Yaw", yaw);
             tag.setFloat("Pitch", pitch);
@@ -197,7 +197,7 @@ public class TargetData
         double dPosY = pos.getY();
         double dPosZ = pos.getZ();
 
-        if (doHitOffset == true)
+        if (doHitOffset)
         {
             dPosX += hitX;
             dPosY += hitY;
@@ -349,6 +349,6 @@ public class TargetData
             EnderUtilities.logger.trace("Failed to get DimensionType by id (" + this.dimension + ")");
         }
 
-        return useFallback == true ? "DIM: " + this.dimension : "";
+        return useFallback ? "DIM: " + this.dimension : "";
     }
 }

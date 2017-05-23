@@ -83,7 +83,7 @@ public class EUStringUtils
             int i = 0;
             while (i < s.length())
             {
-                if (Character.isAlphabetic(s.charAt(i)) == true)
+                if (Character.isAlphabetic(s.charAt(i)))
                 {
                     sb.append(s.substring(i, i + 1)).append(".");
                     break;

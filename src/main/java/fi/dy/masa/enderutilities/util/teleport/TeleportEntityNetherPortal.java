@@ -176,8 +176,9 @@ public class TeleportEntityNetherPortal
             // Try to find a suitable position on either side of the portal
             for (BlockPos pos : list)
             {
-                if (world.isSideSolid(pos, EnumFacing.UP) == true
-                    && world.isAirBlock(pos.offset(EnumFacing.UP, 1)) && world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
+                if (world.isSideSolid(pos, EnumFacing.UP) &&
+                    world.isAirBlock(pos.offset(EnumFacing.UP, 1)) &&
+                    world.isAirBlock(pos.offset(EnumFacing.UP, 2)))
                 {
                     return pos.up();
                 }

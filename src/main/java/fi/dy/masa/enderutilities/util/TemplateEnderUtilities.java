@@ -175,7 +175,7 @@ public class TemplateEnderUtilities
 
     public void addEntitiesToWorld(World world, BlockPos posStart)
     {
-        if (this.placement.getIgnoreEntities() == true)
+        if (this.placement.getIgnoreEntities())
         {
             return;
         }
@@ -462,7 +462,7 @@ public class TemplateEnderUtilities
             iblockstate = Block.getStateById(stateId);
             NBTTagCompound tagTileEntityData;
 
-            if (tag.hasKey("nbt") == true)
+            if (tag.hasKey("nbt"))
             {
                 tagTileEntityData = tag.getCompoundTag("nbt");
             }

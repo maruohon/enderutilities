@@ -31,21 +31,21 @@ public class TaskScheduler
         Iterator<ITask> taskIter = this.tasks.iterator();
         Iterator<Timer> timerIter = this.timers.iterator();
 
-        while (taskIter.hasNext() == true)
+        while (taskIter.hasNext())
         {
             boolean finished = false;
             ITask task = taskIter.next();
             Timer timer = timerIter.next();
 
-            if (timer.tick() == true)
+            if (timer.tick())
             {
-                if (task.canExecute() == true)
+                if (task.canExecute())
                 {
                     finished = task.execute();
                 }
             }
 
-            if (finished == true)
+            if (finished)
             {
                 task.stop();
                 taskIter.remove();
@@ -66,7 +66,7 @@ public class TaskScheduler
     {
         for (ITask task : this.tasks)
         {
-            if (clazz.equals(task.getClass()) == true)
+            if (clazz.equals(task.getClass()))
             {
                 return true;
             }
@@ -80,12 +80,12 @@ public class TaskScheduler
         Iterator<ITask> taskIter = this.tasks.iterator();
         Iterator<Timer> timerIter = this.timers.iterator();
 
-        while (taskIter.hasNext() == true)
+        while (taskIter.hasNext())
         {
             ITask task = taskIter.next();
             timerIter.next();
 
-            if (clazz.equals(task.getClass()) == true)
+            if (clazz.equals(task.getClass()))
             {
                 task.stop();
                 taskIter.remove();

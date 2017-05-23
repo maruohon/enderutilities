@@ -99,7 +99,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             NBTTagCompound nbt = ticket.getModData();
 
             // Only claim tickets that are used for persistent chunk loading
-            if (nbt != null && nbt.getBoolean("Persistent") == true)
+            if (nbt != null && nbt.getBoolean("Persistent"))
             {
                 persistentTickets.add(ticket);
             }
@@ -131,7 +131,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
                     NBTTagCompound nbt = ticket.getModData();
 
                     // Only claim tickets that are used for persistent chunk loading
-                    if (nbt != null && nbt.getBoolean("Persistent") == true)
+                    if (nbt != null && nbt.getBoolean("Persistent"))
                     {
                         //System.out.println("playerTicketsLoaded(): found persistent ticket");
                         persistentPlayerTickets.put(player, ticket);
@@ -270,7 +270,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return;
         }
 
-        if (ticket.isPlayerTicket() == true)
+        if (ticket.isPlayerTicket())
         {
             UUID uuid = this.getPlayerUUIDFromTicket(ticket);
             if (ticket.world.provider != null && uuid != null)
@@ -376,9 +376,9 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     {
         // If the target chunk is already being loaded by something, we don't need another ticket/forced load for it
         // We just refresh the timeout, if the previous one is shorter that the new request
-        if (this.hasChunkTimeout(dimension, chunkX, chunkZ) == true)
+        if (this.hasChunkTimeout(dimension, chunkX, chunkZ))
         {
-            if (this.refreshChunkTimeout(dimension, chunkX, chunkZ, unloadDelay, true) == true)
+            if (this.refreshChunkTimeout(dimension, chunkX, chunkZ, unloadDelay, true))
             {
                 return true;
             }
@@ -393,9 +393,9 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
     {
         // If the target chunk is already being loaded by something, we don't need another ticket/forced load for it
         // We just refresh the timeout, if the previous one is shorter that the new request
-        if (this.hasChunkTimeout(dimension, chunkX, chunkZ) == true)
+        if (this.hasChunkTimeout(dimension, chunkX, chunkZ))
         {
-            if (this.refreshChunkTimeout(dimension, chunkX, chunkZ, unloadDelay, true) == true)
+            if (this.refreshChunkTimeout(dimension, chunkX, chunkZ, unloadDelay, true))
             {
                 return true;
             }
@@ -496,7 +496,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             dcct = iterator.next().getValue();
             //System.out.printf("tickChunkTimeouts(): loop %d, timeout: %d\n", j++, dcct.timeout);
 
-            if (dcct != null && (this.playerTickets.containsValue(dcct.ticket) == true || this.modTickets.containsValue(dcct.ticket) == true))
+            if (dcct != null && (this.playerTickets.containsValue(dcct.ticket) || this.modTickets.containsValue(dcct.ticket)))
             {
                 if (dcct.tick() == 0)
                 {

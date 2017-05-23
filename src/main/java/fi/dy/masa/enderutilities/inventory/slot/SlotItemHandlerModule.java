@@ -101,7 +101,7 @@ public class SlotItemHandlerModule extends SlotItemHandlerGeneric
      */
     public int getBackgroundIconU()
     {
-        if (this.moduleType.equals(ModuleType.TYPE_INVALID) == true)
+        if (this.moduleType.equals(ModuleType.TYPE_INVALID))
         {
             return 102;
         }
@@ -116,7 +116,7 @@ public class SlotItemHandlerModule extends SlotItemHandlerGeneric
      */
     public int getBackgroundIconV()
     {
-        if (this.moduleType.equals(ModuleType.TYPE_INVALID) == true)
+        if (this.moduleType.equals(ModuleType.TYPE_INVALID))
         {
             return 0;
         }

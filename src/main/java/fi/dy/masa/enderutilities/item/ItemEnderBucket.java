@@ -355,7 +355,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             fluidStack = this.drain(stack, Fluid.BUCKET_VOLUME, false, player);
 
             if (fluidStack != null && fluidStack.amount == Fluid.BUCKET_VOLUME &&
-                this.tryPlaceFluidBlock(world, pos, fluidStack) == true)
+                this.tryPlaceFluidBlock(world, pos, fluidStack))
             {
                 this.drain(stack, Fluid.BUCKET_VOLUME, true, player);
                 return EnumActionResult.SUCCESS;

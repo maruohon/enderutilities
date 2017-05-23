@@ -93,13 +93,13 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
             return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
 
-        if (world.isRemote == true)
+        if (world.isRemote)
         {
             return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
 
         // Target block is not whitelisted, so it is known to not work unless within the client's loaded range
-        if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player) == true)
+        if (isTargetBlockWhitelisted(targetData.blockName, targetData.blockMeta) == false && targetOutsideOfPlayerRange(stack, player))
         {
             player.addChatMessage(new TextComponentTranslation(I18n.format("enderutilities.chat.message.enderbag.outofrange")));
             return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -125,7 +125,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
         // Only open the GUI if the chunk loading succeeds. 60 second unload delay.
         if (ChunkLoading.getInstance().loadChunkForcedWithPlayerTicket(player, targetData.dimension,
-                targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 15) == true)
+                targetData.pos.getX() >> 4, targetData.pos.getZ() >> 4, 15))
         {
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             if (server == null)

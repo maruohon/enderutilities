@@ -76,14 +76,14 @@ public class CommonProxy implements IProxy
 
     private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
     {
-        String prefixedName = Reference.MOD_ID + ":" + entityName;
+        String prefixedName = Reference.MOD_ID + "." + entityName;
         ResourceLocation registryName = new ResourceLocation(Reference.MOD_ID, entityName);
         EntityRegistry.registerModEntity(registryName, entityClass, prefixedName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
     private void registerEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, int eggPrimary, int eggSecondary)
     {
-        String prefixedName = Reference.MOD_ID + ":" + entityName;
+        String prefixedName = Reference.MOD_ID + "." + entityName;
         ResourceLocation registryName = new ResourceLocation(Reference.MOD_ID, entityName);
         EntityRegistry.registerModEntity(registryName, entityClass, prefixedName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates, eggPrimary, eggSecondary);
     }

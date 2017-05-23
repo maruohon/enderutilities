@@ -267,9 +267,9 @@ public class OwnerData
                 nbt.getCompoundTag("Owner") : nbt.getCompoundTag("Player");
 
         if (tag != null &&
-            tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("UUIDL", Constants.NBT.TAG_LONG) == true &&
-            tag.hasKey("Name", Constants.NBT.TAG_STRING) == true)
+            tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) &&
+            tag.hasKey("UUIDL", Constants.NBT.TAG_LONG) &&
+            tag.hasKey("Name", Constants.NBT.TAG_STRING))
         {
             return true;
         }

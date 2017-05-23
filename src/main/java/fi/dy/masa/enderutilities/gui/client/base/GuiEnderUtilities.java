@@ -160,7 +160,7 @@ public class GuiEnderUtilities extends GuiContainer
         {
             GuiButton guibutton = (GuiButton)this.buttonList.get(l);
 
-            if (guibutton.mousePressed(this.mc, mouseX, mouseY) == true)
+            if (guibutton.mousePressed(this.mc, mouseX, mouseY))
             {
                 // Vanilla GUI only plays the click sound for the left click, we do it for other buttons here
                 if (mouseButton != 0)

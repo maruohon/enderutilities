@@ -125,7 +125,7 @@ public class TaskStackArea implements IPlayerTask
                 IBlockState state = blockInfo.blockState.withMirror(placement.getMirror()).withRotation(placement.getRotation());
                 BlockPos pos = TemplateEnderUtilities.transformedBlockPos(placement, blockInfo.pos).add(this.currentStartPos);
 
-                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2, true, true) == true)
+                if (wand.placeBlockToPosition(stack, world, player, pos, EnumFacing.UP, state, 2, true, true))
                 {
                     this.placedCount += 1;
                     this.failCount = 0;

@@ -43,7 +43,7 @@ public class EnergyBridgeTracker
             bridgeLocations.add(pos);
         }
 
-        if (markDirty == true)
+        if (markDirty)
         {
             dirty = true;
         }
@@ -59,7 +59,7 @@ public class EnergyBridgeTracker
             count = Integer.valueOf(1);
         }
 
-        if (bridgeLocations.remove(pos) == true)
+        if (bridgeLocations.remove(pos))
         {
             bridgeCounts.put(dimension, Integer.valueOf(count.intValue() - 1));
         }

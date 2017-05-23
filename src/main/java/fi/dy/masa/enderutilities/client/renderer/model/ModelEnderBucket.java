@@ -121,7 +121,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
         int capacity = 1000;
         String mode = null;
 
-        if (customData.containsKey("mode") == true)
+        if (customData.containsKey("mode"))
         {
             tmp = customData.get("mode");
             if (tmp != null && (tmp.equals("drain") || tmp.equals("fill") || tmp.equals("bind")))
@@ -130,7 +130,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             }
         }
 
-        if (customData.containsKey("amount") == true)
+        if (customData.containsKey("amount"))
         {
             try
             {
@@ -139,7 +139,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
             catch (NumberFormatException e) {}
         }
 
-        if (customData.containsKey("capacity") == true)
+        if (customData.containsKey("capacity"))
         {
             try
             {

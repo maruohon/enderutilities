@@ -24,7 +24,7 @@ public class LayerEnderFighterEyes implements LayerRenderer<EntityEndermanFighte
 
     public void doRenderLayer(EntityEndermanFighter entityEnderFighter, float p_177201_2, float p_177201_3, float partialTicks, float p_177201_5_, float p_177201_6_, float p_177201_7_, float scale)
     {
-        if (entityEnderFighter.isRaging() == true)
+        if (entityEnderFighter.isRaging())
         {
             this.renderEnderFighter.bindTexture(TEXTURE_EYES_RAGING);
         }
