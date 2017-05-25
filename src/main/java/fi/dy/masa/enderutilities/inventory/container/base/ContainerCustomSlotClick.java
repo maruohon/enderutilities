@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
+    protected IItemHandlerSize itemHandlerLargeStacks;
     protected boolean isDragging;
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
@@ -347,7 +348,19 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
     protected void middleClickSlot(int slotNum, EntityPlayer player)
     {
-        this.swapSlots(slotNum, player);
+        if (player.capabilities.isCreativeMode &&
+            this.playerMainSlotsIncHotbar.contains(slotNum) &&
+            player.inventory.getItemStack() == null &&
+            this.getSlot(slotNum).getHasStack())
+        {
+            ItemStack stack = this.getSlot(slotNum).getStack().copy();
+            stack.stackSize = stack.getMaxStackSize();
+            player.inventory.setItemStack(stack);
+        }
+        else
+        {
+            this.swapSlots(slotNum, player);
+        }
     }
 
     protected void swapSlots(int slotNum, EntityPlayer player)
@@ -687,10 +700,27 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         {
             this.leftDoubleClickSlot(slotNum, player);
         }
-        // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-        else if (clickType == ClickType.CLONE && dragType == 2)
+        else
         {
-            this.middleClickSlot(slotNum, player);
+            if (this.itemHandlerLargeStacks instanceof ItemStackHandlerLockable)
+            {
+                ItemStackHandlerLockable inv = (ItemStackHandlerLockable) this.itemHandlerLargeStacks;
+
+                // Middle click or middle click drag
+                if (((clickType == ClickType.CLONE && dragType == 2) ||
+                    (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
+                    slotNum >= 0 && slotNum < inv.getSlots())
+                {
+                    this.toggleSlotLocked(slotNum, inv, false);
+                    return null;
+                }
+            }
+
+            // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
+            if (clickType == ClickType.CLONE && dragType == 2)
+            {
+                this.middleClickSlot(slotNum, player);
+            }
         }
 
         if (this.isClient == false)

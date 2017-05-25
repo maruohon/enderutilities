@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncSlot;
@@ -18,8 +17,6 @@ import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 
 public class ContainerLargeStacks extends ContainerCustomSlotClick
 {
-    protected IItemHandlerSize itemHandlerLargeStacks;
-
     public ContainerLargeStacks(EntityPlayer player, IItemHandler inventory)
     {
         super(player, inventory);
