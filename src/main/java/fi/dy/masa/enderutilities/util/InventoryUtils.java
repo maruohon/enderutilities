@@ -322,6 +322,33 @@ public class InventoryUtils
     }
 
     /**
+     * Checks if the ItemStack <b>stackTarget</b> is valid to be used as a substitution
+     * for <b>stackReference</b> via the OreDictionary keys.
+     * @param stackTarget
+     * @param stackReference
+     * @return
+     */
+    public static boolean areItemStacksOreDictMatch(@Nonnull ItemStack stackTarget, @Nonnull ItemStack stackReference)
+    {
+        int[] ids = OreDictionary.getOreIDs(stackReference);
+
+        for (int id : ids)
+        {
+            List<ItemStack> oreStacks = OreDictionary.getOres(OreDictionary.getOreName(id), false);
+
+            for (ItemStack oreStack : oreStacks)
+            {
+                if (OreDictionary.itemMatches(stackTarget, oreStack, false))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the slot number of the first empty slot in the given inventory, or -1 if there are no empty slots.
      */
     public static int getFirstEmptySlot(IItemHandler inv)
@@ -1116,33 +1143,6 @@ public class InventoryUtils
         }
 
         return minSize;
-    }
-
-    /**
-     * Checks if the ItemStack <b>stackTarget</b> is valid to be used as a substitution
-     * for <b>stackReference</b> via the OreDictionary keys.
-     * @param stackTarget
-     * @param stackReference
-     * @return
-     */
-    public static boolean areItemStacksOreDictMatch(@Nonnull ItemStack stackTarget, @Nonnull ItemStack stackReference)
-    {
-        int[] ids = OreDictionary.getOreIDs(stackReference);
-
-        for (int id : ids)
-        {
-            List<ItemStack> oreStacks = OreDictionary.getOres(OreDictionary.getOreName(id), false);
-
-            for (ItemStack oreStack : oreStacks)
-            {
-                if (OreDictionary.itemMatches(stackTarget, oreStack, false))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**

@@ -11,7 +11,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -52,7 +51,7 @@ public class EnderUtilities
     public static IProxy proxy;
     public static Logger logger;
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
@@ -77,13 +76,13 @@ public class EnderUtilities
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
         proxy.registerColorHandlers();
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void onServerAboutToStartEvent(FMLServerAboutToStartEvent event)
     {
         // Register data fixers
@@ -93,7 +92,7 @@ public class EnderUtilities
         dataFixer.registerFix(FixTypes.ITEM_INSTANCE, renames);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event)
     {
         //EnderUtilities.logger.info("Clearing chunk loading timeouts");
@@ -103,7 +102,7 @@ public class EnderUtilities
         PlacementProperties.getInstance().readFromDisk();
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void onMissingMappingEvent(FMLMissingMappingsEvent event)
     {
         List<MissingMapping> list = event.get();
@@ -126,7 +125,7 @@ public class EnderUtilities
                         if (block != null && block != Blocks.AIR)
                         {
                             mapping.remap(block);
-                            EnderUtilities.logger.info("Re-mapped block '{}' to '{}'", oldLoc, newName);
+                            logger.info("Re-mapped block '{}' to '{}'", oldLoc, newName);
                         }
                     }
                 }
@@ -146,7 +145,7 @@ public class EnderUtilities
                         if (item != null && item != Items.AIR)
                         {
                             mapping.remap(item);
-                            EnderUtilities.logger.info("Re-mapped item '{}' to '{}'", oldLoc, newName);
+                            logger.info("Re-mapped item '{}' to '{}'", oldLoc, newName);
                         }
                     }
                 }

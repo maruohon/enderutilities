@@ -20,7 +20,8 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
     private final InventoryCrafting craftMatrix;
     private int amountCrafted;
 
-    public SlotItemHandlerCraftresult(EntityPlayer player, InventoryCrafting craftMatrix, IItemHandler craftResult, int index, int xPosition, int yPosition)
+    public SlotItemHandlerCraftresult(EntityPlayer player, InventoryCrafting craftMatrix, IItemHandler craftResult,
+            int index, int xPosition, int yPosition)
     {
         super(craftResult, index, xPosition, yPosition);
         this.player = player;

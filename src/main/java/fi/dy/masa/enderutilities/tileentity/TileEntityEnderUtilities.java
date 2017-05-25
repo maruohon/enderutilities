@@ -151,6 +151,9 @@ public class TileEntityEnderUtilities extends TileEntity
         return this.isPublic() || this.isOwner(player);
     }
 
+    /**
+     * @return true if something happened, and further processing (such as opening the GUI) should not happen
+     */
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (this.hasCamouflageAbility())

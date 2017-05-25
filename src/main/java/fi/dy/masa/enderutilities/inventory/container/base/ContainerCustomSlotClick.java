@@ -12,14 +12,12 @@ import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart.ItemPartType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
 public class ContainerCustomSlotClick extends ContainerEnderUtilities
 {
     /**
-     * This is a non-Container-wrapped, possible a lockable inventory.
+     * This is a non-Container-wrapped, possibly a lockable inventory.
      * If this field is set, it is used for the stack size cycling
      * and slot locking features, if applicable.
      */
@@ -407,14 +405,13 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
      * @param inv
      * @return true if the slot locked status was toggled, false if the conditions weren't met
      */
-    protected boolean toggleSlotLocked(int slotNum, ItemStackHandlerLockable inv, boolean requireStorageKey)
+    protected boolean toggleSlotLocked(int slotNum, ItemStackHandlerLockable inv)
     {
         Slot slot = this.getSlot(slotNum);
         int slotIndex = slot != null ? slot.getSlotIndex() : -1;
         ItemStack stackCursor = this.player.inventory.getItemStack();
 
-        if (slotIndex != -1 &&
-            (requireStorageKey == false || ItemEnderPart.itemMatches(stackCursor, ItemPartType.STORAGE_KEY)))
+        if (slotIndex != -1)
         {
             if (stackCursor.isEmpty() == false)
             {
@@ -716,7 +713,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                     (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
                     slotNum >= 0 && slotNum < inv.getSlots())
                 {
-                    this.toggleSlotLocked(slotNum, inv, false);
+                    this.toggleSlotLocked(slotNum, inv);
                     return ItemStack.EMPTY;
                 }
             }

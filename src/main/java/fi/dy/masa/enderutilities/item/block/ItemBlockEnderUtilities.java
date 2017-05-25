@@ -26,6 +26,7 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ItemType;
 import fi.dy.masa.enderutilities.util.PlacementProperties;
@@ -257,7 +258,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
 
             if (verbose == false && tmpList.size() > 2)
             {
-                list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -280,7 +281,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
                 list.add(tmpList.get(0));
             }
 
-            list.add(I18n.format("enderutilities.tooltip.item.holdshift"));
+            list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshift"));
         }
         else
         {
@@ -295,7 +296,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
 
         if (this.hasPlacementProperties())
         {
-            ItemEnderUtilities.addTooltips("enderutilities.tooltip.placementproperties.tooltips", list, verbose);
+            ItemEnderUtilities.addTooltips(Reference.MOD_ID + ".tooltip.placementproperties.tooltips", list, verbose);
         }
     }
 

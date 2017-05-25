@@ -19,6 +19,12 @@ import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderUtilities extends Item
 {
+    public static final String PRE_BLUE = TextFormatting.BLUE.toString();
+    public static final String PRE_GREEN = TextFormatting.GREEN.toString();
+    public static final String PRE_WHITE = TextFormatting.WHITE.toString();
+    public static final String RST_GRAY = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+    public static final String RST_WHITE = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+
     protected String name;
     protected String commonTooltip = null;
     protected boolean enabled = true;

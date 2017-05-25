@@ -3,12 +3,12 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
-import fi.dy.masa.enderutilities.inventory.container.base.IScrollableInventory;
+import fi.dy.masa.enderutilities.inventory.container.base.ISlotOffset;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerScrollable;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerOffset;
 import fi.dy.masa.enderutilities.tileentity.TileEntityJSU;
 
-public class ContainerJSU extends ContainerTileLargeStacks implements IScrollableInventory
+public class ContainerJSU extends ContainerTileLargeStacks implements ISlotOffset
 {
     protected final TileEntityJSU tejsu;
     private int startRow;
@@ -36,7 +36,7 @@ public class ContainerJSU extends ContainerTileLargeStacks implements IScrollabl
         {
             for (int column = 0; column < 9; column++)
             {
-                this.addSlotToContainer(new SlotItemHandlerScrollable(this.inventory, row * 9 + column, posX + column * 18, posY + row * 18, this));
+                this.addSlotToContainer(new SlotItemHandlerOffset(this.inventory, row * 9 + column, posX + column * 18, posY + row * 18, this));
             }
         }
     }
