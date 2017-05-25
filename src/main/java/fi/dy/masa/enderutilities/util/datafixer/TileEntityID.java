@@ -54,8 +54,11 @@ public class TileEntityID implements IFixableData
 
         OLD_TO_NEW_ID_MAP.put("enderutilities_creationstation",         "enderutilities:creation_station");
         OLD_TO_NEW_ID_MAP.put("enderutilities_enderfurnace",            "enderutilities:ender_furnace");
+        OLD_TO_NEW_ID_MAP.put("enderutilities_enderinfuser",            "enderutilities:ender_infuser");
+        OLD_TO_NEW_ID_MAP.put("enderutilities_energybridge",            "enderutilities:energy_bridge");
         OLD_TO_NEW_ID_MAP.put("enderutilities_handychest",              "enderutilities:handy_chest");
         OLD_TO_NEW_ID_MAP.put("enderutilities_memorychest",             "enderutilities:memory_chest");
+        OLD_TO_NEW_ID_MAP.put("enderutilities_portal",                  "enderutilities:portal");
         OLD_TO_NEW_ID_MAP.put("enderutilities_portal_panel",            "enderutilities:portal_panel");
         OLD_TO_NEW_ID_MAP.put("enderutilities_quickstackeradvanced",    "enderutilities:quick_stacker_advanced");
         OLD_TO_NEW_ID_MAP.put("enderutilities_toolworkstation",         "enderutilities:tool_workstation");
