@@ -361,7 +361,19 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
 
     protected void middleClickSlot(int slotNum, EntityPlayer player)
     {
-        this.swapSlots(slotNum, player);
+        if (player.capabilities.isCreativeMode &&
+            this.playerMainSlotsIncHotbar.contains(slotNum) &&
+            player.inventory.getItemStack().isEmpty() &&
+            this.getSlot(slotNum).getHasStack())
+        {
+            ItemStack stack = this.getSlot(slotNum).getStack().copy();
+            stack.setCount(stack.getMaxStackSize());
+            player.inventory.setItemStack(stack);
+        }
+        else
+        {
+            this.swapSlots(slotNum, player);
+        }
     }
 
     protected void swapSlots(int slotNum, EntityPlayer player)
@@ -715,6 +727,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 {
                     this.toggleSlotLocked(slotNum, inv);
                     return ItemStack.EMPTY;
+                }
+                else
+                {
+                    this.middleClickSlot(slotNum, player);
                 }
             }
             // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
