@@ -56,6 +56,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
     public void setStackLimit(int limit)
     {
         this.getBaseItemHandler().setStackLimit(MathHelper.clamp(limit, 0, MAX_STACK_SIZE));
+        this.markDirty();
     }
 
     @Override
