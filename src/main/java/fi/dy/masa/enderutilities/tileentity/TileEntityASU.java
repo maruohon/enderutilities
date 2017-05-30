@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.tileentity;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,6 +50,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
     public void setInvSize(int size)
     {
         this.inventorySize = MathHelper.clamp(size, 1, MAX_INV_SIZE);
+        this.markDirty();
     }
 
     public void setStackLimit(int limit)
@@ -140,8 +140,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
         {
             this.setInvSize(newSize);
 
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+            this.notifyBlockUpdate(this.getPos());
         }
     }
 
