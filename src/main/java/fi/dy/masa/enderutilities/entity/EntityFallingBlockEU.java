@@ -28,6 +28,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.TileUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -80,9 +81,7 @@ public class EntityFallingBlockEU extends Entity
         entity.prevPosY = entity.posY;
         entity.prevPosZ = entity.posZ;
 
-        worldIn.restoringBlockSnapshots = true;
-        worldIn.setBlockToAir(pos);
-        worldIn.restoringBlockSnapshots = false;
+        BlockUtils.setBlockToAirWithoutSpillingContents(worldIn, pos);
 
         return entity;
     }

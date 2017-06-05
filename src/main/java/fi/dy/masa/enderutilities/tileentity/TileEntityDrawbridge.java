@@ -399,19 +399,16 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                         this.blockInfoTaken[invPosition] = new BlockInfo(state, nbt);
                     }
 
-                    world.restoringBlockSnapshots = true;
-
-                    if (playPistonSound == false)
+                    if (playPistonSound)
                     {
-                        BlockUtils.setBlockToAirWithBreakSound(world, pos);
+                        world.playSound(null, pos, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.BLOCKS, 0.5f, 0.7f);
                     }
                     else
                     {
-                        world.setBlockToAir(pos);
-                        world.playSound(null, pos, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.BLOCKS, 0.5f, 0.7f);
+                        BlockUtils.playBlockBreakSound(world, pos);
                     }
 
-                    world.restoringBlockSnapshots = false;
+                    BlockUtils.setBlockToAirWithoutSpillingContents(world, pos);
 
                     this.blockStatesPlaced[position] = null;
 

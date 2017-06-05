@@ -23,6 +23,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
+import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BlockUtils
 {
@@ -118,11 +119,41 @@ public class BlockUtils
 
     public static void setBlockToAirWithBreakSound(World world, BlockPos pos)
     {
+        playBlockBreakSound(world, pos);
+        world.setBlockToAir(pos);
+    }
+
+    public static void playBlockBreakSound(World world, BlockPos pos)
+    {
         IBlockState state = world.getBlockState(pos);
         SoundType soundtype = state.getBlock().getSoundType(state, world, pos, null);
 
-        world.setBlockToAir(pos);
         world.playSound(null, pos, soundtype.getBreakSound(), SoundCategory.BLOCKS, soundtype.getVolume(), soundtype.getPitch());
+    }
+
+    public static void setBlockToAirWithoutSpillingContents(World world, BlockPos pos)
+    {
+        setBlockToAirWithoutSpillingContents(world, pos, 3);
+    }
+
+    public static void setBlockToAirWithoutSpillingContents(World world, BlockPos pos, int flags)
+    {
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te != null)
+        {
+            // Possible fix for inventories spilling their contents in some cases.
+            // No idea what mod is changing the block snapshot stuff in World that causes it though...
+            // Or maybe they don't respect the restoringBlockSnapshots field in World in their blocks'
+            // dropBlockAsItemWithChance() methods.
+            NBTTagCompound tag = new NBTTagCompound();
+            NBTUtils.setPositionInTileEntityNBT(tag, pos);
+            te.readFromNBT(tag);
+        }
+
+        world.restoringBlockSnapshots = true;
+        world.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
+        world.restoringBlockSnapshots = false;
     }
 
     /**
@@ -161,7 +192,6 @@ public class BlockUtils
 
         if (existingState.getBlock() != state.getBlock())
         {
-            world.restoringBlockSnapshots = true;
             TileEntity te = world.getTileEntity(pos);
 
             if (te != null)
@@ -170,8 +200,9 @@ public class BlockUtils
                 te.onChunkUnload();
             }
 
-            world.setBlockState(pos, state, 0);
-            world.restoringBlockSnapshots = false;
+            setBlockToAirWithoutSpillingContents(world, pos, 4);
+            world.setBlockState(pos, state, 4);
+
             replaced = true;
         }
 
@@ -180,15 +211,13 @@ public class BlockUtils
 
         if (replaced)
         {
-            world.restoringBlockSnapshots = true;
-            world.setBlockState(pos, existingState, 0);
+            setBlockToAirWithoutSpillingContents(world, pos, 4);
+            world.setBlockState(pos, existingState, 4);
 
             if (nbt != null)
             {
                 TileUtils.createAndAddTileEntity(world, pos, nbt);
             }
-
-            world.restoringBlockSnapshots = false;
         }
 
         return stack;
