@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -180,9 +179,7 @@ public class TaskMoveArea implements IPlayerTask
                     }
                 }
 
-                world.restoringBlockSnapshots = true;
-                world.setBlockState(posSrc, Blocks.AIR.getDefaultState(), 2);
-                world.restoringBlockSnapshots = false;
+                BlockUtils.setBlockToAirWithoutSpillingContents(world, posSrc, 2);
             }
 
             // If the destination position overlaps with the source box, then we will store
@@ -210,9 +207,7 @@ public class TaskMoveArea implements IPlayerTask
 
                 // After the current block data has been stored for the next iteration, clear the position
                 // Note that if the server would be to close after this point and before placing it back, that block will be lost forever
-                world.restoringBlockSnapshots = true;
-                world.setBlockState(posDst, Blocks.AIR.getDefaultState(), 2);
-                world.restoringBlockSnapshots = false;
+                BlockUtils.setBlockToAirWithoutSpillingContents(world, posDst, 2);
             }
 
             stateNew = stateNew.withMirror(this.mirror).withRotation(this.rotation);

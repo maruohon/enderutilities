@@ -31,6 +31,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.TileUtils;
@@ -202,9 +203,7 @@ public class ItemDolly extends ItemEnderUtilities
             tagCarrying.setTag("te", tag);
         }
 
-        world.restoringBlockSnapshots = true;
-        world.setBlockToAir(pos);
-        world.restoringBlockSnapshots = false;
+        BlockUtils.setBlockToAirWithoutSpillingContents(world, pos);
 
         return true;
     }

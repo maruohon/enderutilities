@@ -12,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
@@ -114,35 +113,30 @@ public class TemplateEnderUtilities
             if (this.replaceMode == ReplaceMode.EVERYTHING ||
                 (this.replaceMode == ReplaceMode.WITH_NON_AIR && stateNew.getMaterial() != Material.AIR) || world.isAirBlock(pos))
             {
-                stateNew = stateNew.withMirror(this.placement.getMirror()).withRotation(this.placement.getRotation());
+                Mirror mirror = this.placement.getMirror();
+                Rotation rotation = this.placement.getRotation();
+                stateNew = stateNew.withMirror(mirror).withRotation(rotation);
 
                 boolean success = false;
 
                 if (this.dropOldBlocks)
                 {
-                    IBlockState stateOld = world.getBlockState(pos);
-                    stateOld.getBlock().dropBlockAsItem(world, pos, stateOld, 0);
-
-                    // Replace the block temporarily so that the old TE gets cleared for sure
-                    world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
-
-                    success = world.setBlockState(pos, stateNew, 2);
+                    world.destroyBlock(pos, true);
                 }
+                /*
                 else
                 {
-                    world.restoringBlockSnapshots = true;
-
                     // Replace the block temporarily so that the old TE gets cleared for sure
-                    world.setBlockState(pos, Blocks.BARRIER.getDefaultState(), 4);
-
-                    success = world.setBlockState(pos, stateNew, 2);
-                    world.restoringBlockSnapshots = false;
+                    BlockUtils.setBlockToAirWithoutSpillingContents(world, pos, 4);
                 }
+                */
+
+                // Place the new block
+                success = world.setBlockState(pos, stateNew, 2);
 
                 if (success && blockInfo.tileEntityData != null)
                 {
-                    TileUtils.createAndAddTileEntity(world, pos, blockInfo.tileEntityData,
-                            this.placement.getRotation(), this.placement.getMirror());
+                    TileUtils.createAndAddTileEntity(world, pos, blockInfo.tileEntityData, rotation, mirror);
                 }
             }
         }

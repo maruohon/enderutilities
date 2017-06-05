@@ -31,6 +31,7 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -218,10 +219,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
         {
             if (world.isRemote == false)
             {
-                //if (this.getDamage(stack) < 10) this.setDamage(stack, this.material.getMaxUses() - 3); // debugging
-                world.restoringBlockSnapshots = true;
-                world.setBlockToAir(pos);
-                world.restoringBlockSnapshots = false;
+                BlockUtils.setBlockToAirWithoutSpillingContents(world, pos);
             }
 
             if (player.capabilities.isCreativeMode == false)

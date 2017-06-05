@@ -838,9 +838,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 }
                 else
                 {
-                    world.restoringBlockSnapshots = true;
-                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
-                    world.restoringBlockSnapshots = false;
+                    BlockUtils.setBlockToAirWithoutSpillingContents(world, pos, 2);
                 }
             }
 
@@ -1966,9 +1964,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         {
             if (world.isAirBlock(posMutable) == false)
             {
-                world.restoringBlockSnapshots = true;
-                world.setBlockState(posMutable, Blocks.AIR.getDefaultState(), 2);
-                world.restoringBlockSnapshots = false;
+                BlockUtils.setBlockToAirWithoutSpillingContents(world, posMutable, 2);
             }
         }
 
