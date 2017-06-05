@@ -534,6 +534,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         {
             this.toggleFilterSettings(element);
         }
+
+        this.markDirty();
     }
 
     private void toggleFilterSettings(int element)

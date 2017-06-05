@@ -257,9 +257,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         if (action == 0 && element >= 0 && element < 8)
         {
             this.setActiveTargetId(element);
+            this.markDirty();
 
-            IBlockState state = this.getWorld().getBlockState(this.getPos());
-            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 2);
+            this.notifyBlockUpdate(this.getPos());
         }
     }
 
