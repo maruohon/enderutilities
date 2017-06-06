@@ -728,13 +728,10 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                     this.toggleSlotLocked(slotNum, inv);
                     return ItemStack.EMPTY;
                 }
-                else
-                {
-                    this.middleClickSlot(slotNum, player);
-                }
             }
+
             // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-            else if (clickType == ClickType.CLONE && dragType == 2)
+            if (clickType == ClickType.CLONE && dragType == 2)
             {
                 this.middleClickSlot(slotNum, player);
             }
