@@ -106,7 +106,7 @@ public class ModelInserterBaked implements IBakedModel
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+    synchronized public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
         // Item model
         if (state == null)
@@ -122,7 +122,10 @@ public class ModelInserterBaked implements IBakedModel
             IModelState modelState = new TRSRTransformation(state.getValue(BlockInserter.FACING));
             IBakedModel bakedBaseModel = this.baseModel.bake(modelState, this.format, this.bakedTextureGetter);
 
-            QUAD_CACHE.put(state, this.bakeFullModel(bakedBaseModel, state, side));
+            quads = this.bakeFullModel(bakedBaseModel, state, side);
+            QUAD_CACHE.put(state, quads);
+
+            return quads.get(Optional.fromNullable(side));
         }
 
         return QUAD_CACHE.get(state).get(Optional.fromNullable(side));
