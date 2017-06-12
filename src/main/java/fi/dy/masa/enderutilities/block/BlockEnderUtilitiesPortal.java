@@ -172,7 +172,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
             TileEntityPortal te = getTileEntitySafely(world, pos, TileEntityPortal.class);
 
             if (te != null && te.getDestination() != null &&
-                entity.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+                entity.getEntityBoundingBox().intersects(state.getBoundingBox(world, pos).offset(pos)))
             {
                 OwnerData owner = te.getOwner();
 

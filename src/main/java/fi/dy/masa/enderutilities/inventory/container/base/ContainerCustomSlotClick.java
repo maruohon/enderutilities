@@ -48,7 +48,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             {
                 if (this.selectedSlot != this.selectedSlotLast)
                 {
-                    this.listeners.get(i).sendProgressBarUpdate(this, 0x0100, this.selectedSlot & 0xFFFF);
+                    this.listeners.get(i).sendWindowProperty(this, 0x0100, this.selectedSlot & 0xFFFF);
                 }
             }
 

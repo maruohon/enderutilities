@@ -8,7 +8,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
@@ -127,11 +126,11 @@ public class BlockEnergyBridge extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < BridgeType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, BridgeType.values()[i].getMeta()));
+            list.add(new ItemStack(this, 1, BridgeType.values()[i].getMeta()));
         }
     }
 

@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -101,7 +101,7 @@ public class BlackLists
 
     public static boolean isEntityBlacklistedForTeleport(Entity entity)
     {
-        return (entity instanceof EntityDragonPart && TELEPORT_BLACKLIST_CLASSES.contains(EntityDragon.class)) ||
+        return (entity instanceof MultiPartEntityPart && TELEPORT_BLACKLIST_CLASSES.contains(EntityDragon.class)) ||
                 TELEPORT_BLACKLIST_CLASSES.contains(entity.getClass());
     }
 }

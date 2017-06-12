@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.Container;
@@ -164,7 +164,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
             GlStateManager.disableBlend();
 
             Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer vertexBuffer = tessellator.getBuffer();
+            BufferBuilder vertexBuffer = tessellator.getBuffer();
 
             this.drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
             this.drawQuad(vertexBuffer, xPosition + 2, yPosition + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
@@ -177,7 +177,7 @@ public class GuiContainerLargeStacks extends GuiEnderUtilities
         }
     }
 
-    public void drawQuad(VertexBuffer vertexBuffer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
+    public void drawQuad(BufferBuilder vertexBuffer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
     {
         vertexBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 

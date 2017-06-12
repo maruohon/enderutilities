@@ -64,7 +64,7 @@ public class AnvilUpdateEventHandler
     {
         ItemStack toolStack = event.getLeft().copy();
         ItemStack bookStack = event.getRight().copy();
-        NBTTagList bookEnchantmentList = book.getEnchantments(bookStack);
+        NBTTagList bookEnchantmentList = ItemEnchantedBook.getEnchantments(bookStack);
 
         if (bookEnchantmentList.tagCount() <= 0 || toolStack.getItem().isBookEnchantable(toolStack, bookStack) == false)
         {

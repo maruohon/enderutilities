@@ -107,7 +107,7 @@ public class EntityUtils
      */
     public static int getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, List<AxisAlignedBB> boxes)
     {
-        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
         //AxisAlignedBB box = null;
         //Vec3d hitVec = null;
         double distance = reach;
@@ -118,7 +118,7 @@ public class EntityUtils
             AxisAlignedBB bb = boxes.get(i);
             RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
 
-            if (bb.isVecInside(eyesVec))
+            if (bb.contains(eyesVec))
             {
                 if (distance >= 0.0D)
                 {
@@ -164,7 +164,7 @@ public class EntityUtils
     @Nullable
     public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
     {
-        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
         double distance = reach;
         T key = null;
 
@@ -173,7 +173,7 @@ public class EntityUtils
             AxisAlignedBB bb = entry.getValue();
             RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
 
-            if (bb.isVecInside(eyesVec))
+            if (bb.contains(eyesVec))
             {
                 if (distance >= 0.0D)
                 {
@@ -1133,7 +1133,7 @@ public class EntityUtils
             ItemStack dropStack = stack.copy();
             dropStack.setCount(num);
 
-            EntityItem entityItem = new EntityItem(worldIn, pos.xCoord, pos.yCoord, pos.zCoord, dropStack);
+            EntityItem entityItem = new EntityItem(worldIn, pos.x, pos.y, pos.z, dropStack);
 
             if (randomMotion)
             {

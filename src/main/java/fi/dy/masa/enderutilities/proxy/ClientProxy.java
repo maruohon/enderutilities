@@ -383,7 +383,7 @@ public class ClientProxy extends CommonProxy
         {
             ResourceLocation[] variants = item.getItemVariants();
             NonNullList<ItemStack> items = NonNullList.create();
-            item.getSubItems(item, item.getCreativeTab(), items);
+            item.getSubItems(item.getCreativeTab(), items);
 
             int i = 0;
             for (ItemStack stack : items)
@@ -468,7 +468,7 @@ public class ClientProxy extends CommonProxy
         if (blockIn.isEnabled())
         {
             NonNullList<ItemStack> stacks = NonNullList.create();
-            blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+            blockIn.getSubBlocks(blockIn.getCreativeTabToDisplayOn(), stacks);
             String[] names = blockIn.getUnlocalizedNames();
 
             for (ItemStack stack : stacks)

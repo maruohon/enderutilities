@@ -65,23 +65,23 @@ public class ContainerInserter extends ContainerTile
         {
             if (delay != this.delayLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, delay & 0xFFFF);
-                this.listeners.get(i).sendProgressBarUpdate(this, 1, (delay >>> 16) & 0xFFFF);
+                this.listeners.get(i).sendWindowProperty(this, 0, delay & 0xFFFF);
+                this.listeners.get(i).sendWindowProperty(this, 1, (delay >>> 16) & 0xFFFF);
             }
 
             if (stackLimit != this.stackLimitLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 2, stackLimit);
+                this.listeners.get(i).sendWindowProperty(this, 2, stackLimit);
             }
 
             if (filters != this.filtersLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 3, filters);
+                this.listeners.get(i).sendWindowProperty(this, 3, filters);
             }
 
             if (redstone != this.redstoneLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 4, redstone);
+                this.listeners.get(i).sendWindowProperty(this, 4, redstone);
             }
         }
 

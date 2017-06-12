@@ -3,12 +3,12 @@ package fi.dy.masa.enderutilities.client.renderer.tileentity;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
@@ -29,7 +29,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
     private Minecraft mc;
 
     @Override
-    public void renderTileEntityAt(TileEntityBarrel te, double x, double y, double z, float partialTicks, int destroyStage)
+    public void func_192841_a(TileEntityBarrel te, double x, double y, double z, float partialTicks, int destroyStage, float partial)
     {
         this.mc = Minecraft.getMinecraft();
         BlockPos pos = te.getPos();
@@ -273,7 +273,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         GlStateManager.disableTexture2D();
 
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuffer();
 
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
@@ -328,7 +328,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
 
         this.mc.getTextureManager().bindTexture(TEXTURE_LOCK);
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuffer();
 
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 

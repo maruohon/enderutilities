@@ -84,7 +84,7 @@ public class ContainerMemoryChest extends ContainerTile implements ICustomSlotSy
 
             if (this.isPublic != isPublic)
             {
-                listener.sendProgressBarUpdate(this, 0, isPublic ? 1 : 0);
+                listener.sendWindowProperty(this, 0, isPublic ? 1 : 0);
             }
         }
 

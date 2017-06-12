@@ -83,8 +83,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
 
         Slot slot;
         GuiButton button = this.buttonList.get(this.tehc.getSelectedModule());
-        int x = button.xPosition - 1;
-        int y = button.yPosition - 1;
+        int x = button.x - 1;
+        int y = button.y - 1;
 
         // Draw the selection marker around the selected module's button
         this.drawTexturedModalRect(x, y, 120, 0, 10, 10);
@@ -98,8 +98,8 @@ public class GuiHandyChest extends GuiContainerLargeStacks
         if (mode >= 0 && mode <= 5)
         {
             button = this.buttonList.get(4 + mode);
-            x = button.xPosition - 1;
-            y = button.yPosition - 1;
+            x = button.x - 1;
+            y = button.y - 1;
 
             // Draw the selection marker around the selected action button, ie. the "Quick Action"
             this.drawTexturedModalRect(x, y, 120, 10, 14, 14);
@@ -133,7 +133,7 @@ public class GuiHandyChest extends GuiContainerLargeStacks
             if ((mask & (1 << i)) != 0)
             {
                 button = this.buttonList.get(i);
-                this.drawTexturedModalRect(button.xPosition - 2, button.yPosition - 2, 120, 34, 12, 12);
+                this.drawTexturedModalRect(button.x - 2, button.y - 2, 120, 34, 12, 12);
             }
         }
     }

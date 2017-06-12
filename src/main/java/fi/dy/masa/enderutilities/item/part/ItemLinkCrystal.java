@@ -2,7 +2,6 @@ package fi.dy.masa.enderutilities.item.part;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -81,10 +80,10 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(item, 1, 0));
-        list.add(new ItemStack(item, 1, 1));
+        list.add(new ItemStack(this, 1, 0));
+        list.add(new ItemStack(this, 1, 1));
     }
 
     @SideOnly(Side.CLIENT)

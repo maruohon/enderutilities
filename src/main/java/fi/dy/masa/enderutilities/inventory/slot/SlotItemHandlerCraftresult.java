@@ -1,16 +1,12 @@
 package fi.dy.masa.enderutilities.inventory.slot;
 
+import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemHoe;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.stats.AchievementList;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
@@ -63,54 +59,14 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
 
         this.amountCrafted = 0;
 
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.CRAFTING_TABLE))
-        {
-            this.player.addStat(AchievementList.BUILD_WORK_BENCH);
-        }
+        FIXME 1.12 update
+        InventoryCraftResult inventorycraftresult = (InventoryCraftResult) this.inventory;
+        IRecipe irecipe = inventorycraftresult.func_193055_i();
 
-        if (stack.getItem() instanceof ItemPickaxe)
+        if (irecipe != null && !irecipe.func_192399_d())
         {
-            this.player.addStat(AchievementList.BUILD_PICKAXE);
-        }
-
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.FURNACE))
-        {
-            this.player.addStat(AchievementList.BUILD_FURNACE);
-        }
-
-        if (stack.getItem() instanceof ItemHoe)
-        {
-            this.player.addStat(AchievementList.BUILD_HOE);
-        }
-
-        if (stack.getItem() == Items.BREAD)
-        {
-            this.player.addStat(AchievementList.MAKE_BREAD);
-        }
-
-        if (stack.getItem() == Items.CAKE)
-        {
-            this.player.addStat(AchievementList.BAKE_CAKE);
-        }
-
-        if (stack.getItem() instanceof ItemPickaxe && ((ItemPickaxe)stack.getItem()).getToolMaterial() != Item.ToolMaterial.WOOD)
-        {
-            this.player.addStat(AchievementList.BUILD_BETTER_PICKAXE);
-        }
-
-        if (stack.getItem() instanceof ItemSword)
-        {
-            this.player.addStat(AchievementList.BUILD_SWORD);
-        }
-
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.ENCHANTING_TABLE))
-        {
-            this.player.addStat(AchievementList.ENCHANTMENTS);
-        }
-
-        if (stack.getItem() == Item.getItemFromBlock(Blocks.BOOKSHELF))
-        {
-            this.player.addStat(AchievementList.BOOKCASE);
+            this.player.func_192021_a(Lists.newArrayList(irecipe));
+            inventorycraftresult.func_193056_a((IRecipe)null);
         }
     }
 

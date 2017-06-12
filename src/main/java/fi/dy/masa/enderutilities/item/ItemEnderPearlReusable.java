@@ -5,7 +5,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -87,10 +86,10 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(item, 1, 0)); // Regular
-        list.add(new ItemStack(item, 1, 1)); // Elite
+        list.add(new ItemStack(this, 1, 0)); // Regular
+        list.add(new ItemStack(this, 1, 1)); // Elite
     }
 
     @SideOnly(Side.CLIENT)

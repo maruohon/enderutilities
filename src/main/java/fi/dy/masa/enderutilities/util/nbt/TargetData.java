@@ -213,7 +213,7 @@ public class TargetData
 
         if (server != null)
         {
-            WorldServer world = server.worldServerForDimension(dim);
+            WorldServer world = server.getWorld(dim);
 
             if (world != null)
             {
@@ -309,7 +309,7 @@ public class TargetData
             return false;
         }
 
-        World world = server.worldServerForDimension(this.dimension);
+        World world = server.getWorld(this.dimension);
         if (world == null)
         {
             return false;

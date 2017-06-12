@@ -67,13 +67,13 @@ public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlo
         {
             if (stackLimit != this.stackLimitLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, stackLimit & 0xFFFF);
-                this.listeners.get(i).sendProgressBarUpdate(this, 1, stackLimit >>> 16);
+                this.listeners.get(i).sendWindowProperty(this, 0, stackLimit & 0xFFFF);
+                this.listeners.get(i).sendWindowProperty(this, 1, stackLimit >>> 16);
             }
 
             if (slotCount != this.slotCountLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 3, slotCount);
+                this.listeners.get(i).sendWindowProperty(this, 3, slotCount);
             }
         }
 

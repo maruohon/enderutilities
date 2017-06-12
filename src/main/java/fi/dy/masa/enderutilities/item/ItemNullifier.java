@@ -152,7 +152,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
-        ItemStack stackItems = entityItem.getEntityItem();
+        ItemStack stackItems = entityItem.getItem();
         EntityPlayer player = event.getEntityPlayer();
 
         if (player.getEntityWorld().isRemote || entityItem.isDead || stackItems.isEmpty())
@@ -191,7 +191,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         // Not everything was handled, update the stack
         if (entityItem.isDead == false && stackItems.getCount() != origStackSize)
         {
-            entityItem.setEntityItemStack(stackItems);
+            entityItem.setItem(stackItems);
         }
 
         // At least some items were picked up

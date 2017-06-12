@@ -3,9 +3,9 @@ package fi.dy.masa.enderutilities.client.renderer.entity;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -42,7 +42,7 @@ public class RenderFallingBlockEU extends Render<EntityFallingBlockEU>
                 GlStateManager.pushMatrix();
                 GlStateManager.disableLighting();
                 Tessellator tessellator = Tessellator.getInstance();
-                VertexBuffer buffer = tessellator.getBuffer();
+                BufferBuilder buffer = tessellator.getBuffer();
 
                 if (this.renderOutlines)
                 {

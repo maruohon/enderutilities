@@ -65,12 +65,12 @@ public class ContainerEnderFurnace extends ContainerTileLargeStacks
                 c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
                 // smelting progress and fuel burning progress are both 0..100, we send the smelting progress in the upper byte of the short
-                listener.sendProgressBarUpdate(this, 0, c << 8 | b);
+                listener.sendWindowProperty(this, 0, c << 8 | b);
             }
 
             if (this.teef.outputToEnderChest != this.outputToEnderChest)
             {
-                listener.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
+                listener.sendWindowProperty(this, 1, this.teef.outputToEnderChest ? 1 : 0);
             }
 
             this.burnTimeRemaining = this.teef.burnTimeRemaining;
@@ -94,8 +94,8 @@ public class ContainerEnderFurnace extends ContainerTileLargeStacks
 
         int c = 100 * this.teef.cookTime / TileEntityEnderFurnace.COOKTIME_DEFAULT;
 
-        listener.sendProgressBarUpdate(this, 0, c << 8 | b);
-        listener.sendProgressBarUpdate(this, 1, this.teef.outputToEnderChest ? 1 : 0);
+        listener.sendWindowProperty(this, 0, c << 8 | b);
+        listener.sendWindowProperty(this, 1, this.teef.outputToEnderChest ? 1 : 0);
     }
 
     @SideOnly(Side.CLIENT)

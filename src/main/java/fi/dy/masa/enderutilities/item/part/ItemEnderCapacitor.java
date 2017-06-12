@@ -5,7 +5,6 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
@@ -191,14 +190,14 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < 4; i++)
         {
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
 
             // Add a fully charged version for creative tab
-            ItemStack tmp = new ItemStack(item, 1, i);
+            ItemStack tmp = new ItemStack(this, 1, i);
             tmp.setTagCompound(new NBTTagCompound());
             this.setCharge(tmp.getTagCompound(), this.getCapacityFromItemType(tmp));
             list.add(tmp);

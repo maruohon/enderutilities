@@ -395,9 +395,9 @@ public class PositionUtils
 
     public static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn)
     {
-        double x = vec.xCoord;
-        double y = vec.yCoord;
-        double z = vec.zCoord;
+        double x = vec.x;
+        double y = vec.y;
+        double z = vec.z;
         boolean isMirrored = true;
 
         switch (mirrorIn)
@@ -482,19 +482,19 @@ public class PositionUtils
             return point;
         }
 
-        return rotatePointAroundAxis(point.xCoord, point.yCoord, point.zCoord, reference, from, to);
+        return rotatePointAroundAxis(point.x, point.y, point.z, reference, from, to);
     }
 
     public static Vec3d rotatePointAroundAxis(double x, double y, double z, Vec3d reference, EnumFacing from, EnumFacing to)
     {
         if (to == from.getOpposite())
         {
-            double rx = reference.xCoord;
+            double rx = reference.x;
 
             if (from.getAxis().isHorizontal())
             {
                 //System.out.printf("rotatePointAroundAxis - opposite, horizontal, from: %s to: %s\n", from, to);
-                double rz = reference.zCoord;
+                double rz = reference.z;
                 x = rx + (rx - x);
                 z = rz + (rz - z);
             }
@@ -502,7 +502,7 @@ public class PositionUtils
             else
             {
                 //System.out.printf("rotatePointAroundAxis - opposite, vertical, from: %s to: %s\n", from, to);
-                double ry = reference.yCoord;
+                double ry = reference.y;
                 x = rx + (rx - x);
                 y = ry + (ry - y);
             }
@@ -515,7 +515,7 @@ public class PositionUtils
 
     public static Vec3d rotatePointCWAroundAxis(Vec3d point, Vec3d reference, EnumFacing facing)
     {
-        return rotatePointCWAroundAxis(point.xCoord, point.yCoord, point.zCoord, reference, facing);
+        return rotatePointCWAroundAxis(point.x, point.y, point.z, reference, facing);
     }
 
     public static Vec3d rotatePointCWAroundAxis(double x, double y, double z, Vec3d reference, EnumFacing facing)
@@ -523,9 +523,9 @@ public class PositionUtils
         //System.out.printf("rotatePointCWAroundAxis - axis: %s, ref: %s, x: %.4f, y: %.4f, z: %.4f -> ", facing, reference, x, y, z);
         //System.out.printf("rotatePointCWAroundAxis - axis: %s, ref: %s, vec: %s -> ", facing, reference, new Vec3d(x, y, z));
         //System.out.printf("rotatePointCWAroundAxis - axis: %s\n", facing);
-        double rx = reference.xCoord;
-        double ry = reference.yCoord;
-        double rz = reference.zCoord;
+        double rx = reference.x;
+        double ry = reference.y;
+        double rz = reference.z;
         double newX = x;
         double newY = y;
         double newZ = z;
@@ -586,7 +586,7 @@ public class PositionUtils
         Vec3d max = rotatePointAroundAxis(bb.maxX, bb.maxY, bb.maxZ, reference, from, to);
 
         //System.out.printf("rotateBoxAroundPoint - from: %s to: %s ref: %s bb: %s, min: %s, max: %s\n", from, to, reference, bb, min, max);
-        return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
+        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     /**
@@ -803,22 +803,22 @@ public class PositionUtils
         // however that change only persists as long as the dimension stays loaded.
 
         // So we are just getting the border size from the Overworld for now...
-        world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0);
+        world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0);
 
         int worldLimit = 30000000 - margin;
         // Note: getActualHeight() could be better (at least for the Nether), but it would return 128 for the End too...
         int worldHeight = world != null ? world.getHeight() : 256;
-        double posX = MathHelper.clamp(pos.xCoord * scaleX, -worldLimit, worldLimit);
-        double posY = MathHelper.clamp(pos.yCoord * scaleY, 0, worldHeight);
-        double posZ = MathHelper.clamp(pos.zCoord * scaleZ, -worldLimit, worldLimit);
+        double posX = MathHelper.clamp(pos.x * scaleX, -worldLimit, worldLimit);
+        double posY = MathHelper.clamp(pos.y * scaleY, 0, worldHeight);
+        double posZ = MathHelper.clamp(pos.z * scaleZ, -worldLimit, worldLimit);
 
         if (world != null)
         {
             WorldBorder border = world.getWorldBorder();
             margin = Math.min(margin, (int)(border.getDiameter() / 2));
 
-            posX = MathHelper.clamp(pos.xCoord * scaleX, border.minX() + margin, border.maxX() - margin);
-            posZ = MathHelper.clamp(pos.zCoord * scaleZ, border.minZ() + margin, border.maxZ() - margin);
+            posX = MathHelper.clamp(pos.x * scaleX, border.minX() + margin, border.maxX() - margin);
+            posZ = MathHelper.clamp(pos.z * scaleZ, border.minZ() + margin, border.maxZ() - margin);
             //System.out.printf("border size: %.2f posX: %.4f posY: %.4f posZ: %.4f\n", border.getDiameter(), posX, posY, posZ);
             //System.out.printf("border: %s (%s)\n", border.getClass().getName(), border);
         }

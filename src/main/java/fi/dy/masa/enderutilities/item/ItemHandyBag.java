@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
@@ -573,7 +572,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
-        ItemStack stack = entityItem.getEntityItem();
+        ItemStack stack = entityItem.getItem();
         EntityPlayer player = event.getEntityPlayer();
 
         if (player.getEntityWorld().isRemote || entityItem.isDead || stack.isEmpty())
@@ -612,7 +611,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // Not everything was handled, update the stack
         if (entityItem.isDead == false && stack.getCount() != origStackSize)
         {
-            entityItem.setEntityItemStack(stack);
+            entityItem.setItem(stack);
         }
 
         // At least some items were picked up
@@ -960,10 +959,10 @@ public class ItemHandyBag extends ItemInventoryModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(item, 1, 0)); // Tier 1
-        list.add(new ItemStack(item, 1, 1)); // Tier 2
+        list.add(new ItemStack(this, 1, 0)); // Tier 1
+        list.add(new ItemStack(this, 1, 1)); // Tier 2
     }
 
     @SideOnly(Side.CLIENT)

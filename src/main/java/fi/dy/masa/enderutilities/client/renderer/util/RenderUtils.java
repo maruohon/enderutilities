@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.client.renderer.util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -55,11 +55,11 @@ public class RenderUtils
         if (renderLook)
         {
             Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer vertexbuffer = tessellator.getBuffer();
+            BufferBuilder vertexbuffer = tessellator.getBuffer();
             Vec3d look = entityIn.getLook(partialTicks);
             vertexbuffer.begin(3, DefaultVertexFormats.POSITION_COLOR);
             vertexbuffer.pos(x, y + entityIn.getEyeHeight(), z).color(0, 0, 255, 255).endVertex();
-            vertexbuffer.pos(x + look.xCoord * 2.0D, y + entityIn.getEyeHeight() + look.yCoord * 2.0D, z + look.zCoord * 2.0D).color(0, 0, 255, 255).endVertex();
+            vertexbuffer.pos(x + look.x * 2.0D, y + entityIn.getEyeHeight() + look.y * 2.0D, z + look.z * 2.0D).color(0, 0, 255, 255).endVertex();
             tessellator.draw();
         }
 

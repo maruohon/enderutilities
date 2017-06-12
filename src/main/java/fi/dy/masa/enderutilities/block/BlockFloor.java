@@ -13,7 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -130,11 +129,11 @@ public class BlockFloor extends BlockEnderUtilities
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < FloorType.values().length; i++)
         {
-            list.add(new ItemStack(item, 1, FloorType.values()[i].getMeta()));
+            list.add(new ItemStack(this, 1, FloorType.values()[i].getMeta()));
         }
     }
 

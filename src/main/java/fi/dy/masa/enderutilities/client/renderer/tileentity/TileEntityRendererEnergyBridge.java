@@ -1,9 +1,9 @@
 package fi.dy.masa.enderutilities.client.renderer.tileentity;
 
 import org.lwjgl.opengl.GL11;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
@@ -22,7 +22,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
     public void renderBeamVertical(double x, double y, double z, double yMin, double yMax, double radius, double rot, double flowSpeed, boolean powered)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexBuffer = tessellator.getBuffer();
+        BufferBuilder vertexBuffer = tessellator.getBuffer();
         double tx1 = 0.0d, tx2 = 0.0d;
         double tz1 = 0.0d, tz2 = 0.0d;
         double angle = 0.0d;
@@ -104,7 +104,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
     }
 
     @Override
-    public void renderTileEntityAt(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage)
+    public void func_192841_a(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage, float partial)
     {
         if (teeb.getIsActive() == false)
         {

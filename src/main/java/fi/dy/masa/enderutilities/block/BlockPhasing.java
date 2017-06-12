@@ -10,7 +10,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -206,9 +205,9 @@ public class BlockPhasing extends BlockEnderUtilities
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(item, 1, 0)); // normal
-        list.add(new ItemStack(item, 1, 1)); // inverted
+        list.add(new ItemStack(this, 1, 0)); // normal
+        list.add(new ItemStack(this, 1, 1)); // inverted
     }
 }

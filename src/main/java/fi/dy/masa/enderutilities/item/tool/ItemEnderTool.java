@@ -684,7 +684,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 return;
             }
 
-            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
             if (targetWorld == null)
             {
@@ -1132,11 +1132,11 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < 4; i++)
         {
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
         }
     }
 

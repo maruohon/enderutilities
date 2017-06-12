@@ -512,7 +512,7 @@ public class EntityEndermanFighter extends EntityMob
     }
 
     @Override
-    protected SoundEvent getHurtSound()
+    protected SoundEvent getHurtSound(DamageSource source)
     {
         return SoundEvents.ENTITY_ENDERMEN_HURT;
     }
@@ -544,7 +544,7 @@ public class EntityEndermanFighter extends EntityMob
             this.setRevengeTarget((EntityLivingBase) source.getEntity());
         }*/
 
-        if (source.getEntity() == null)
+        if (source.getTrueSource() == null)
         {
             for (int i = 0; i < 64; ++i)
             {

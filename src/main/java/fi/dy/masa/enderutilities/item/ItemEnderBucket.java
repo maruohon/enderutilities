@@ -719,7 +719,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         if (targetData != null && server != null)
         {
-            World world = server.worldServerForDimension(targetData.dimension);
+            World world = server.getWorld(targetData.dimension);
 
             if (world != null)
             {

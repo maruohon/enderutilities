@@ -777,7 +777,7 @@ public class UtilItemModular
             return null;
         }
 
-        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
         if (targetWorld == null)
         {

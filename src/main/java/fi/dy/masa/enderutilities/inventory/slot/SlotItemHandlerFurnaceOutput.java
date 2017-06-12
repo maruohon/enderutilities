@@ -2,10 +2,8 @@ package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.stats.AchievementList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.IItemHandler;
 
@@ -87,17 +85,6 @@ public class SlotItemHandlerFurnaceOutput extends SlotItemHandlerGeneric
         }
 
         this.amountCrafted = 0;
-
         net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerSmeltedEvent(player, stack);
-
-        if (stack.getItem() == Items.IRON_INGOT)
-        {
-            this.player.addStat(AchievementList.ACQUIRE_IRON);
-        }
-
-        if (stack.getItem() == Items.COOKED_FISH)
-        {
-            this.player.addStat(AchievementList.COOK_FISH);
-        }
     }
 }

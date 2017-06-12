@@ -122,9 +122,9 @@ public class BlockPosEU
 
     public boolean isWithinDistance(Vec3d pos, int dimension, double maxDist)
     {
-        double dx = pos.xCoord - this.posX;
-        double dy = pos.yCoord - this.posY;
-        double dz = pos.zCoord - this.posZ;
+        double dx = pos.x - this.posX;
+        double dy = pos.y - this.posY;
+        double dz = pos.z - this.posZ;
 
         return this.dimension == dimension && (dx * dx + dy * dy + dz * dz) <= (maxDist * maxDist);
     }

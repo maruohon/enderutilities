@@ -6,10 +6,10 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -572,7 +572,7 @@ public class BuildersWandRenderer
     private void renderModel(final IBlockState state, final IBakedModel model, final BlockPos pos, final int alpha)
     {
         final Tessellator tessellator = Tessellator.getInstance();
-        final VertexBuffer buffer = tessellator.getBuffer();
+        final BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 
         for (final EnumFacing facing : EnumFacing.values())
@@ -584,7 +584,7 @@ public class BuildersWandRenderer
         tessellator.draw();
     }
 
-    private void renderQuads(final IBlockState state, final BlockPos pos, final VertexBuffer buffer, final List<BakedQuad> quads, final int alpha)
+    private void renderQuads(final IBlockState state, final BlockPos pos, final BufferBuilder buffer, final List<BakedQuad> quads, final int alpha)
     {
         final int size = quads.size();
 

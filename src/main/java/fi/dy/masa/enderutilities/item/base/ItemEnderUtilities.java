@@ -3,18 +3,22 @@ package fi.dy.masa.enderutilities.item.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.creativetab.CreativeTab;
+import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderUtilities extends Item
@@ -64,12 +68,12 @@ public class ItemEnderUtilities extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addInformationSelective(ItemStack stack, @Nullable EntityPlayer player, List<String> list, boolean advanced, boolean verbose)
     {
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag advanced)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
@@ -81,7 +85,7 @@ public class ItemEnderUtilities extends Item
 
             if (verbose == false && tmpList.size() > 2)
             {
-                list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -90,19 +94,22 @@ public class ItemEnderUtilities extends Item
         }
 
         tmpList.clear();
-        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+        boolean isAdvanced = advanced == ITooltipFlag.TooltipFlags.ADVANCED;
+        this.addInformationSelective(stack, null, tmpList, isAdvanced, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
         {
             tmpList.clear();
-            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            this.addInformationSelective(stack, null, tmpList, isAdvanced, false);
+
             if (tmpList.size() > 0)
             {
                 list.add(tmpList.get(0));
             }
-            list.add(I18n.format("enderutilities.tooltip.item.holdshift"));
+
+            list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshift"));
         }
         else
         {

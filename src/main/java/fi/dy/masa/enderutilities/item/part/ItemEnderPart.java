@@ -9,7 +9,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -392,41 +391,41 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(Item item, CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         // Ender Alloys
         for (int i = 0; i <= 2; i++)
         {
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
         }
 
         // Inactive Ender Cores
         for (int i = 10; i <= 12; i++)
         {
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
         }
 
         // (Active) Ender Cores
         for (int i = 15; i <= 17; i++)
         {
-            list.add(new ItemStack(item, 1, i));
+            list.add(new ItemStack(this, 1, i));
         }
 
-        list.add(new ItemStack(item, 1, 20)); // Ender Stick
-        list.add(new ItemStack(item, 1, 21)); // Ender Rope
-        list.add(new ItemStack(item, 1, 30)); // Creative Breaking module
-        list.add(new ItemStack(item, 1, 40)); // Ender Relic
-        list.add(new ItemStack(item, 1, 45)); // Mob Persistence
-        list.add(new ItemStack(item, 1, 50)); // Memory Card (misc)
-        list.add(new ItemStack(item, 1, 51)); // Memory Card (items) 6 B
-        list.add(new ItemStack(item, 1, 52)); // Memory Card (items) 8 B
-        list.add(new ItemStack(item, 1, 53)); // Memory Card (items) 10 B
-        list.add(new ItemStack(item, 1, 54)); // Memory Card (items) 12 B
-        list.add(new ItemStack(item, 1, 70)); // Barrel Label
-        list.add(new ItemStack(item, 1, 71)); // Barrel Structural Upgrade
-        list.add(new ItemStack(item, 1, 72)); // Barrel Capacity Upgrade
-        list.add(new ItemStack(item, 1, 80)); // Storage Key
-        list.add(new ItemStack(item, 1, 81)); // Creative Storage Key
+        list.add(new ItemStack(this, 1, 20)); // Ender Stick
+        list.add(new ItemStack(this, 1, 21)); // Ender Rope
+        list.add(new ItemStack(this, 1, 30)); // Creative Breaking module
+        list.add(new ItemStack(this, 1, 40)); // Ender Relic
+        list.add(new ItemStack(this, 1, 45)); // Mob Persistence
+        list.add(new ItemStack(this, 1, 50)); // Memory Card (misc)
+        list.add(new ItemStack(this, 1, 51)); // Memory Card (items) 6 B
+        list.add(new ItemStack(this, 1, 52)); // Memory Card (items) 8 B
+        list.add(new ItemStack(this, 1, 53)); // Memory Card (items) 10 B
+        list.add(new ItemStack(this, 1, 54)); // Memory Card (items) 12 B
+        list.add(new ItemStack(this, 1, 70)); // Barrel Label
+        list.add(new ItemStack(this, 1, 71)); // Barrel Structural Upgrade
+        list.add(new ItemStack(this, 1, 72)); // Barrel Capacity Upgrade
+        list.add(new ItemStack(this, 1, 80)); // Storage Key
+        list.add(new ItemStack(this, 1, 81)); // Creative Storage Key
     }
 
     @SideOnly(Side.CLIENT)

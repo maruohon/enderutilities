@@ -193,7 +193,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
             dScaleZ = 1.0d / dScaleZ;
         }
 
-        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(destDimension);
+        World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(destDimension);
         return PositionUtils.getScaledClampedPosition(player.getPositionVector(), world, dScaleX, dScaleY, dScaleZ, 32);
     }
 
@@ -208,9 +208,9 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
      */
     public int getTeleportCost(Vec3d pos1, Vec3d pos2)
     {
-        double xDiff = pos1.xCoord - pos2.xCoord;
-        double yDiff = pos1.yCoord - pos2.yCoord;
-        double zDiff = pos1.zCoord - pos2.zCoord;
+        double xDiff = pos1.x - pos2.x;
+        double yDiff = pos1.y - pos2.y;
+        double zDiff = pos1.z - pos2.z;
 
         return (int)(TELEPORTATION_EC_COST * Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff));
     }
