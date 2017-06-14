@@ -2,10 +2,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.inventory.IContainerItem;
@@ -14,9 +11,11 @@ import fi.dy.masa.enderutilities.inventory.container.base.ContainerLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemModular;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapper;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
 import fi.dy.masa.enderutilities.item.ItemHandyBag.ShiftMode;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -31,9 +30,9 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         EntityEquipmentSlot.FEET
     };
     public final InventoryItemModular inventoryItemModular;
-    private final InventoryCrafting craftMatrix;
+    private final InventoryCraftingWrapper craftMatrix;
     private final IItemHandler craftMatrixWrapper;
-    private final ItemStackHandlerBasic craftResult = new ItemStackHandlerBasic(1);
+    private final ItemHandlerWrapperCraftResult craftResult = new ItemHandlerWrapperCraftResult();
     private ItemStack modularStackLast = ItemStack.EMPTY;
     private int craftingSlot = 0;
 
@@ -42,7 +41,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular) this.inventory;
         this.inventoryItemModular.setHostInventory(this.playerInv);
-        this.craftMatrix = new InventoryCrafting(this, 2, 2);
+        this.craftMatrix = new InventoryCraftingWrapper(2, 2, new ItemStackHandlerBasic(4), this.craftResult, player);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
         this.inventoryNonWrapped = (InventoryItemModular) this.inventory;
 
@@ -78,7 +77,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         posX += 90;
         posY = 15;
         this.craftingSlot = this.inventorySlots.size();
-        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10));
+        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftMatrix, this.craftResult, 0, posX + 54, posY + 10, this.player));
 
         for (int i = 0; i < 2; ++i)
         {
@@ -152,12 +151,6 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
     public ItemStack getContainerItem()
     {
         return this.inventoryItemModular.getModularItemStack();
-    }
-
-    @Override
-    public void onCraftMatrixChanged(IInventory inv)
-    {
-        this.craftResult.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrix, this.player.getEntityWorld()));
     }
 
     public void dropCraftingGridContents()

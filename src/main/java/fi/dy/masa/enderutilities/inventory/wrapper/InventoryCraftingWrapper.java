@@ -1,26 +1,48 @@
 package fi.dy.masa.enderutilities.inventory.wrapper;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
+import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class InventoryCraftingWrapper extends InventoryCrafting
 {
-    protected final Container container;
-    protected final ItemHandlerWrapperPermissions craftMatrix;
+    private final int inventoryWidth;
+    private final int inventoryHeight;
+    private final IItemHandlerModifiable craftMatrix;
+    private final ItemHandlerWrapperCraftResult craftResult;
+    private EntityPlayer player;
 
-    public InventoryCraftingWrapper(Container container, int width, int height, ItemHandlerWrapperPermissions craftMatrix)
+    public InventoryCraftingWrapper(int width, int height,
+            IItemHandlerModifiable craftMatrix, ItemHandlerWrapperCraftResult resultInventory, EntityPlayer player)
     {
-        super(container, width, height);
-        this.container = container;
+        super(null, 0, 0); // dummy
+
+        this.inventoryWidth = width;
+        this.inventoryHeight = height;
         this.craftMatrix = craftMatrix;
+        this.craftResult = resultInventory;
+        this.player = player;
     }
 
-    public ItemHandlerWrapperPermissions getBaseInventory()
+    @Override
+    public int getHeight()
     {
-        return this.craftMatrix;
+        return this.inventoryHeight;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return this.inventoryWidth;
     }
 
     @Override
@@ -30,21 +52,45 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     }
 
     @Override
-    @Nullable
     public ItemStack getStackInSlot(int slot)
     {
         return slot >= this.getSizeInventory() ? ItemStack.EMPTY : this.craftMatrix.getStackInSlot(slot);
     }
 
     @Override
-    @Nullable
+    public boolean isEmpty()
+    {
+        final int invSize = this.craftMatrix.getSlots();
+
+        for (int slot = 0; slot < invSize; ++slot)
+        {
+            if (this.craftMatrix.getStackInSlot(slot).isEmpty() == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public ItemStack getStackInRowAndColumn(int row, int column)
+    {
+        if (row >= 0 && row < this.inventoryWidth && column >= 0 && column <= this.inventoryHeight)
+        {
+            return this.getStackInSlot(row + column * this.inventoryWidth);
+        }
+
+        return  ItemStack.EMPTY;
+    }
+
+    @Override
     public ItemStack removeStackFromSlot(int slot)
     {
         return this.craftMatrix.extractItem(slot, Integer.MAX_VALUE, false);
     }
 
     @Override
-    @Nullable
     public ItemStack decrStackSize(int slot, int amount)
     {
         ItemStack stack = this.craftMatrix.extractItem(slot, amount, false);
@@ -67,27 +113,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     @Override
     public int getInventoryStackLimit()
     {
-        return this.craftMatrix.getInventoryStackLimit();
-    }
-
-    @Override
-    public boolean isUsableByPlayer(EntityPlayer player)
-    {
-        return this.craftMatrix.isAccessibleByPlayer(player);
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slot, ItemStack stack)
-    {
-        return this.craftMatrix.isItemValidForSlot(slot, stack);
-    }
-
-    @Override
-    public void markDirty()
-    {
-        super.markDirty();
-
-        this.container.onCraftMatrixChanged(this);
+        return this.craftMatrix.getSlotLimit(0);
     }
 
     @Override
@@ -97,5 +123,88 @@ public class InventoryCraftingWrapper extends InventoryCrafting
         {
             this.craftMatrix.setStackInSlot(slot, ItemStack.EMPTY);
         }
+    }
+
+    @Override
+    public void markDirty()
+    {
+        super.markDirty();
+
+        this.updateCraftingOutput();
+    }
+
+    @Override
+    public boolean isUsableByPlayer(EntityPlayer player)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack)
+    {
+        return true;
+    }
+
+    private void setCraftResult(@Nonnull ItemStack stack)
+    {
+        this.craftResult.setStackInSlot(0, stack);
+    }
+
+    protected void updateCraftingOutput()
+    {
+        World world = this.player.getEntityWorld();
+
+        if (world.isRemote == false)
+        {
+            EntityPlayerMP player = (EntityPlayerMP) this.player;
+            ItemStack stack = ItemStack.EMPTY;
+            IRecipe recipe = CraftingManager.func_192413_b(this, world);
+
+            if (recipe != null &&
+                    (recipe.func_192399_d() ||
+                     world.getGameRules().getBoolean("doLimitedCrafting") == false ||
+                     player.func_192037_E().func_193830_f(recipe)))
+            {
+                this.craftResult.setRecipe(recipe);
+                stack = recipe.getCraftingResult(this);
+            }
+
+            this.setCraftResult(stack);
+            //player.connection.sendPacket(new SPacketSetSlot(this.windowId, 0, stack));
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void func_194018_a(RecipeItemHelper recipeItemHelper)
+    {
+        final int invSize = this.craftMatrix.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            recipeItemHelper.func_194112_a(this.craftMatrix.getStackInSlot(slot));
+        }
+    }
+
+    public void openInventory(EntityPlayer player)
+    {
+    }
+
+    public void closeInventory(EntityPlayer player)
+    {
+    }
+
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    public void setField(int id, int value)
+    {
+    }
+
+    public int getFieldCount()
+    {
+        return 0;
     }
 }

@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.tileentity;
 
 import org.apache.commons.lang3.StringUtils;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -80,12 +81,12 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         this.activeTargetId = MathHelper.clamp(target, 0, 7);
     }
 
-    public int getActiveColor()
+    private int getPortalColor()
     {
-        return this.getColorFromItems(8);
+        return this.getColorFromDyeMeta(this.getDyeMetaFromItem(8));
     }
 
-    private int getColorFromItems(int target)
+    private int getDyeMetaFromItem(int target)
     {
         // The large button in the center will take the color of the active target
         if (target == 8)
@@ -99,11 +100,16 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
             if (stack.isEmpty() == false && stack.getItem() == Items.DYE)
             {
-                return EnumDyeColor.byDyeDamage(stack.getMetadata()).getMapColor().colorValue;
+                return stack.getMetadata();
             }
         }
 
-        return 0xFFFFFF;
+        return -1;
+    }
+
+    private int getColorFromDyeMeta(int dyeMeta)
+    {
+        return dyeMeta >= 0 && dyeMeta <= 15 ? MapColor.func_193558_a(EnumDyeColor.byDyeDamage(dyeMeta)).colorValue : 0xFFFFFF;
     }
 
     public int getColor(int target)
@@ -206,7 +212,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         for (int i = 0; i < 9; i++)
         {
-            nbt.setInteger("c" + i, this.getColorFromItems(i));
+            nbt.setByte("mt" + i, (byte) this.getDyeMetaFromItem(i));
         }
 
         for (int i = 0; i < 8; i++)
@@ -225,12 +231,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         for (int i = 0; i < 9; i++)
         {
-            this.colors[i] = tag.getInteger("c" + i);
-
-            if (this.colors[i] == 0)
-            {
-                this.colors[i] = 0xFFFFFF;
-            }
+            this.colors[i] = this.getColorFromDyeMeta(tag.getByte("mt" + i));
         }
 
         for (int i = 0; i < 8; i++)
@@ -297,7 +298,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         PortalFormer portalFormer = new PortalFormer(world, posFrame,
                 EnderUtilitiesBlocks.PORTAL_FRAME, EnderUtilitiesBlocks.PORTAL);
-        portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getActiveColor());
+        portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getPortalColor());
         portalFormer.analyzePortal();
         boolean state = portalFormer.getPortalState();
         boolean recreate = this.activeTargetId != this.portalTargetId;

@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.proxy;
 
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -117,7 +118,7 @@ public class ClientProxy extends CommonProxy
                     @Override
                     public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                     {
-                        return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                        return tintIndex == 1 ? MapColor.func_193558_a(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
                     }
                 }, EnderUtilitiesBlocks.ELEVATOR);
 
@@ -127,7 +128,7 @@ public class ClientProxy extends CommonProxy
                         @Override
                         public int getColorFromItemstack(ItemStack stack, int tintIndex)
                         {
-                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                            return tintIndex == 1 ? MapColor.func_193558_a(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
                     }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR));
         }
@@ -140,7 +141,7 @@ public class ClientProxy extends CommonProxy
                         @Override
                         public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                         {
-                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                            return tintIndex == 1 ? MapColor.func_193558_a(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
                         }
                     }, EnderUtilitiesBlocks.ELEVATOR_SLAB);
 
@@ -150,7 +151,7 @@ public class ClientProxy extends CommonProxy
                         @Override
                         public int getColorFromItemstack(ItemStack stack, int tintIndex)
                         {
-                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                            return tintIndex == 1 ? MapColor.func_193558_a(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
                     }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_SLAB));
         }
@@ -164,7 +165,7 @@ public class ClientProxy extends CommonProxy
                         @Override
                         public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
                         {
-                            return tintIndex == 1 ? state.getValue(BlockElevator.COLOR).getMapColor().colorValue : 0xFFFFFF;
+                            return tintIndex == 1 ? MapColor.func_193558_a(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
                         }
                     }, EnderUtilitiesBlocks.ELEVATOR_LAYER);
 
@@ -175,7 +176,7 @@ public class ClientProxy extends CommonProxy
                         @Override
                         public int getColorFromItemstack(ItemStack stack, int tintIndex)
                         {
-                            return tintIndex == 1 ? EnumDyeColor.byMetadata(stack.getMetadata()).getMapColor().colorValue : 0xFFFFFF;
+                            return tintIndex == 1 ? MapColor.func_193558_a(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
                     }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_LAYER));
         }

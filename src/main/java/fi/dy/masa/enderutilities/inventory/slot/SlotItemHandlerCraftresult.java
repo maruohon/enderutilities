@@ -2,26 +2,30 @@ package fi.dy.masa.enderutilities.inventory.slot;
 
 import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
 
-public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
+public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
 {
     private final EntityPlayer player;
     private final InventoryCrafting craftMatrix;
+    private final ItemHandlerWrapperCraftResult craftResult;
     private int amountCrafted;
 
-    public SlotItemHandlerCraftresult(EntityPlayer player, InventoryCrafting craftMatrix, IItemHandler craftResult,
-            int index, int xPosition, int yPosition)
+    public SlotItemHandlerCraftResult(
+            InventoryCrafting craftMatrix,
+            ItemHandlerWrapperCraftResult craftResult,
+            int index, int xPosition, int yPosition, EntityPlayer player)
     {
         super(craftResult, index, xPosition, yPosition);
+
         this.player = player;
         this.craftMatrix = craftMatrix;
+        this.craftResult = craftResult;
     }
 
     @Override
@@ -59,22 +63,21 @@ public class SlotItemHandlerCraftresult extends SlotItemHandlerGeneric
 
         this.amountCrafted = 0;
 
-        FIXME 1.12 update
-        InventoryCraftResult inventorycraftresult = (InventoryCraftResult) this.inventory;
-        IRecipe irecipe = inventorycraftresult.func_193055_i();
+        IRecipe recipe = this.craftResult.getRecipe();
 
-        if (irecipe != null && !irecipe.func_192399_d())
+        if (recipe != null && recipe.func_192399_d() == false)
         {
-            this.player.func_192021_a(Lists.newArrayList(irecipe));
-            inventorycraftresult.func_193056_a((IRecipe)null);
+            this.player.func_192021_a(Lists.newArrayList(recipe));
+            this.craftResult.setRecipe(null);
         }
     }
 
     public ItemStack onTake(EntityPlayer player, ItemStack stack)
     {
         this.onCrafting(stack);
+
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(player);
-        NonNullList<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, player.getEntityWorld());
+        NonNullList<ItemStack> remainingItems = CraftingManager.getRemainingItems(this.craftMatrix, player.getEntityWorld());
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(null);
 
         for (int i = 0; i < remainingItems.size(); i++)

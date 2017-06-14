@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.wrapper.PlayerInvWrapperNoSync;
@@ -150,7 +150,7 @@ public class ContainerEnderUtilities extends Container
     public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
         return (slot instanceof SlotItemHandler) &&
-                (slot instanceof SlotItemHandlerCraftresult) == false &&
+                (slot instanceof SlotItemHandlerCraftResult) == false &&
                 (slot instanceof SlotItemHandlerFurnaceOutput) == false &&
                 this.inventoryPlayer.getItemStack().isEmpty() == false;
     }

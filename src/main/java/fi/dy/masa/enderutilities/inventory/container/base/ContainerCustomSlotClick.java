@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSize;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 
@@ -129,7 +129,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         amount = Math.min(amount, spaceAvailable);
 
         // only allow taking the whole stack from crafting slots
-        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftresult) && spaceAvailable < stackSlot.getCount()))
+        if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftResult) && spaceAvailable < stackSlot.getCount()))
         {
             return false;
         }
@@ -349,7 +349,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             // only allow taking the whole stack from crafting slots
             int amount = stackSlot.getCount();
 
-            if ((slot instanceof SlotItemHandlerCraftresult) == false)
+            if ((slot instanceof SlotItemHandlerCraftResult) == false)
             {
                 amount = Math.min((int) Math.ceil((double) stackSlot.getCount() / 2.0d),
                                   (int) Math.ceil((double) stackSlot.getMaxStackSize() / 2.0d));

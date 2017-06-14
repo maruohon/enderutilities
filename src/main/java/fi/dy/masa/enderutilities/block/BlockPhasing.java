@@ -173,7 +173,7 @@ public class BlockPhasing extends BlockEnderUtilities
     }
 
     @Override
-    public MapColor getMapColor(IBlockState state)
+    public MapColor getMapColor(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
         return this.isBlockNormalCube(state) ? MapColor.STONE : MapColor.ADOBE;
     }

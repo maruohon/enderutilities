@@ -11,16 +11,16 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotCraftingWrapper;
-import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult;
+import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
-import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapper;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapperPermissions;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -38,8 +38,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     private int lastInteractedCraftingGrid;
 
     private final ItemHandlerWrapperPermissions[] craftMatrixWrappers;
-    private final InventoryCraftingWrapper[] craftMatrices;
-    private final ItemStackHandlerBasic[] craftResults;
+    private final InventoryCraftingWrapperPermissions[] craftMatrices;
+    private final ItemHandlerWrapperCraftResult[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
@@ -54,11 +54,11 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         this.craftMatrixWrappers[0] = te.getCraftingInventoryWrapper(0, player);
         this.craftMatrixWrappers[1] = te.getCraftingInventoryWrapper(1, player);
 
-        this.craftMatrices = new InventoryCraftingWrapper[2];
-        this.craftMatrices[0] = new InventoryCraftingWrapper(this, 3, 3, this.craftMatrixWrappers[0]);
-        this.craftMatrices[1] = new InventoryCraftingWrapper(this, 3, 3, this.craftMatrixWrappers[1]);
+        this.craftMatrices = new InventoryCraftingWrapperPermissions[2];
+        this.craftMatrices[0] = new InventoryCraftingWrapperPermissions(this, 3, 3, this.craftMatrixWrappers[0]);
+        this.craftMatrices[1] = new InventoryCraftingWrapperPermissions(this, 3, 3, this.craftMatrixWrappers[1]);
 
-        this.craftResults = new ItemStackHandlerBasic[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
+        this.craftResults = new ItemHandlerWrapperCraftResult[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
 
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.inventoryNonWrapped = (ItemHandlerWrapperPermissions) this.inventory;
@@ -108,7 +108,7 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
                 this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[0], this.craftResults[0], 0, 112, 33));
+        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftMatrices[0], this.craftResults[0], 0, 112, 33, this.player));
 
         // Crafting slots, right side
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
@@ -121,7 +121,7 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
                 this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotItemHandlerCraftresult(this.player, this.craftMatrices[1], this.craftResults[1], 0, 112, 69));
+        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftMatrices[1], this.craftResults[1], 0, 112, 69, this.player));
 
         // Add the furnace slots as priority merge slots, but only to already existing stacks
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6, true);

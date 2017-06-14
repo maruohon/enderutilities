@@ -1,13 +1,13 @@
 package fi.dy.masa.enderutilities.inventory.slot;
 
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapper;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapperPermissions;
 
 public class SlotCraftingWrapper extends SlotItemHandlerGeneric
 {
-    private final InventoryCraftingWrapper inventory;
+    private final InventoryCraftingWrapperPermissions inventory;
 
-    public SlotCraftingWrapper(InventoryCraftingWrapper inventory, int index, int xPosition, int yPosition)
+    public SlotCraftingWrapper(InventoryCraftingWrapperPermissions inventory, int index, int xPosition, int yPosition)
     {
         super(inventory.getBaseInventory(), index, xPosition, yPosition);
 

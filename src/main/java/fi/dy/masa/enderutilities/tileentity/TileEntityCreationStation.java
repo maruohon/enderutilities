@@ -27,11 +27,11 @@ import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
-import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemCallback;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -87,7 +87,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private final InventoryItemCallback[] craftingInventories;
     private final List<NonNullList<ItemStack>> craftingGridTemplates;
-    private final ItemStackHandlerBasic[] craftResults;
+    private final ItemHandlerWrapperCraftResult[] craftResults;
     private final NonNullList<ItemStack> recipeItems0;
     private final NonNullList<ItemStack> recipeItems1;
     private int selectedModule;
@@ -116,7 +116,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.craftingGridTemplates.add(null);
         this.recipeItems0 = NonNullList.withSize(10, ItemStack.EMPTY);
         this.recipeItems1 = NonNullList.withSize(10, ItemStack.EMPTY);
-        this.craftResults = new ItemStackHandlerBasic[] { new ItemStackHandlerBasic(1), new ItemStackHandlerBasic(1) };
+        this.craftResults = new ItemHandlerWrapperCraftResult[] { new ItemHandlerWrapperCraftResult(), new ItemHandlerWrapperCraftResult() };
 
         this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
         this.furnaceInventoryWrapper = new ItemHandlerWrapperFurnace(this.furnaceInventory);
@@ -245,7 +245,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return new ItemHandlerWrapperPermissions(this.craftingInventories[invId], player);
     }
 
-    public ItemStackHandlerBasic getCraftResultInventory(int invId)
+    public ItemHandlerWrapperCraftResult getCraftResultInventory(int invId)
     {
         return this.craftResults[invId];
     }
