@@ -6,6 +6,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
@@ -24,9 +25,9 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
      * @param sourceMeta
      * @param recipe
      */
-    public ShapedUpgradeOreRecipe(Block result, Item sourceItem, int sourceMeta, Object... recipe)
+    public ShapedUpgradeOreRecipe(ResourceLocation group, Block result, Item sourceItem, int sourceMeta, Object... recipe)
     {
-        super(result, recipe);
+        super(group, result, recipe);
         this.sourceItem = sourceItem;
         this.sourceMeta = sourceMeta;
     }
@@ -40,9 +41,9 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
      * @param sourceMeta
      * @param recipe
      */
-    public ShapedUpgradeOreRecipe(Item result, Item sourceItem, int sourceMeta, Object... recipe)
+    public ShapedUpgradeOreRecipe(ResourceLocation group, Item result, Item sourceItem, int sourceMeta, Object... recipe)
     {
-        super(result, recipe);
+        super(group, result, recipe);
         this.sourceItem = sourceItem;
         this.sourceMeta = sourceMeta;
     }
@@ -56,9 +57,9 @@ public class ShapedUpgradeOreRecipe extends ShapedOreRecipe
      * @param sourceMeta
      * @param recipe
      */
-    public ShapedUpgradeOreRecipe(ItemStack result, Item sourceItem, int sourceMeta, Object... recipe)
+    public ShapedUpgradeOreRecipe(ResourceLocation group, ItemStack result, Item sourceItem, int sourceMeta, Object... recipe)
     {
-        super(result, recipe);
+        super(group, result, recipe);
         this.sourceItem = sourceItem;
         this.sourceMeta = sourceMeta;
     }

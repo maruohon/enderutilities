@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class ShapedMetadataOreRecipe extends ShapedOreRecipe
@@ -19,9 +20,9 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param sourceItem
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ItemStack result, Item sourceItem, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Item sourceItem, Object... recipe)
     {
-        this(result, sourceItem, 0, recipe);
+        this(group, result, sourceItem, 0, recipe);
     }
 
     /**
@@ -32,9 +33,9 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param mask
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ItemStack result, Block sourceBlock, int mask, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Block sourceBlock, int mask, Object... recipe)
     {
-        super(result, recipe);
+        super(group,result, recipe);
 
         this.sourceItem = Item.getItemFromBlock(sourceBlock);
         this.mask = mask;
@@ -48,9 +49,9 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param mask
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ItemStack result, Item sourceItem, int mask, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Item sourceItem, int mask, Object... recipe)
     {
-        super(result, recipe);
+        super(group, result, recipe);
 
         this.sourceItem = sourceItem;
         this.mask = mask;
