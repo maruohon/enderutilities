@@ -149,6 +149,9 @@ public class GuiEnderUtilities extends GuiContainer
         {
             this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRenderer);
         }
+
+        // Added in vanilla 1.12
+        this.renderHoveredToolTip(mouseX, mouseY);
     }
 
     @Override

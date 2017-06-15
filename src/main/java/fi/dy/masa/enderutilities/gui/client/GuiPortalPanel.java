@@ -158,8 +158,6 @@ public class GuiPortalPanel extends GuiEnderUtilities
     @Override
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        super.drawTooltips(mouseX, mouseY);
-
         Slot slot = this.getSlotUnderMouse();
 
         // Hovering over an empty dye slot
@@ -168,6 +166,10 @@ public class GuiPortalPanel extends GuiEnderUtilities
             List<String> list = new ArrayList<String>();
             ItemEnderUtilities.addTranslatedTooltip("enderutilities.gui.label.portalpanel.dyeslot", list, false);
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
+        }
+        else
+        {
+            super.drawTooltips(mouseX, mouseY);
         }
     }
 
