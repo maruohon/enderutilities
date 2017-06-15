@@ -158,12 +158,12 @@ public class InventoryCraftingWrapper extends InventoryCrafting
         {
             EntityPlayerMP player = (EntityPlayerMP) this.player;
             ItemStack stack = ItemStack.EMPTY;
-            IRecipe recipe = CraftingManager.func_192413_b(this, world);
+            IRecipe recipe = CraftingManager.findMatchingRecipe(this, world);
 
             if (recipe != null &&
-                    (recipe.func_192399_d() ||
+                    (recipe.isHidden() ||
                      world.getGameRules().getBoolean("doLimitedCrafting") == false ||
-                     player.func_192037_E().func_193830_f(recipe)))
+                     player.getRecipeBook().containsRecipe(recipe)))
             {
                 this.craftResult.setRecipe(recipe);
                 stack = recipe.getCraftingResult(this);

@@ -29,7 +29,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
     private Minecraft mc;
 
     @Override
-    public void func_192841_a(TileEntityBarrel te, double x, double y, double z, float partialTicks, int destroyStage, float partial)
+    public void renderTileEntityAt(TileEntityBarrel te, double x, double y, double z, float partialTicks, int destroyStage, float partial)
     {
         this.mc = Minecraft.getMinecraft();
         BlockPos pos = te.getPos();

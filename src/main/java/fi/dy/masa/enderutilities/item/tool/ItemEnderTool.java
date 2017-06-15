@@ -1020,7 +1020,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     }
 
     @SideOnly(Side.CLIENT)
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         ItemStack linkCrystalStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_LINKCRYSTAL);
         ItemStack capacitorStack = this.getSelectedModuleStack(stack, ModuleType.TYPE_ENDERCAPACITOR);
@@ -1105,7 +1105,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
             // Valid target set in the currently selected Link Crystal
             if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
-                ((ItemLinkCrystal) linkCrystalStack.getItem()).addInformationSelective(linkCrystalStack, player, list, advancedTooltips, verbose);
+                ((ItemLinkCrystal) linkCrystalStack.getItem()).addTooltipLines(linkCrystalStack, player, list, advancedTooltips, verbose);
             }
             else
             {
@@ -1126,7 +1126,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         // Capacitor installed
         if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
         {
-            ((ItemEnderCapacitor) capacitorStack.getItem()).addInformationSelective(capacitorStack, player, list, advancedTooltips, verbose);
+            ((ItemEnderCapacitor) capacitorStack.getItem()).addTooltipLines(capacitorStack, player, list, advancedTooltips, verbose);
         }
     }
 

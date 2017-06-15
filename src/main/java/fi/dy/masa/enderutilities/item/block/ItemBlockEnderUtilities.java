@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
@@ -240,13 +241,13 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
     }
 
     @SideOnly(Side.CLIENT)
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag advanced)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = EnderUtilities.proxy.isShiftKeyDown();
@@ -267,14 +268,18 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
         }
 
         tmpList.clear();
-        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        boolean isAdvanced = advanced == ITooltipFlag.TooltipFlags.ADVANCED;
+        EntityPlayer player = EnderUtilities.proxy.getClientPlayer();
+
+        this.addTooltipLines(stack, player, tmpList, isAdvanced, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
         {
             tmpList.clear();
-            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            this.addTooltipLines(stack, player, tmpList, isAdvanced, false);
 
             if (tmpList.size() > 0)
             {
@@ -292,11 +297,11 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
     @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        ItemEnderUtilities.addTooltips(this.getTooltipName(stack) + ".tooltips", list, verbose);
+        ItemEnderUtilities.addTranslatedTooltip(this.getTooltipName(stack) + ".tooltips", list, verbose);
 
         if (this.hasPlacementProperties())
         {
-            ItemEnderUtilities.addTooltips(Reference.MOD_ID + ".tooltip.placementproperties.tooltips", list, verbose);
+            ItemEnderUtilities.addTranslatedTooltip(Reference.MOD_ID + ".tooltip.placementproperties.tooltips", list, verbose);
         }
     }
 

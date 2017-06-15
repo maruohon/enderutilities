@@ -73,6 +73,12 @@ public class ClientProxy extends CommonProxy
     private ModFixs dataFixer = null;
 
     @Override
+    public EntityPlayer getClientPlayer()
+    {
+        return FMLClientHandler.instance().getClientPlayerEntity();
+    }
+
+    @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
         switch (ctx.side)

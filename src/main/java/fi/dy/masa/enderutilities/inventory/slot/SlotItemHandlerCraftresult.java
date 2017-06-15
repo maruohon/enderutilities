@@ -65,9 +65,9 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
 
         IRecipe recipe = this.craftResult.getRecipe();
 
-        if (recipe != null && recipe.func_192399_d() == false)
+        if (recipe != null && recipe.isHidden() == false)
         {
-            this.player.func_192021_a(Lists.newArrayList(recipe));
+            this.player.unlockRecipes(Lists.newArrayList(recipe));
             this.craftResult.setRecipe(null);
         }
     }

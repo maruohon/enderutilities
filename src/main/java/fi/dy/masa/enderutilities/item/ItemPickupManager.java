@@ -133,7 +133,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     }
 
     @Override
-    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         if (containerStack.getTagCompound() == null)
         {
@@ -160,7 +160,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         int preset = NBTUtils.getByte(containerStack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION) + 1;
         list.add(I18n.format("enderutilities.tooltip.item.preset") + ": " + TextFormatting.BLUE.toString() + preset + rst);
 
-        super.addInformationSelective(containerStack, player, list, advancedTooltips, verbose);
+        super.addTooltipLines(containerStack, player, list, advancedTooltips, verbose);
     }
 
     public static NBTTagCompound getSelectedPresetTag(ItemStack stack, boolean create)

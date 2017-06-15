@@ -84,7 +84,7 @@ public class ItemDolly extends ItemEnderUtilities
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         String name = this.getCarriedBlockName(stack);
 

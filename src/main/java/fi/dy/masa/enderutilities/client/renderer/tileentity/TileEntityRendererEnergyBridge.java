@@ -104,7 +104,7 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
     }
 
     @Override
-    public void func_192841_a(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage, float partial)
+    public void renderTileEntityAt(TileEntityEnergyBridge teeb, double x, double y, double z, float partialTicks, int destroyStage, float partial)
     {
         if (teeb.getIsActive() == false)
         {

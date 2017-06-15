@@ -257,7 +257,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         if (stack.getTagCompound() == null)
         {
@@ -313,7 +313,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
             if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {
-                ((ItemEnderCapacitor)capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
+                capacitorStack.getItem().addInformation(capacitorStack, player.getEntityWorld(), list, getTooltipFlag(advancedTooltips));
             }
         }
     }

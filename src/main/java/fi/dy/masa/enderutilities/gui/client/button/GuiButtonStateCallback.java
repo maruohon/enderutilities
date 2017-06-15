@@ -68,7 +68,7 @@ public class GuiButtonStateCallback extends GuiButtonHoverText
             {
                 if (translate)
                 {
-                    ItemEnderUtilities.addTooltips(key, this.hoverText, false);
+                    ItemEnderUtilities.addTranslatedTooltip(key, this.hoverText, false);
                 }
                 else
                 {

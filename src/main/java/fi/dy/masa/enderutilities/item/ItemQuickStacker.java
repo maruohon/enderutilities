@@ -111,7 +111,7 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     }
 
     @Override
-    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         if (containerStack.getTagCompound() == null)
         {

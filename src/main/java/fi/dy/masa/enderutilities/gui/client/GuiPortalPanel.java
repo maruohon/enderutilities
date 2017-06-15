@@ -166,7 +166,7 @@ public class GuiPortalPanel extends GuiEnderUtilities
         if (slot != null && slot.getHasStack() == false && slot.slotNumber >= 8 && slot.slotNumber <= 15)
         {
             List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips("enderutilities.gui.label.portalpanel.dyeslot", list, false);
+            ItemEnderUtilities.addTranslatedTooltip("enderutilities.gui.label.portalpanel.dyeslot", list, false);
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
     }

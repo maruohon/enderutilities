@@ -68,10 +68,11 @@ public class ItemEnderUtilities extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
-    public void addInformationSelective(ItemStack stack, @Nullable EntityPlayer player, List<String> list, boolean advanced, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced, boolean verbose)
     {
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag advanced)
     {
@@ -94,15 +95,18 @@ public class ItemEnderUtilities extends Item
         }
 
         tmpList.clear();
+
         boolean isAdvanced = advanced == ITooltipFlag.TooltipFlags.ADVANCED;
-        this.addInformationSelective(stack, null, tmpList, isAdvanced, true);
+        EntityPlayer player = EnderUtilities.proxy.getClientPlayer();
+
+        this.addTooltipLines(stack, player, tmpList, isAdvanced, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
         {
             tmpList.clear();
-            this.addInformationSelective(stack, null, tmpList, isAdvanced, false);
+            this.addTooltipLines(stack, player, tmpList, isAdvanced, false);
 
             if (tmpList.size() > 0)
             {
@@ -117,7 +121,12 @@ public class ItemEnderUtilities extends Item
         }
     }
 
-    public static void addTooltips(String key, List<String> list, boolean verbose, Object... args)
+    public static ITooltipFlag getTooltipFlag(boolean advanced)
+    {
+        return advanced ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
+    }
+
+    public static void addTranslatedTooltip(String key, List<String> list, boolean verbose, Object... args)
     {
         String translated = I18n.format(key, args);
 
@@ -128,6 +137,7 @@ public class ItemEnderUtilities extends Item
             if (translated.contains("|lf"))
             {
                 String[] lines = translated.split(Pattern.quote("|lf"));
+
                 for (String line : lines)
                 {
                     list.add(line);
@@ -142,11 +152,11 @@ public class ItemEnderUtilities extends Item
 
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+        addTranslatedTooltip(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
 
         if (this.commonTooltip != null)
         {
-            addTooltips(this.commonTooltip, list, verbose);
+            addTranslatedTooltip(this.commonTooltip, list, verbose);
         }
     }
 

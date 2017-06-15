@@ -373,7 +373,7 @@ public class GuiEnderUtilities extends GuiContainer
         public List<String> getInfoLines()
         {
             List<String> lines = new ArrayList<String>();
-            ItemEnderUtilities.addTooltips(this.infoText, lines, false, this.args);
+            ItemEnderUtilities.addTranslatedTooltip(this.infoText, lines, false, this.args);
             return lines;
         }
 

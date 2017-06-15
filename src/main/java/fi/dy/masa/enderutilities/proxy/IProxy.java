@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public interface IProxy
 {
+    public EntityPlayer getClientPlayer();
+
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);
 
     public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z);

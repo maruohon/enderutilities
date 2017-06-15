@@ -264,7 +264,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         TargetData target = TargetData.getTargetFromSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL);
 
@@ -284,14 +284,14 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 
                 if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
                 {
-                    ((ItemEnderCapacitor) capacitorStack.getItem()).addInformation(capacitorStack, player, list, advancedTooltips);
+                    capacitorStack.getItem().addInformation(capacitorStack, player.getEntityWorld(), list, getTooltipFlag(advancedTooltips));
                 }
 
                 return;
             }
         }
 
-        super.addInformationSelective(stack, player, list, advancedTooltips, verbose);
+        super.addTooltipLines(stack, player, list, advancedTooltips, verbose);
     }
 
     @Override

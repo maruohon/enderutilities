@@ -159,7 +159,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     }
 
     @Override
-    public void addInformationSelective(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack containerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         if (containerStack.getTagCompound() == null)
         {
@@ -210,7 +210,7 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 String dName = (moduleStack.hasDisplayName() ? preWhiteIta + moduleStack.getDisplayName() + rst + " " : "");
                 list.add(String.format("%s %s (%s%d%s / %s%d%s)", strShort, dName, preBlue, slotNum + 1, rst, preBlue, max, rst));
 
-                ((ItemEnderPart) moduleStack.getItem()).addInformationSelective(moduleStack, player, list, advancedTooltips, false);
+                ((ItemEnderPart) moduleStack.getItem()).addTooltipLines(moduleStack, player, list, advancedTooltips, false);
                 return;
             }
         }

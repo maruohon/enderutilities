@@ -115,7 +115,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         String preBlue = TextFormatting.BLUE.toString();
         String preDGreen = TextFormatting.DARK_GREEN.toString();

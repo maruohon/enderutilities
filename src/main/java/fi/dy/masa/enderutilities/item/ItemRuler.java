@@ -147,7 +147,7 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public void addInformationSelective(ItemStack rulerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack rulerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         if (rulerStack.getTagCompound() == null)
         {

@@ -184,7 +184,7 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
         String preWh = TextFormatting.WHITE.toString();
         String preRed = TextFormatting.RED.toString();
