@@ -210,7 +210,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0));
         list.add(new ItemStack(this, 1, 1));

@@ -76,7 +76,7 @@ public class ItemIceMelter extends ItemEnderUtilities
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0)); // Regular version
         list.add(new ItemStack(this, 1, 1)); // "Super" version

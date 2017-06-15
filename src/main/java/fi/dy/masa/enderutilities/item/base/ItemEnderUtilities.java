@@ -7,9 +7,11 @@ import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -169,6 +171,22 @@ public class ItemEnderUtilities extends Item
     {
         this.enabled = enabled;
         return this;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void getSubItemsCustom(CreativeTabs tab, NonNullList<ItemStack> items)
+    {
+        super.getSubItems(tab, items);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    {
+        if (this.isInCreativeTab(tab))
+        {
+            this.getSubItemsCustom(tab, items);
+        }
     }
 
     @SideOnly(Side.CLIENT)

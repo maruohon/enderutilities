@@ -1132,7 +1132,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         for (int i = 0; i < 4; i++)
         {

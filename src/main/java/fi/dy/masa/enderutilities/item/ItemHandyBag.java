@@ -959,7 +959,7 @@ public class ItemHandyBag extends ItemInventoryModular
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         list.add(new ItemStack(this, 1, 0)); // Tier 1
         list.add(new ItemStack(this, 1, 1)); // Tier 2

@@ -391,7 +391,7 @@ public class ItemEnderPart extends ItemModule
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(CreativeTabs creativeTab, NonNullList<ItemStack> list)
+    public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
         // Ender Alloys
         for (int i = 0; i <= 2; i++)
