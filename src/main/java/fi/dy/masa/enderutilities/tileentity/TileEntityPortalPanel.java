@@ -109,7 +109,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     private int getColorFromDyeMeta(int dyeMeta)
     {
-        return dyeMeta >= 0 && dyeMeta <= 15 ? MapColor.func_193558_a(EnumDyeColor.byDyeDamage(dyeMeta)).colorValue : 0xFFFFFF;
+        return dyeMeta >= 0 && dyeMeta <= 15 ? MapColor.getBlockColor(EnumDyeColor.byDyeDamage(dyeMeta)).colorValue : 0xFFFFFF;
     }
 
     public int getColor(int target)
