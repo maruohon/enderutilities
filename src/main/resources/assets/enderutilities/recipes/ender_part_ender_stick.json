@@ -1,0 +1,22 @@
+{
+    "type" : "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 20,
+        "count": 2
+    },
+    "ingredients": [
+        { "item" : "#ORE_STICK_WOOD" },
+        { "item" : "#ORE_STICK_WOOD" },
+        { "item" : "#ORE_STICK_WOOD" },
+        { "item" : "#ORE_STICK_WOOD" },
+        { "item" : "#ENDER_PEARL" }
+    ]
+}

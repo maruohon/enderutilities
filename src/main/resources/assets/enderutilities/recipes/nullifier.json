@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:nullifier"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:nullifier",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "CLC",
+        "A A",
+        "CLC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#CHEST" },
+        "L" : { "item" : "minecraft:lava_bucket" },
+        "A" : { "item" : "#ALLOY_0" }
+    }
+}

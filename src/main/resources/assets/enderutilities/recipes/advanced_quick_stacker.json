@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:machine_1"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:machine_1",
+        "data" : 3
+    },
+    "pattern":
+    [
+        "PAP",
+        "AQA",
+        "PAP"
+    ],
+    "key":
+    {
+        "P" : { "item" : "#PISTON" },
+        "A" : { "item" : "#ALLOY_0" },
+        "Q" : { "item" : "enderutilities:quickstacker", "data": 0 }
+    }
+}

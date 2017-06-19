@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:storage_0"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:storage_0",
+        "data" : 5
+    },
+    "pattern":
+    [
+        "AHA",
+        "AHA",
+        "PCP"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "H" : { "item" : "#CHEST" },
+        "P" : { "item" : "#PISTON" },
+        "C" : { "item" : "#CORE_INACTIVE_0" }
+    }
+}

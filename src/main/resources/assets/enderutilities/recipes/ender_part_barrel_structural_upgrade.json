@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 71
+    },
+    "pattern":
+    [
+        "OIO",
+        "ICI",
+        "OIO"
+    ],
+    "key":
+    {
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "I" : { "item" : "minecraft:iron_bars" },
+        "C" : { "item" : "#CORE_INACTIVE_1" }
+    }
+}

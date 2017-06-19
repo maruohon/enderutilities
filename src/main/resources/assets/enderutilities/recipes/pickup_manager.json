@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:pickupmanager"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:pickupmanager",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AHA",
+        "ACA",
+        "ARA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "H" : { "item" : "#HOPPER" },
+        "C" : { "item" : "minecraft:ender_chest" },
+        "R" : { "item" : "#REPEATER" }
+    }
+}

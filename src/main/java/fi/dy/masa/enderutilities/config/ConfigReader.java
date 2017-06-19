@@ -147,15 +147,11 @@ public class ConfigReader
         prop.setComment("How many blocks to check at most when checking portal enclosing loops");
         Configs.portalLoopCheckLimit = prop.getInt();
 
-        prop = getProp("registerWoodFencesToOreDict", false);
-        prop.setComment("If enabled, registers the vanilla wooden fences to the OreDictionary as 'fenceWood'");
-        Configs.registerWoodFencesToOreDict = prop.getBoolean();
-
-        prop = getProp("replaceEntityItemCollisionBoxHandling", true);
+        prop = getProp("replaceEntityItemCollisionBoxHandling", false);
         prop.setComment("If enabled, then a custom event replaces fetching the block collision boxes for\n" +
                         "EntityItems and EntityXPOrbs when they are being pushed out of blocks.\n" +
                         "Without this, the Cracked Floor are really derpy and shoot the items and XP\n" +
-                        "everywhere while they try to fall through the block.");
+                        "everywhere while they try to fall through the block. NOTE: This doesn't work atm in 1.11.2+ due to vanilla/Forge changes");
         Configs.replaceEntityItemCollisionBoxHandling = prop.getBoolean();
 
         prop = getProp("useEnderCharge", true);

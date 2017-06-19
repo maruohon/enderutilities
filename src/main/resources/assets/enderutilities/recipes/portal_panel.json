@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:portal_panel"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:portal_panel",
+        "data" : 0,
+        "count": 2
+    },
+    "pattern":
+    [
+        "FRF",
+        "FCF",
+        "FRF"
+    ],
+    "key":
+    {
+        "F" : { "item" : "enderutilities:frame" },
+        "R" : { "item" : "#REPEATER" },
+        "C" : { "item" : "#CORE_ACTIVE_1" }
+    }
+}

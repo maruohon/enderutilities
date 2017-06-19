@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:floor"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:floor",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "SSS",
+        " I ",
+        "SSS"
+    ],
+    "key":
+    {
+        "S" : { "item" : "#ORE_SLAB_WOOD" },
+        "I" : { "item" : "#ENDER_STICK" }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:sound_block"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:sound_block",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "ANA",
+        "N N",
+        "ANA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "N" : { "item" : "minecraft:noteblock" }
+    }
+}

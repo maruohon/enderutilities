@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:chairwand"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:chairwand",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "S  ",
+        " A ",
+        "  A"
+    ],
+    "key":
+    {
+        "S" : { "item" : "#ORE_STAIR_WOOD" },
+        "A" : { "item" : "#ALLOY_0" }
+    }
+}

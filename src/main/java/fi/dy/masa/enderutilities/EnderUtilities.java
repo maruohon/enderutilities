@@ -61,7 +61,6 @@ public class EnderUtilities
         EnderUtilitiesItems.registerItems();
         EnderUtilitiesBlocks.registerBlocks();
 
-        EnderUtilitiesItems.registerRecipes();
         EnderUtilitiesBlocks.registerRecipes();
 
         proxy.registerModels();

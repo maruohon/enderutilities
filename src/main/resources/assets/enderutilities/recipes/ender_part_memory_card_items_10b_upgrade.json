@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 53
+    },
+    "pattern":
+    [
+        "MM",
+        "MM",
+        "SS"
+    ],
+    "key":
+    {
+        "M" : { "item" : "enderutilities:enderpart", "data" : 52 },
+        "S" : { "item" : "#ORE_SLIMEBALL" }
+    }
+}

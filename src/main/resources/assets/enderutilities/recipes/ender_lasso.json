@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderlasso"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderlasso",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "RR ",
+        "RC ",
+        "  A"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#ENDER_ROPE" },
+        "C" : { "item" : "#CORE_INACTIVE_1" },
+        "A" : { "item" : "#ALLOY_0" }
+    }
+}

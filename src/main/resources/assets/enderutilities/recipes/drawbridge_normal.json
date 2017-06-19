@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:draw_bridge"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:draw_bridge",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "ASA",
+        "ASA",
+        "ARA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "S" : { "item" : "#STICKY_PISTON" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

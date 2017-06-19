@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 30
+    },
+    "pattern":
+    [
+        "ANA",
+        " S ",
+        " S "
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_2" },
+        "N" : { "item" : "minecraft:nether_star" },
+        "S" : { "item" : "#ENDER_STICK" }
+    }
+}

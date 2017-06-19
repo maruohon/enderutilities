@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:asu"
+        }
+    ],
+    "group" : "enderutilities:asu",
+    "result" :
+    {
+        "item" : "enderutilities:asu",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "ARA",
+        "AEA",
+        "ACA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "R" : { "item" : "#REPEATER" },
+        "E" : { "item" : "minecraft:ender_chest" },
+        "C" : { "item" : "#COMPARATOR" }
+    }
+}

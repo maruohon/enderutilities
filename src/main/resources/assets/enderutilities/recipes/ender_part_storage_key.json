@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 80
+    },
+    "pattern":
+    [
+        "AS ",
+        "AS ",
+        " S "
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "S" : { "item" : "#ORE_STICK_WOOD" }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:handybag"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:handybag",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "RAR",
+        "ACA",
+        "LAL"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#ENDER_ROPE" },
+        "A" : { "item" : "#ALLOY_2" },
+        "C" : { "item" : "minecraft:ender_chest" },
+        "L" : { "item" : "minecraft:leather" }
+    }
+}

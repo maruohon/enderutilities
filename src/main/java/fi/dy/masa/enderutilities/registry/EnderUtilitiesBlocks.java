@@ -3,11 +3,9 @@ package fi.dy.masa.enderutilities.registry;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 import fi.dy.masa.enderutilities.block.*;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -17,25 +15,25 @@ import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 
 public class EnderUtilitiesBlocks
 {
-    public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ASU,             6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_BARREL,       4.0f,   10f, 1, Material.IRON);
-    public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAW_BRIDGE,     4.0f,   10f, 1, Material.IRON);
-    public static final BlockEnderUtilities ELEVATOR            = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,    4.0f,   10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities ELEVATOR_SLAB       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB, 4.0f, 10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities ELEVATOR_LAYER      = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,4.0f, 10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities ENDER_FURNACE       = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,     6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities ENERGY_BRIDGE       = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE, 8.0f,   20f, 2, Material.IRON);
-    public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                2.0f,    6f, 1, Material.WOOD);
-    public static final BlockEnderUtilities INSERTER            = new BlockInserter(ReferenceNames.NAME_TILE_INSERTER,          2.0f,    6f, 1, Material.ROCK);
-    public static final BlockEnderUtilities MACHINE_1           = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,          6.0f,   20f, 1, Material.IRON);
+    public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ASU,                            6.0f, 20f, 1, Material.IRON);
+    public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_BARREL,                      4.0f, 10f, 1, Material.IRON);
+    public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAW_BRIDGE,             4.0f, 10f, 1, Material.IRON);
+    public static final BlockEnderUtilities ELEVATOR            = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,            4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities ELEVATOR_SLAB       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB,       4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities ELEVATOR_LAYER      = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,      4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities ENDER_FURNACE       = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,             6.0f, 20f, 1, Material.IRON);
+    public static final BlockEnderUtilities ENERGY_BRIDGE       = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE,         8.0f, 20f, 2, Material.IRON);
+    public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                        2.0f,  6f, 1, Material.WOOD);
+    public static final BlockEnderUtilities INSERTER            = new BlockInserter(ReferenceNames.NAME_TILE_INSERTER,                  2.0f,  6f, 1, Material.ROCK);
+    public static final BlockEnderUtilities MACHINE_1           = new BlockMachine(ReferenceNames.NAME_TILE_MACHINE_1,                  6.0f, 20f, 1, Material.IRON);
     public static final BlockEnderUtilities MOLECULAR_EXCITER   = new BlockMolecularExciter(ReferenceNames.NAME_TILE_MOLECULAR_EXCITER, 3.0f, 20f, 1, Material.ROCK);
-    public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_MSU,             6.0f,   20f, 1, Material.IRON);
-    public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,            2.0f,   10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities PORTAL              = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL, 4.0f,  20f, 2, Material.PORTAL);
-    public static final BlockEnderUtilities PORTAL_FRAME        = new BlockPortalFrame(ReferenceNames.NAME_TILE_FRAME,          4.0f,   20f, 2, Material.ROCK);
-    public static final BlockEnderUtilities PORTAL_PANEL        = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,   4.0f,   20f, 2, Material.ROCK);
-    public static final BlockEnderUtilities SOUND_BLOCK         = new BlockSound(ReferenceNames.NAME_TILE_SOUND_BLOCK,          4.0f,   10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities STORAGE_0           = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,          6.0f,   60f, 1, Material.ROCK);
+    public static final BlockEnderUtilities MSU                 = new BlockMSU(ReferenceNames.NAME_TILE_MSU,                            6.0f, 20f, 1, Material.IRON);
+    public static final BlockEnderUtilities PHASING             = new BlockPhasing(ReferenceNames.NAME_TILE_PHASING,                    2.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities PORTAL              = new BlockEnderUtilitiesPortal(ReferenceNames.NAME_TILE_PORTAL,        4.0f, 20f, 2, Material.PORTAL);
+    public static final BlockEnderUtilities PORTAL_FRAME        = new BlockPortalFrame(ReferenceNames.NAME_TILE_FRAME,                  4.0f, 20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities PORTAL_PANEL        = new BlockPortalPanel(ReferenceNames.NAME_TILE_PORTAL_PANEL,           4.0f, 20f, 2, Material.ROCK);
+    public static final BlockEnderUtilities SOUND_BLOCK         = new BlockSound(ReferenceNames.NAME_TILE_SOUND_BLOCK,                  4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities STORAGE_0           = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,                  6.0f, 60f, 1, Material.ROCK);
 
     public static void registerBlocks()
     {
@@ -63,179 +61,33 @@ public class EnderUtilitiesBlocks
 
     public static void registerRecipes()
     {
-        ItemStack chest = new ItemStack(Blocks.CHEST);
-        ItemStack craftingtable = new ItemStack(Blocks.CRAFTING_TABLE);
-        ItemStack furnace = new ItemStack(Blocks.FURNACE);
-        ItemStack hopper = new ItemStack(Blocks.HOPPER);
-        ItemStack obsidian = new ItemStack(Blocks.OBSIDIAN);
-        ItemStack piston = new ItemStack(Blocks.PISTON);
-        Item repeater = Items.REPEATER;
-
-        ItemStack alloy0 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 0);
-        ItemStack alloy1 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 1);
-        ItemStack alloy2 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 2);
-        ItemStack core0 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 10);
-        ItemStack core1 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 11);
-        //ItemStack core2 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 12);
-        //ItemStack active_core0 = new ItemStack(EnderUtilitiesItems.enderPart, 1, 15);
-        ItemStack active_core1 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 16);
-        ItemStack active_core2 = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 17);
-        ItemStack ender_stick = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 20);
-        //ItemStack rope = new ItemStack(EnderUtilitiesItems.enderPart, 1, 21);
-
-        // Register block recipes
-        if (Configs.disableRecipeDrawbridge == false && Configs.disableBlockDrawbridge == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(DRAWBRIDGE, 1, 0), "ASA", "ASA", "ARA", 'A', alloy0, 'S', Blocks.STICKY_PISTON, 'R', Items.REDSTONE);
-            GameRegistry.addRecipe(new ItemStack(DRAWBRIDGE, 1, 1), "ASA", "ASA", "ACA", 'A', alloy0, 'S', Blocks.STICKY_PISTON, 'C', Items.COMPARATOR);
-        }
-
         if (Configs.disableRecipeEnderElevator == false && Configs.disableBlockEnderElevator == false)
         {
-            RecipeSorter.register(Reference.MOD_ID + ":shapedmetadataore", ShapedMetadataOreRecipe.class, RecipeSorter.Category.SHAPED, "");
-            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(ELEVATOR, 2), Blocks.WOOL, 0,
+            ResourceLocation name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_crafting");
+
+            //RecipeSorter.register(Reference.MOD_ID + ":shapedmetadataore", ShapedMetadataOreRecipe.class, RecipeSorter.Category.SHAPED, "");
+
+            GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR, 2), Blocks.WOOL, 0,
                     "WLW", "APA", "ARA",
                     'W', Blocks.WOOL,
-                    'A', alloy0,
+                    'A', new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 0), // Alloy 0
                     'L', Blocks.STONE_PRESSURE_PLATE,
                     'P', Blocks.STICKY_PISTON,
                     'R', Items.REDSTONE));
 
             // Elevator to Elevator slab and back
-            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(ELEVATOR_SLAB, 2), ELEVATOR, 0, "EE", 'E', ELEVATOR));
-            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(ELEVATOR, 2), ELEVATOR_SLAB, 0, "E", "E", 'E', ELEVATOR_SLAB));
+            name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_normal_to_slab");
+            GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR_SLAB, 2), ELEVATOR, 0, "EE", 'E', ELEVATOR));
+
+            name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_slab_to_normal");
+            GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR, 2), ELEVATOR_SLAB, 0, "E", "E", 'E', ELEVATOR_SLAB));
 
             // Elevator Slab to Elevator Layer and back
-            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(ELEVATOR_LAYER, 2), ELEVATOR_SLAB, 0, "EE", 'E', ELEVATOR_SLAB));
-            GameRegistry.addRecipe(new ShapedMetadataOreRecipe(new ItemStack(ELEVATOR_SLAB, 2), ELEVATOR_LAYER, 0, "E", "E", 'E', ELEVATOR_LAYER));
-        }
+            name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_slab_to_layer");
+            GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR_LAYER, 2), ELEVATOR_SLAB, 0, "EE", 'E', ELEVATOR_SLAB));
 
-        if (Configs.disableRecipeInserter == false && Configs.disableBlockInserter == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 4, 0), "AAA", "GGG", "AAA", 'A', alloy0, 'G', "blockGlass"));
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(INSERTER, 4, 1), "AAA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', Items.COMPARATOR));
-        }
-
-        if (Configs.disableRecipeFloor == false && Configs.disableBlockFloor == false)
-        {
-            // Normal Floor
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 12, 0), "SSS", "I I", "SSS", 'S', "slabWood", 'I', "stickWood"));
-            // Cracked Floor
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(FLOOR, 12, 1), "SSS", " I ", "SSS", 'S', "slabWood", 'I', ender_stick));
-        }
-
-        if (Configs.disableRecipeEnderFurnace == false && Configs.disableBlockMachine_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(ENDER_FURNACE, 1, 0), "OAO", "AFA", "OCO", 'O', obsidian, 'A', alloy0, 'F', furnace, 'C', core0);
-        }
-
-        if (Configs.disableRecipeEnderInfuser == false && Configs.disableBlockMachine_1 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(MACHINE_1, 1, 0), "AHA", "APA", "OFO", 'A', alloy0, 'H', hopper, 'P', piston, 'O', obsidian, 'F', furnace);
-        }
-        if (Configs.disableRecipeToolWorkstation == false && Configs.disableBlockMachine_1 == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(MACHINE_1, 1, 1), "ASA", "ACA", "OHO", 'A', alloy0, 'S', "slimeball", 'C', craftingtable, 'O', obsidian, 'H', chest));
-        }
-        if (Configs.disableRecipeCreationStation == false && Configs.disableBlockMachine_1 == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(MACHINE_1, 1, 2), "FRF", "ACA", "OAO", 'F', new ItemStack(ENDER_FURNACE, 1, 0), 'R', craftingtable, 'A', alloy1, 'C', core1, 'O', obsidian));
-        }
-        if (Configs.disableRecipeAdvancedQuickStacker == false && Configs.disableBlockMachine_1 == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(MACHINE_1, 1, 3), "PAP", "AQA", "PAP", 'P', piston, 'A', alloy0, 'Q', EnderUtilitiesItems.QUICK_STACKER));
-        }
-        if (Configs.disableRecipeMolecularExciter == false && Configs.disableBlockMolecularExciter == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(MOLECULAR_EXCITER, 1, 0), "AAA", "GCR", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', core1, 'R', Items.REDSTONE));
-        }
-
-        if (Configs.disableRecipeEnergyBridgeResonator == false && Configs.disableBlockEnergyBridge == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ENERGY_BRIDGE, 1, 0), "AGA", "GCG", "AAA", 'A', alloy1, 'G', "blockGlass", 'C', active_core1));
-        }
-        if (Configs.disableRecipeEnergyBridgeReceiver == false && Configs.disableBlockEnergyBridge == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ENERGY_BRIDGE, 1, 1), "AGA", "GCG", "AGA", 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
-        }
-        if (Configs.disableRecipeEnergyBridgeTransmitter == false && Configs.disableBlockEnergyBridge == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ENERGY_BRIDGE, 1, 2), "ASA", "ACA", "AGA", 'S', Items.NETHER_STAR, 'A', alloy2, 'G', "blockGlass", 'C', active_core2));
-        }
-
-        if (Configs.disableRecipeMemoryChest_0 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 3, 0), "   ", "R R", "ACA", 'R', repeater, 'A', alloy0, 'C', chest);
-        }
-        if (Configs.disableRecipeMemoryChest_1 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 2, 1), "   ", "RCR", "ACA", 'R', repeater, 'A', alloy0, 'C', chest);
-        }
-        if (Configs.disableRecipeMemoryChest_2 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 1, 2), "   ", "RCR", "ACA", 'R', repeater, 'A', alloy1, 'C', chest);
-        }
-
-        if (Configs.disableRecipeHandyChest_0 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 2, 3), "   ", "ACA", "POP", 'P', piston, 'A', alloy0, 'C', chest, 'O', core0);
-        }
-        if (Configs.disableRecipeHandyChest_1 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 1, 4), "ACA", "ACA", "POP", 'P', piston, 'A', alloy0, 'C', chest, 'O', core0);
-        }
-        if (Configs.disableRecipeHandyChest_2 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 1, 5), "ACA", "ACA", "POP", 'P', piston, 'A', alloy1, 'C', chest, 'O', core0);
-        }
-        if (Configs.disableRecipeHandyChest_3 == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(STORAGE_0, 1, 6), "   ", "ACA", "ACA", 'A', alloy0, 'C', new ItemStack(STORAGE_0, 1, 5));
-        }
-        if (Configs.disableRecipeJunkStorageUnit == false && Configs.disableBlockStorage_0 == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(STORAGE_0, 1, 7), "SCS", "SMS", "SCS", 'S', "cobblestone", 'C', "chestWood", 'M', new ItemStack(STORAGE_0, 1, 3)));
-        }
-
-        if (Configs.disableRecipeAdjustableStorageUnit == false && Configs.disableBlockASU == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(ASU, 1, 0), "ARA", "AEA", "ACA", 'A', alloy0, 'R', Items.REPEATER, 'E', Blocks.ENDER_CHEST, 'C', Items.COMPARATOR);
-        }
-
-        if (Configs.disableRecipeBarrel == false && Configs.disableBlockBarrel == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BARREL, 1, 0), "LAL", "LCL", "LAL", 'L', "logWood", 'A', alloy0, 'C', "chestWood"));
-        }
-
-        if (Configs.disableRecipeMassiveStorageUnit == false && Configs.disableBlockMSU == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(MSU, 1, 0), "ACA", "AOA", "ACA", 'A', alloy2, 'O', active_core2, 'C', new ItemStack(STORAGE_0, 1, 5));
-        }
-        if (Configs.disableRecipeMassiveStorageBundle == false && Configs.disableBlockMSU == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(MSU, 1, 1), "MMM", "MMM", "MMM", 'M', new ItemStack(MSU, 1, 0));
-        }
-
-        if (Configs.disableRecipePhasingBlock == false && Configs.disableBlockPhasing == false)
-        {
-            // Normal
-            GameRegistry.addRecipe(new ItemStack(PHASING, 8, 0), "SSS", "SRS", "SAS", 'S', Blocks.STONEBRICK, 'A', alloy0, 'R', Items.REDSTONE);
-            // Inverted
-            GameRegistry.addRecipe(new ItemStack(PHASING, 8, 1), "SSS", "SRS", "SAS", 'S', Blocks.STONEBRICK, 'A', alloy0, 'R', Blocks.REDSTONE_TORCH);
-        }
-
-        if (Configs.disableRecipePortalFrame == false && Configs.disableBlockPortalFrame == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(PORTAL_FRAME, 8, 0), "GAG", "ARA", "GAG", 'G', "blockGlass", 'A', alloy0, 'R', Items.REDSTONE));
-        }
-        if (Configs.disableRecipePortalPanel == false && Configs.disableBlockPortalPanel == false && Configs.disableBlockPortal == false)
-        {
-            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(PORTAL_PANEL, 2, 0), "FRF", "FCF", "FRF", 'F', PORTAL_FRAME, 'C', active_core1, 'R', repeater));
-        }
-
-        if (Configs.disableRecipeSoundBlock == false && Configs.disableBlockSoundBlock == false)
-        {
-            GameRegistry.addRecipe(new ItemStack(SOUND_BLOCK, 4, 0), "ANA", "N N", "ANA", 'A', alloy0, 'N', Blocks.NOTEBLOCK);
+            name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_layer_to_slab");
+            GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR_SLAB, 2), ELEVATOR_LAYER, 0, "E", "E", 'E', ELEVATOR_LAYER));
         }
     }
 

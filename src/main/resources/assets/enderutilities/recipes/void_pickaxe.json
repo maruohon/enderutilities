@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:void_pickaxe"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:void_pickaxe",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AAA",
+        "LSL",
+        "FSF"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_2" },
+        "S" : { "item" : "#ENDER_STICK" },
+        "L" : { "item" : "minecraft:lava_bucket" },
+        "F" : { "item" : "minecraft:fire_charge" }
+    }
+}

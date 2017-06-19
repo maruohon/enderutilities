@@ -20,9 +20,9 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param sourceItem
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Item sourceItem, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation name, ItemStack result, Item sourceItem, Object... recipe)
     {
-        this(group, result, sourceItem, 0, recipe);
+        this(name, result, sourceItem, 0, recipe);
     }
 
     /**
@@ -33,10 +33,11 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param mask
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Block sourceBlock, int mask, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation name, ItemStack result, Block sourceBlock, int mask, Object... recipe)
     {
-        super(group,result, recipe);
+        super(name, result, recipe);
 
+        this.setRegistryName(name);
         this.sourceItem = Item.getItemFromBlock(sourceBlock);
         this.mask = mask;
     }
@@ -49,10 +50,11 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
      * @param mask
      * @param recipe
      */
-    public ShapedMetadataOreRecipe(ResourceLocation group, ItemStack result, Item sourceItem, int mask, Object... recipe)
+    public ShapedMetadataOreRecipe(ResourceLocation name, ItemStack result, Item sourceItem, int mask, Object... recipe)
     {
-        super(group, result, recipe);
+        super(name, result, recipe);
 
+        this.setRegistryName(name);
         this.sourceItem = sourceItem;
         this.mask = mask;
     }

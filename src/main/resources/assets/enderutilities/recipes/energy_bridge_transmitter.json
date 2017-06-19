@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:energy_bridge"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:energy_bridge",
+        "data" : 2
+    },
+    "pattern":
+    [
+        "ASA",
+        "ACA",
+        "AGA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_2" },
+        "S" : { "item" : "minecraft:nether_star" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "C" : { "item" : "#CORE_ACTIVE_2" }
+    }
+}

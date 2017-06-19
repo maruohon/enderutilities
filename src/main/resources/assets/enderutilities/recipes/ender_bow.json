@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderbow"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderbow",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "RA ",
+        "RCA",
+        "RA "
+    ],
+    "key":
+    {
+        "R" : { "item" : "#ENDER_ROPE" },
+        "A" : { "item" : "#ALLOY_1" },
+        "C" : { "item" : "#CORE_INACTIVE_1" }
+    }
+}

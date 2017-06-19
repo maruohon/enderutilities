@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:molecular_exciter"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:molecular_exciter",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AAA",
+        "GCR",
+        "AAA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "C" : { "item" : "#CORE_INACTIVE_1" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

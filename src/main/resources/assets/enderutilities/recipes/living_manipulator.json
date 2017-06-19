@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:livingmanipulator"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:livingmanipulator",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AAA",
+        "BCA",
+        "  A"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "B" : { "item" : "#ALLOY_2" },
+        "C" : { "item" : "#CORE_INACTIVE_1" }
+    }
+}

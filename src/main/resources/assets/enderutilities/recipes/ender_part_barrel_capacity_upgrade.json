@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 72
+    },
+    "pattern":
+    [
+        "ACA",
+        "ABA",
+        "ACA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
+        "B" : { "item" : "enderutilities:barrel", "data" : 0 }
+    }
+}

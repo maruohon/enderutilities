@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:mobharness"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:mobharness",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "LRL",
+        "LCL",
+        "LRL"
+    ],
+    "key":
+    {
+        "L" : { "item" : "minecraft:leather" },
+        "R" : { "item" : "#ENDER_ROPE" },
+        "C" : { "item" : "#CORE_INACTIVE_0" }
+    }
+}

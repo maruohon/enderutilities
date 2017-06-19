@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:icemelter"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:icemelter",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "  N",
+        " C ",
+        "R  "
+    ],
+    "key":
+    {
+        "N" : { "item" : "minecraft:nether_star" },
+        "C" : { "item" : "#CORE_ACTIVE_2" },
+        "R" : { "item" : "minecraft:blaze_rod" }
+    }
+}

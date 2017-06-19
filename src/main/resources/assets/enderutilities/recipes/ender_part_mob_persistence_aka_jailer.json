@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 45
+    },
+    "pattern":
+    [
+        "ABA",
+        "B B",
+        "ABA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "B" : { "item" : "minecraft:iron_bars" }
+    }
+}

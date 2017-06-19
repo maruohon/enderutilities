@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:quickstacker"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:quickstacker",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "RPR",
+        "ACA",
+        "RPR"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#REDSTONE_DUST" },
+        "P" : { "item" : "#PISTON" },
+        "A" : { "item" : "#ALLOY_0" },
+        "C" : { "item" : "#COMPARATOR" }
+    }
+}

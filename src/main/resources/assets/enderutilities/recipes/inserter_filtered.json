@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:inserter"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:inserter",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "AAA",
+        "GCG",
+        "AAA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "C" : { "item" : "#COMPARATOR" }
+    }
+}

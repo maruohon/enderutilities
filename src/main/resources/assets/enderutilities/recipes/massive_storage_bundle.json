@@ -1,0 +1,24 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:msu"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:msu",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "MMM",
+        "MMM",
+        "MMM"
+    ],
+    "key":
+    {
+        "M" : { "item" : "enderutilities:msu", "data" : 0 }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 40
+    },
+    "pattern":
+    [
+        "GEG",
+        "EDE",
+        "GEG"
+    ],
+    "key":
+    {
+        "G" : { "item" : "#ORE_GLASS" },
+        "E" : { "item" : "minecraft:egg" },
+        "D" : { "item" : "minecraft:dragon_breath" }
+    }
+}

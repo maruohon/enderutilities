@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:machine_1"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:machine_1",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AHA",
+        "APA",
+        "OFO"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "H" : { "item" : "#HOPPER" },
+        "P" : { "item" : "#PISTON" },
+        "F" : { "item" : "#FURNACE" },
+        "O" : { "item" : "#ORE_OBSIDIAN" }
+    }
+}

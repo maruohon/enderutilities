@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:dolly"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:dolly",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "  A",
+        "  A",
+        "AAS"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "S" : { "item" : "#ORE_SLIME_BLOCK" }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 10
+    },
+    "pattern":
+    [
+        "OAO",
+        "ARA",
+        "OAO"
+    ],
+    "key":
+    {
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "A" : { "item" : "#ALLOY_0" },
+        "R" : { "item" : "#ORE_REDSTONE_BLOCK" }
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 50,
+        "count": 4
+    },
+    "pattern":
+    [
+        " G ",
+        "APA",
+        "ARA"
+    ],
+    "key":
+    {
+        "G" : { "item" : "#ORE_NUGGET_GOLD" },
+        "A" : { "item" : "#ALLOY_0" },
+        "P" : { "item" : "#REPEATER" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:endersword"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:endersword",
+        "data" : 0
+    },
+    "pattern":
+    [
+        " A ",
+        " A ",
+        " S "
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_2" },
+        "S" : { "item" : "#ENDER_STICK" }
+    }
+}

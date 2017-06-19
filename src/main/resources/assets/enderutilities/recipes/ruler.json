@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:ruler"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:ruler",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "A  ",
+        "AS ",
+        "AAA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "S" : { "item" : "#ENDER_STICK" }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 11
+    },
+    "pattern":
+    [
+        "OAO",
+        "AEA",
+        "OAO"
+    ],
+    "key":
+    {
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "A" : { "item" : "#ALLOY_1" },
+        "E" : { "item" : "minecraft:emerald" }
+    }
+}

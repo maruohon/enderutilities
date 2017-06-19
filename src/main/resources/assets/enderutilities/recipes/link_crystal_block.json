@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:linkcrystal"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:linkcrystal",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "RGR",
+        "GAG",
+        "RGR"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#REDSTONE_DUST" },
+        "G" : { "item" : "#ORE_GLASS_BLUE" },
+        "A" : { "item" : "#ALLOY_0" }
+    }
+}

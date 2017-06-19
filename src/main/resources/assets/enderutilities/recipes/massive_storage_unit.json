@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:msu"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:msu",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "AHA",
+        "ACA",
+        "AHA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_2" },
+        "H" : { "item" : "enderutilities:storage_0", "data" : 5 },
+        "C" : { "item" : "#CORE_ACTIVE_2" }
+    }
+}

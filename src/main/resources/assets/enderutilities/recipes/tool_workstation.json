@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:machine_1"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:machine_1",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "ASA",
+        "ACA",
+        "OHO"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "S" : { "item" : "#ORE_SLIMEBALL" },
+        "C" : { "item" : "#ORE_WORKBENCH" },
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "H" : { "item" : "#CHEST" }
+    }
+}

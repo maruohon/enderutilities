@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:inventoryswapper"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:inventoryswapper",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "RAR",
+        "ACA",
+        "SAS"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#ENDER_ROPE" },
+        "A" : { "item" : "#ALLOY_0" },
+        "C" : { "item" : "#CHEST" },
+        "S" : { "item" : "#STICKY_PISTON" }
+    }
+}

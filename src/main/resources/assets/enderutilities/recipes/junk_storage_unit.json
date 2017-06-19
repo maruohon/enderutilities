@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:storage_0"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:storage_0",
+        "data" : 7
+    },
+    "pattern":
+    [
+        "CHC",
+        "CMC",
+        "CHC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "minecraft:cobblestone" },
+        "H" : { "item" : "#CHEST" },
+        "M" : { "item" : "enderutilities:storage_0", "data" : 3 }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:syringe"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:syringe",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "A  ",
+        " G ",
+        "  S"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_1" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "S" : { "item" : "#ENDER_STICK" }
+    }
+}

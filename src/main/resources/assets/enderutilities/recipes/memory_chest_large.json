@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:storage_0"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:storage_0",
+        "data" : 2
+    },
+    "pattern":
+    [
+        "   ",
+        "RCR",
+        "ACA"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#REPEATER" },
+        "A" : { "item" : "#ALLOY_1" },
+        "C" : { "item" : "#CHEST" }
+    }
+}

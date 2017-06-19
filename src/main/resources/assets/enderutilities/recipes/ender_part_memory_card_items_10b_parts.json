@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 53,
+        "count": 2
+    },
+    "pattern":
+    [
+        " G ",
+        "ACA",
+        "ACA"
+    ],
+    "key":
+    {
+        "G" : { "item" : "minecraft:gold_ingot" },
+        "A" : { "item" : "#ALLOY_2" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" }
+    }
+}

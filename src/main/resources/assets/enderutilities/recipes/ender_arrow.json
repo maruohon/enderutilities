@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderarrow"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderarrow",
+        "data" : 0,
+        "count": 2
+    },
+    "pattern":
+    [
+        " NP",
+        " AN",
+        "A  "
+    ],
+    "key":
+    {
+        "N" : { "item" : "#ORE_NUGGET_GOLD" },
+        "P" : { "item" : "#ENDER_PEARL" },
+        "A" : { "item" : "minecraft:arrow" }
+    }
+}

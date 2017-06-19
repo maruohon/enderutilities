@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 21,
+        "count": 4
+    },
+    "pattern":
+    [
+        "SSS",
+        "LPL",
+        "SSS"
+    ],
+    "key":
+    {
+        "S" : { "item" : "minecraft:string" },
+        "L" : { "item" : "minecraft:leather" },
+        "P" : { "item" : "#ENDER_PEARL" }
+    }
+}

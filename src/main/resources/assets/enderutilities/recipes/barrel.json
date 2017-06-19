@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:barrel"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:barrel",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "LAL",
+        "LCL",
+        "LAL"
+    ],
+    "key":
+    {
+        "L" : { "item" : "#ORE_LOG_WOOD" },
+        "A" : { "item" : "#ALLOY_0" },
+        "C" : { "item" : "#CHEST" }
+    }
+}

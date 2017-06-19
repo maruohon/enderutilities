@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderporter"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderporter",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "EAE",
+        "ACA",
+        "EAE"
+    ],
+    "key":
+    {
+        "E" : { "item" : "#ENDER_EYE" },
+        "A" : { "item" : "#ALLOY_2" },
+        "C" : { "item" : "#CORE_ACTIVE_1" }
+    }
+}

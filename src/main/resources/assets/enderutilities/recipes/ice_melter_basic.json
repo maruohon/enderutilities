@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:icemelter"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:icemelter",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "   ",
+        " C ",
+        "R  "
+    ],
+    "key":
+    {
+        "C" : { "item" : "#CORE_ACTIVE_2" },
+        "R" : { "item" : "minecraft:blaze_rod" }
+    }
+}

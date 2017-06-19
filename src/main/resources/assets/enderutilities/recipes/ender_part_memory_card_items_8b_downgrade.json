@@ -1,0 +1,18 @@
+{
+    "type" : "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 52,
+        "count": 4
+    },
+    "ingredients": [
+        { "item" : "enderutilities:enderpart", "data" : 53 }
+    ]
+}

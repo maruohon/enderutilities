@@ -1,0 +1,25 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:storage_0"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:storage_0",
+        "data" : 6
+    },
+    "pattern":
+    [
+        "   ",
+        "ACA",
+        "ACA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "C" : { "item" : "enderutilities:storage_0", "data" : 5 }
+    }
+}

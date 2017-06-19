@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:endercapacitor"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:endercapacitor",
+        "data" : 2
+    },
+    "pattern":
+    [
+        " P ",
+        "ADA",
+        "OAO"
+    ],
+    "key":
+    {
+        "P" : { "item" : "#ENDER_PEARL" },
+        "D" : { "item" : "minecraft:diamond" },
+        "A" : { "item" : "#ALLOY_2" },
+        "O" : { "item" : "#ORE_OBSIDIAN" }
+    }
+}

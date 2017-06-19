@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:phasing"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:phasing",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "SSS",
+        "SRS",
+        "SAS"
+    ],
+    "key":
+    {
+        "S" : { "item" : "minecraft:stonebrick", "data" : 0 },
+        "A" : { "item" : "#ALLOY_0" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

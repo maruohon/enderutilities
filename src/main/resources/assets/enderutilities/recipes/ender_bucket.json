@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderbucket"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderbucket",
+        "data" : 0
+    },
+    "pattern":
+    [
+        " C ",
+        "ABA",
+        " A "
+    ],
+    "key":
+    {
+        "C" : { "item" : "#CORE_INACTIVE_0" },
+        "A" : { "item" : "#ALLOY_0" },
+        "B" : { "item" : "minecraft:bucket" }
+    }
+}

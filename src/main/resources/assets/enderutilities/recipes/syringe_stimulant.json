@@ -1,0 +1,20 @@
+{
+    "type" : "minecraft:crafting_shapeless",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:syringe"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:syringe",
+        "data" : 2
+    },
+    "ingredients": [
+        { "item" : "enderutilities:syringe",        "data" : 0  },
+        { "item" : "minecraft:sugar"                            },
+        { "item" : "minecraft:carrot"                           },
+        { "item" : "minecraft:speckled_melon"                   }
+    ]
+}

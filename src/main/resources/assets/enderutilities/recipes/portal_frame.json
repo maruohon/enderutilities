@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:frame"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:frame",
+        "data" : 0,
+        "count": 8
+    },
+    "pattern":
+    [
+        "GAG",
+        "ARA",
+        "GAG"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

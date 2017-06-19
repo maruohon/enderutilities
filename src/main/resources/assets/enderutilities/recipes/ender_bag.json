@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderbag"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderbag",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "RLR",
+        "LCL",
+        "RWR"
+    ],
+    "key":
+    {
+        "R" : { "item" : "#ENDER_ROPE" },
+        "L" : { "item" : "minecraft:leather" },
+        "C" : { "item" : "#CORE_INACTIVE_1" },
+        "W" : { "item" : "#WOOL_ANY" }
+    }
+}

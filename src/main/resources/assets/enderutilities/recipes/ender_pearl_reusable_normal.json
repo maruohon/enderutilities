@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpearlreusable"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpearlreusable",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "GPG",
+        "PRP",
+        "GPG"
+    ],
+    "key":
+    {
+        "G" : { "item" : "#ORE_NUGGET_GOLD" },
+        "P" : { "item" : "#ENDER_PEARL" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

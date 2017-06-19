@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 12
+    },
+    "pattern":
+    [
+        "OAO",
+        "ADA",
+        "OAO"
+    ],
+    "key":
+    {
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "A" : { "item" : "#ALLOY_2" },
+        "D" : { "item" : "minecraft:diamond" }
+    }
+}

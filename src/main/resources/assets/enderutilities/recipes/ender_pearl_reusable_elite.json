@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpearlreusable"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpearlreusable",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "FAF",
+        "APA",
+        "FCF"
+    ],
+    "key":
+    {
+        "F" : { "item" : "minecraft:feather" },
+        "A" : { "item" : "#ALLOY_1" },
+        "C" : { "item" : "#CORE_INACTIVE_0" },
+        "P" : { "item" : "enderutilities:enderpearlreusable", "data" : 0 }
+    }
+}

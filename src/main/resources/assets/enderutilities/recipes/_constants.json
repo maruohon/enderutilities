@@ -1,0 +1,47 @@
+[
+    { "name" : "CHEST",                 "ingredient": { "item" : "minecraft:chest"                  } },
+    { "name" : "COMPARATOR",            "ingredient": { "item" : "minecraft:comparator"             } },
+    { "name" : "CRAFTING_TABLE",        "ingredient": { "item" : "minecraft:crafting_table"         } },
+    { "name" : "ENDER_PEARL",           "ingredient": { "item" : "minecraft:ender_pearl"            } },
+    { "name" : "ENDER_EYE",             "ingredient": { "item" : "minecraft:ender_eye"              } },
+    { "name" : "FURNACE",               "ingredient": { "item" : "minecraft:furnace"                } },
+    { "name" : "HOPPER",                "ingredient": { "item" : "minecraft:hopper"                 } },
+    { "name" : "PISTON",                "ingredient": { "item" : "minecraft:piston"                 } },
+    { "name" : "REDSTONE_DUST",         "ingredient": { "item" : "minecraft:redstone"               } },
+    { "name" : "REPEATER",              "ingredient": { "item" : "minecraft:repeater"               } },
+    { "name" : "STICKY_PISTON",         "ingredient": { "item" : "minecraft:sticky_piston"          } },
+    { "name" : "WOOL_ANY",              "ingredient": { "item" : "minecraft:wool", "data" : 32767   } },
+
+
+
+    { "name" : "ORE_CHEST_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "chestWood"          } },
+    { "name" : "ORE_GLASS",             "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlass"         } },
+    { "name" : "ORE_GLASS_BLUE",        "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlassBlue"     } },
+    { "name" : "ORE_GLASS_GREEN",       "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlassGreen"    } },
+    { "name" : "ORE_GLASS_PURPLE",      "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlassPurple"   } },
+    { "name" : "ORE_OBSIDIAN",          "ingredient": { "type" : "forge:ore_dict", "ore" : "obsidian"           } },
+    { "name" : "ORE_LOG_WOOD",          "ingredient": { "type" : "forge:ore_dict", "ore" : "logWood"            } },
+    { "name" : "ORE_NUGGET_GOLD",       "ingredient": { "type" : "forge:ore_dict", "ore" : "nuggetGold"         } },
+    { "name" : "ORE_PLANKS",            "ingredient": { "type" : "forge:ore_dict", "ore" : "planks"             } },
+    { "name" : "ORE_REDSTONE_BLOCK",    "ingredient": { "type" : "forge:ore_dict", "ore" : "blockRedstone"      } },
+    { "name" : "ORE_SLAB_WOOD",         "ingredient": { "type" : "forge:ore_dict", "ore" : "slabWood"           } },
+    { "name" : "ORE_SLIMEBALL",         "ingredient": { "type" : "forge:ore_dict", "ore" : "slimeball"          } },
+    { "name" : "ORE_SLIME_BLOCK",       "ingredient": { "type" : "forge:ore_dict", "ore" : "blockSlime"         } },
+    { "name" : "ORE_STAIR_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stairWood"          } },
+    { "name" : "ORE_STICK_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stickWood"          } },
+    { "name" : "ORE_WORKBENCH",         "ingredient": { "type" : "forge:ore_dict", "ore" : "workbench"          } },
+
+
+
+    { "name" : "ALLOY_0",               "ingredient": { "item" : "enderutilities:enderpart",    "data" :  0 } },
+    { "name" : "ALLOY_1",               "ingredient": { "item" : "enderutilities:enderpart",    "data" :  1 } },
+    { "name" : "ALLOY_2",               "ingredient": { "item" : "enderutilities:enderpart",    "data" :  2 } },
+    { "name" : "CORE_INACTIVE_0",       "ingredient": { "item" : "enderutilities:enderpart",    "data" : 10 } },
+    { "name" : "CORE_INACTIVE_1",       "ingredient": { "item" : "enderutilities:enderpart",    "data" : 11 } },
+    { "name" : "CORE_INACTIVE_2",       "ingredient": { "item" : "enderutilities:enderpart",    "data" : 12 } },
+    { "name" : "CORE_ACTIVE_0",         "ingredient": { "item" : "enderutilities:enderpart",    "data" : 15 } },
+    { "name" : "CORE_ACTIVE_1",         "ingredient": { "item" : "enderutilities:enderpart",    "data" : 16 } },
+    { "name" : "CORE_ACTIVE_2",         "ingredient": { "item" : "enderutilities:enderpart",    "data" : 17 } },
+    { "name" : "ENDER_STICK",           "ingredient": { "item" : "enderutilities:enderpart",    "data" : 20 } },
+    { "name" : "ENDER_ROPE",            "ingredient": { "item" : "enderutilities:enderpart",    "data" : 21 } }
+]

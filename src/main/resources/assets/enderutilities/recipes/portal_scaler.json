@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:portalscaler"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:portalscaler",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "OGO",
+        "OCO",
+        "OAO"
+    ],
+    "key":
+    {
+        "O" : { "item" : "#ORE_OBSIDIAN" },
+        "G" : { "item" : "#ORE_GLASS_PURPLE" },
+        "C" : { "item" : "#CORE_ACTIVE_2" },
+        "A" : { "item" : "#ALLOY_2" }
+    }
+}

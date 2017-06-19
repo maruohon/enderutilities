@@ -1,0 +1,29 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 2,
+        "count": 2
+    },
+    "pattern":
+    [
+        "IEI",
+        "GDG",
+        "OEO"
+    ],
+    "key":
+    {
+        "I" : { "item" : "minecraft:iron_ingot" },
+        "E" : { "item" : "#ENDER_EYE" },
+        "G" : { "item" : "minecraft:gold_ingot" },
+        "D" : { "item" : "minecraft:diamond" },
+        "O" : { "item" : "#ORE_OBSIDIAN" }
+    }
+}
