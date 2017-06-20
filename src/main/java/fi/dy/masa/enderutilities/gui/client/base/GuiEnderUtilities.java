@@ -93,6 +93,7 @@ public class GuiEnderUtilities extends GuiContainer
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
+        this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, gameTicks);
         this.drawTooltips(mouseX, mouseY);
     }
