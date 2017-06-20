@@ -4,12 +4,12 @@ import javax.annotation.Nullable;
 import net.minecraft.item.crafting.IRecipe;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerBasic;
 
-public class ItemHandlerWrapperCraftResult extends ItemStackHandlerBasic
+public class ItemHandlerCraftResult extends ItemStackHandlerBasic
 {
     @Nullable
     private IRecipe recipe;
 
-    public ItemHandlerWrapperCraftResult()
+    public ItemHandlerCraftResult()
     {
         super(1);
     }

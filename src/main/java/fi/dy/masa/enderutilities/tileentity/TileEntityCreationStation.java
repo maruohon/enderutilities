@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -23,6 +24,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerOffhandInvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiCreationStation;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
@@ -31,7 +33,8 @@ import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
 import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.inventory.item.InventoryItemCallback;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingPermissions;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -87,7 +90,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
 
     private final InventoryItemCallback[] craftingInventories;
     private final List<NonNullList<ItemStack>> craftingGridTemplates;
-    private final ItemHandlerWrapperCraftResult[] craftResults;
+    private final ItemHandlerCraftResult[] craftResults;
     private final NonNullList<ItemStack> recipeItems0;
     private final NonNullList<ItemStack> recipeItems1;
     private int selectedModule;
@@ -116,7 +119,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.craftingGridTemplates.add(null);
         this.recipeItems0 = NonNullList.withSize(10, ItemStack.EMPTY);
         this.recipeItems1 = NonNullList.withSize(10, ItemStack.EMPTY);
-        this.craftResults = new ItemHandlerWrapperCraftResult[] { new ItemHandlerWrapperCraftResult(), new ItemHandlerWrapperCraftResult() };
+        this.craftResults = new ItemHandlerCraftResult[] { new ItemHandlerCraftResult(), new ItemHandlerCraftResult() };
 
         this.furnaceInventory = new ItemStackHandlerTileEntity(INV_ID_FURNACE, 6, 1024, true, "FurnaceItems", this);
         this.furnaceInventoryWrapper = new ItemHandlerWrapperFurnace(this.furnaceInventory);
@@ -156,6 +159,77 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.readModeMaskFromModule();
         this.loadRecipe(0, this.getRecipeId(0));
         this.loadRecipe(1, this.getRecipeId(1));
+    }
+
+    public ItemHandlerWrapperPermissions getItemInventory(EntityPlayer player)
+    {
+        return new ItemHandlerWrapperPermissions(this.itemInventory, player);
+    }
+
+    @Override
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
+    {
+        return this.getItemInventory(player);
+    }
+
+    public InventoryCraftingPermissions getCraftingInventory(int invId, EntityPlayer player)
+    {
+        ItemHandlerWrapperPermissions invPerm = new ItemHandlerWrapperPermissions(this.craftingInventories[invId], player);
+        return new InventoryCraftingPermissions(3, 3, invPerm, this.craftResults[invId], player);
+    }
+
+    public ItemHandlerCraftResult getCraftResultInventory(int invId)
+    {
+        return this.craftResults[invId];
+    }
+
+    public IItemHandler getMemoryCardInventory()
+    {
+        return this.itemHandlerMemoryCards;
+    }
+
+    public IItemHandler getFurnaceInventory()
+    {
+        return this.furnaceInventoryWrapper;
+    }
+
+    /**
+     * Gets a wrapped **InventoryCraftingPermissions** instance.
+     * This must be used by anything that wants to modify the crafting grid contents,
+     * so that the recipe and output slot will get updated properly!
+     * @param gridId
+     * @param player
+     * @return
+     */
+    @Nullable
+    private IItemHandler getWrappedCraftingInventoryFromContainer(int gridId, EntityPlayer player)
+    {
+        if (player.openContainer instanceof ContainerCreationStation)
+        {
+            return new InvWrapper(((ContainerCreationStation) player.openContainer).getCraftingInventory(gridId));
+        }
+
+        return null;
+    }
+
+    private boolean canAccessCraftingGrid(int gridId, EntityPlayer player)
+    {
+        if (player.openContainer instanceof ContainerCreationStation)
+        {
+            return ((ContainerCreationStation) player.openContainer).getCraftingInventory(gridId)
+                    .getBaseInventory().isAccessibleByPlayer(player);
+        }
+
+        return false;
+    }
+
+    private void updateCraftingResults(EntityPlayer player)
+    {
+        if (player.openContainer instanceof ContainerCreationStation)
+        {
+            ((ContainerCreationStation) player.openContainer).getCraftingInventory(0).markDirty();
+            ((ContainerCreationStation) player.openContainer).getCraftingInventory(1).markDirty();
+        }
     }
 
     @Override
@@ -227,37 +301,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.selectedModule = tag.getByte("msel");
 
         super.handleUpdateTag(tag);
-    }
-
-    public ItemHandlerWrapperPermissions getItemInventory(EntityPlayer player)
-    {
-        return new ItemHandlerWrapperPermissions(this.itemInventory, player);
-    }
-
-    @Override
-    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
-    {
-        return this.getItemInventory(player);
-    }
-
-    public ItemHandlerWrapperPermissions getCraftingInventoryWrapper(int invId, EntityPlayer player)
-    {
-        return new ItemHandlerWrapperPermissions(this.craftingInventories[invId], player);
-    }
-
-    public ItemHandlerWrapperCraftResult getCraftResultInventory(int invId)
-    {
-        return this.craftResults[invId];
-    }
-
-    public IItemHandler getMemoryCardInventory()
-    {
-        return this.itemHandlerMemoryCards;
-    }
-
-    public IItemHandler getFurnaceInventory()
-    {
-        return this.furnaceInventoryWrapper;
     }
 
     public int getQuickMode()
@@ -664,6 +707,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
             this.setSelectedModuleSlot(element);
             this.inventoryChanged(INV_ID_MODULES, element);
             this.markDirty();
+
+            // This updates the crafting output slots, since they normally only update
+            // when the grid contents are changed via the InventoryCrafting* inventory wrapper
+            this.updateCraftingResults(player);
         }
         else if (action == GUI_ACTION_MOVE_ITEMS && element >= 0 && element < 6)
         {
@@ -706,44 +753,45 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
         else if (action == GUI_ACTION_CLEAR_CRAFTING_GRID && element >= 0 && element <= 1)
         {
-            int invId = element;
-            ItemHandlerWrapperPermissions inv = this.getCraftingInventoryWrapper(invId, player);
+            int gridId = element;
 
-            if (inv.isAccessibleByPlayer(player) == false)
+            if (this.canAccessCraftingGrid(gridId, player) == false)
             {
                 return;
             }
 
+            IItemHandler inv = this.getWrappedCraftingInventoryFromContainer(gridId, player);
+
             // Already empty crafting grid, set the "show recipe" mode to disabled
             if (InventoryUtils.isInventoryEmpty(inv))
             {
-                this.setShowRecipe(invId, false);
-                this.clearLoadedRecipe(invId);
+                this.setShowRecipe(gridId, false);
+                this.clearLoadedRecipe(gridId);
                 this.writeModeMaskToModule();
             }
             // Items in grid, clear the grid
             else
             {
-                this.clearCraftingGrid(inv, invId, player);
+                this.clearCraftingGrid(inv, gridId, player);
             }
 
             this.recipeLoadClickCount = 0;
-            this.lastInteractedCraftingGrid = invId;
+            this.lastInteractedCraftingGrid = gridId;
         }
         else if (action == GUI_ACTION_RECIPE_LOAD && element >= 0 && element < 10)
         {
-            int invId = element / 5;
+            int gridId = element / 5;
             int recipeId = element % 5;
 
-            ItemHandlerWrapperPermissions inv = this.getCraftingInventoryWrapper(invId, player);
-
-            if (inv.isAccessibleByPlayer(player) == false)
+            if (this.canAccessCraftingGrid(gridId, player) == false)
             {
                 return;
             }
 
+            IItemHandler inv = this.getWrappedCraftingInventoryFromContainer(gridId, player);
+
             // Clicked again on a recipe button that is already currently selected => load items into crafting grid
-            if (this.getRecipeId(invId) == recipeId && this.getShowRecipe(invId))
+            if (this.getRecipeId(gridId) == recipeId && this.getShowRecipe(gridId))
             {
                 // First click after loading the recipe itself: load one item to each slot
                 if (this.recipeLoadClickCount == 0)
@@ -751,7 +799,7 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                     // First clear away the old contents
                     //if (this.clearCraftingGrid(inv, invId, player) == InvResult.MOVED_ALL)
                     {
-                        if (this.addOneSetOfRecipeItemsIntoGrid(inv, invId, recipeId, player))
+                        if (this.addOneSetOfRecipeItemsIntoGrid(inv, gridId, recipeId, player))
                         {
                             this.recipeLoadClickCount += 1;
                         }
@@ -761,73 +809,71 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
                 // or the max stack size if the largest existing stack size is 1
                 else
                 {
-                    this.fillCraftingGrid(inv, invId, recipeId, player);
+                    this.fillCraftingGrid(inv, gridId, recipeId, player);
                 }
             }
             // Clicked on a different recipe button, or the recipe was hidden => load the recipe
             // and show it, but don't load the items into the grid
             else
             {
-                this.loadRecipe(invId, recipeId);
-                this.setRecipeId(invId, recipeId);
+                this.loadRecipe(gridId, recipeId);
+                this.setRecipeId(gridId, recipeId);
                 this.recipeLoadClickCount = 0;
             }
 
-            this.setShowRecipe(invId, true);
+            this.setShowRecipe(gridId, true);
             this.writeModeMaskToModule();
-            this.lastInteractedCraftingGrid = invId;
+            this.lastInteractedCraftingGrid = gridId;
         }
         else if (action == GUI_ACTION_RECIPE_STORE && element >= 0 && element < 10)
         {
-            int invId = element / 5;
+            int gridId = element / 5;
             int recipeId = element % 5;
 
-            ItemHandlerWrapperPermissions inv = this.getCraftingInventoryWrapper(invId, player);
-
-            if (inv.isAccessibleByPlayer(player) == false)
+            if (this.canAccessCraftingGrid(gridId, player) == false)
             {
                 return;
             }
 
-            /*IItemHandler inv = this.craftingInventories[invId];
+            IItemHandler inv = this.getWrappedCraftingInventoryFromContainer(gridId, player);
+
+            /*IItemHandler inv = this.craftingInventories[gridId];
             if (InventoryUtils.isInventoryEmpty(inv))
             {
-                this.setShowRecipe(invId, false);
+                this.setShowRecipe(gridId, false);
             }
             else
             {
-                this.storeRecipe(invId, recipeId);
-                this.setShowRecipe(invId, true);
+                this.storeRecipe(gridId, recipeId);
+                this.setShowRecipe(gridId, true);
             }*/
 
-            this.storeRecipe(inv, invId, recipeId);
-            this.setShowRecipe(invId, true);
-            this.setRecipeId(invId, recipeId);
+            this.storeRecipe(inv, gridId, recipeId);
+            this.setShowRecipe(gridId, true);
+            this.setRecipeId(gridId, recipeId);
             this.writeModeMaskToModule();
-            this.lastInteractedCraftingGrid = invId;
+            this.lastInteractedCraftingGrid = gridId;
         }
         else if (action == GUI_ACTION_RECIPE_CLEAR && element >= 0 && element < 10)
         {
-            int invId = element / 5;
+            int gridId = element / 5;
             int recipeId = element % 5;
 
-            ItemHandlerWrapperPermissions inv = this.getCraftingInventoryWrapper(invId, player);
-
-            if (inv.isAccessibleByPlayer(player) == false)
+            if (this.canAccessCraftingGrid(gridId, player) == false)
             {
                 return;
             }
 
             //if (this.getRecipeId(invId) == recipeId)
             {
-                this.removeRecipe(invId, recipeId);
-                this.setShowRecipe(invId, false);
+                this.removeRecipe(gridId, recipeId);
+                this.setShowRecipe(gridId, false);
                 //this.setRecipeId(invId, recipeId);
                 this.writeModeMaskToModule();
             }
 
             this.recipeLoadClickCount = 0;
-            this.lastInteractedCraftingGrid = invId;
+            this.lastInteractedCraftingGrid = gridId;
         }
         else if (action == GUI_ACTION_TOGGLE_MODE && element >= 0 && element < 8)
         {

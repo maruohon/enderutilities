@@ -195,7 +195,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
             {
                 for (int slotNum = 0; slotNum < 9; slotNum++)
                 {
-                    ItemStack gridStack = this.containerCS.getCraftMatrixWrapper(invId).getStackInSlot(slotNum);
+                    ItemStack gridStack = this.containerCS.getStackOnCraftingGrid(invId, slotNum);
                     ItemStack recipeStack = this.containerCS.getRecipeItem(invId, slotNum);
 
                     if (InventoryUtils.areItemStacksEqual(gridStack, recipeStack) == false)

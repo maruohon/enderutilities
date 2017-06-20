@@ -7,18 +7,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerCraftResult;
 
 public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
 {
     private final EntityPlayer player;
     private final InventoryCrafting craftMatrix;
-    private final ItemHandlerWrapperCraftResult craftResult;
+    private final ItemHandlerCraftResult craftResult;
     private int amountCrafted;
 
     public SlotItemHandlerCraftResult(
             InventoryCrafting craftMatrix,
-            ItemHandlerWrapperCraftResult craftResult,
+            ItemHandlerCraftResult craftResult,
             int index, int xPosition, int yPosition, EntityPlayer player)
     {
         super(craftResult, index, xPosition, yPosition);

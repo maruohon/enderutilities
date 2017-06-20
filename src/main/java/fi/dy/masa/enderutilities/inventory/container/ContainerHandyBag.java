@@ -14,8 +14,8 @@ import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerArmor;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotModuleModularItem;
-import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapper;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.item.ItemHandyBag.ShiftMode;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -30,9 +30,9 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         EntityEquipmentSlot.FEET
     };
     public final InventoryItemModular inventoryItemModular;
-    private final InventoryCraftingWrapper craftMatrix;
+    private final InventoryCraftingEnderUtilities craftMatrix;
     private final IItemHandler craftMatrixWrapper;
-    private final ItemHandlerWrapperCraftResult craftResult = new ItemHandlerWrapperCraftResult();
+    private final ItemHandlerCraftResult craftResult = new ItemHandlerCraftResult();
     private ItemStack modularStackLast = ItemStack.EMPTY;
     private int craftingSlot = 0;
 
@@ -41,7 +41,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular) this.inventory;
         this.inventoryItemModular.setHostInventory(this.playerInv);
-        this.craftMatrix = new InventoryCraftingWrapper(2, 2, new ItemStackHandlerBasic(4), this.craftResult, player);
+        this.craftMatrix = new InventoryCraftingEnderUtilities(2, 2, new ItemStackHandlerBasic(4), this.craftResult, player);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
         this.inventoryNonWrapped = (InventoryItemModular) this.inventory;
 

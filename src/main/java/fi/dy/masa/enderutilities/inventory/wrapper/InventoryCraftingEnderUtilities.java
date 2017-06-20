@@ -13,16 +13,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-public class InventoryCraftingWrapper extends InventoryCrafting
+public class InventoryCraftingEnderUtilities extends InventoryCrafting
 {
     private final int inventoryWidth;
     private final int inventoryHeight;
-    private final IItemHandlerModifiable craftMatrix;
-    private final ItemHandlerWrapperCraftResult craftResult;
-    private EntityPlayer player;
+    private final ItemHandlerCraftResult craftResult;
+    protected final IItemHandlerModifiable craftMatrix;
+    protected final EntityPlayer player;
 
-    public InventoryCraftingWrapper(int width, int height,
-            IItemHandlerModifiable craftMatrix, ItemHandlerWrapperCraftResult resultInventory, EntityPlayer player)
+    public InventoryCraftingEnderUtilities(int width, int height,
+            IItemHandlerModifiable craftMatrix, ItemHandlerCraftResult resultInventory, EntityPlayer player)
     {
         super(null, 0, 0); // dummy
 
@@ -64,7 +64,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
 
         for (int slot = 0; slot < invSize; ++slot)
         {
-            if (this.craftMatrix.getStackInSlot(slot).isEmpty() == false)
+            if (this.getStackInSlot(slot).isEmpty() == false)
             {
                 return false;
             }
@@ -123,6 +123,8 @@ public class InventoryCraftingWrapper extends InventoryCrafting
         {
             this.craftMatrix.setStackInSlot(slot, ItemStack.EMPTY);
         }
+
+        this.markDirty();
     }
 
     @Override
@@ -161,7 +163,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
             IRecipe recipe = CraftingManager.findMatchingRecipe(this, world);
 
             if (recipe != null &&
-                    (recipe.isHidden() ||
+                    (recipe.isHidden() || // isHidden() is rather something like "isNBT()" or "modifiesData()"
                      world.getGameRules().getBoolean("doLimitedCrafting") == false ||
                      player.getRecipeBook().containsRecipe(recipe)))
             {

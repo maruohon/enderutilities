@@ -4,23 +4,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
-import fi.dy.masa.enderutilities.inventory.slot.SlotCraftingWrapper;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerModule;
-import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingWrapperPermissions;
-import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCraftResult;
+import fi.dy.masa.enderutilities.inventory.wrapper.InventoryCraftingPermissions;
+import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerCraftResult;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperPermissions;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -37,9 +35,9 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     public int smeltProgress;
     private int lastInteractedCraftingGrid;
 
-    private final ItemHandlerWrapperPermissions[] craftMatrixWrappers;
-    private final InventoryCraftingWrapperPermissions[] craftMatrices;
-    private final ItemHandlerWrapperCraftResult[] craftResults;
+    private final InventoryCraftingPermissions[] craftingInventories;
+    private final IItemHandler[] wrappedCraftingInventories;
+    private final ItemHandlerCraftResult[] craftResults;
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
@@ -50,15 +48,20 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         super(player, te.getItemInventory(player), te);
         this.tecs = te;
 
-        this.craftMatrixWrappers = new ItemHandlerWrapperPermissions[2];
-        this.craftMatrixWrappers[0] = te.getCraftingInventoryWrapper(0, player);
-        this.craftMatrixWrappers[1] = te.getCraftingInventoryWrapper(1, player);
+        this.craftingInventories = new InventoryCraftingPermissions[] {
+            te.getCraftingInventory(0, player),
+            te.getCraftingInventory(1, player)
+        };
 
-        this.craftMatrices = new InventoryCraftingWrapperPermissions[2];
-        this.craftMatrices[0] = new InventoryCraftingWrapperPermissions(this, 3, 3, this.craftMatrixWrappers[0]);
-        this.craftMatrices[1] = new InventoryCraftingWrapperPermissions(this, 3, 3, this.craftMatrixWrappers[1]);
+        this.wrappedCraftingInventories = new IItemHandler[] {
+            new InvWrapper(this.craftingInventories[0]),
+            new InvWrapper(this.craftingInventories[1])
+        };
 
-        this.craftResults = new ItemHandlerWrapperCraftResult[] { te.getCraftResultInventory(0), te.getCraftResultInventory(1) };
+        this.craftResults = new ItemHandlerCraftResult[] {
+            te.getCraftResultInventory(0),
+            te.getCraftResultInventory(1)
+        };
 
         this.furnaceInventory = this.tecs.getFurnaceInventory();
         this.inventoryNonWrapped = (ItemHandlerWrapperPermissions) this.inventory;
@@ -105,10 +108,10 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[0], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(new InvWrapper(this.craftingInventories[0]), j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftMatrices[0], this.craftResults[0], 0, 112, 33, this.player));
+        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftingInventories[0], this.craftResults[0], 0, 112, 33, this.player));
 
         // Crafting slots, right side
         this.craftingGridSlotsRight = new SlotRange(this.inventorySlots.size(), 9);
@@ -118,10 +121,10 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlotToContainer(new SlotCraftingWrapper(this.craftMatrices[1], j + i * 3, posX + j * 18, posY + i * 18));
+                this.addSlotToContainer(new SlotItemHandlerGeneric(new InvWrapper(this.craftingInventories[1]), j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
-        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftMatrices[1], this.craftResults[1], 0, 112, 69, this.player));
+        this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftingInventories[1], this.craftResults[1], 0, 112, 69, this.player));
 
         // Add the furnace slots as priority merge slots, but only to already existing stacks
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 6, true);
@@ -142,7 +145,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         // Output
         this.addSlotToContainer(new SlotItemHandlerFurnaceOutput(this.player, this.furnaceInventory, 5, 184, 8));
 
-        this.onCraftMatrixChanged(this.craftMatrices[0]);
+        this.craftingInventories[0].markDirty();
+        this.craftingInventories[1].markDirty();
     }
 
     /**
@@ -159,16 +163,14 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         return this.tecs.lastInteractedCraftingGrid;
     }
 
-    public IItemHandler getCraftMatrixWrapper(int id)
+    public InventoryCraftingPermissions getCraftingInventory(int gridId)
     {
-        return this.craftMatrixWrappers[id];
+        return this.craftingInventories[gridId];
     }
 
-    @Override
-    public void onCraftMatrixChanged(IInventory inv)
+    public ItemStack getStackOnCraftingGrid(int gridId, int slot)
     {
-        this.craftResults[0].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[0], this.player.getEntityWorld()));
-        this.craftResults[1].setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this.craftMatrices[1], this.player.getEntityWorld()));
+        return this.wrappedCraftingInventories[gridId].getStackInSlot(slot);
     }
 
     @Override
@@ -199,7 +201,7 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         {
             int invId = slotNum == 50 ? 1 : 0;
 
-            if (this.tecs.canCraftItems(this.craftMatrixWrappers[invId], invId) == false)
+            if (this.tecs.canCraftItems(this.wrappedCraftingInventories[invId], invId) == false)
             {
                 return false;
             }
@@ -219,8 +221,7 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
                 ret = super.transferStackFromSlot(player, slotNum);
             }
 
-            this.tecs.restockCraftingGrid(this.craftMatrixWrappers[invId], invId);
-            this.onCraftMatrixChanged(this.craftMatrices[invId]);
+            this.tecs.restockCraftingGrid(this.wrappedCraftingInventories[invId], invId);
 
             return ret;
         }
@@ -321,19 +322,27 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         {
             int invId = slotNum == 50 ? 1 : 0;
 
-            if (this.tecs.canCraftItems(this.craftMatrixWrappers[invId], invId) == false)
+            if (this.tecs.canCraftItems(this.wrappedCraftingInventories[invId], invId) == false)
             {
                 return ItemStack.EMPTY;
             }
 
             ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
-            this.tecs.restockCraftingGrid(this.craftMatrixWrappers[invId], invId);
-            this.onCraftMatrixChanged(this.craftMatrices[invId]);
+            this.tecs.restockCraftingGrid(this.wrappedCraftingInventories[invId], invId);
 
             return stack;
         }
 
-        return super.slotClick(slotNum, dragType, clickType, player);
+        super.slotClick(slotNum, dragType, clickType, player);
+
+        // Memory Card slot, update the crafting output slots to prevent item dupes
+        if (this.mergeSlotRangesPlayerToExt.get(0).contains(slotNum))
+        {
+            this.craftingInventories[0].markDirty();
+            this.craftingInventories[1].markDirty();
+        }
+
+        return ItemStack.EMPTY;
     }
 
     @Override
