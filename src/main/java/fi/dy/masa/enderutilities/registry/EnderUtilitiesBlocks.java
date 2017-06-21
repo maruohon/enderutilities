@@ -1,11 +1,17 @@
 package fi.dy.masa.enderutilities.registry;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.IForgeRegistry;
 import fi.dy.masa.enderutilities.block.*;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -13,6 +19,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.recipes.ShapedMetadataOreRecipe;
 
+@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public class EnderUtilitiesBlocks
 {
     public static final BlockEnderUtilities ASU                 = new BlockASU(ReferenceNames.NAME_TILE_ASU,                            6.0f, 20f, 1, Material.IRON);
@@ -35,28 +42,85 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities SOUND_BLOCK         = new BlockSound(ReferenceNames.NAME_TILE_SOUND_BLOCK,                  4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities STORAGE_0           = new BlockStorage(ReferenceNames.NAME_TILE_STORAGE_0,                  6.0f, 60f, 1, Material.ROCK);
 
-    public static void registerBlocks()
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
+        IForgeRegistry<Block> registry = event.getRegistry();
+
         // Register blocks
-        registerBlock(ASU,                  Configs.disableBlockASU);
-        registerBlock(BARREL,               Configs.disableBlockBarrel);
-        registerBlock(DRAWBRIDGE,           Configs.disableBlockDrawbridge);
-        registerBlock(ELEVATOR,             Configs.disableBlockEnderElevator);
-        registerBlock(ELEVATOR_SLAB,        Configs.disableBlockEnderElevator);
-        registerBlock(ELEVATOR_LAYER,       Configs.disableBlockEnderElevator);
-        registerBlock(INSERTER,             Configs.disableBlockInserter);
-        registerBlock(FLOOR,                Configs.disableBlockFloor);
-        registerBlock(ENERGY_BRIDGE,        Configs.disableBlockEnergyBridge);
-        registerBlock(ENDER_FURNACE,        Configs.disableBlockMachine_0);
-        registerBlock(MACHINE_1,            Configs.disableBlockMachine_1);
-        registerBlock(MOLECULAR_EXCITER,    Configs.disableBlockMolecularExciter, true, false);
-        registerBlock(MSU,                  Configs.disableBlockMSU);
-        registerBlock(PHASING,              Configs.disableBlockPhasing);
-        registerBlock(PORTAL,               Configs.disableBlockPortal, false, false);
-        registerBlock(PORTAL_FRAME,         Configs.disableBlockPortalFrame, true, false);
-        registerBlock(PORTAL_PANEL,         Configs.disableBlockPortalPanel, true, false);
-        registerBlock(SOUND_BLOCK,          Configs.disableBlockSoundBlock);
-        registerBlock(STORAGE_0,            Configs.disableBlockStorage_0);
+        registerBlock(registry, ASU,                    Configs.disableBlockASU);
+        registerBlock(registry, BARREL,                 Configs.disableBlockBarrel);
+        registerBlock(registry, DRAWBRIDGE,             Configs.disableBlockDrawbridge);
+        registerBlock(registry, ELEVATOR,               Configs.disableBlockEnderElevator);
+        registerBlock(registry, ELEVATOR_SLAB,          Configs.disableBlockEnderElevator);
+        registerBlock(registry, ELEVATOR_LAYER,         Configs.disableBlockEnderElevator);
+        registerBlock(registry, INSERTER,               Configs.disableBlockInserter);
+        registerBlock(registry, FLOOR,                  Configs.disableBlockFloor);
+        registerBlock(registry, ENERGY_BRIDGE,          Configs.disableBlockEnergyBridge);
+        registerBlock(registry, ENDER_FURNACE,          Configs.disableBlockMachine_0);
+        registerBlock(registry, MACHINE_1,              Configs.disableBlockMachine_1);
+        registerBlock(registry, MOLECULAR_EXCITER,      Configs.disableBlockMolecularExciter);
+        registerBlock(registry, MSU,                    Configs.disableBlockMSU);
+        registerBlock(registry, PHASING,                Configs.disableBlockPhasing);
+        registerBlock(registry, PORTAL,                 Configs.disableBlockPortal);
+        registerBlock(registry, PORTAL_FRAME,           Configs.disableBlockPortalFrame);
+        registerBlock(registry, PORTAL_PANEL,           Configs.disableBlockPortalPanel);
+        registerBlock(registry, SOUND_BLOCK,            Configs.disableBlockSoundBlock);
+        registerBlock(registry, STORAGE_0,              Configs.disableBlockStorage_0);
+    }
+
+    @SubscribeEvent
+    public static void registerItemBlocks(RegistryEvent.Register<Item> event)
+    {
+        IForgeRegistry<Item> registry = event.getRegistry();
+
+        // Register ItemBlocks
+        registerItemBlock(registry, ASU,                    Configs.disableBlockASU);
+        registerItemBlock(registry, BARREL,                 Configs.disableBlockBarrel);
+        registerItemBlock(registry, DRAWBRIDGE,             Configs.disableBlockDrawbridge);
+        registerItemBlock(registry, ELEVATOR,               Configs.disableBlockEnderElevator);
+        registerItemBlock(registry, ELEVATOR_SLAB,          Configs.disableBlockEnderElevator);
+        registerItemBlock(registry, ELEVATOR_LAYER,         Configs.disableBlockEnderElevator);
+        registerItemBlock(registry, INSERTER,               Configs.disableBlockInserter);
+        registerItemBlock(registry, FLOOR,                  Configs.disableBlockFloor);
+        registerItemBlock(registry, ENERGY_BRIDGE,          Configs.disableBlockEnergyBridge);
+        registerItemBlock(registry, ENDER_FURNACE,          Configs.disableBlockMachine_0);
+        registerItemBlock(registry, MACHINE_1,              Configs.disableBlockMachine_1);
+        registerItemBlock(registry, MOLECULAR_EXCITER,      Configs.disableBlockMolecularExciter, false);
+        registerItemBlock(registry, MSU,                    Configs.disableBlockMSU);
+        registerItemBlock(registry, PHASING,                Configs.disableBlockPhasing);
+        // No ItemBlock for PORTAL
+        registerItemBlock(registry, PORTAL_FRAME,           Configs.disableBlockPortalFrame, false);
+        registerItemBlock(registry, PORTAL_PANEL,           Configs.disableBlockPortalPanel, false);
+        registerItemBlock(registry, SOUND_BLOCK,            Configs.disableBlockSoundBlock);
+        registerItemBlock(registry, STORAGE_0,              Configs.disableBlockStorage_0);
+    }
+
+    private static void registerBlock(IForgeRegistry<Block> registry, BlockEnderUtilities block, boolean isDisabled)
+    {
+        if (isDisabled == false)
+        {
+            block.setRegistryName(Reference.MOD_ID + ":" + block.getBlockName());
+            registry.register(block);
+        }
+        else
+        {
+            block.setEnabled(false);
+        }
+    }
+
+    private static void registerItemBlock(IForgeRegistry<Item> registry, BlockEnderUtilities block, boolean isDisabled)
+    {
+        registerItemBlock(registry, block, isDisabled, true);
+    }
+
+    private static void registerItemBlock(IForgeRegistry<Item> registry, BlockEnderUtilities block, boolean isDisabled, boolean hasSubtypes)
+    {
+        if (isDisabled == false)
+        {
+            Item item = block.createItemBlock().setRegistryName(Reference.MOD_ID, block.getBlockName()).setHasSubtypes(hasSubtypes);
+            registry.register(item);
+        }
     }
 
     public static void registerRecipes()
@@ -88,34 +152,6 @@ public class EnderUtilitiesBlocks
 
             name = new ResourceLocation(Reference.MOD_ID, "ender_elevator_layer_to_slab");
             GameRegistry.register(new ShapedMetadataOreRecipe(name, new ItemStack(ELEVATOR_SLAB, 2), ELEVATOR_LAYER, 0, "E", "E", 'E', ELEVATOR_LAYER));
-        }
-    }
-
-    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled)
-    {
-        registerBlock(block, isDisabled, true);
-    }
-
-    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled, boolean createItemBlock)
-    {
-        registerBlock(block, isDisabled, createItemBlock, true);
-    }
-
-    private static void registerBlock(BlockEnderUtilities block, boolean isDisabled, boolean createItemBlock, boolean hasSubtypes)
-    {
-        if (isDisabled == false)
-        {
-            block.setRegistryName(Reference.MOD_ID + ":" + block.getBlockName());
-            GameRegistry.register(block);
-
-            if (createItemBlock)
-            {
-                GameRegistry.register(block.createItemBlock().setHasSubtypes(hasSubtypes).setRegistryName(Reference.MOD_ID, block.getBlockName()));
-            }
-        }
-        else
-        {
-            block.setEnabled(false);
         }
     }
 }

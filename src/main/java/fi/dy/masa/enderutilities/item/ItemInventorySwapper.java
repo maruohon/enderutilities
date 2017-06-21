@@ -35,7 +35,6 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -60,13 +59,12 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
     public static final int GUI_ACTION_TOGGLE_LOCKED        = 4;
     public static final int GUI_ACTION_TOGGLE_CYCLE_MODE    = 5;
 
-    public ItemInventorySwapper()
+    public ItemInventorySwapper(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_INVENTORY_SWAPPER);
     }
 
     @Override

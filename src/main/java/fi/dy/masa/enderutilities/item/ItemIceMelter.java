@@ -20,17 +20,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemIceMelter extends ItemEnderUtilities
 {
-    public ItemIceMelter()
+    public ItemIceMelter(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ICE_MELTER);
     }
 
     @Override

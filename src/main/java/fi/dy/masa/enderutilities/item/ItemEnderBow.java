@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -46,13 +45,13 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
 
     private final ItemStack repairMaterial;
 
-    public ItemEnderBow()
+    public ItemEnderBow(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(384);
         this.setNoRepair();
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BOW);
         this.commonTooltip = "enderutilities.tooltips.itemlocationboundmodular";
         this.repairMaterial = new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 1); // Enhanced Ender Alloy
     }

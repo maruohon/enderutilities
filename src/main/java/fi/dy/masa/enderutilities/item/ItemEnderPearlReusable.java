@@ -18,16 +18,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderPearlReusable extends ItemEnderUtilities
 {
-    public ItemEnderPearlReusable()
+    public ItemEnderPearlReusable(String name)
     {
+        super(name);
+
         this.setMaxStackSize(4);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_PEARL_REUSABLE);
+        this.setHasSubtypes(true);
     }
 
     @Override

@@ -92,16 +92,17 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         ENDER_ALLOY_ADVANCED.setRepairItem(new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 2));
     }
 
-    public ItemEnderTool()
+    public ItemEnderTool(String name)
     {
-        super();
+        super(name);
+
         this.material = ENDER_ALLOY_ADVANCED;
-        this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
-        this.setMaxDamage(0);
-        this.setNoRepair();
         this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERTOOL);
+
+        this.setMaxStackSize(1);
+        this.setMaxDamage(0);
+        this.setHasSubtypes(true);
+        this.setNoRepair();
     }
 
     @Override

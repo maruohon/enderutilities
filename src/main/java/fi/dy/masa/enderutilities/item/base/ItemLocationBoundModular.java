@@ -26,9 +26,9 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemLocationBoundModular extends ItemLocationBound implements IModular, IKeyBound
 {
-    public ItemLocationBoundModular()
+    public ItemLocationBoundModular(String name)
     {
-        super();
+        super(name);
     }
 
     @Override

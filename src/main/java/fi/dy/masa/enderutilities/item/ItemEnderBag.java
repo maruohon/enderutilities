@@ -32,7 +32,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.BlackLists;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -42,12 +41,12 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
 {
     public static final int ENDER_CHARGE_COST = 200;
 
-    public ItemEnderBag()
+    public ItemEnderBag(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_BAG);
     }
 
     @Override

@@ -6,6 +6,11 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public abstract class ItemModular extends ItemEnderUtilities implements IModular, IKeyBound
 {
+    public ItemModular(String name)
+    {
+        super(name);
+    }
+
     public boolean useAbsoluteModuleIndexing(ItemStack stack)
     {
         return false;

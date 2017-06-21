@@ -20,6 +20,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,7 +30,10 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
@@ -68,6 +72,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
     private ModFixs dataFixer = null;
@@ -309,56 +314,56 @@ public class ClientProxy extends CommonProxy
         return GuiScreen.isAltKeyDown();
     }
 
-    @Override
-    public void registerModels()
+    @SubscribeEvent
+    public static void registerModels(ModelRegistryEvent event)
     {
-        this.registerBlockModels();
-        this.registerItemBlockModels();
-        this.registerAllItemModels();
+        registerBlockModels();
+        registerItemBlockModels();
+        registerAllItemModels();
     }
 
-    private void registerAllItemModels()
+    private static void registerAllItemModels()
     {
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_CAPACITOR);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PART);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.LINK_CRYSTAL);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_CAPACITOR);
+        registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PART);
+        registerItemModelWithVariants(EnderUtilitiesItems.LINK_CRYSTAL);
 
-        this.registerItemModel(EnderUtilitiesItems.BUILDERS_WAND);
-        this.registerItemModel(EnderUtilitiesItems.CHAIR_WAND);
-        this.registerItemModel(EnderUtilitiesItems.DOLLY);
-        this.registerItemModel(EnderUtilitiesItems.ENDER_ARROW);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BAG);
-        this.registerItemModel(EnderUtilitiesItems.ENDER_BOW);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BUCKET);
-        this.registerItemModel(EnderUtilitiesItems.ENDER_LASSO);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PEARL_REUSABLE);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PORTER);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_SWORD);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_TOOL);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.HANDY_BAG);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.ICE_MELTER);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.INVENTORY_SWAPPER);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.LIVING_MANIPULATOR);
-        this.registerItemModel(EnderUtilitiesItems.MOB_HARNESS);
-        this.registerItemModelWithNamePrefix(EnderUtilitiesItems.NULLIFIER, 0, "item_");
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.PICKUP_MANAGER);
-        this.registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.QUICK_STACKER);
-        this.registerItemModel(EnderUtilitiesItems.PORTAL_SCALER);
-        this.registerItemModel(EnderUtilitiesItems.RULER);
-        this.registerItemModelWithVariants(EnderUtilitiesItems.SYRINGE);
-        this.registerItemModelWithNameSuffix(EnderUtilitiesItems.VOID_PICKAXE, 0, "_normal");
+        registerItemModel(EnderUtilitiesItems.BUILDERS_WAND);
+        registerItemModel(EnderUtilitiesItems.CHAIR_WAND);
+        registerItemModel(EnderUtilitiesItems.DOLLY);
+        registerItemModel(EnderUtilitiesItems.ENDER_ARROW);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BAG);
+        registerItemModel(EnderUtilitiesItems.ENDER_BOW);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_BUCKET);
+        registerItemModel(EnderUtilitiesItems.ENDER_LASSO);
+        registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PEARL_REUSABLE);
+        registerItemModelWithVariants(EnderUtilitiesItems.ENDER_PORTER);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_SWORD);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.ENDER_TOOL);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.HANDY_BAG);
+        registerItemModelWithVariants(EnderUtilitiesItems.ICE_MELTER);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.INVENTORY_SWAPPER);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.LIVING_MANIPULATOR);
+        registerItemModel(EnderUtilitiesItems.MOB_HARNESS);
+        registerItemModelWithNamePrefix(EnderUtilitiesItems.NULLIFIER, 0, "item_");
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.PICKUP_MANAGER);
+        registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.QUICK_STACKER);
+        registerItemModel(EnderUtilitiesItems.PORTAL_SCALER);
+        registerItemModel(EnderUtilitiesItems.RULER);
+        registerItemModelWithVariants(EnderUtilitiesItems.SYRINGE);
+        registerItemModelWithNameSuffix(EnderUtilitiesItems.VOID_PICKAXE, 0, "_normal");
 
         ModelLoaderRegistry.registerLoader(ModelEnderBucket.LoaderEnderBucket.instance);
         ModelLoaderRegistry.registerLoader(ModelEnderTools.LoaderEnderTools.instance);
         ModelLoaderRegistry.registerLoader(new ModelNullifierBaked.ModelLoaderNullifier());
     }
 
-    private void registerItemModel(ItemEnderUtilities item)
+    private static void registerItemModel(ItemEnderUtilities item)
     {
-        this.registerItemModel(item, 0);
+        registerItemModel(item, 0);
     }
 
-    private void registerItemModel(ItemEnderUtilities item, int meta)
+    private static void registerItemModel(ItemEnderUtilities item, int meta)
     {
         if (item.isEnabled())
         {
@@ -366,7 +371,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerItemModelWithNameSuffix(ItemEnderUtilities item, int meta, String nameSuffix)
+    private static void registerItemModelWithNameSuffix(ItemEnderUtilities item, int meta, String nameSuffix)
     {
         if (item.isEnabled())
         {
@@ -374,7 +379,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerItemModelWithNamePrefix(ItemEnderUtilities item, int meta, String namePrefix)
+    private static void registerItemModelWithNamePrefix(ItemEnderUtilities item, int meta, String namePrefix)
     {
         if (item.isEnabled())
         {
@@ -384,7 +389,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerItemModelWithVariants(ItemEnderUtilities item)
+    private static void registerItemModelWithVariants(ItemEnderUtilities item)
     {
         if (item.isEnabled())
         {
@@ -403,7 +408,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
+    private static void registerItemModelWithVariantsAndMeshDefinition(ItemEnderUtilities item)
     {
         if (item.isEnabled())
         {
@@ -412,7 +417,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerBlockModels()
+    private static void registerBlockModels()
     {
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoaderBarrel());
@@ -423,45 +428,45 @@ public class ClientProxy extends CommonProxy
         ModelLoaderRegistry.registerLoader(new ModelCamouflageBlock.ModelLoaderCamouflageBlocks());
     }
 
-    private void registerItemBlockModels()
+    private static void registerItemBlockModels()
     {
-        this.registerItemBlockModel(EnderUtilitiesBlocks.ASU, 0, "tier=1");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "creative=false");
+        registerItemBlockModel(EnderUtilitiesBlocks.ASU, 0, "tier=1");
+        registerItemBlockModel(EnderUtilitiesBlocks.BARREL, 0, "creative=false");
 
         // The Elevators don't have getSubBlocks() overridden, to cut down on JEI item list clutter.
         // And thus registerAllItemBlockModels() can't be used for them.
         for (int i = 0; i < 16; i++)
         {
-            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR, i, "inventory");
-            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_SLAB, i, "inventory");
-            this.registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_LAYER, i, "inventory");
+            registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR, i, "inventory");
+            registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_SLAB, i, "inventory");
+            registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_LAYER, i, "inventory");
         }
 
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,       (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_SLAB,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
         ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_LAYER, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1, "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0, "facing=north,type=", "");
-        this.registerAllItemBlockModels(EnderUtilitiesBlocks.MSU, "creative=false,type=", "");
+        registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
+        registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1, "facing=north,type=", "");
+        registerAllItemBlockModels(EnderUtilitiesBlocks.STORAGE_0, "facing=north,type=", "");
+        registerAllItemBlockModels(EnderUtilitiesBlocks.MSU, "creative=false,type=", "");
 
-        this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 1, "advanced=true,facing=north");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 0, "half=bottom,type=normal");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 1, "half=bottom,type=cracked");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 0, "type=normal");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 1, "type=filtered");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.MOLECULAR_EXCITER, 0, "facing=north,powered=false");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_FRAME, 0, "inventory");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.ENDER_FURNACE, 0, "facing=north,mode=off");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_PANEL, 0, "facing=north");
-        this.registerItemBlockModel(EnderUtilitiesBlocks.SOUND_BLOCK, 0, "inventory");
+        registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 0, "advanced=false,facing=north");
+        registerItemBlockModel(EnderUtilitiesBlocks.DRAWBRIDGE, 1, "advanced=true,facing=north");
+        registerItemBlockModel(EnderUtilitiesBlocks.ENDER_FURNACE, 0, "facing=north,mode=off");
+        registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 0, "half=bottom,type=normal");
+        registerItemBlockModel(EnderUtilitiesBlocks.FLOOR, 1, "half=bottom,type=cracked");
+        registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 0, "type=normal");
+        registerItemBlockModel(EnderUtilitiesBlocks.INSERTER, 1, "type=filtered");
+        registerItemBlockModel(EnderUtilitiesBlocks.MOLECULAR_EXCITER, 0, "facing=north,powered=false");
+        registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 0, "inverted=false,powered=false");
+        registerItemBlockModel(EnderUtilitiesBlocks.PHASING, 1, "inverted=true,powered=true");
+        registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_FRAME, 0, "inventory");
+        registerItemBlockModel(EnderUtilitiesBlocks.PORTAL_PANEL, 0, "facing=north");
+        registerItemBlockModel(EnderUtilitiesBlocks.SOUND_BLOCK, 0, "inventory");
     }
 
-    private void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
+    private static void registerItemBlockModel(BlockEnderUtilities blockIn, int meta, String fullVariant)
     {
         if (blockIn.isEnabled())
         {
@@ -470,7 +475,7 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    private void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
+    private static void registerAllItemBlockModels(BlockEnderUtilities blockIn, String variantPre, String variantPost)
     {
         if (blockIn.isEnabled())
         {

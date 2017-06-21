@@ -72,7 +72,6 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.*;
 import fi.dy.masa.enderutilities.util.EntityUtils.LeftRight;
 import fi.dy.masa.enderutilities.util.TemplateEnderUtilities.ReplaceMode;
@@ -103,12 +102,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
     protected Map<UUID, Long> lastLeftClick = new HashMap<UUID, Long>();
 
-    public ItemBuildersWand()
+    public ItemBuildersWand(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_BUILDERS_WAND);
     }
 
     @Override

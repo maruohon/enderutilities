@@ -21,7 +21,6 @@ import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -35,13 +34,13 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     public static final int ENDER_CHARGE_COST_CROSS_DIM_TP = 25000;
     private static final int USE_TIME = 40;
 
-    public ItemEnderPorter()
+    public ItemEnderPorter(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_PORTER);
+        this.setHasSubtypes(true);
         this.commonTooltip = "enderutilities.tooltips.itemlocationboundmodular";
     }
 

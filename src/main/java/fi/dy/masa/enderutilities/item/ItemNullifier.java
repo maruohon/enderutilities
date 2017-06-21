@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -47,13 +46,12 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     public static final int NUM_SLOTS = 9;
     public static final int MAX_STACK_SIZE = 1024;
 
-    public ItemNullifier()
+    public ItemNullifier(String name)
     {
-        super();
-        this.setMaxDamage(0);
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(false);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_NULLIFIER);
+        this.setMaxDamage(0);
     }
 
     @Override

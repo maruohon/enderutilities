@@ -5,17 +5,16 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class ItemEnderArrow extends ItemEnderUtilities
 {
-    public ItemEnderArrow()
+    public ItemEnderArrow(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(64);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_ARROW);
     }
 
     @Override

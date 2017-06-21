@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
@@ -46,12 +45,12 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     // at the world's edge, with the Advanced capacitor (500k EC).
     public static final float TELEPORTATION_EC_COST = 0.013f;
 
-    public ItemPortalScaler()
+    public ItemPortalScaler(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_PORTAL_SCALER);
     }
 
     @Override

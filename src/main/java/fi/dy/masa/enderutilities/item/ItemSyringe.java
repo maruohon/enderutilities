@@ -15,20 +15,19 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class ItemSyringe extends ItemEnderUtilities
 {
     public static final String TAG_PASSIFIED = Reference.MOD_ID + ":passified";
 
-    public ItemSyringe()
+    public ItemSyringe(String name)
     {
-        super();
+        super(name);
+
         this.setMaxDamage(0);
         this.setMaxStackSize(1);
         this.setHasSubtypes(true);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_SYRINGE);
     }
 
     @Override

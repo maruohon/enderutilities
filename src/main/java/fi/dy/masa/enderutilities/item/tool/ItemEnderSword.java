@@ -54,7 +54,6 @@ import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -68,15 +67,16 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     private float damageVsEntity;
     private final Item.ToolMaterial material;
 
-    public ItemEnderSword()
+    public ItemEnderSword(String name)
     {
-        super();
+        super(name);
+
         this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
+        this.damageVsEntity = 7.0f;
+
         this.setMaxStackSize(1);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
-        this.damageVsEntity = 7.0f;
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_SWORD);
     }
 
     @Override

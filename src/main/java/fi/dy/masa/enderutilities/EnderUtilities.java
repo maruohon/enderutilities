@@ -28,7 +28,6 @@ import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
@@ -58,12 +57,6 @@ public class EnderUtilities
         ConfigReader.loadConfigsFromFile(event.getSuggestedConfigurationFile());
         ModRegistry.checkLoadedMods();
 
-        EnderUtilitiesItems.registerItems();
-        EnderUtilitiesBlocks.registerBlocks();
-
-        EnderUtilitiesBlocks.registerRecipes();
-
-        proxy.registerModels();
         proxy.registerEntities();
         proxy.registerTileEntities();
         proxy.registerKeyBindings();
@@ -78,6 +71,8 @@ public class EnderUtilities
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
+        // FIXME Where should this be for now, until we get the registry event?
+        EnderUtilitiesBlocks.registerRecipes();
         proxy.registerColorHandlers();
     }
 

@@ -5,18 +5,17 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 
 public class ItemEnderLasso extends ItemLocationBoundModular
 {
     public static final int ENDER_CHARGE_COST = 1000;
 
-    public ItemEnderLasso()
+    public ItemEnderLasso(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDER_LASSO);
         this.commonTooltip = "enderutilities.tooltips.itemlocationboundmodular";
     }
 

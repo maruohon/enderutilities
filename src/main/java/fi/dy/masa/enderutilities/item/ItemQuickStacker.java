@@ -29,7 +29,6 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityQuickStackerAdvanced;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -52,13 +51,12 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     public static final int MAX_RANGE_HORIZONTAL = 4;
     public static final int MAX_RANGE_VERTICAL   = 3;
 
-    public ItemQuickStacker()
+    public ItemQuickStacker(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_QUICK_STACKER);
     }
 
     @Override

@@ -14,18 +14,16 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemChairWand  extends ItemEnderUtilities implements IKeyBound
 {
-    public ItemChairWand()
+    public ItemChairWand(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setHasSubtypes(false);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_CHAIR_WAND);
     }
 
     @Override

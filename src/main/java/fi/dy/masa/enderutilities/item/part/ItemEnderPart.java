@@ -47,13 +47,13 @@ public class ItemEnderPart extends ItemModule
     public static final int MEMORY_CARD_TYPE_ITEMS_10B  = 10;
     public static final int MEMORY_CARD_TYPE_ITEMS_12B  = 12;
 
-    public ItemEnderPart()
+    public ItemEnderPart(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(64);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERPART);
+        this.setHasSubtypes(true);
     }
 
     @Override

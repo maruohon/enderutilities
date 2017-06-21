@@ -21,7 +21,6 @@ import fi.dy.masa.enderutilities.item.base.ItemModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.BlockPosEU;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -46,15 +45,14 @@ public class ItemRuler extends ItemModular
     public static final String TAG_LOCATIONS = "Locations";
     public static final String TAG_SELECTED_LOCATION = "SelLocation";
 
-    protected Map<UUID, Long> lastLeftClick;
+    protected Map<UUID, Long> lastLeftClick = new HashMap<UUID, Long>();
 
-    public ItemRuler()
+    public ItemRuler(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_RULER);
-        this.lastLeftClick = new HashMap<UUID, Long>();
     }
 
     @Override

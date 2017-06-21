@@ -18,7 +18,6 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -26,13 +25,13 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
 {
     public static final int CHARGE_RATE_FROM_ENERGY_BRIDGE = 100;
 
-    public ItemEnderCapacitor()
+    public ItemEnderCapacitor(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERPART_ENDERCAPACITOR);
+        this.setHasSubtypes(true);
     }
 
     @Override

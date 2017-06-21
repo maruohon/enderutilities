@@ -3,9 +3,9 @@ package fi.dy.masa.enderutilities.item.base;
 
 public abstract class ItemModule extends ItemEnderUtilities implements IModule
 {
-    public ItemModule()
+    public ItemModule(String name)
     {
-        super();
+        super(name);
     }
 
     public enum ModuleType

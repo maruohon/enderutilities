@@ -112,9 +112,6 @@ public class CommonProxy implements IProxy
     public void registerKeyBindings() { }
 
     @Override
-    public void registerModels() { }
-
-    @Override
     public void registerRenderers() { }
 
     @Override

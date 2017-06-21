@@ -11,7 +11,6 @@ import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBound;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class ItemLinkCrystal extends ItemLocationBound implements IModule
@@ -20,13 +19,13 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     public static final int TYPE_BLOCK = 1;
     public static final int TYPE_PORTAL = 2;
 
-    public ItemLinkCrystal()
+    public ItemLinkCrystal(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(64);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_ENDERPART_LINKCRYSTAL);
+        this.setHasSubtypes(true);
     }
 
     @Override

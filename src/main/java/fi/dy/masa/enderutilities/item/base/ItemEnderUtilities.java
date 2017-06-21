@@ -31,21 +31,29 @@ public class ItemEnderUtilities extends Item
     public static final String RST_GRAY = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
     public static final String RST_WHITE = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
 
-    protected String name;
+    protected final String name;
     protected String commonTooltip = null;
     protected boolean enabled = true;
 
-    public ItemEnderUtilities()
+    public ItemEnderUtilities(String name)
     {
         super();
+
+        this.name = name;
+
         this.setCreativeTab(CreativeTab.ENDER_UTILITIES_TAB);
+        this.setUnlocalizedName(name);
         this.addItemOverrides();
+    }
+
+    public String getItemNameEnU()
+    {
+        return this.name;
     }
 
     @Override
     public Item setUnlocalizedName(String name)
     {
-        this.name = name;
         return super.setUnlocalizedName(ReferenceNames.getDotPrefixedName(name));
     }
 

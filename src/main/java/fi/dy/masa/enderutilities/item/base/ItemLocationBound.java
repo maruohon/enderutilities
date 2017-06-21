@@ -24,9 +24,9 @@ import fi.dy.masa.enderutilities.util.nbt.TargetData;
 
 public class ItemLocationBound extends ItemEnderUtilities implements ILocationBound, IKeyBound
 {
-    public ItemLocationBound()
+    public ItemLocationBound(String name)
     {
-        super();
+        super(name);
     }
 
     @Override

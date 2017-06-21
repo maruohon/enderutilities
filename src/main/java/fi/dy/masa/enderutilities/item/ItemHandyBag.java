@@ -49,7 +49,6 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
@@ -75,13 +74,13 @@ public class ItemHandyBag extends ItemInventoryModular
     public static final int GUI_ACTION_TOGGLE_SHIFTCLICK_DOUBLETAP  = 7;
     public static final int GUI_ACTION_OPEN_BAUBLES  = 100;
 
-    public ItemHandyBag()
+    public ItemHandyBag(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_HANDY_BAG);
+        this.setHasSubtypes(true);
     }
 
     @Override

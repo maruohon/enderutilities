@@ -30,7 +30,6 @@ import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
@@ -40,19 +39,20 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     public float efficiencyOnProperMaterial;
     private final Item.ToolMaterial material;
 
-    public ItemVoidPickaxe()
+    public ItemVoidPickaxe(String name)
     {
-        super();
+        super(name);
+
         this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
+        this.efficiencyOnProperMaterial = 6f;
+
         this.setMaxStackSize(1);
-        this.setHasSubtypes(false);
         this.setMaxDamage(this.material.getMaxUses());
         this.setNoRepair();
-        this.efficiencyOnProperMaterial = 6f;
+
         this.setHarvestLevel("pickaxe", this.material.getHarvestLevel());
         this.setHarvestLevel("axe", this.material.getHarvestLevel());
         this.setHarvestLevel("shovel", this.material.getHarvestLevel());
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_VOID_PICKAXE);
     }
 
     @Override

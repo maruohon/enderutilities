@@ -28,18 +28,17 @@ import fi.dy.masa.enderutilities.entity.ai.EntityAIBlockRiderIdleTasks;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class ItemMobHarness extends ItemEnderUtilities
 {
-    public ItemMobHarness()
+    public ItemMobHarness(String name)
     {
-        super();
+        super(name);
+
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
-        this.setUnlocalizedName(ReferenceNames.NAME_ITEM_MOB_HARNESS);
     }
 
     @Override
