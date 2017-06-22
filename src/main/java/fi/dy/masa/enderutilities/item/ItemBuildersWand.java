@@ -311,7 +311,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         if (stack.getTagCompound() == null)
         {
@@ -441,7 +441,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             list.add(str + ": " + (WandOption.RENDER_GHOST.isEnabled(stack, mode) ? strYes : strNo) + rst);
         }
 
-        super.addTooltipLines(stack, player, list, advancedTooltips, verbose);
+        super.addTooltipLines(stack, player, list, verbose);
     }
 
     private NBTTagCompound getModeTag(ItemStack stack, Mode mode)

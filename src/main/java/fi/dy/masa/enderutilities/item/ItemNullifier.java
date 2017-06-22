@@ -365,7 +365,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         if (stack.getTagCompound() == null)
         {

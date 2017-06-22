@@ -106,7 +106,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         if (stack.getTagCompound() == null)
         {
@@ -126,7 +126,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             // Valid target set in the currently selected Link Crystal
             if (TargetData.itemHasTargetTag(linkCrystalStack))
             {
-                super.addTooltipLines(linkCrystalStack, player, list, advancedTooltips, verbose);
+                super.addTooltipLines(linkCrystalStack, player, list, verbose);
             }
             else
             {
@@ -221,7 +221,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
             if (capacitorStack.isEmpty() == false && capacitorStack.getItem() instanceof ItemEnderCapacitor)
             {
-                capacitorStack.getItem().addInformation(capacitorStack, player.getEntityWorld(), list, getTooltipFlag(advancedTooltips));
+                ((ItemEnderCapacitor) capacitorStack.getItem()).addTooltipLines(capacitorStack, player, list, verbose);
             }
         }
     }

@@ -249,7 +249,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         String preDGreen = TextFormatting.DARK_GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
@@ -262,7 +262,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         // TP the target entity
         else
         {
-            super.addTooltipLines(stack, player, list, advancedTooltips, verbose);
+            super.addTooltipLines(stack, player, list, verbose);
             list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preDGreen + I18n.format("enderutilities.tooltip.item.tptarget") + rst);
         }
     }

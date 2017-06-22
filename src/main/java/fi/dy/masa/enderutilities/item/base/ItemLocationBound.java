@@ -115,7 +115,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         String preBlue = TextFormatting.BLUE.toString();
         String preDGreen = TextFormatting.DARK_GREEN.toString();
@@ -170,11 +170,7 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
                 if (showBlock)
                 {
                     list.add(I18n.format("enderutilities.tooltip.item.target") + ": " + preDGreen + blockName + rst);
-
-                    if (advancedTooltips)
-                    {
-                        list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
-                    }
+                    list.add(String.format("%s meta: %d Side: %s (%d)", target.blockName, target.blockMeta, target.facing, target.blockFace));
                 }
             }
             // Compact/short tooltip

@@ -78,7 +78,7 @@ public class ItemEnderUtilities extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
     }
 
@@ -106,17 +106,16 @@ public class ItemEnderUtilities extends Item
 
         tmpList.clear();
 
-        boolean isAdvanced = advanced == ITooltipFlag.TooltipFlags.ADVANCED;
         EntityPlayer player = EnderUtilities.proxy.getClientPlayer();
 
-        this.addTooltipLines(stack, player, tmpList, isAdvanced, true);
+        this.addTooltipLines(stack, player, tmpList, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
         {
             tmpList.clear();
-            this.addTooltipLines(stack, player, tmpList, isAdvanced, false);
+            this.addTooltipLines(stack, player, tmpList, false);
 
             if (tmpList.size() > 0)
             {
@@ -129,11 +128,6 @@ public class ItemEnderUtilities extends Item
         {
             list.addAll(tmpList);
         }
-    }
-
-    public static ITooltipFlag getTooltipFlag(boolean advanced)
-    {
-        return advanced ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
     }
 
     public static void addTranslatedTooltip(String key, List<String> list, boolean verbose, Object... args)

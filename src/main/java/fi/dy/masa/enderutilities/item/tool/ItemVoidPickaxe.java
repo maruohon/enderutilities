@@ -341,8 +341,8 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
         }
     }
 
-    @SideOnly(Side.CLIENT)
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    @Override
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         String rst = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
         String preGreen = TextFormatting.GREEN.toString();
@@ -360,7 +360,6 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
         list.add(I18n.format("enderutilities.tooltip.item.mode") + ": " + preGreen + modeStr + rst);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public boolean hasEffect(ItemStack stack)
     {

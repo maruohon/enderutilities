@@ -156,7 +156,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         int charge = this.getCharge(stack);
         int capacity = this.getCapacity(stack);

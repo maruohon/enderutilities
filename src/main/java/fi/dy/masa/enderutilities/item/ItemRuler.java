@@ -145,7 +145,7 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public void addTooltipLines(ItemStack rulerStack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack rulerStack, EntityPlayer player, List<String> list, boolean verbose)
     {
         if (rulerStack.getTagCompound() == null)
         {

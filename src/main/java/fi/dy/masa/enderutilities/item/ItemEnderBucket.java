@@ -172,12 +172,11 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list,
-            boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
         if (stack.getTagCompound() == null)
         {
-            super.addTooltipLines(stack, player, list, advancedTooltips, verbose);
+            super.addTooltipLines(stack, player, list, verbose);
             return;
         }
 
@@ -235,7 +234,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
 
         if (link == LinkMode.ENABLED)
         {
-            super.addTooltipLines(stack, player, list, advancedTooltips, verbose);
+            super.addTooltipLines(stack, player, list, verbose);
         }
     }
 
