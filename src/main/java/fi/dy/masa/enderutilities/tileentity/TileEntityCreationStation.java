@@ -151,10 +151,13 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         this.craftingInventories[0] = new InventoryItemCallback(null, 9, 64, false, isRemote, this, "CraftItems_0");
         this.craftingInventories[1] = new InventoryItemCallback(null, 9, 64, false, isRemote, this, "CraftItems_1");
 
-        ItemStack containerStack = this.getContainerStack();
-        this.itemInventory.setContainerItemStack(containerStack);
-        this.craftingInventories[0].setContainerItemStack(containerStack);
-        this.craftingInventories[1].setContainerItemStack(containerStack);
+        if (isRemote == false)
+        {
+            ItemStack containerStack = this.getContainerStack();
+            this.itemInventory.setContainerItemStack(containerStack);
+            this.craftingInventories[0].setContainerItemStack(containerStack);
+            this.craftingInventories[1].setContainerItemStack(containerStack);
+        }
 
         this.readModeMaskFromModule();
         this.loadRecipe(0, this.getRecipeId(0));
@@ -306,6 +309,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     public int getQuickMode()
     {
         return this.actionMode;
+    }
+
+    public void setModeMask(int mask)
+    {
+        this.modeMask = mask;
     }
 
     public void setQuickMode(int mode)
@@ -653,6 +661,11 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
+        if (this.getWorld().isRemote)
+        {
+            return;
+        }
+
         if (inventoryId == INV_ID_FURNACE)
         {
             // This gets called from the furnace inventory's markDirty
@@ -661,7 +674,6 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         }
 
         ItemStack containerStack = this.getContainerStack();
-
         this.itemInventory.setContainerItemStack(containerStack);
         this.craftingInventories[0].setContainerItemStack(containerStack);
         this.craftingInventories[1].setContainerItemStack(containerStack);

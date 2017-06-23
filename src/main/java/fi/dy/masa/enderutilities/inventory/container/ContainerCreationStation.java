@@ -30,9 +30,9 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
 {
     protected final TileEntityCreationStation tecs;
     public int selectionsLast; // action mode and module selection
-    public int modeMask;
     public int fuelProgress;
     public int smeltProgress;
+    private int modeMaskLast;
     private int lastInteractedCraftingGrid;
 
     private final InventoryCraftingPermissions[] craftingInventories;
@@ -362,74 +362,6 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public void addListener(IContainerListener listener)
-    {
-        super.addListener(listener);
-
-        int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
-        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
-        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
-
-        listener.sendWindowProperty(this, 0, modeMask);
-        listener.sendWindowProperty(this, 1, selection);
-        listener.sendWindowProperty(this, 2, fuelProgress);
-        listener.sendWindowProperty(this, 3, smeltProgress);
-        listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
-
-        this.detectAndSendChanges();
-    }
-
-    @Override
-    public void detectAndSendChanges()
-    {
-        if (this.tecs.getWorld().isRemote)
-        {
-            return;
-        }
-
-        super.detectAndSendChanges();
-        this.syncRecipeStacks();
-
-        int modeMask = this.tecs.getModeMask();
-        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
-        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
-        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
-
-        for (int i = 0; i < this.listeners.size(); ++i)
-        {
-            IContainerListener listener = this.listeners.get(i);
-
-            if (this.modeMask != modeMask)
-            {
-                listener.sendWindowProperty(this, 0, modeMask);
-            }
-            if (this.selectionsLast != selection)
-            {
-                listener.sendWindowProperty(this, 1, selection);
-            }
-            if (this.fuelProgress != fuelProgress)
-            {
-                listener.sendWindowProperty(this, 2, fuelProgress);
-            }
-            if (this.smeltProgress != smeltProgress)
-            {
-                listener.sendWindowProperty(this, 3, smeltProgress);
-            }
-            if (this.lastInteractedCraftingGrid != this.tecs.lastInteractedCraftingGrid)
-            {
-                listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
-            }
-        }
-
-        this.modeMask = modeMask;
-        this.selectionsLast = selection;
-        this.fuelProgress = fuelProgress;
-        this.smeltProgress = smeltProgress;
-        this.lastInteractedCraftingGrid = this.tecs.lastInteractedCraftingGrid;
-    }
-
     private void syncRecipeStacks()
     {
         int start = this.inventorySlots.size();
@@ -480,6 +412,74 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     }
 
     @Override
+    public void addListener(IContainerListener listener)
+    {
+        super.addListener(listener);
+
+        int modeMask = this.tecs.getModeMask();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
+        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
+        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
+
+        listener.sendWindowProperty(this, 0, modeMask);
+        listener.sendWindowProperty(this, 1, selection);
+        listener.sendWindowProperty(this, 2, fuelProgress);
+        listener.sendWindowProperty(this, 3, smeltProgress);
+        listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
+
+        this.detectAndSendChanges();
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        if (this.tecs.getWorld().isRemote)
+        {
+            return;
+        }
+
+        super.detectAndSendChanges();
+        this.syncRecipeStacks();
+
+        int modeMask = this.tecs.getModeMask();
+        int selection = this.tecs.getQuickMode() << 2 | this.tecs.getSelectedModuleSlot();
+        int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
+        int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
+
+        for (int i = 0; i < this.listeners.size(); ++i)
+        {
+            IContainerListener listener = this.listeners.get(i);
+
+            if (this.modeMaskLast != modeMask)
+            {
+                listener.sendWindowProperty(this, 0, modeMask);
+            }
+            if (this.selectionsLast != selection)
+            {
+                listener.sendWindowProperty(this, 1, selection);
+            }
+            if (this.fuelProgress != fuelProgress)
+            {
+                listener.sendWindowProperty(this, 2, fuelProgress);
+            }
+            if (this.smeltProgress != smeltProgress)
+            {
+                listener.sendWindowProperty(this, 3, smeltProgress);
+            }
+            if (this.lastInteractedCraftingGrid != this.tecs.lastInteractedCraftingGrid)
+            {
+                listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
+            }
+        }
+
+        this.modeMaskLast = modeMask;
+        this.selectionsLast = selection;
+        this.fuelProgress = fuelProgress;
+        this.smeltProgress = smeltProgress;
+        this.lastInteractedCraftingGrid = this.tecs.lastInteractedCraftingGrid;
+    }
+
+    @Override
     public void updateProgressBar(int var, int val)
     {
         super.updateProgressBar(var, val);
@@ -487,7 +487,7 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         switch (var)
         {
             case 0:
-                this.modeMask = val;
+                this.tecs.setModeMask(val);
                 break;
             case 1:
                 this.tecs.setSelectedModuleSlot(val & 0x3); // 0..3

@@ -156,7 +156,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         // Left side furnace progress icons
 
-        boolean isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0;
+        boolean isFast = (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0;
 
         // Draw the burn progress flame
         int vOff = (isFast ? 34 : 20);
@@ -173,7 +173,7 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
         // Right side furnace progress icons
 
-        isFast = (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0;
+        isFast = (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0;
 
         // Draw the burn progress flame
         vOff = (isFast ? 34 : 20);
@@ -333,14 +333,14 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
     {
         switch (callbackId)
         {
-            case 12: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_OREDICT) != 0 ? 1 : 0;
-            case 13: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
-            case 14: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
-            case 15: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
-            case 16: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
-            case 17: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_OREDICT) != 0 ? 1 : 0;
-            case 18: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 1 : 0;
-            case 19: return (this.containerCS.modeMask & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 1 : 0;
+            case 12: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_OREDICT) != 0 ? 1 : 0;
+            case 13: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
+            case 14: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
+            case 15: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_AUTOUSE) != 0 ? 1 : 0;
+            case 16: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_KEEPONE) != 0 ? 1 : 0;
+            case 17: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_CRAFTING_OREDICT) != 0 ? 1 : 0;
+            case 18: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_LEFT_FAST) != 0 ? 1 : 0;
+            case 19: return (this.tecs.getModeMask() & TileEntityCreationStation.MODE_BIT_RIGHT_FAST) != 0 ? 1 : 0;
         }
         return 0;
     }
