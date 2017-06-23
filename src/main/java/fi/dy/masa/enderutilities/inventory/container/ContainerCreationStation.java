@@ -41,6 +41,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     private final IItemHandler furnaceInventory;
     private SlotRange craftingGridSlotsLeft;
     private SlotRange craftingGridSlotsRight;
+    private SlotRange craftingOutputSlotLeft;
+    private SlotRange craftingOutputSlotRight;
     private final NonNullList<ItemStack> recipeStacks = NonNullList.withSize(18, ItemStack.EMPTY);
 
     public ContainerCreationStation(EntityPlayer player, TileEntityCreationStation te)
@@ -111,6 +113,9 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
                 this.addSlotToContainer(new SlotItemHandlerGeneric(new InvWrapper(this.craftingInventories[0]), j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
+
+        // Crafting result slot, left
+        this.craftingOutputSlotLeft = new SlotRange(this.inventorySlots.size(), 1);
         this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftingInventories[0], this.craftResults[0], 0, 112, 33, this.player));
 
         // Crafting slots, right side
@@ -124,6 +129,9 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
                 this.addSlotToContainer(new SlotItemHandlerGeneric(new InvWrapper(this.craftingInventories[1]), j + i * 3, posX + j * 18, posY + i * 18));
             }
         }
+
+        // Crafting result slot, right
+        this.craftingOutputSlotRight = new SlotRange(this.inventorySlots.size(), 1);
         this.addSlotToContainer(new SlotItemHandlerCraftResult(this.craftingInventories[1], this.craftResults[1], 0, 112, 69, this.player));
 
         // Add the furnace slots as priority merge slots, but only to already existing stacks
@@ -197,9 +205,9 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     {
         // Crafting output slots; if "keep one item" is enabled and the minimum remaining
         // stack size is 1 and the auto-use feature is not enabled, then we bail out
-        if (slotNum == 40 || slotNum == 50)
+        if (this.craftingOutputSlotLeft.contains(slotNum) || this.craftingOutputSlotRight.contains(slotNum))
         {
-            int invId = slotNum == 50 ? 1 : 0;
+            int invId = this.craftingOutputSlotRight.contains(slotNum) ? 1 : 0;
 
             if (this.tecs.canCraftItems(this.wrappedCraftingInventories[invId], invId) == false)
             {
@@ -241,7 +249,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     protected void shiftClickSlot(int slotNum, EntityPlayer player)
     {
         // Not a crafting output slot
-        if (slotNum != 40 && slotNum != 50)
+        if (this.craftingOutputSlotLeft.contains(slotNum) == false &&
+            this.craftingOutputSlotRight.contains(slotNum) == false)
         {
             super.shiftClickSlot(slotNum, player);
             return;
@@ -257,7 +266,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
             while (num-- > 0)
             {
                 // Could not transfer the items, or ran out of some of the items, so the crafting result changed, bail out now
-                if (this.transferStackFromSlot(player, slotNum) == false || InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
+                if (this.transferStackFromSlot(player, slotNum) == false ||
+                    InventoryUtils.areItemStacksEqual(stackOrig, slot.getStack()) == false)
                 {
                     break;
                 }
@@ -269,7 +279,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
     protected void rightClickSlot(int slotNum, EntityPlayer player)
     {
         // Not a crafting output slot
-        if (slotNum != 40 && slotNum != 50)
+        if (this.craftingOutputSlotLeft.contains(slotNum) == false &&
+            this.craftingOutputSlotRight.contains(slotNum) == false)
         {
             super.rightClickSlot(slotNum, player);
             return;
@@ -307,20 +318,20 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         }
 
         // Update the "last interacted on" crafting grid id, used for JEI recipe filling
-        if (this.craftingGridSlotsLeft.contains(slotNum) || slotNum == 40)
+        if (this.craftingGridSlotsLeft.contains(slotNum) || this.craftingOutputSlotLeft.contains(slotNum))
         {
             this.tecs.lastInteractedCraftingGrid = 0;
         }
-        else if (this.craftingGridSlotsRight.contains(slotNum) || slotNum == 50)
+        else if (this.craftingGridSlotsRight.contains(slotNum) || this.craftingOutputSlotRight.contains(slotNum))
         {
             this.tecs.lastInteractedCraftingGrid = 1;
         }
 
         // Crafting output slots; if "keep one item" is enabled and the minimum remaining
         // stack size is 1 and the auto-use feature is not enabled, then we bail out
-        if (slotNum == 40 || slotNum == 50)
+        if (this.craftingOutputSlotLeft.contains(slotNum) || this.craftingOutputSlotRight.contains(slotNum))
         {
-            int invId = slotNum == 50 ? 1 : 0;
+            int invId = this.craftingOutputSlotRight.contains(slotNum) ? 1 : 0;
 
             if (this.tecs.canCraftItems(this.wrappedCraftingInventories[invId], invId) == false)
             {
@@ -328,7 +339,13 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
             }
 
             ItemStack stack = super.slotClick(slotNum, dragType, clickType, player);
-            this.tecs.restockCraftingGrid(this.wrappedCraftingInventories[invId], invId);
+
+            if (this.isClient == false)
+            {
+                this.tecs.restockCraftingGrid(this.wrappedCraftingInventories[invId], invId);
+                this.syncSlotToClient(slotNum);
+                this.syncCursorStackToClient();
+            }
 
             return stack;
         }

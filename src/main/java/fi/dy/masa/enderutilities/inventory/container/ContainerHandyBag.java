@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -243,6 +244,20 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
                 }
             }
         }
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    {
+        super.slotClick(slotNum, dragType, clickType, player);
+
+        if (this.isClient == false && slotNum == this.craftingSlot)
+        {
+            this.syncSlotToClient(this.craftingSlot);
+            this.syncCursorStackToClient();
+        }
+
+        return ItemStack.EMPTY;
     }
 
     @Override

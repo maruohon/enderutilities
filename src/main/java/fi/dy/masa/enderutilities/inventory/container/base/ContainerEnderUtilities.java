@@ -168,23 +168,57 @@ public class ContainerEnderUtilities extends Container
         return (slot instanceof SlotItemHandlerGeneric) ? (SlotItemHandlerGeneric) slot : null;
     }
 
+    protected void syncCursorStackToClient()
+    {
+        this.syncStackToClient(-1, this.player.inventory.getItemStack());
+    }
+
+    protected void syncSlotToClient(int slotNum)
+    {
+        if (slotNum >= 0 && slotNum < this.inventorySlots.size())
+        {
+            this.syncStackToClient(slotNum, this.getSlot(slotNum).getStack());
+        }
+    }
+
+    protected void syncStackToClient(int slotNum, ItemStack stack)
+    {
+        for (int i = 0; i < this.listeners.size(); i++)
+        {
+            IContainerListener listener = this.listeners.get(i);
+
+            if (listener instanceof EntityPlayerMP)
+            {
+                PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slotNum, stack), (EntityPlayerMP) listener);
+            }
+        }
+    }
+
     /**
      * Will put the given stack into the slot, ignoring any validity checks.
+     * Note: A slotId == -1 will sync the stack in the player's cursor.
      * This will and should only be used for syncing slots to the client.
      * @param slot
      * @param stack
      */
     public void syncStackInSlot(int slotId, ItemStack stack)
     {
-        Slot slot = this.getSlot(slotId);
-
-        if (slot instanceof SlotItemHandlerGeneric)
+        if (slotId == -1)
         {
-            ((SlotItemHandlerGeneric) slot).syncStack(stack);
+            this.player.inventory.setItemStack(stack);
         }
         else
         {
-            this.putStackInSlot(slotId, stack);
+            Slot slot = this.getSlot(slotId);
+
+            if (slot instanceof SlotItemHandlerGeneric)
+            {
+                ((SlotItemHandlerGeneric) slot).syncStack(stack);
+            }
+            else
+            {
+                this.putStackInSlot(slotId, stack);
+            }
         }
     }
 
