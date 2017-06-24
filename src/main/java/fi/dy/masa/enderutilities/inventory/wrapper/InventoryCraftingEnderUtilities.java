@@ -178,13 +178,13 @@ public class InventoryCraftingEnderUtilities extends InventoryCrafting
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void func_194018_a(RecipeItemHelper recipeItemHelper)
+    public void fillStackedContents(RecipeItemHelper recipeItemHelper)
     {
         final int invSize = this.craftMatrix.getSlots();
 
         for (int slot = 0; slot < invSize; slot++)
         {
-            recipeItemHelper.func_194112_a(this.craftMatrix.getStackInSlot(slot));
+            recipeItemHelper.accountStack(this.craftMatrix.getStackInSlot(slot));
         }
     }
 

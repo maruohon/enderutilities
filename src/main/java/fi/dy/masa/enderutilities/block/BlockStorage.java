@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -185,17 +183,15 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
     {
         if (state.getValue(TYPE).retainsContents())
         {
-            List<ItemStack> items = new ArrayList<ItemStack>();
-            items.add(this.getDroppedItemWithNBT(worldIn, pos, state, false));
-            return items;
+            drops.add(this.getDroppedItemWithNBT(world, pos, state, false));
         }
         else
         {
-            return super.getDrops(worldIn, pos, state, fortune);
+            super.getDrops(drops, world, pos, state, fortune);
         }
     }
 

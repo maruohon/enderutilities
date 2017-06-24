@@ -188,21 +188,26 @@ public class TileEntityEnderUtilities extends TileEntity
                  player.getHeldItemMainhand().isEmpty())
         {
             ItemBlock item = (ItemBlock) stackOffHand.getItem();
-            int meta = item.getMetadata(stackOffHand.getMetadata());
-            @SuppressWarnings("deprecation")
-            IBlockState state = item.block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player);
+            Block block = item.getBlock();
 
-            if (state != this.camoState)
+            if (block != null)
             {
-                this.camoState = state;
-                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                this.notifyBlockUpdate(this.getPos());
-                // Check light changes in case the camo block emits light
-                this.getWorld().checkLight(this.getPos());
-                this.markDirty();
-            }
+                int meta = item.getMetadata(stackOffHand.getMetadata());
+                IBlockState state = block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player, EnumHand.OFF_HAND);
 
-            return true;
+                if (state != this.camoState)
+                {
+                    this.camoState = state;
+                    this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                    this.notifyBlockUpdate(this.getPos());
+
+                    // Check light changes in case the camo block emits light
+                    this.getWorld().checkLight(this.getPos());
+                    this.markDirty();
+
+                    return true;
+                }
+            }
         }
 
         return false;

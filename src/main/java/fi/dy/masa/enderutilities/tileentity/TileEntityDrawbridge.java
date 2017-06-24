@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -273,7 +274,6 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
     private IBlockState getPlacementStateForPosition(int invPosition, World world, BlockPos pos, FakePlayer player)
     {
@@ -287,10 +287,15 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlock)
         {
             ItemBlock itemBlock = (ItemBlock) stack.getItem();
-            int meta = itemBlock.getMetadata(stack.getMetadata());
-            player.rotationYaw = this.getFacing().getHorizontalAngle();
+            Block block = itemBlock.getBlock();
 
-            return itemBlock.block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
+            if (block != null)
+            {
+                int meta = itemBlock.getMetadata(stack.getMetadata());
+                player.rotationYaw = this.getFacing().getHorizontalAngle();
+
+                return block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player, EnumHand.MAIN_HAND);
+            }
         }
 
         return null;

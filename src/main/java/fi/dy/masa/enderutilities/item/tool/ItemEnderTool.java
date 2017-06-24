@@ -194,7 +194,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         if (targetStack.isEmpty() == false && targetStack.getItem() instanceof ItemBlock)
         {
             // Check if we can place the block
-            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock) targetStack.getItem()).block))
+            if (BlockUtils.checkCanPlaceBlockAt(worldIn, pos, side, ((ItemBlock) targetStack.getItem()).getBlock()))
             {
                 ItemStack stackTool = playerIn.getHeldItem(hand);
                 playerIn.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);

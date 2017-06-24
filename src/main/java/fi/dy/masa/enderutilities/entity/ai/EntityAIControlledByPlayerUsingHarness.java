@@ -85,8 +85,7 @@ public class EntityAIControlledByPlayerUsingHarness extends EntityAIBase
             //float speed = (float)entity.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
             float speed = this.maxSpeed;
             entity.setAIMoveSpeed(speed);
-            // FIXME 1.12 update: What is this new field exactly?
-            entity.func_191986_a(strafe, forward, player.field_191988_bg);
+            entity.travel(strafe, player.moveVertical, forward);
         }
 
         entity.prevLimbSwingAmount = entity.limbSwingAmount;

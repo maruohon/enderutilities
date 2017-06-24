@@ -1,33 +1,21 @@
 package fi.dy.masa.enderutilities;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.Logger;
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.enderutilities.config.ConfigReader;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.proxy.IProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
@@ -38,7 +26,8 @@ import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
-     acceptedMinecraftVersions = "1.12")
+     acceptedMinecraftVersions = "1.12",
+     dependencies = "required-after:forge@[14.21.0.2359,);")
 public class EnderUtilities
 {
     public static final int DATA_FIXER_VERSION = 922;
@@ -57,12 +46,10 @@ public class EnderUtilities
         ConfigReader.loadConfigsFromFile(event.getSuggestedConfigurationFile());
         ModRegistry.checkLoadedMods();
 
-        proxy.registerEntities();
-        proxy.registerTileEntities();
-        proxy.registerKeyBindings();
         proxy.registerEventHandlers();
+        proxy.registerEntities();
+        proxy.registerKeyBindings();
         proxy.registerRenderers();
-        proxy.registerSounds();
 
         PacketHandler.init(); // Initialize network stuff
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
@@ -71,8 +58,6 @@ public class EnderUtilities
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        // FIXME Where should this be for now, until we get the registry event?
-        EnderUtilitiesBlocks.registerRecipes();
         proxy.registerColorHandlers();
     }
 
@@ -94,56 +79,5 @@ public class EnderUtilities
         ChunkLoading.getInstance().init();
         EnergyBridgeTracker.readFromDisk();
         PlacementProperties.getInstance().readFromDisk();
-    }
-
-    @Mod.EventHandler
-    public void onMissingMappingEvent(FMLMissingMappingsEvent event)
-    {
-        List<MissingMapping> list = event.get();
-        Map<String, String> renameMap = TileEntityID.getMap();
-
-        for (MissingMapping mapping : list)
-        {
-            if (mapping.type == GameRegistry.Type.BLOCK)
-            {
-                ResourceLocation oldLoc = mapping.resourceLocation;
-
-                if (oldLoc.getResourceDomain().equals(Reference.MOD_ID))
-                {
-                    String newName = renameMap.get(oldLoc.toString());
-
-                    if (newName != null)
-                    {
-                        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(newName));
-
-                        if (block != null && block != Blocks.AIR)
-                        {
-                            mapping.remap(block);
-                            logger.info("Re-mapped block '{}' to '{}'", oldLoc, newName);
-                        }
-                    }
-                }
-            }
-            else if (mapping.type == GameRegistry.Type.ITEM)
-            {
-                ResourceLocation oldLoc = mapping.resourceLocation;
-
-                if (oldLoc.getResourceDomain().equals(Reference.MOD_ID))
-                {
-                    String newName = renameMap.get(oldLoc.toString());
-
-                    if (newName != null)
-                    {
-                        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(newName));
-
-                        if (item != null && item != Items.AIR)
-                        {
-                            mapping.remap(item);
-                            logger.info("Re-mapped item '{}' to '{}'", oldLoc, newName);
-                        }
-                    }
-                }
-            }
-        }
     }
 }

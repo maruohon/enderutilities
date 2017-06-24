@@ -2,16 +2,17 @@ package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ModFixs;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
@@ -28,7 +29,6 @@ import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.event.WorldEventHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
-import fi.dy.masa.enderutilities.tileentity.*;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public class CommonProxy implements IProxy
@@ -105,6 +105,9 @@ public class CommonProxy implements IProxy
         MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
         MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
         MinecraftForge.EVENT_BUS.register(new TickHandler());
+
+        MinecraftForge.EVENT_BUS.register(this);
+
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
     }
 
@@ -114,41 +117,21 @@ public class CommonProxy implements IProxy
     @Override
     public void registerRenderers() { }
 
-    @Override
-    public void registerSounds()
+    @SubscribeEvent
+    public void registerSounds(RegistryEvent.Register<SoundEvent> event)
     {
-        this.registerSound("jailer");
-        this.registerSound("molecular_exciter");
+        IForgeRegistry<SoundEvent> registry = event.getRegistry();
+
+        this.registerSound(registry, "jailer");
+        this.registerSound(registry, "molecular_exciter");
     }
 
-    private void registerSound(String name)
+    private void registerSound(IForgeRegistry<SoundEvent> registry, String name)
     {
         ResourceLocation resloc = new ResourceLocation(Reference.MOD_ID, name);
-        GameRegistry.register(new SoundEvent(resloc), resloc);
-    }
-
-    @Override
-    public void registerTileEntities()
-    {
-        this.registerTileEntity(TileEntityASU.class,                    ReferenceNames.NAME_TILE_ASU);
-        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_BARREL);
-        this.registerTileEntity(TileEntityCreationStation.class,        ReferenceNames.NAME_TILE_ENTITY_CREATION_STATION);
-        this.registerTileEntity(TileEntityDrawbridge.class,             ReferenceNames.NAME_TILE_DRAW_BRIDGE);
-        this.registerTileEntity(TileEntityElevator.class,               ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
-        this.registerTileEntity(TileEntityEnderFurnace.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_FURNACE);
-        this.registerTileEntity(TileEntityEnderInfuser.class,           ReferenceNames.NAME_TILE_ENTITY_ENDER_INFUSER);
-        this.registerTileEntity(TileEntityEnergyBridge.class,           ReferenceNames.NAME_TILE_ENERGY_BRIDGE);
-        this.registerTileEntity(TileEntityHandyChest.class,             ReferenceNames.NAME_TILE_ENTITY_HANDY_CHEST);
-        this.registerTileEntity(TileEntityInserter.class,               ReferenceNames.NAME_TILE_INSERTER);
-        this.registerTileEntity(TileEntityJSU.class,                    ReferenceNames.NAME_TILE_ENTITY_JSU);
-        this.registerTileEntity(TileEntityMemoryChest.class,            ReferenceNames.NAME_TILE_ENTITY_MEMORY_CHEST);
-        this.registerTileEntity(TileEntityMSU.class,                    ReferenceNames.NAME_TILE_MSU);
-        this.registerTileEntity(TileEntityPortal.class,                 ReferenceNames.NAME_TILE_PORTAL);
-        this.registerTileEntity(TileEntityPortalFrame.class,            ReferenceNames.NAME_TILE_FRAME);
-        this.registerTileEntity(TileEntityPortalPanel.class,            ReferenceNames.NAME_TILE_PORTAL_PANEL);
-        this.registerTileEntity(TileEntityQuickStackerAdvanced.class,   ReferenceNames.NAME_TILE_QUICK_STACKER_ADVANCED);
-        this.registerTileEntity(TileEntitySoundBlock.class,             ReferenceNames.NAME_TILE_SOUND_BLOCK);
-        this.registerTileEntity(TileEntityToolWorkstation.class,        ReferenceNames.NAME_TILE_ENTITY_TOOL_WORKSTATION);
+        SoundEvent sound = new SoundEvent(resloc);
+        sound.setRegistryName(resloc);
+        registry.register(sound);
     }
 
     @Override
@@ -167,10 +150,5 @@ public class CommonProxy implements IProxy
     public boolean isAltKeyDown()
     {
         return false;
-    }
-
-    private void registerTileEntity(Class<? extends TileEntity> clazz, String id)
-    {
-        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
     }
 }

@@ -1,7 +1,5 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -13,6 +11,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -140,17 +139,15 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
     {
         if (this.retainsContentsWhenBroken(world, pos, state))
         {
-            List<ItemStack> items = new ArrayList<ItemStack>();
-            items.add(this.getDroppedItemWithNBT(world, pos, state, false));
-            return items;
+            drops.add(this.getDroppedItemWithNBT(world, pos, state, false));
         }
         else
         {
-            return super.getDrops(world, pos, state, fortune);
+            super.getDrops(drops, world, pos, state, fortune);
         }
     }
 

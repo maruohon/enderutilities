@@ -24,10 +24,6 @@ public interface IProxy
 
     public void registerRenderers();
 
-    public void registerSounds();
-
-    public void registerTileEntities();
-
     public boolean isShiftKeyDown();
 
     public boolean isControlKeyDown();
