@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.inventory.container.ContainerHandyBag;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
@@ -46,9 +44,8 @@ public class SlotItemHandlerArmor extends SlotItemHandlerGeneric
         return stack.getItem().isValidArmor(stack, slot, this.container.player);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Nullable
     @Override
+    @Nullable
     public String getSlotTexture()
     {
         return ItemArmor.EMPTY_SLOT_NAMES[ContainerHandyBag.EQUIPMENT_SLOT_TYPES[this.armorSlotIndex].getIndex()];

@@ -4,13 +4,10 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.client.renderer.entity.RenderEndermanFighter;
 import fi.dy.masa.enderutilities.entity.EntityEndermanFighter;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-@SideOnly(Side.CLIENT)
 public class LayerEnderFighterEyes implements LayerRenderer<EntityEndermanFighter>
 {
     private static final ResourceLocation TEXTURE_EYES_NORMAL = new ResourceLocation(ReferenceTextures.getEntityTextureName("endermanfighter.eyes.normal"));

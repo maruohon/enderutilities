@@ -18,8 +18,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -635,7 +633,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         return 0;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
@@ -647,7 +644,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         };
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {

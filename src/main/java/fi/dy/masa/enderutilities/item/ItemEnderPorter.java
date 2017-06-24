@@ -15,8 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemLocationBoundModular;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
@@ -207,7 +205,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         return 72000;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -215,7 +212,6 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         list.add(new ItemStack(this, 1, 1));
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
@@ -230,7 +226,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     {
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "usetime"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 if (entityIn == null)
@@ -247,7 +243,7 @@ public class ItemEnderPorter extends ItemLocationBoundModular
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "inuse"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;

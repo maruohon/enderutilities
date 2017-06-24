@@ -18,8 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -342,7 +340,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
     {
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "pull"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 if (entityIn == null)
@@ -364,7 +362,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "pulling"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
@@ -372,7 +370,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "broken"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemEnderBow.this.isBroken(stack) ? 1.0F : 0.0F;
@@ -380,7 +378,7 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "mode"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemEnderBow.this.getBowMode(stack) == BOW_MODE_TP_SELF ? 1.0F : 0.0F;

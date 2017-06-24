@@ -23,8 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -264,7 +262,7 @@ public class ItemDolly extends ItemEnderUtilities
     {
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "carrying"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemDolly.this.isCarryingBlock(stack) ? 1.0F : 0.0F;

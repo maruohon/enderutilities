@@ -1,10 +1,7 @@
 package fi.dy.masa.enderutilities.gui.client.button;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public class GuiButtonCallback extends GuiButtonHoverText
 {
     protected IButtonCallback callback;

@@ -23,8 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IAnvilRepairable;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -371,7 +369,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     {
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "fastmode"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemVoidPickaxe.this.isFastMode(stack) ? 1.0F : 0.0F;
@@ -379,7 +377,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
         });
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "broken"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemVoidPickaxe.this.isToolBroken(stack) ? 1.0F : 0.0F;

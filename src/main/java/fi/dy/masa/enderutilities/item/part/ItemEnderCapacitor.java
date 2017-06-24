@@ -11,8 +11,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -187,7 +185,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         return -1;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -203,7 +200,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
@@ -221,7 +217,6 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         };
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {

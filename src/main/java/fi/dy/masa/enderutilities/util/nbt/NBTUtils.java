@@ -22,8 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
@@ -848,12 +846,12 @@ public class NBTUtils
     }
 
     /**
-     * Adds ready formatted description of the stored items in a cached tag to the list provided.
+     * Adds ready formatted description of the stored items in a cached tag to the list provided.<br>
+     * NOTE: CLIENT-ONLY!
      * @param stack
      * @param lines
      * @param maxItemLines
      */
-    @SideOnly(Side.CLIENT)
     public static void getCachedInventoryStrings(ItemStack stack, List<String> lines, int maxItemLines)
     {
         NBTTagCompound wrapper = getCompoundTag(stack, "InvCache", false);

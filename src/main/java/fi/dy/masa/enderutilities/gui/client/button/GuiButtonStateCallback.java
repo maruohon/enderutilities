@@ -3,11 +3,8 @@ package fi.dy.masa.enderutilities.gui.client.button;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 
-@SideOnly(Side.CLIENT)
 public class GuiButtonStateCallback extends GuiButtonHoverText
 {
     protected static final ButtonState STATE_INVALID = ButtonState.create(0, 0, "INVALID");

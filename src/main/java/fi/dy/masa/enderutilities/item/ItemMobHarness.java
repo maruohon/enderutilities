@@ -22,8 +22,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIBlockRiderIdleTasks;
 import fi.dy.masa.enderutilities.entity.ai.EntityAIControlledByPlayerUsingHarness;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
@@ -269,7 +267,7 @@ public class ItemMobHarness extends ItemEnderUtilities
     {
         this.addPropertyOverride(new ResourceLocation(Reference.MOD_ID, "linked"), new IItemPropertyGetter()
         {
-            @SideOnly(Side.CLIENT)
+            @Override
             public float apply(ItemStack stack, World worldIn, EntityLivingBase entityIn)
             {
                 return ItemMobHarness.this.hasTarget(stack) ? 1.0F : 0.0F;

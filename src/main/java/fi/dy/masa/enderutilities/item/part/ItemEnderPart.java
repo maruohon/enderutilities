@@ -21,8 +21,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemModule;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -389,7 +387,6 @@ public class ItemEnderPart extends ItemModule
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -428,7 +425,6 @@ public class ItemEnderPart extends ItemModule
         list.add(new ItemStack(this, 1, 81)); // Creative Storage Key
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
 public class GuiButtonHoverText extends GuiButtonIcon
 {
     protected ArrayList<String> hoverStrings;

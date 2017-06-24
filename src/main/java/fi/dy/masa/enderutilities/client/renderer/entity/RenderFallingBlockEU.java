@@ -15,11 +15,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityFallingBlockEU;
 
-@SideOnly(Side.CLIENT)
 public class RenderFallingBlockEU extends Render<EntityFallingBlockEU>
 {
     public RenderFallingBlockEU(RenderManager renderManagerIn)

@@ -15,8 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -73,7 +71,6 @@ public class ItemIceMelter extends ItemEnderUtilities
         return EnumActionResult.PASS;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -81,7 +78,6 @@ public class ItemIceMelter extends ItemEnderUtilities
         list.add(new ItemStack(this, 1, 1)); // "Super" version
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

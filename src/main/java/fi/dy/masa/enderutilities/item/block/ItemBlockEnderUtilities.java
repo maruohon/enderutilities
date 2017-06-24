@@ -240,7 +240,6 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
         return this.getUnlocalizedName(stack);
     }
 
-    @SideOnly(Side.CLIENT)
     public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
@@ -294,7 +293,6 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         ItemEnderUtilities.addTranslatedTooltip(this.getTooltipName(stack) + ".tooltips", list, verbose);
@@ -305,7 +303,6 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public boolean isFull3D()
     {
         return true;

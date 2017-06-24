@@ -11,8 +11,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -118,7 +116,6 @@ public class ItemSyringe extends ItemEnderUtilities
         EntityUtils.removeDummyAIBlockerTask(living.targetTasks);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -128,7 +125,6 @@ public class ItemSyringe extends ItemEnderUtilities
         list.add(new ItemStack(this, 1, 3)); // Syringe with passifier
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {

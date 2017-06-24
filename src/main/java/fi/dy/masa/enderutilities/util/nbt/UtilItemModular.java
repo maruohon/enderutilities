@@ -14,8 +14,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -471,12 +469,12 @@ public class UtilItemModular
 
     /**
      * Adds a formatted list of ItemStack sizes and the display names of the ItemStacks
-     * to the <b>listLines</b> list. Returns the total number of items stored.
+     * to the <b>listLines</b> list. Returns the total number of items stored.<br>
+     * NOTE: CLIENT-ONLY!
      * @param containerStack
      * @param listLines
      * @return total number of items stored
      */
-    @SideOnly(Side.CLIENT)
     public static int getFormattedItemListFromContainerItem(ItemStack containerStack, List<String> listLines, int maxLines)
     {
         int itemCount = 0;

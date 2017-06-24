@@ -9,12 +9,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnergyBridge.Type;
 
-@SideOnly(Side.CLIENT)
 public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<TileEntityEnergyBridge>
 {
     private static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/beacon_beam.png");

@@ -22,8 +22,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -580,7 +578,6 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
@@ -593,7 +590,6 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         };
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {

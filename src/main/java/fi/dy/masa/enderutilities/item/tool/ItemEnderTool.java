@@ -49,8 +49,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.config.Configs;
@@ -1131,7 +1129,6 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItemsCustom(CreativeTabs creativeTab, NonNullList<ItemStack> list)
     {
@@ -1141,7 +1138,6 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public boolean hasEffect(ItemStack stack)
     {
@@ -1283,14 +1279,12 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ResourceLocation[] getItemVariants()
     {
         return new ResourceLocation[] { new ModelResourceLocation(Reference.MOD_ID + ":item_endertool", "inventory") };
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {

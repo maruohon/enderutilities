@@ -26,8 +26,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
@@ -384,14 +382,12 @@ public class EntityFallingBlockEU extends Entity
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public boolean canRenderOnFire()
     {
         return false;
     }
 
-    @SideOnly(Side.CLIENT)
     public BlockPos getOrigin()
     {
         return this.getDataManager().get(ORIGIN);

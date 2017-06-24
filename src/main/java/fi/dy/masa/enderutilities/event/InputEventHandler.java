@@ -12,8 +12,6 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockElevator;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
@@ -35,7 +33,6 @@ import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-@SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
     private static final TIntObjectHashMap<Long> KEY_PRESS_TIMES = new TIntObjectHashMap<Long>(16);

@@ -12,8 +12,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
@@ -29,11 +27,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     protected int timer;
     protected Type type = Type.RESONATOR;
 
-    @SideOnly(Side.CLIENT)
     public int beamYMin;
-    @SideOnly(Side.CLIENT)
     public int beamYMax;
-    @SideOnly(Side.CLIENT)
     AxisAlignedBB renderBB;
 
     static
@@ -414,7 +409,6 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         return false;
     }
 
-    @SideOnly(Side.CLIENT)
     private void getBeamEndPoints()
     {
         int posX = this.getPos().getX();
@@ -463,14 +457,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         this.renderBB = new AxisAlignedBB(posX - 4d, -256d, posZ - 4d, posX + 4d, 512d, posZ + 4d);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public double getMaxRenderDistanceSquared()
     {
         return 65536.0d;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {

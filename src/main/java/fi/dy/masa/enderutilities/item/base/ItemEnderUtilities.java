@@ -175,13 +175,11 @@ public class ItemEnderUtilities extends Item
         return this;
     }
 
-    @SideOnly(Side.CLIENT)
     public void getSubItemsCustom(CreativeTabs tab, NonNullList<ItemStack> items)
     {
         super.getSubItems(tab, items);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
@@ -191,13 +189,11 @@ public class ItemEnderUtilities extends Item
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public ResourceLocation[] getItemVariants()
     {
         return new ResourceLocation[] { ForgeRegistries.ITEMS.getKey(this) };
     }
 
-    @SideOnly(Side.CLIENT)
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         return null;

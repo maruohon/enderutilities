@@ -2,8 +2,6 @@ package fi.dy.masa.enderutilities.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -88,7 +86,6 @@ public class ContainerEnderInfuser extends ContainerTile
         listener.sendWindowProperty(this, 2, this.chargeProgress);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void updateProgressBar(int var, int val)
     {

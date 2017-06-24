@@ -11,8 +11,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
 
@@ -33,7 +31,6 @@ public class Effects
         world.playSound(x, y, z, soundIn, category, volume, pitch, false);
     }
 
-    @SideOnly(Side.CLIENT)
     public static void playPositionedSoundOnClient(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
     {
         SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();

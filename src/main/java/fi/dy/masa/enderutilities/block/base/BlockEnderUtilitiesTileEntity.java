@@ -19,8 +19,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.property.PropertyBlockState;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -222,7 +220,6 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         return this.isCamoBlock() == false;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public BlockRenderLayer getBlockLayer()
     {

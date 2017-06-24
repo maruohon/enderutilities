@@ -9,8 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class InventoryCraftingEnderUtilities extends InventoryCrafting
@@ -176,7 +174,6 @@ public class InventoryCraftingEnderUtilities extends InventoryCrafting
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void fillStackedContents(RecipeItemHelper recipeItemHelper)
     {

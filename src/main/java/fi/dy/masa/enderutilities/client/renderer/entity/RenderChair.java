@@ -3,13 +3,10 @@ package fi.dy.masa.enderutilities.client.renderer.entity;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-@SideOnly(Side.CLIENT)
 public class RenderChair extends Render<EntityChair>
 {
     private static final ResourceLocation RESOURCE = new ResourceLocation(ReferenceTextures.getEntityTextureName(ReferenceNames.NAME_ENTITY_CHAIR));

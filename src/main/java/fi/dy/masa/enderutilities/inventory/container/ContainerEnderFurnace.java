@@ -3,8 +3,6 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTileLargeStacks;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerFurnaceOutput;
@@ -98,7 +96,6 @@ public class ContainerEnderFurnace extends ContainerTileLargeStacks
         listener.sendWindowProperty(this, 1, this.teef.outputToEnderChest ? 1 : 0);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void updateProgressBar(int var, int val)
     {
