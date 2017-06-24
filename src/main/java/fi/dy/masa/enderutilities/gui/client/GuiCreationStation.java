@@ -16,6 +16,7 @@ import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonStateCallback.ButtonState;
 import fi.dy.masa.enderutilities.gui.client.button.IButtonStateCallback;
 import fi.dy.masa.enderutilities.inventory.container.ContainerCreationStation;
+import fi.dy.masa.enderutilities.inventory.container.base.SlotRange;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
@@ -37,7 +38,6 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
 
     private final TileEntityCreationStation tecs;
     private final ContainerCreationStation containerCS;
-    private final int invSize;
 
     public GuiCreationStation(ContainerCreationStation container, TileEntityCreationStation te)
     {
@@ -46,7 +46,6 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         this.infoArea = new InfoArea(223, 88, 11, 11, "enderutilities.gui.infoarea." + te.getTEName());
         this.tecs = te;
         this.containerCS = container;
-        this.invSize = container.inventory.getSlots();
         this.scaledStackSizeTextInventories.add(this.tecs.getFurnaceInventory());
         this.scaledStackSizeTextInventories.add(container.inventory);
     }
@@ -117,17 +116,21 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
         // The inventory is not accessible (because there is no valid Memory Card selected, or something else...)
         if (this.tecs.isInventoryAccessible(this.container.getPlayer()) == false)
         {
+            SlotRange range = this.containerCS.getCustomInventorySlotRange();
+
             // Draw the dark background over the disabled inventory slots
-            for (int i = 0; i < this.invSize; i++)
+            for (int i = range.first; i <= range.lastInc; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xPos - 1;
                 y = this.guiTop + slot.yPos - 1;
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
+
+            range = this.containerCS.getCraftingGridSlotRange(0);
 
             // Draw the dark background over the disabled crafting slots (left side)
-            for (int i = 31; i <= 39; i++)
+            for (int i = range.first; i <= range.lastInc; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xPos - 1;
@@ -135,8 +138,10 @@ public class GuiCreationStation extends GuiContainerLargeStacks implements IButt
                 this.drawTexturedModalRect(x, y, 102, 0, 18, 18);
             }
 
+            range = this.containerCS.getCraftingGridSlotRange(1);
+
             // Draw the dark background over the disabled crafting slots (right side)
-            for (int i = 41; i <= 49; i++)
+            for (int i = range.first; i <= range.lastInc; i++)
             {
                 Slot slot = this.inventorySlots.getSlot(i);
                 x = this.guiLeft + slot.xPos - 1;
