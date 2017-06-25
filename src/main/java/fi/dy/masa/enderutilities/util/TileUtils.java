@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.util;
 
+import javax.annotation.Nonnull;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -64,34 +65,19 @@ public class TileUtils
     }
 
     /**
-     * Creates a new TileEntity from the NBT provided, adds that TileEntity to he world, and marks it dirty
+     * Creates a new TileEntity from the NBT provided, adds that TileEntity to the world, and marks it dirty
      * @param world
      * @param pos
      * @param nbt
      * @return true if creating and setting the TileEntity succeeded
      */
-    public static boolean createAndAddTileEntity(World world, BlockPos pos, NBTTagCompound nbt)
+    public static boolean createAndAddTileEntity(World world, BlockPos pos, @Nonnull NBTTagCompound nbt)
     {
-        // Creating the TileEntity from NBT and then calling World#setTileEntity() causes
-        // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
-        // from Chunk#addTileEntity(), which should hopefully be more mod
-        // friendly than just doing world.getTileEntity(pos).readFromNBT(tag)
-        TileEntity te = TileEntity.create(world, nbt);
-
-        if (te != null)
-        {
-            //te.setPos(pos); // this happens in World#setTileEntity() and in Chunk#addTileEntity()
-            world.setTileEntity(pos, te);
-            te.markDirty();
-
-            return true;
-        }
-
-        return false;
+        return createAndAddTileEntity(world, pos, nbt, Rotation.NONE, Mirror.NONE);
     }
 
     /**
-     * Creates a new TileEntity from the NBT provided, adds that TileEntity to he world,
+     * Creates a new TileEntity from the NBT provided, adds that TileEntity to the world,
      * then mirrors and rotates it (if they are not NONE), and then finally marks it dirty.
      * @param world
      * @param pos
@@ -100,13 +86,24 @@ public class TileUtils
      * @param mirror
      * @return true if creating and setting the TileEntity succeeded
      */
-    public static boolean createAndAddTileEntity(World world, BlockPos pos, NBTTagCompound nbt, Rotation rotation, Mirror mirror)
+    public static boolean createAndAddTileEntity(World world, BlockPos pos, @Nonnull NBTTagCompound nbt, Rotation rotation, Mirror mirror)
     {
+        // Just store and later restore the original position instead of copying the entire (possibly large) NBT tag
+        BlockPos posOrig = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+
+        // Set the correct position in the NBT prior to creating the TileEntity.
+        // This can improve compatibility/reduce glitches with some tiles.
+        NBTUtils.setPositionInTileEntityNBT(nbt, pos);
+
         // Creating the TileEntity from NBT and then calling World#setTileEntity() causes
         // TileEntity#validate() and TileEntity#onLoad() to get called for the TE
         // from Chunk#addTileEntity(), which should hopefully be more mod
         // friendly than just doing world.getTileEntity(pos).readFromNBT(tag)
         TileEntity te = TileEntity.create(world, nbt);
+
+        // Restore the original position, in case the tag ends up written back to somewhere.
+        // (Although when does the original position matter anyway?)
+        NBTUtils.setPositionInTileEntityNBT(nbt, posOrig);
 
         if (te != null)
         {
