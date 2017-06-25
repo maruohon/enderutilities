@@ -81,19 +81,8 @@ public class GuiEnderInfuser extends GuiEnderUtilities
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        // Hovering over the "tank" area
-        if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 71)
-        {
-            List<String> list = new ArrayList<String>();
-            int ec = this.teei.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
-            int ec_capacity = TileEntityEnderInfuser.MAX_AMOUNT * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
-            list.add(EUStringUtils.formatNumberWithKSeparators(ec) + " / " + EUStringUtils.formatNumberWithKSeparators(ec_capacity) + " EC");
-            list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teei.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
-            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
-            return;
-        }
-
         Slot slot = this.getSlotUnderMouse();
+
         // Hovering over an empty material slot
         if (slot != null && slot == this.inventorySlots.getSlot(0) && slot.getHasStack() == false)
         {
@@ -107,6 +96,20 @@ public class GuiEnderInfuser extends GuiEnderUtilities
             List<String> list = new ArrayList<String>();
             list.add(I18n.format("enderutilities.gui.label.enderinfuser.chargeableinput"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
+        }
+        // Hovering over the "tank" area
+        else if (mouseX >= x + 87 && mouseX <= x + 114 && mouseY >= y + 23 && mouseY <= y + 71)
+        {
+            List<String> list = new ArrayList<String>();
+            int ec = this.teei.amountStored * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
+            int ec_capacity = TileEntityEnderInfuser.MAX_AMOUNT * TileEntityEnderInfuser.ENDER_CHARGE_PER_MILLIBUCKET;
+            list.add(EUStringUtils.formatNumberWithKSeparators(ec) + " / " + EUStringUtils.formatNumberWithKSeparators(ec_capacity) + " EC");
+            list.add("(" + EUStringUtils.formatNumberWithKSeparators(this.teei.amountStored) + " / " + EUStringUtils.formatNumberWithKSeparators(TileEntityEnderInfuser.MAX_AMOUNT) + " mB)");
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
+        }
+        else
+        {
+            super.drawTooltips(mouseX, mouseY);
         }
     }
 }

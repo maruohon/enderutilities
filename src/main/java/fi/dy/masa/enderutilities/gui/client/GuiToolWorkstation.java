@@ -204,5 +204,9 @@ public class GuiToolWorkstation extends GuiEnderUtilities
             list.add(I18n.format("enderutilities.gui.label.tool_workstation.useemptynametoreset"));
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
+        else
+        {
+            super.drawTooltips(mouseX, mouseY);
+        }
     }
 }
