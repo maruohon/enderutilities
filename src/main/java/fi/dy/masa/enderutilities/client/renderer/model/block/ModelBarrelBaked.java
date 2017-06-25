@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.annotation.Nullable;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
@@ -23,7 +23,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -109,7 +108,7 @@ public class ModelBarrelBaked implements IBakedModel
 
         if (bakedModel == null)
         {
-            IModel model = ((IRetexturableModel) this.baseModel).retexture(this.getTextures(state, this.textures));
+            IModel model = this.baseModel.retexture(this.getTextures(state, this.textures));
             bakedModel = model.bake(new TRSRTransformation(state.getValue(BlockBarrel.FACING_H)), this.format, this.bakedTextureGetter);
             MODEL_CACHE.put(state, bakedModel);
         }

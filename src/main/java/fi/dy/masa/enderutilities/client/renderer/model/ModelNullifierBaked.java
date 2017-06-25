@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 import org.apache.commons.lang3.tuple.Pair;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -38,11 +38,10 @@ import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.ModelStateComposition;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -56,7 +55,7 @@ import fi.dy.masa.enderutilities.util.ItemType;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 @EventBusSubscriber(Side.CLIENT)
-public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
+public class ModelNullifierBaked implements IBakedModel
 {
     private static ModelLoader MODEL_LOADER;
     private static Map<ModelResourceLocation, IModel> STATE_MODELS;
@@ -85,7 +84,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.particle = bakedTextureGetter.apply(new ResourceLocation(ModelNullifier.TEX_BASE));
-        this.transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
+        this.transformMap = PerspectiveMapWrapper.getTransforms(state);
     }
 
     private ModelNullifierBaked(ModelNullifierBaked nullifierModel, boolean locked, ItemStack containedStack)
@@ -141,7 +140,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
     {
-        return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transformMap, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, this.transformMap, cameraTransformType);
     }
 
     @Override
@@ -413,7 +412,7 @@ public class ModelNullifierBaked implements IBakedModel, IPerspectiveAwareModel
             {
                 baseModel   = ModelLoaderRegistry.getModel(BASE_MODEL);
                 lockedModel = ModelLoaderRegistry.getModel(LOCKED_MODEL);
-                lockedModel = ((IRetexturableModel) lockedModel).retexture(ImmutableMap.of("layer0", TEX_LOCKED));
+                lockedModel = lockedModel.retexture(ImmutableMap.of("layer0", TEX_LOCKED));
             }
             catch (Exception e)
             {

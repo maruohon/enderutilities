@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -25,7 +25,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -55,11 +54,11 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         this.textures = ImmutableMap.copyOf(textureMapping.getTextureMapping());
         this.defaultState = defaultState;
         this.particle = bakedTextureGetter.apply(new ResourceLocation(this.textures.get("particle")));
-        this.bakedBaseModel = ((IRetexturableModel) baseModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
+        this.bakedBaseModel = baseModel.retexture(this.textures).bake(state, format, bakedTextureGetter);
 
         if (overlayModel != null)
         {
-            this.bakedOverlayModel = ((IRetexturableModel) overlayModel).retexture(this.textures).bake(state, format, bakedTextureGetter);
+            this.bakedOverlayModel = overlayModel.retexture(this.textures).bake(state, format, bakedTextureGetter);
         }
         else
         {
@@ -144,7 +143,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
             QUAD_CACHE.put(id, quads);
         }
 
-        return quads.get(Optional.fromNullable(side));
+        return quads.get(Optional.ofNullable(side));
     }
 
     protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
@@ -174,7 +173,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         }
 
         quads.addAll(baseModel.getQuads(stateBase, null, 0));
-        builder.put(Optional.<EnumFacing>absent(), quads.build());
+        builder.put(Optional.empty(), quads.build());
 
         return builder.build();
     }

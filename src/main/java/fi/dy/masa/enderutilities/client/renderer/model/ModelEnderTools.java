@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import org.apache.commons.lang3.tuple.Pair;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -30,10 +30,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IModelCustomData;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ModelStateComposition;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -46,7 +45,7 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 
-public class ModelEnderTools implements IModel, IModelCustomData
+public class ModelEnderTools implements IModel
 {
     public static final IModel MODEL = new ModelEnderTools();
     private final ResourceLocation resourceRod;
@@ -233,7 +232,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
     public IBakedModel bake(IModelState state, VertexFormat format,
                                     Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        ImmutableMap<TransformType, TRSRTransformation> transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
+        ImmutableMap<TransformType, TRSRTransformation> transformMap = PerspectiveMapWrapper.getTransforms(state);
         //TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
         TextureAtlasSprite rodSprite = null;
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
@@ -412,7 +411,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         }
     }
 
-    protected static class BakedEnderTool implements IPerspectiveAwareModel
+    protected static class BakedEnderTool implements IBakedModel
     {
         private final ModelEnderTools parent;
         private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
@@ -441,7 +440,7 @@ public class ModelEnderTools implements IModel, IModelCustomData
         @Override
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
         {
-            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
+            return PerspectiveMapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
         }
 
         @Override

@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import org.apache.commons.lang3.tuple.Pair;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -31,13 +31,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IModelCustomData;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
 import net.minecraftforge.client.model.ModelStateComposition;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.SimpleModelState;
-import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fluids.Fluid;
@@ -47,7 +45,7 @@ import fi.dy.masa.enderutilities.item.ItemEnderBucket;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceTextures;
 
-public class ModelEnderBucket implements IModel, IModelCustomData
+public class ModelEnderBucket implements IModel
 {
     public static final IModel MODEL = new ModelEnderBucket();
     private final ResourceLocation resourceMain;
@@ -161,8 +159,8 @@ public class ModelEnderBucket implements IModel, IModelCustomData
     public IBakedModel bake(IModelState state, VertexFormat format,
                                     Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        ImmutableMap<TransformType, TRSRTransformation> transformMap = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
-        TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
+        ImmutableMap<TransformType, TRSRTransformation> transformMap = PerspectiveMapWrapper.getTransforms(state);
+        TRSRTransformation transform = state.apply(Optional.empty()).orElse(TRSRTransformation.identity());
         TextureAtlasSprite mainSprite = null;
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 
@@ -301,7 +299,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
     }
 
     //protected static class BakedEnderBucket extends ItemLayerModel.BakedModel implements ISmartItemModel, IPerspectiveAwareModel
-    protected static class BakedEnderBucket implements IPerspectiveAwareModel
+    protected static class BakedEnderBucket implements IBakedModel
     {
         private final ModelEnderBucket parent;
         private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
@@ -330,7 +328,7 @@ public class ModelEnderBucket implements IModel, IModelCustomData
         @Override
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
         {
-            return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
+            return PerspectiveMapWrapper.handlePerspective(this, this.transforms, cameraTransformType);
         }
 
         @Override

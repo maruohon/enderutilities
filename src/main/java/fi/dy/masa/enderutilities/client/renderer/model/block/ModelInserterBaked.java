@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -26,7 +26,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -59,9 +58,9 @@ public class ModelInserterBaked implements IBakedModel
     private ModelInserterBaked(ModelInserter inserterModel, IModel baseModel, IModel sideModel, IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         ImmutableMap<String, String> textures = inserterModel.getTextureMapping();
-        this.baseModel        = ((IRetexturableModel) baseModel).retexture(textures);
-        this.sideModelValid   = ((IRetexturableModel) sideModel).retexture(ImmutableMap.of("side", textures.get("side_valid")));
-        this.sideModelInvalid = ((IRetexturableModel) sideModel).retexture(ImmutableMap.of("side", textures.get("side_invalid")));
+        this.baseModel        = baseModel.retexture(textures);
+        this.sideModelValid   = sideModel.retexture(ImmutableMap.of("side", textures.get("side_valid")));
+        this.sideModelInvalid = sideModel.retexture(ImmutableMap.of("side", textures.get("side_invalid")));
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.bakedBaseModel = this.baseModel.bake(modelState, format, bakedTextureGetter);
@@ -125,10 +124,10 @@ public class ModelInserterBaked implements IBakedModel
             quads = this.bakeFullModel(bakedBaseModel, state, side);
             QUAD_CACHE.put(state, quads);
 
-            return quads.get(Optional.fromNullable(side));
+            return quads.get(Optional.ofNullable(side));
         }
 
-        return QUAD_CACHE.get(state).get(Optional.fromNullable(side));
+        return QUAD_CACHE.get(state).get(Optional.ofNullable(side));
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(IBakedModel baseModel, IBlockState state, @Nullable EnumFacing side)
@@ -157,7 +156,7 @@ public class ModelInserterBaked implements IBakedModel
             quads.addAll(bakedPart.getQuads(state, null, 0));
         }
 
-        builder.put(Optional.<EnumFacing>absent(), quads.build());
+        builder.put(Optional.empty(), quads.build());
 
         return builder.build();
     }
