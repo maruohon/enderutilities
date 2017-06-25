@@ -48,6 +48,8 @@ public class ItemDolly extends ItemEnderUtilities
     public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos,
             EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
+        player.swingArm(hand);
+
         if (world.isRemote == false)
         {
             ItemStack stack = player.getHeldItem(hand);
