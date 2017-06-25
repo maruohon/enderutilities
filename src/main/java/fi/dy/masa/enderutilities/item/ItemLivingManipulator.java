@@ -65,7 +65,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 return EnumActionResult.SUCCESS;
             }
 
-            return this.releaseEntity(stack, world, pos, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
+            return this.releaseEntity(stack, player, world, pos, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, side);
         }
 
         return EnumActionResult.PASS;
@@ -82,7 +82,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         if (mode == Mode.RELEASE)
         {
-            return this.releaseEntity(stack, player.getEntityWorld(), livingBase.getPosition(),
+            return this.releaseEntity(stack, player, player.getEntityWorld(), livingBase.getPosition(),
                     livingBase.posX, livingBase.posY, livingBase.posZ, EnumFacing.UP);
         }
 
@@ -100,7 +100,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
         if (count < MAX_ENTITIES_PER_CARD)
         {
-            return this.storeEntity(stack, livingBase);
+            return this.storeEntity(stack, livingBase, player);
         }
 
         player.sendStatusMessage(new TextComponentTranslation("enderutilities.chat.message.memorycard.full"), true);
@@ -108,7 +108,8 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.FAIL;
     }
 
-    private EnumActionResult releaseEntity(ItemStack containerStack, World world, BlockPos pos, double x, double y, double z, EnumFacing side)
+    private EnumActionResult releaseEntity(ItemStack containerStack, EntityPlayer player, World world,
+            BlockPos pos, double x, double y, double z, EnumFacing side)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
@@ -165,6 +166,12 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
 
             if (isShulker == false)
             {
+                if (tag.hasKey("playerYaw", Constants.NBT.TAG_FLOAT))
+                {
+                    float yawDiff = player.rotationYaw - tag.getFloat("playerYaw");
+                    entity.rotationYaw = (entity.rotationYaw + yawDiff) % 360;
+                }
+
                 PositionHelper posHelper = new PositionHelper(x, y, z);
                 posHelper.adjustPositionToTouchFace(entity, side);
                 entity.setLocationAndAngles(posHelper.posX, posHelper.posY, posHelper.posZ, entity.rotationYaw, entity.rotationPitch);
@@ -196,7 +203,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         return EnumActionResult.SUCCESS;
     }
 
-    private EnumActionResult storeEntity(ItemStack containerStack, EntityLivingBase livingBase)
+    private EnumActionResult storeEntity(ItemStack containerStack, EntityLivingBase livingBase, EntityPlayer player)
     {
         ItemStack moduleStack = this.getSelectedModuleStack(containerStack, ModuleType.TYPE_MEMORY_CARD_MISC);
 
@@ -222,6 +229,9 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             nbtEntity.setString("EntityString", str);
         }
+
+        // Store the player's yaw rotation, for applying a relative rotation to the entity's rotation upon release
+        nbtEntity.setFloat("playerYaw", player.rotationYaw);
 
         NBTTagList tagList = NBTUtils.getTagList(moduleStack, WRAPPER_TAG_NAME, "Entities", Constants.NBT.TAG_COMPOUND, true);
 
