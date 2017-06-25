@@ -3,6 +3,9 @@ package fi.dy.masa.enderutilities.proxy;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound.AttenuationType;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
@@ -18,6 +21,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -52,7 +57,6 @@ import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
-import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.entity.EntityEnderArrow;
 import fi.dy.masa.enderutilities.entity.EntityEnderPearlReusable;
@@ -115,7 +119,22 @@ public class ClientProxy extends CommonProxy
     @Override
     public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
     {
-        Effects.playPositionedSoundOnClient(soundId, pitch, volume, repeat, stop, x, y, z);
+        SoundHandler soundHandler = Minecraft.getMinecraft().getSoundHandler();
+        SoundEvent sound = SoundEvent.REGISTRY.getObjectById(soundId);
+
+        if (sound != null)
+        {
+            if (stop)
+            {
+                soundHandler.stop(sound.getRegistryName().toString(), null);
+            }
+            else
+            {
+                PositionedSoundRecord positionedSound = new PositionedSoundRecord(sound.getSoundName(),
+                        SoundCategory.RECORDS, volume, pitch, repeat, 0, AttenuationType.LINEAR, x, y, z);
+                soundHandler.playSound(positionedSound);
+            }
+        }
     }
 
     @Override

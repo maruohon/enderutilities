@@ -189,7 +189,7 @@ public class MessageAddEffects implements IMessage
             }
             else if (message.effectType == EFFECT_SOUND_EVENT)
             {
-                Effects.playPositionedSoundOnClient(message.soundEventId, message.pitch, message.volume,
+                EnderUtilities.proxy.playSound(message.soundEventId, message.pitch, message.volume,
                         message.repeat, message.flags != 0, message.x, message.y, message.z);
             }
         }
