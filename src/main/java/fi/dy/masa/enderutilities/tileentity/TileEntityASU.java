@@ -7,10 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiASU;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerASU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
@@ -180,8 +177,7 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiASU(this.getContainer(player), this);
     }

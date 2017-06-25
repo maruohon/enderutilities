@@ -2,10 +2,7 @@ package fi.dy.masa.enderutilities.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.gui.client.GuiJSU;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerJSU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
@@ -71,8 +68,7 @@ public class TileEntityJSU extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiJSU(this.getContainer(player), this);
     }

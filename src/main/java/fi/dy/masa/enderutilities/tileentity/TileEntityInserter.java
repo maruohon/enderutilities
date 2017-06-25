@@ -20,13 +20,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.gui.client.GuiInserter;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerInserter;
 import fi.dy.masa.enderutilities.network.message.ISyncableTile;
@@ -683,8 +680,7 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiInserter(this.getContainer(player), this);
     }

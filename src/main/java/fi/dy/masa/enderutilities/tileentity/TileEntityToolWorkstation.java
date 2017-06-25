@@ -4,12 +4,9 @@ import org.apache.commons.lang3.StringUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.gui.client.GuiToolWorkstation;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerToolWorkstation;
@@ -241,8 +238,7 @@ public class TileEntityToolWorkstation extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiToolWorkstation(getContainer(player), this);
     }

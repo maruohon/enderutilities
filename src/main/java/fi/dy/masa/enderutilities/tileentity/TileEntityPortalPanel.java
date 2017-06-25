@@ -14,13 +14,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiPortalPanel;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerPortalPanel;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
@@ -335,9 +332,8 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         return new ContainerPortalPanel(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiPortalPanel(this.getContainer(player), this);
     }

@@ -8,11 +8,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiMSU;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMSU;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperCreative;
@@ -152,8 +149,7 @@ public class TileEntityMSU extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiMSU(this.getContainer(player), this);
     }

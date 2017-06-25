@@ -13,11 +13,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.GuiSoundBlock;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.container.ContainerSoundBlock;
 import fi.dy.masa.enderutilities.network.message.ISyncableTile;
 import fi.dy.masa.enderutilities.network.message.MessageAddEffects;
@@ -307,9 +304,8 @@ public class TileEntitySoundBlock extends TileEntityEnderUtilities implements IS
         return new ContainerSoundBlock(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiSoundBlock(this.getContainer(player), this);
     }

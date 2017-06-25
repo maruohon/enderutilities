@@ -20,14 +20,11 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.block.BlockBarrel;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiBarrel;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerBarrel;
@@ -722,8 +719,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiBarrel(this.getContainer(player), this);
     }

@@ -4,11 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiMemoryChest;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.enderutilities.inventory.container.ContainerMemoryChest;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
@@ -152,8 +149,7 @@ public class TileEntityMemoryChest extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiMemoryChest(this.getContainer(player), this);
     }

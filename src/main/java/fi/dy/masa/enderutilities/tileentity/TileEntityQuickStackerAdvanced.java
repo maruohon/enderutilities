@@ -14,14 +14,11 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.gui.client.GuiQuickStackerAdvanced;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerModifiableProvider;
 import fi.dy.masa.enderutilities.inventory.IModularInventoryHolder;
 import fi.dy.masa.enderutilities.inventory.ItemHandlerModifiableMuxer;
@@ -568,9 +565,8 @@ public class TileEntityQuickStackerAdvanced extends TileEntityEnderUtilitiesInve
         return new ContainerQuickStackerAdvanced(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiQuickStackerAdvanced(this.getContainer(player), this);
     }

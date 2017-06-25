@@ -7,11 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderInfuser;
-import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerEnderInfuser;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelective;
@@ -258,8 +255,7 @@ public class TileEntityEnderInfuser extends TileEntityEnderUtilitiesInventory im
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public GuiEnderUtilities getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiEnderInfuser(this.getContainer(player), this);
     }
