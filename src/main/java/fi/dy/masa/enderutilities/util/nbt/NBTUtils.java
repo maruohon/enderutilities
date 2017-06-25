@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Sets;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -23,6 +22,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 
 public class NBTUtils
@@ -847,7 +847,6 @@ public class NBTUtils
 
     /**
      * Adds ready formatted description of the stored items in a cached tag to the list provided.<br>
-     * NOTE: CLIENT-ONLY!
      * @param stack
      * @param lines
      * @param maxItemLines
@@ -868,7 +867,7 @@ public class NBTUtils
         final int numLines = Math.min(list.tagCount(), maxItemLines);
         String countStr = EUStringUtils.formatNumberWithKSeparators(wrapper.getLong("ti"));
 
-        lines.add(I18n.format("enderutilities.tooltip.item.memorycard.items.stackcount", totalStacks, countStr));
+        lines.add(EnderUtilities.proxy.format("enderutilities.tooltip.item.memorycard.items.stackcount", totalStacks, countStr));
 
         for (int i = 0; i < numLines; i++)
         {
@@ -879,7 +878,8 @@ public class NBTUtils
 
         if (totalStacks > maxItemLines)
         {
-            lines.add(I18n.format("enderutilities.tooltip.item.andmorestacksnotlisted", preWhite, totalStacks - maxItemLines, rst));
+            lines.add(EnderUtilities.proxy.format("enderutilities.tooltip.item.andmorestacksnotlisted",
+                    preWhite, totalStacks - maxItemLines, rst));
         }
     }
 

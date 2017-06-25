@@ -33,6 +33,13 @@ import fi.dy.masa.enderutilities.util.ChunkLoading;
 
 public class CommonProxy implements IProxy
 {
+    @SuppressWarnings("deprecation")
+    @Override
+    public String format(String key, Object... args)
+    {
+        return net.minecraft.util.text.translation.I18n.translateToLocalFormatted(key, args);
+    }
+
     @Override
     public EntityPlayer getClientPlayer()
     {

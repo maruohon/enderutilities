@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public interface IProxy
 {
+    public String format(String key, Object... args);
+
     public EntityPlayer getClientPlayer();
 
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx);

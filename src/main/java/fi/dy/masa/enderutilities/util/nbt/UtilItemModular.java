@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.List;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +16,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
 import fi.dy.masa.enderutilities.item.base.IModular;
@@ -470,7 +470,6 @@ public class UtilItemModular
     /**
      * Adds a formatted list of ItemStack sizes and the display names of the ItemStacks
      * to the <b>listLines</b> list. Returns the total number of items stored.<br>
-     * NOTE: CLIENT-ONLY!
      * @param containerStack
      * @param listLines
      * @return total number of items stored
@@ -511,8 +510,8 @@ public class UtilItemModular
 
         if (overflow > 0)
         {
-            String str1 = I18n.format("enderutilities.tooltip.item.and");
-            String str2 = I18n.format("enderutilities.tooltip.item.morestacksnotlisted");
+            String str1 = EnderUtilities.proxy.format("enderutilities.tooltip.item.and");
+            String str2 = EnderUtilities.proxy.format("enderutilities.tooltip.item.morestacksnotlisted");
             listLines.add(String.format("     ... %s %s%d%s %s", str1, preWhite, overflow, rst, str2));
         }
 

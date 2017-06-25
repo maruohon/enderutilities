@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
@@ -80,6 +81,12 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 public class ClientProxy extends CommonProxy
 {
     private ModFixs dataFixer = null;
+
+    @Override
+    public String format(String key, Object... args)
+    {
+        return I18n.format(key, args);
+    }
 
     @Override
     public EntityPlayer getClientPlayer()
