@@ -16,7 +16,6 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -35,13 +34,13 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IAnvilRepairable
 {
     public float efficiencyOnProperMaterial;
-    private final Item.ToolMaterial material;
+    private final ItemEnderTool.ToolMaterial material;
 
     public ItemVoidPickaxe(String name)
     {
         super(name);
 
-        this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
+        this.material = ItemEnderTool.ToolMaterial.ENDER_ALLOY_ADVANCED;
         this.efficiencyOnProperMaterial = 6f;
 
         this.setMaxStackSize(1);

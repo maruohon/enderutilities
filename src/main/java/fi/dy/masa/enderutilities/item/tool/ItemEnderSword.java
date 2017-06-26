@@ -18,7 +18,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
@@ -63,13 +62,13 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
 {
     public static final int ENDER_CHARGE_COST = 50;
     private float damageVsEntity;
-    private final Item.ToolMaterial material;
+    private final ItemEnderTool.ToolMaterial material;
 
     public ItemEnderSword(String name)
     {
         super(name);
 
-        this.material = ItemEnderTool.ENDER_ALLOY_ADVANCED;
+        this.material = ItemEnderTool.ToolMaterial.ENDER_ALLOY_ADVANCED;
         this.damageVsEntity = 7.0f;
 
         this.setMaxStackSize(1);

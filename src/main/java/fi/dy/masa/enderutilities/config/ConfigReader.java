@@ -123,7 +123,7 @@ public class ConfigReader
                         "when updating the bag's NBT to the clients. So USE WITH CAUTION!");
         Configs.handyBagEnableItemUpdate = prop.getBoolean();
 
-        prop = getProp(currentCategory, "harvestLevelEnderAlloyAdvanced", 3, true);
+        prop = getProp(currentCategory, "harvestLevelEnderAlloyAdvanced", 3, false);
         prop.setComment("The harvest level of tools made from Advanced Ender Alloy (3 = vanilla diamond tool level).");
         Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
 

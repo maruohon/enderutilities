@@ -28,7 +28,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -46,7 +45,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -77,24 +75,15 @@ import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRepairable
 {
-    public static final Item.ToolMaterial ENDER_ALLOY_ADVANCED =
-        EnumHelper.addToolMaterial(ReferenceNames.NAME_MATERIAL_ENDERALLOY_ADVANCED,
-            Configs.harvestLevelEnderAlloyAdvanced, 3120, 12.0f, 0.0f, 15);
-
     public static final int ENDER_CHARGE_COST = 50;
     public float efficiencyOnProperMaterial;
-    private final Item.ToolMaterial material;
-
-    static
-    {
-        ENDER_ALLOY_ADVANCED.setRepairItem(new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 2));
-    }
+    private final ToolMaterial material;
 
     public ItemEnderTool(String name)
     {
         super(name);
 
-        this.material = ENDER_ALLOY_ADVANCED;
+        this.material = ToolMaterial.ENDER_ALLOY_ADVANCED;
         this.efficiencyOnProperMaterial = this.material.getEfficiencyOnProperMaterial();
 
         this.setMaxStackSize(1);
@@ -1276,6 +1265,68 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         {
             int meta = MathHelper.clamp(stack.getMetadata(), 0, values().length - 2);
             return values()[meta];
+        }
+    }
+
+    public static enum ToolMaterial
+    {
+        ENDER_ALLOY_ADVANCED(3120, 12.0F, 0.0F, 15);
+
+        private final int maxUses;
+        private final float efficiencyOnProperMaterial;
+        private final float damageVsEntity;
+        private final int enchantability;
+        //private ItemStack repairMaterial = ItemStack.EMPTY;
+
+        private ToolMaterial(int maxUses, float efficiency, float damageVsEntity, int enchantability)
+        {
+            this.maxUses = maxUses;
+            this.efficiencyOnProperMaterial = efficiency;
+            this.damageVsEntity = damageVsEntity;
+            this.enchantability = enchantability;
+        }
+
+        public int getMaxUses()
+        {
+            return this.maxUses;
+        }
+
+        public float getEfficiencyOnProperMaterial()
+        {
+            return this.efficiencyOnProperMaterial;
+        }
+
+        public float getDamageVsEntity()
+        {
+            return this.damageVsEntity;
+        }
+
+        public int getHarvestLevel()
+        {
+            return Configs.harvestLevelEnderAlloyAdvanced;
+        }
+
+        public int getEnchantability()
+        {
+            return this.enchantability;
+        }
+
+        /*
+        public ToolMaterial setRepairItem(ItemStack stack)
+        {
+            if (this.repairMaterial.isEmpty() == false)
+            {
+                throw new RuntimeException("Repair material has already been set");
+            }
+
+            this.repairMaterial = stack;
+            return this;
+        }
+        */
+
+        public ItemStack getRepairItemStack()
+        {
+            return new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 2);
         }
     }
 
