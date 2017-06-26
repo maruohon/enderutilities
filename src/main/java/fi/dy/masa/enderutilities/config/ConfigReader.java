@@ -122,7 +122,7 @@ public class ConfigReader
         prop = getProp("handyBagEnableItemUpdate", false);
         prop.setComment("Master config to enable calling the stored items' update method in the Handy Bag.\n" +
                         "WARNING: Due to how complex the bag's inventory stuff is (due to the bag storing Memory Cards,\n" +
-                        "which then store the items, using this functionality\n" +
+                        "which then store the items), using this functionality\n" +
                         "might cause lots of NBT data changes in the bag and also considerable network bandwidth usage\n" +
                         "when updating the bag's NBT to the clients. So USE WITH CAUTION!");
         Configs.handyBagEnableItemUpdate = prop.getBoolean();
@@ -132,7 +132,7 @@ public class ConfigReader
         Configs.harvestLevelEnderAlloyAdvanced = prop.getInt();
 
         prop = getProp("msuMaxItems", 1000000000);
-        prop.setComment("The maximum amount of items (per slot) the MSUs can store.");
+        prop.setComment("The maximum amount of items (per slot) the MSU and MSB can store. Max is " + Integer.MAX_VALUE);
         Configs.msuMaxItems = prop.getInt();
 
         prop = getProp("portalAreaCheckLimit", 10000);
@@ -151,7 +151,8 @@ public class ConfigReader
         prop.setComment("If enabled, then a custom event replaces fetching the block collision boxes for\n" +
                         "EntityItems and EntityXPOrbs when they are being pushed out of blocks.\n" +
                         "Without this, the Cracked Floor are really derpy and shoot the items and XP\n" +
-                        "everywhere while they try to fall through the block. NOTE: This doesn't work atm in 1.11.2+ due to vanilla/Forge changes");
+                        "everywhere while they try to fall through the block.\n" +
+                        "NOTE: This doesn't currently work in 1.11.2+ due to vanilla/Forge changes");
         Configs.replaceEntityItemCollisionBoxHandling = prop.getBoolean();
 
         prop = getProp("useEnderCharge", true);
@@ -194,7 +195,7 @@ public class ConfigReader
         prop.setComment("The alpha value to use for the translucent ghost block rendering mode");
         Configs.buildersWandGhostBlockAlpha = (float) MathHelper.clamp(prop.getDouble(), 0, 1);
 
-        prop = getProp("buildersWandMaxBlockHardness", 10d);
+        prop = getProp("buildersWandMaxBlockHardness", 60d);
         prop.setComment("The maximum block hardness of the blocks the wand can break/move in survival mode");
         Configs.buildersWandMaxBlockHardness = (float) prop.getDouble();
 

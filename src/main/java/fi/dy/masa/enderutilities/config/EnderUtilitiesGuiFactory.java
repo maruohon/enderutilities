@@ -1,32 +1,43 @@
 package fi.dy.masa.enderutilities.config;
 
-import java.util.Set;
-import net.minecraft.client.Minecraft;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.client.IModGuiFactory;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.DefaultGuiFactory;
+import net.minecraftforge.fml.client.config.GuiConfig;
+import net.minecraftforge.fml.client.config.IConfigElement;
+import fi.dy.masa.enderutilities.reference.Reference;
 
-public class EnderUtilitiesGuiFactory implements IModGuiFactory
+public class EnderUtilitiesGuiFactory extends DefaultGuiFactory
 {
-    @Override
-    public void initialize(Minecraft minecraftInstance)
+    public EnderUtilitiesGuiFactory()
     {
+        super(Reference.MOD_ID, getTitle());
     }
 
     @Override
-    public boolean hasConfigGui()
+    public GuiScreen createConfigGui(GuiScreen parent)
     {
-        return true;
+        return new GuiConfig(parent, getConfigElements(), Reference.MOD_ID, false, false, getTitle());
     }
 
-    @Override
-    public GuiScreen createConfigGui(GuiScreen parentScreen)
+    private static List<IConfigElement> getConfigElements()
     {
-        return new EnderUtilitiesConfigGui(parentScreen);
+        List<IConfigElement> configElements = new ArrayList<IConfigElement>();
+
+        Configuration config = ConfigReader.loadConfigsFromFile();
+        configElements.add(new ConfigElement(config.getCategory(ConfigReader.CATEGORY_GENERIC)));
+        configElements.add(new ConfigElement(config.getCategory(ConfigReader.CATEGORY_BUILDERSWAND)));
+        configElements.add(new ConfigElement(config.getCategory(ConfigReader.CATEGORY_LISTS)));
+        configElements.add(new ConfigElement(config.getCategory(ConfigReader.CATEGORY_CLIENT)));
+
+        return configElements;
     }
 
-    @Override
-    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
+    private static String getTitle()
     {
-        return null;
+        return GuiConfig.getAbridgedConfigPath(ConfigReader.getConfigFile().toString());
     }
 }
