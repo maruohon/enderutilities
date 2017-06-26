@@ -94,10 +94,6 @@ public class ConfigReader
         prop.setComment("Whether or not to render the \"fullness bar\" on Barrels");
         Configs.barrelRenderFullnessBar = prop.getBoolean();
 
-        prop = getProp("buildersWandAndRulerRenderForOtherPlayers", true);
-        prop.setComment("Render the Ruler and Builder's Wand areas/selections also for the items held by other players");
-        Configs.buildersWandRenderForOtherPlayers = prop.getBoolean();
-
         prop = getProp("enderBowAllowPlayers", true);
         prop.setComment("Is the Ender Bow allowed to teleport players (directly or in a 'stack' riding something)");
         Configs.enderBowAllowPlayers = prop.getBoolean();
@@ -213,6 +209,10 @@ public class ConfigReader
         prop = getProp("announceLocationBindingInChat", false);
         prop.setComment("Prints a chat message when items are bound to a new location");
         Configs.announceLocationBindingInChat = prop.getBoolean();
+
+        prop = getProp("buildersWandAndRulerRenderForOtherPlayers", true);
+        prop.setComment("Render the Ruler and Builder's Wand areas/selections also for the items held by other players");
+        Configs.buildersWandRenderForOtherPlayers = prop.getBoolean();
 
         prop = getProp("handyBagOpenRequiresSneak", false);
         prop.setComment("Reverse the sneak behaviour on opening the Handy Bag instead of the regular inventory");
