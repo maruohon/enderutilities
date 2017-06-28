@@ -52,14 +52,14 @@ public class GuiButtonIcon extends GuiButton
         if (this.visible)
         {
             this.enabled = this.isEnabled();
-            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
-                    mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+            this.hovered = mouseX >= this.x && mouseY >= this.y &&
+                    mouseX < this.x + this.width && mouseY < this.y + this.height;
             int state = this.getHoverState(this.hovered);
 
             mc.getTextureManager().bindTexture(this.texture);
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawTexturedModalRect(this.xPosition, this.yPosition,
+            this.drawTexturedModalRect(this.x, this.y,
                     this.getU() + state * this.hoverOffsetU,
                     this.getV() + state * this.hoverOffsetV, this.width, this.height);
 

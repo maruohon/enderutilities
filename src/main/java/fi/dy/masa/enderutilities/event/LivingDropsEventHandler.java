@@ -15,9 +15,9 @@ public class LivingDropsEventHandler
     {
         DamageSource source = event.getSource();
 
-        if (source != null && source.damageType != null && source.damageType.equals("player") && source.getSourceOfDamage() instanceof EntityPlayer)
+        if (source != null && source.damageType != null && source.damageType.equals("player") && source.getImmediateSource() instanceof EntityPlayer)
         {
-            ItemStack stack = ((EntityPlayer)source.getSourceOfDamage()).getHeldItemMainhand();
+            ItemStack stack = ((EntityPlayer) source.getImmediateSource()).getHeldItemMainhand();
 
             if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.ENDER_SWORD)
             {

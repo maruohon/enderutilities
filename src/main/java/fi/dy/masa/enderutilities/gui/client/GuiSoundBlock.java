@@ -200,10 +200,10 @@ public class GuiSoundBlock extends GuiEnderUtilities implements IButtonStateCall
     {
         // Clear the field on right click
         if (mouseButton == 1 &&
-            mouseX >= this.guiLeft + this.searchField.xPosition &&
-            mouseX < this.guiLeft + this.searchField.xPosition + this.searchField.width &&
-            mouseY >= this.guiTop + this.searchField.yPosition &&
-            mouseY < this.guiTop + this.searchField.yPosition + this.searchField.height)
+            mouseX >= this.guiLeft + this.searchField.x &&
+            mouseX < this.guiLeft + this.searchField.x + this.searchField.width &&
+            mouseY >= this.guiTop + this.searchField.y &&
+            mouseY < this.guiTop + this.searchField.y + this.searchField.height)
         {
 
             this.searchField.setText("");

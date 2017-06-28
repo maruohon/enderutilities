@@ -76,12 +76,12 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
         {
             if (maxLength != this.lengthLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, maxLength);
+                this.listeners.get(i).sendWindowProperty(this, 0, maxLength);
             }
 
             if (delay != this.delayLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 1, delay);
+                this.listeners.get(i).sendWindowProperty(this, 1, delay);
             }
         }
 

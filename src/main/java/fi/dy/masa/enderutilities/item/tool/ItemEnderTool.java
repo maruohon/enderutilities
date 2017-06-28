@@ -684,7 +684,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 return;
             }
 
-            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+            World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
             if (targetWorld == null)
             {

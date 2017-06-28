@@ -58,17 +58,17 @@ public class ContainerEnderInfuser extends ContainerTile
 
             if (this.teef.amountStored != this.amountStored)
             {
-                listener.sendProgressBarUpdate(this, 0, this.teef.amountStored);
+                listener.sendWindowProperty(this, 0, this.teef.amountStored);
             }
 
             if (this.teef.meltingProgress != this.meltingProgress)
             {
-                listener.sendProgressBarUpdate(this, 1, this.teef.meltingProgress);
+                listener.sendWindowProperty(this, 1, this.teef.meltingProgress);
             }
 
             if (this.ciCurrentLast != this.ciCurrent)
             {
-                listener.sendProgressBarUpdate(this, 2, this.chargeProgress);
+                listener.sendWindowProperty(this, 2, this.chargeProgress);
             }
         }
 
@@ -83,9 +83,9 @@ public class ContainerEnderInfuser extends ContainerTile
         super.addListener(listener);
 
         this.updateChargingProgress();
-        listener.sendProgressBarUpdate(this, 0, this.amountStored);
-        listener.sendProgressBarUpdate(this, 1, this.meltingProgress);
-        listener.sendProgressBarUpdate(this, 2, this.chargeProgress);
+        listener.sendWindowProperty(this, 0, this.amountStored);
+        listener.sendWindowProperty(this, 1, this.meltingProgress);
+        listener.sendWindowProperty(this, 2, this.chargeProgress);
     }
 
     @SideOnly(Side.CLIENT)

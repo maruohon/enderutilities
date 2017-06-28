@@ -194,15 +194,15 @@ public class ContainerQuickStackerAdvanced extends ContainerTile
     {
         super.addListener(listener);
 
-        listener.sendProgressBarUpdate(this, 0, this.teqsa.isAreaMode() ? 1 : 0);
-        listener.sendProgressBarUpdate(this, 1, this.teqsa.getAreaModeSettings());
-        listener.sendProgressBarUpdate(this, 2, this.teqsa.getEnabledTargetsMask());
-        listener.sendProgressBarUpdate(this, 3, this.teqsa.getSelectedTarget());
+        listener.sendWindowProperty(this, 0, this.teqsa.isAreaMode() ? 1 : 0);
+        listener.sendWindowProperty(this, 1, this.teqsa.getAreaModeSettings());
+        listener.sendWindowProperty(this, 2, this.teqsa.getEnabledTargetsMask());
+        listener.sendWindowProperty(this, 3, this.teqsa.getSelectedTarget());
 
         long mask = this.teqsa.getEnabledSlotsMask();
-        listener.sendProgressBarUpdate(this, 4, (short)((mask >>> 32) & 0xFFFF));
-        listener.sendProgressBarUpdate(this, 5, (short)((mask >>> 16) & 0xFFFF));
-        listener.sendProgressBarUpdate(this, 6, (short)(mask & 0xFFFF));
+        listener.sendWindowProperty(this, 4, (short)((mask >>> 32) & 0xFFFF));
+        listener.sendWindowProperty(this, 5, (short)((mask >>> 16) & 0xFFFF));
+        listener.sendWindowProperty(this, 6, (short)(mask & 0xFFFF));
     }
 
     @Override
@@ -215,30 +215,30 @@ public class ContainerQuickStackerAdvanced extends ContainerTile
         {
             if (areaMode != this.valuesLast[0])
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, areaMode);
+                this.listeners.get(i).sendWindowProperty(this, 0, areaMode);
             }
 
             if (this.teqsa.getAreaModeSettings() != this.valuesLast[1])
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 1, this.teqsa.getAreaModeSettings());
+                this.listeners.get(i).sendWindowProperty(this, 1, this.teqsa.getAreaModeSettings());
             }
 
             if (this.teqsa.getEnabledTargetsMask() != this.valuesLast[2])
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 2, this.teqsa.getEnabledTargetsMask());
+                this.listeners.get(i).sendWindowProperty(this, 2, this.teqsa.getEnabledTargetsMask());
             }
 
             if (this.teqsa.getSelectedTarget() != this.valuesLast[3])
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 3, this.teqsa.getSelectedTarget());
+                this.listeners.get(i).sendWindowProperty(this, 3, this.teqsa.getSelectedTarget());
             }
 
             if (mask != this.enabledSlotsMask)
             {
                 // In multiplayer the data can only be a short
-                this.listeners.get(i).sendProgressBarUpdate(this, 4, (short)((mask >>> 32) & 0xFFFF));
-                this.listeners.get(i).sendProgressBarUpdate(this, 5, (short)((mask >>> 16) & 0xFFFF));
-                this.listeners.get(i).sendProgressBarUpdate(this, 6, (short)(mask & 0xFFFF));
+                this.listeners.get(i).sendWindowProperty(this, 4, (short)((mask >>> 32) & 0xFFFF));
+                this.listeners.get(i).sendWindowProperty(this, 5, (short)((mask >>> 16) & 0xFFFF));
+                this.listeners.get(i).sendWindowProperty(this, 6, (short)(mask & 0xFFFF));
             }
         }
 

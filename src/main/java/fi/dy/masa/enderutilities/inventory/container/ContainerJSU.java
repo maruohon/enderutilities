@@ -83,7 +83,7 @@ public class ContainerJSU extends ContainerTileLargeStacks implements ISlotOffse
         {
             if (this.startRow != this.startRowLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.startRow);
+                this.listeners.get(i).sendWindowProperty(this, 0, this.startRow);
             }
         }
 

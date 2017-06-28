@@ -34,7 +34,7 @@ public class TeleportEntityNetherPortal
      */
     public Entity travelToDimension(Entity entity, int dimension, BlockPos idealPos, int portalSearchRadius, boolean placeInsidePortal)
     {
-        WorldServer worldServer = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimension);
+        WorldServer worldServer = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
 
         if (worldServer == null)
         {

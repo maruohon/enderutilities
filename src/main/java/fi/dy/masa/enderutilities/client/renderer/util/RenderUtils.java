@@ -59,7 +59,7 @@ public class RenderUtils
             Vec3d look = entityIn.getLook(partialTicks);
             vertexbuffer.begin(3, DefaultVertexFormats.POSITION_COLOR);
             vertexbuffer.pos(x, y + entityIn.getEyeHeight(), z).color(0, 0, 255, 255).endVertex();
-            vertexbuffer.pos(x + look.xCoord * 2.0D, y + entityIn.getEyeHeight() + look.yCoord * 2.0D, z + look.zCoord * 2.0D).color(0, 0, 255, 255).endVertex();
+            vertexbuffer.pos(x + look.x * 2.0D, y + entityIn.getEyeHeight() + look.y * 2.0D, z + look.z * 2.0D).color(0, 0, 255, 255).endVertex();
             tessellator.draw();
         }
 

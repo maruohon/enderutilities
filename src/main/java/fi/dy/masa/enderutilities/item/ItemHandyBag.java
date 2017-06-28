@@ -573,7 +573,7 @@ public class ItemHandyBag extends ItemInventoryModular
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
-        ItemStack stack = entityItem.getEntityItem();
+        ItemStack stack = entityItem.getItem();
         EntityPlayer player = event.getEntityPlayer();
 
         if (player.getEntityWorld().isRemote || entityItem.isDead || stack.isEmpty())
@@ -612,7 +612,7 @@ public class ItemHandyBag extends ItemInventoryModular
         // Not everything was handled, update the stack
         if (entityItem.isDead == false && stack.getCount() != origStackSize)
         {
-            entityItem.setEntityItemStack(stack);
+            entityItem.setItem(stack);
         }
 
         // At least some items were picked up

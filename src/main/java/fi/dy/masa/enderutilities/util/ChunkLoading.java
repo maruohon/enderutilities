@@ -169,7 +169,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        World world = srv.worldServerForDimension(dimension);
+        World world = srv.getWorld(dimension);
         if (world == null)
         {
             EnderUtilities.logger.warn("requestPlayerTicket(): Couldn't get world for dimension (" + dimension + ")");
@@ -205,14 +205,14 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return null;
         }
 
-        World world = srv.worldServerForDimension(dimension);
+        World world = srv.getWorld(dimension);
         if (world == null)
         {
             EnderUtilities.logger.warn("requestModTicket(): Couldn't get world for dimension (" + dimension + ")");
             return null;
         }
 
-        for (Ticket ticket : this.modTickets.get(srv.worldServerForDimension(dimension)))
+        for (Ticket ticket : this.modTickets.get(srv.getWorld(dimension)))
         {
             // If this ticket can still load more chunks
             if (ticket != null && ticket.getChunkList() != null && ticket.getChunkList().size() < ticket.getChunkListDepth())
@@ -351,7 +351,7 @@ public class ChunkLoading implements LoadingCallback, OrderedLoadingCallback, Pl
             return false;
         }
 
-        return this.loadChunkWithoutForce(server.worldServerForDimension(dimension), chunkX, chunkZ);
+        return this.loadChunkWithoutForce(server.getWorld(dimension), chunkX, chunkZ);
     }
 
     public boolean loadChunkWithoutForce(WorldServer worldServer, int chunkX, int chunkZ)

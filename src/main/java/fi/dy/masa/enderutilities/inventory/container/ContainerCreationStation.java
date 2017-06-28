@@ -346,11 +346,11 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         int smeltProgress = this.tecs.getSmeltProgressScaled(1, 100) << 8 | this.tecs.getSmeltProgressScaled(0, 100);
         int fuelProgress = this.tecs.getBurnTimeRemainingScaled(1, 100) << 8 | this.tecs.getBurnTimeRemainingScaled(0, 100);
 
-        listener.sendProgressBarUpdate(this, 0, modeMask);
-        listener.sendProgressBarUpdate(this, 1, selection);
-        listener.sendProgressBarUpdate(this, 2, fuelProgress);
-        listener.sendProgressBarUpdate(this, 3, smeltProgress);
-        listener.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
+        listener.sendWindowProperty(this, 0, modeMask);
+        listener.sendWindowProperty(this, 1, selection);
+        listener.sendWindowProperty(this, 2, fuelProgress);
+        listener.sendWindowProperty(this, 3, smeltProgress);
+        listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
 
         this.detectAndSendChanges();
     }
@@ -377,23 +377,23 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
 
             if (this.modeMask != modeMask)
             {
-                listener.sendProgressBarUpdate(this, 0, modeMask);
+                listener.sendWindowProperty(this, 0, modeMask);
             }
             if (this.selectionsLast != selection)
             {
-                listener.sendProgressBarUpdate(this, 1, selection);
+                listener.sendWindowProperty(this, 1, selection);
             }
             if (this.fuelProgress != fuelProgress)
             {
-                listener.sendProgressBarUpdate(this, 2, fuelProgress);
+                listener.sendWindowProperty(this, 2, fuelProgress);
             }
             if (this.smeltProgress != smeltProgress)
             {
-                listener.sendProgressBarUpdate(this, 3, smeltProgress);
+                listener.sendWindowProperty(this, 3, smeltProgress);
             }
             if (this.lastInteractedCraftingGrid != this.tecs.lastInteractedCraftingGrid)
             {
-                listener.sendProgressBarUpdate(this, 4, this.tecs.lastInteractedCraftingGrid);
+                listener.sendWindowProperty(this, 4, this.tecs.lastInteractedCraftingGrid);
             }
         }
 

@@ -252,7 +252,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
         // We allow a max range of 64 blocks, to hopefully be on the safer side
         //return target.dimension != player.dimension || player.getDistanceSq(target.posX, target.posY, target.posZ) >= 4096.0d;
 
-        WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+        WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
         if ((player instanceof EntityPlayerMP) == false || world == null ||
              world.getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP) player, target.pos.getX() >> 4, target.pos.getZ() >> 4) == false)

@@ -56,7 +56,7 @@ public class TaskPositionDebug implements ITask
     @Override
     public boolean execute()
     {
-        World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(this.dimension);
+        World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(this.dimension);
         if (world == null)
         {
             return true;

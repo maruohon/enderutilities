@@ -135,9 +135,8 @@ public class BlockPhasing extends BlockEnderUtilities
         return this.isBlockNormalCube(state);
     }
 
-    // Inverted naming here >_> It used to be called isPassable, and is used in the same places and is the same method still
     @Override
-    public boolean blocksMovement(IBlockAccess worldIn, BlockPos pos)
+    public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
         return this.isBlockNormalCube(worldIn.getBlockState(pos)) == false;
     }

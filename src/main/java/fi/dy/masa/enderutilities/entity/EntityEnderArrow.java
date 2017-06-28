@@ -193,7 +193,7 @@ public class EntityEnderArrow extends EntityArrow
         {
             AxisAlignedBB aabb = state.getCollisionBoundingBox(this.getEntityWorld(), pos);
 
-            if (aabb != Block.NULL_AABB && aabb.isVecInside(new Vec3d(this.posX, this.posY, this.posZ)))
+            if (aabb != Block.NULL_AABB && aabb.contains(new Vec3d(this.posX, this.posY, this.posZ)))
             {
                 this.inGround = true;
             }
@@ -239,12 +239,12 @@ public class EntityEnderArrow extends EntityArrow
 
         if (rayTraceResult != null)
         {
-            vec3 = new Vec3d(rayTraceResult.hitVec.xCoord, rayTraceResult.hitVec.yCoord, rayTraceResult.hitVec.zCoord);
+            vec3 = new Vec3d(rayTraceResult.hitVec.x, rayTraceResult.hitVec.y, rayTraceResult.hitVec.z);
         }
 
         Entity shooter = this.getShooter();
         Entity entity = null;
-        List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
@@ -353,9 +353,9 @@ public class EntityEnderArrow extends EntityArrow
                 state = this.getEntityWorld().getBlockState(mopPos);
                 this.inBlock = state.getBlock();
                 this.inData = this.inBlock.getMetaFromState(state);
-                this.motionX = (double)((float)(rayTraceResult.hitVec.xCoord - this.posX));
-                this.motionY = (double)((float)(rayTraceResult.hitVec.yCoord - this.posY));
-                this.motionZ = (double)((float)(rayTraceResult.hitVec.zCoord - this.posZ));
+                this.motionX = (double)((float)(rayTraceResult.hitVec.x - this.posX));
+                this.motionY = (double)((float)(rayTraceResult.hitVec.y - this.posY));
+                this.motionZ = (double)((float)(rayTraceResult.hitVec.z - this.posZ));
                 f2 = MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
                 this.posX -= this.motionX / (double)f2 * 0.05000000074505806D;
                 this.posY -= this.motionY / (double)f2 * 0.05000000074505806D;

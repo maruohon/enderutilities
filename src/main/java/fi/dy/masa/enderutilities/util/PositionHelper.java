@@ -46,18 +46,18 @@ public class PositionHelper
         // Hit a block
         if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK && rayTraceResult.hitVec != null)
         {
-            this.posX = rayTraceResult.hitVec.xCoord;
-            this.posY = rayTraceResult.hitVec.yCoord;
-            this.posZ = rayTraceResult.hitVec.zCoord;
+            this.posX = rayTraceResult.hitVec.x;
+            this.posY = rayTraceResult.hitVec.y;
+            this.posZ = rayTraceResult.hitVec.z;
         }
         // Hit an entity
         else if (rayTraceResult.typeOfHit == RayTraceResult.Type.ENTITY)
         {
             if (rayTraceResult.hitVec != null)
             {
-                this.posX = rayTraceResult.hitVec.xCoord;
-                this.posY = rayTraceResult.hitVec.yCoord;
-                this.posZ = rayTraceResult.hitVec.zCoord;
+                this.posX = rayTraceResult.hitVec.x;
+                this.posY = rayTraceResult.hitVec.y;
+                this.posZ = rayTraceResult.hitVec.z;
             }
             else if (rayTraceResult.entityHit != null)
             {

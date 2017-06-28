@@ -445,7 +445,7 @@ public class ContainerEnderUtilities extends Container
             {
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
-                    this.listeners.get(i).sendProgressBarUpdate(this, progressBarId, (locked ? 0x8000 : 0) | slot);
+                    this.listeners.get(i).sendWindowProperty(this, progressBarId, (locked ? 0x8000 : 0) | slot);
                 }
 
                 lockedLast[slot] = locked;

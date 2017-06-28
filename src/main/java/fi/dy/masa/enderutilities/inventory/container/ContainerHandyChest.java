@@ -82,9 +82,9 @@ public class ContainerHandyChest extends ContainerTileLargeStacks
     {
         super.addListener(listener);
 
-        listener.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
-        listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
-        listener.sendProgressBarUpdate(this, 2, this.tehc.getLockMask());
+        listener.sendWindowProperty(this, 0, this.tehc.getSelectedModule());
+        listener.sendWindowProperty(this, 1, this.tehc.getQuickMode());
+        listener.sendWindowProperty(this, 2, this.tehc.getLockMask());
     }
 
     @Override
@@ -101,17 +101,17 @@ public class ContainerHandyChest extends ContainerTileLargeStacks
 
             if (this.selectedModule != this.tehc.getSelectedModule())
             {
-                listener.sendProgressBarUpdate(this, 0, this.tehc.getSelectedModule());
+                listener.sendWindowProperty(this, 0, this.tehc.getSelectedModule());
             }
 
             if (this.actionMode != this.tehc.getQuickMode())
             {
-                listener.sendProgressBarUpdate(this, 1, this.tehc.getQuickMode());
+                listener.sendWindowProperty(this, 1, this.tehc.getQuickMode());
             }
 
             if (this.lockMask != this.tehc.getLockMask())
             {
-                listener.sendProgressBarUpdate(this, 2, this.tehc.getLockMask());
+                listener.sendWindowProperty(this, 2, this.tehc.getLockMask());
             }
         }
 

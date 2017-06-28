@@ -238,7 +238,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
             return itemsIn;
         }
 
-        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+        World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
         if (targetWorld == null)
         {
@@ -278,7 +278,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         }
 
         List<EntityItem> drops = event.getDrops();
-        EntityPlayer player = (EntityPlayer)event.getSource().getSourceOfDamage();
+        EntityPlayer player = (EntityPlayer)event.getSource().getImmediateSource();
         Iterator<EntityItem> iter = drops.iterator();
         IItemHandler inv = this.getLinkedInventoryWithChecks(toolStack, player);
         boolean transported = false;
@@ -286,7 +286,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         while (iter.hasNext())
         {
             EntityItem item = iter.next();
-            ItemStack stack = item.getEntityItem();
+            ItemStack stack = item.getItem();
 
             if (stack.isEmpty())
             {
@@ -322,7 +322,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
             else if (stackTmp.getCount() != stack.getCount())
             {
                 stack.setCount(stackTmp.getCount());
-                item.setEntityItemStack(stack);
+                item.setItem(stack);
                 transported = true;
             }
         }
@@ -353,7 +353,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
                 EntityItem item = iter.next();
                 MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, item));
 
-                if (item.isDead || item.getEntityItem().isEmpty())
+                if (item.isDead || item.getItem().isEmpty())
                 {
                     iter.remove();
                 }

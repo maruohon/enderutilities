@@ -10,6 +10,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
+import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 
 @mezz.jei.api.JEIPlugin
@@ -34,11 +35,11 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
         registry.getRecipeTransferRegistry().addRecipeTransferHandler(new RecipeHandlerCreationStation<ContainerCreationStation>());
 
         // Creation Station
-        registry.addRecipeCategoryCraftingItem(new ItemStack(EnderUtilitiesBlocks.MACHINE_1, 1, 2),
+        registry.addRecipeCatalyst(new ItemStack(EnderUtilitiesBlocks.MACHINE_1, 1, 2),
                 VanillaRecipeCategoryUid.CRAFTING, VanillaRecipeCategoryUid.SMELTING, VanillaRecipeCategoryUid.FUEL);
 
         // Ender Furnace
-        registry.addRecipeCategoryCraftingItem(new ItemStack(EnderUtilitiesBlocks.ENDER_FURNACE, 1, 0),
+        registry.addRecipeCatalyst(new ItemStack(EnderUtilitiesBlocks.ENDER_FURNACE, 1, 0),
                 VanillaRecipeCategoryUid.SMELTING, VanillaRecipeCategoryUid.FUEL);
     }
 
@@ -54,6 +55,11 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
 
     @Override
     public void registerIngredients(IModIngredientRegistration registry)
+    {
+    }
+
+    @Override
+    public void registerCategories(IRecipeCategoryRegistration registry)
     {
     }
 }

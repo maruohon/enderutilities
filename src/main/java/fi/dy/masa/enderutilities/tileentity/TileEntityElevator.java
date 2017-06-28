@@ -105,7 +105,7 @@ public class TileEntityElevator extends TileEntityEnderUtilities
 
         if (posDifference != null)
         {
-            entity.setPositionAndUpdate(entity.posX + posDifference.xCoord, entity.posY + posDifference.yCoord, entity.posZ + posDifference.zCoord);
+            entity.setPositionAndUpdate(entity.posX + posDifference.x, entity.posY + posDifference.y, entity.posZ + posDifference.z);
             this.getWorld().playSound(null, entity.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.3f, 1.8f);
         }
     }

@@ -295,7 +295,7 @@ public class TeleportEntity
     private static Entity teleportEntityToDimension(Entity entity, double x, double y, double z, int dimDst)
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        WorldServer worldDst = server.worldServerForDimension(dimDst);
+        WorldServer worldDst = server.getWorld(dimDst);
 
         teleportInProgress = true;
 

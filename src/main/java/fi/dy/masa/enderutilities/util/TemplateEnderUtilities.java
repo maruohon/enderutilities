@@ -191,9 +191,9 @@ public class TemplateEnderUtilities
             Vec3d vec3d = PositionUtils.transformedVec3d(entityInfo.pos, mirror, rotation);
             Vec3d vec3d1 = vec3d.addVector((double)posStart.getX(), (double)posStart.getY(), (double)posStart.getZ());
             NBTTagList tagList = new NBTTagList();
-            tagList.appendTag(new NBTTagDouble(vec3d1.xCoord));
-            tagList.appendTag(new NBTTagDouble(vec3d1.yCoord));
-            tagList.appendTag(new NBTTagDouble(vec3d1.zCoord));
+            tagList.appendTag(new NBTTagDouble(vec3d1.x));
+            tagList.appendTag(new NBTTagDouble(vec3d1.y));
+            tagList.appendTag(new NBTTagDouble(vec3d1.z));
             nbt.setTag("Pos", tagList);
             nbt.setUniqueId("UUID", UUID.randomUUID());
             Entity entity;
@@ -214,13 +214,13 @@ public class TemplateEnderUtilities
                     entity.getMirroredYaw(mirror);
                     entity.getRotatedYaw(rotation);
                     entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
-                    entity.setLocationAndAngles(vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, entity.rotationYaw, entity.rotationPitch);
+                    entity.setLocationAndAngles(vec3d1.x, vec3d1.y, vec3d1.z, entity.rotationYaw, entity.rotationPitch);
                 }
                 else
                 {
                     float f = entity.getMirroredYaw(mirror);
                     f = f + (entity.rotationYaw - entity.getRotatedYaw(rotation));
-                    entity.setLocationAndAngles(vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, f, entity.rotationPitch);
+                    entity.setLocationAndAngles(vec3d1.x, vec3d1.y, vec3d1.z, f, entity.rotationPitch);
                     // FIXME should call updateFacingWithBoundingBox(EnumFacing) for EntityHanging, otherwise a world reload is needed
                     // for ItemFrames for example to visually update to the correct facing
                 }
@@ -388,7 +388,7 @@ public class TemplateEnderUtilities
         for (TemplateEnderUtilities.TemplateEntityInfo entityInfo : this.entities)
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-            nbttagcompound1.setTag("pos", NBTUtils.writeDoubles(new double[] {entityInfo.pos.xCoord, entityInfo.pos.yCoord, entityInfo.pos.zCoord}));
+            nbttagcompound1.setTag("pos", NBTUtils.writeDoubles(new double[] {entityInfo.pos.x, entityInfo.pos.y, entityInfo.pos.z}));
             nbttagcompound1.setTag("blockPos", NBTUtils.writeInts(new int[] {entityInfo.blockPos.getX(), entityInfo.blockPos.getY(), entityInfo.blockPos.getZ()}));
 
             if (entityInfo.entityData != null)

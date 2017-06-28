@@ -82,7 +82,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
 
         if (rayTraceImpact != null)
         {
-            nextPos = new Vec3d(rayTraceImpact.hitVec.xCoord, rayTraceImpact.hitVec.yCoord, rayTraceImpact.hitVec.zCoord);
+            nextPos = new Vec3d(rayTraceImpact.hitVec.x, rayTraceImpact.hitVec.y, rayTraceImpact.hitVec.z);
         }
 
         if (this.getEntityWorld().isRemote == false)
@@ -90,7 +90,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
             EntityLivingBase thrower = this.getThrower();
             Entity entity = null;
             List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this,
-                    this.getEntityBoundingBox().addCoord(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+                    this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
             double distance = 0.0d;
 
             for (int j = 0; j < list.size(); ++j)

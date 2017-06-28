@@ -150,7 +150,7 @@ public class TickHandler
                         IBlockState state = world.getBlockState(pos);
 
                         if (state.getBlock() == EnderUtilitiesBlocks.PORTAL &&
-                            player.getEntityBoundingBox().intersectsWith(state.getBoundingBox(world, pos).offset(pos)))
+                            player.getEntityBoundingBox().intersects(state.getBoundingBox(world, pos).offset(pos)))
                         {
                             ((BlockEnderUtilitiesPortal) state.getBlock()).teleportEntity(world, pos, state, player);
                             break;

@@ -118,8 +118,8 @@ public class GuiScreenBuilderWandTemplate extends GuiScreen
         // Clear the field on right click
         if (mouseButton == 1)
         {
-            if (mouseX >= this.nameField.xPosition && mouseX < this.nameField.xPosition + this.nameField.width &&
-                mouseY >= this.nameField.yPosition && mouseY < this.nameField.yPosition + this.nameField.height)
+            if (mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.width &&
+                mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.height)
             {
                 this.nameField.setText("");
             }

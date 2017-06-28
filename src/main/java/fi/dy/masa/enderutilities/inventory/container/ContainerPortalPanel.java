@@ -56,7 +56,7 @@ public class ContainerPortalPanel extends ContainerTile implements IStringInput
     {
         super.addListener(listener);
 
-        listener.sendProgressBarUpdate(this, 0, this.tepp.getActiveTargetId());
+        listener.sendWindowProperty(this, 0, this.tepp.getActiveTargetId());
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ContainerPortalPanel extends ContainerTile implements IStringInput
         {
             if (this.targetLast != this.tepp.getActiveTargetId())
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, this.tepp.getActiveTargetId());
+                this.listeners.get(i).sendWindowProperty(this, 0, this.tepp.getActiveTargetId());
             }
         }
 

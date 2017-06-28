@@ -76,10 +76,10 @@ public class GuiPortalPanel extends GuiEnderUtilities
     {
         // Clear the field on right click
         if (mouseButton == 1 &&
-            mouseX >= this.guiLeft + this.nameField.xPosition &&
-            mouseX < this.guiLeft + this.nameField.xPosition + this.nameField.width &&
-            mouseY >= this.guiTop + this.nameField.yPosition &&
-            mouseY < this.guiTop + this.nameField.yPosition + this.nameField.height)
+            mouseX >= this.guiLeft + this.nameField.x &&
+            mouseX < this.guiLeft + this.nameField.x + this.nameField.width &&
+            mouseY >= this.guiTop + this.nameField.y &&
+            mouseY < this.guiTop + this.nameField.y + this.nameField.height)
         {
 
             this.nameField.setText("");

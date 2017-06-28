@@ -291,7 +291,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         if (target != null)
         {
-            World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(target.dimension);
+            World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
 
             // Force load the target chunk with a 30 second unload delay.
             if (world == null || ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
@@ -500,7 +500,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
-        ItemStack stack = entityItem.getEntityItem();
+        ItemStack stack = entityItem.getItem();
         EntityPlayer player = event.getEntityPlayer();
 
         if (player.getEntityWorld().isRemote || entityItem.isDead || stack.isEmpty())

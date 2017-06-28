@@ -109,7 +109,7 @@ public class MessageGuiAction implements IMessage
 
         protected void processMessage(final MessageGuiAction message, EntityPlayer player)
         {
-            World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimension);
+            World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(message.dimension);
 
             if (world != null)
             {
