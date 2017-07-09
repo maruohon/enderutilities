@@ -122,13 +122,11 @@ public class GuiEnderUtilities extends GuiContainer
             // Mouse is over the button
             if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY))
             {
-                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRenderer);
+                this.drawHoveringText(((GuiButtonHoverText) button).getHoverStrings(), mouseX, mouseY, this.fontRenderer);
             }
         }
 
         // Draw the colored background for the selected slot (for swapping), if any
-        // FIXME this renders on top of ItemStack tool tips here...
-        // but inside drawGuiContainerBackgroundLayer() some child GUIs would render empty slots over this...
         if (this.container instanceof ContainerCustomSlotClick)
         {
             int selectedSlot = ((ContainerCustomSlotClick) this.container).getSelectedSlot();
@@ -142,11 +140,8 @@ public class GuiEnderUtilities extends GuiContainer
             }
         }
 
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
         // Info text has been set, show it if the mouse is over the designated info area
-        if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, x, y))
+        if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, this.guiLeft, this.guiTop))
         {
             this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRenderer);
         }

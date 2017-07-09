@@ -300,6 +300,7 @@ public class ItemBlockEnderUtilities extends ItemBlock implements IKeyBound
         }
     }
 
+    @Override
     public boolean isFull3D()
     {
         return true;
