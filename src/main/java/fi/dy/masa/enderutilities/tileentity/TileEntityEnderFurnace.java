@@ -15,12 +15,12 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
@@ -466,6 +466,13 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             return 0;
         }
 
+        int burnTime = ForgeEventFactory.getItemBurnTime(stack) * COOKTIME_DEFAULT * 3 / 400;
+
+        if (burnTime >= 0)
+        {
+            return burnTime;
+        }
+
         Item item = stack.getItem();
 
         if (item instanceof ItemBlock && Block.getBlockFromItem(item) != Blocks.AIR)
@@ -493,7 +500,7 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
             if (item == Items.ENDER_EYE) { return COOKTIME_DEFAULT * 17; }
         }
 
-        return GameRegistry.getFuelValue(stack) * COOKTIME_DEFAULT * 3 / 400;
+        return 0;
     }
 
     /**
