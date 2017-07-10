@@ -1,8 +1,8 @@
 package fi.dy.masa.enderutilities.network.message;
 
 import java.io.IOException;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 
 public class MessageSyncNBTTag implements IMessage
 {
+    private UUID uuid;
     private Type type;
     private NBTTagCompound tag;
 
@@ -22,10 +23,20 @@ public class MessageSyncNBTTag implements IMessage
     {
     }
 
-    public MessageSyncNBTTag(Type type, NBTTagCompound tag)
+    public MessageSyncNBTTag(UUID uuid, Type type, NBTTagCompound tag)
     {
+        this.uuid = uuid;
         this.type = type;
         this.tag = tag;
+    }
+
+    @Override
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeByte((byte) this.type.ordinal());
+        buf.writeLong(this.uuid.getMostSignificantBits());
+        buf.writeLong(this.uuid.getLeastSignificantBits());
+        ByteBufUtilsEU.writeNBTTagCompoundToBuffer(buf, this.tag);
     }
 
     @Override
@@ -34,19 +45,13 @@ public class MessageSyncNBTTag implements IMessage
         try
         {
             this.type = Type.fromOrdinal(buf.readByte());
+            this.uuid = new UUID(buf.readLong(), buf.readLong());
             this.tag = ByteBufUtilsEU.readNBTTagCompoundFromBuffer(buf);
         }
         catch (IOException e)
         {
             EnderUtilities.logger.warn("MessageSyncNBTTag: Exception while reading data from buffer", e);
         }
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf)
-    {
-        buf.writeByte((byte) this.type.ordinal());
-        ByteBufUtilsEU.writeNBTTagCompoundToBuffer(buf, this.tag);
     }
 
     public static class Handler implements IMessageHandler<MessageSyncNBTTag, IMessage>
@@ -61,7 +66,6 @@ public class MessageSyncNBTTag implements IMessage
             }
 
             final Minecraft mc = FMLClientHandler.instance().getClient();
-            final EntityPlayer player = EnderUtilities.proxy.getPlayerFromMessageContext(ctx);
 
             if (mc == null)
             {
@@ -69,24 +73,18 @@ public class MessageSyncNBTTag implements IMessage
                 return null;
             }
 
-            if (player == null)
-            {
-                EnderUtilities.logger.error("Player was null in MessageSyncNBTTag");
-                return null;
-            }
-
             mc.addScheduledTask(new Runnable()
             {
                 public void run()
                 {
-                    processMessage(message, player);
+                    processMessage(message);
                 }
             });
 
             return null;
         }
 
-        protected void processMessage(final MessageSyncNBTTag message, final EntityPlayer player)
+        protected void processMessage(final MessageSyncNBTTag message)
         {
             if (message.type == Type.PLACEMENT_PROPERTIES_FULL)
             {
@@ -94,7 +92,7 @@ public class MessageSyncNBTTag implements IMessage
             }
             else if (message.type == Type.PLACEMENT_PROPERTIES_CURRENT)
             {
-                PlacementProperties.getInstance().readSyncedItemData(player, message.tag);
+                PlacementProperties.getInstance().readSyncedItemData(message.uuid, message.tag);
             }
         }
     }
