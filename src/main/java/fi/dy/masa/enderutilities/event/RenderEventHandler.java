@@ -115,11 +115,11 @@ public class RenderEventHandler
             World world = this.mc.world;
             BlockPos pos = trace.getBlockPos();
             IBlockState state = world.getBlockState(pos);
-            state = state.getActualState(world, pos);
             Block block = state.getBlock();
 
             if (block == EnderUtilitiesBlocks.PORTAL_PANEL || block == EnderUtilitiesBlocks.INSERTER)
             {
+                state = state.getActualState(world, pos);
                 this.updatePointedBlockHilight(world, trace.getBlockPos(), state, (BlockEnderUtilities) block, event.getPartialTicks());
             }
 
@@ -409,7 +409,7 @@ public class RenderEventHandler
         return PositionUtils.ZERO_BB;
     }
 
-    protected <T> void updatePointedBlockHilight(World world, BlockPos pos, IBlockState state, BlockEnderUtilities block, float partialTicks)
+    protected void updatePointedBlockHilight(World world, BlockPos pos, IBlockState state, BlockEnderUtilities block, float partialTicks)
     {
         EnumFacing facing = state.getValue(block.propFacing);
 
