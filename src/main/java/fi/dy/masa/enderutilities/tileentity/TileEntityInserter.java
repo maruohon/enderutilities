@@ -539,9 +539,9 @@ public class TileEntityInserter extends TileEntityEnderUtilitiesInventory implem
     {
         TileEntity te = world.getTileEntity(posSelf.offset(side));
 
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing()))
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
         {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getFacing());
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
 
             if (inv != null)
             {
