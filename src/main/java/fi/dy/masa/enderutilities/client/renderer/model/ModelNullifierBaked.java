@@ -3,7 +3,6 @@ package fi.dy.masa.enderutilities.client.renderer.model;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -48,6 +47,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.registries.IRegistryDelegate;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.ItemNullifier;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -59,7 +59,7 @@ public class ModelNullifierBaked implements IBakedModel
 {
     private static ModelLoader MODEL_LOADER;
     private static Map<ModelResourceLocation, IModel> STATE_MODELS;
-    private static IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> LOCATIONS;
+    private static Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> LOCATIONS;
     private static Map<Item, ItemMeshDefinition> SHAPERS;
 
     private static final Map<NullifierState, IBakedModel> NULLIFIER_MODEL_CACHE = new HashMap<NullifierState, IBakedModel>();
@@ -167,7 +167,7 @@ public class ModelNullifierBaked implements IBakedModel
                 TRSRTransformation trn = new TRSRTransformation(new javax.vecmath.Vector3f(-0.5f, -0.5f, -0.5f), null, null, null);
                 TRSRTransformation trr = new TRSRTransformation(ModelRotation.X0_Y180);
                 TRSRTransformation trp = new TRSRTransformation(new javax.vecmath.Vector3f( 0.5f,  0.5f,  0.5f), null, null, null);
-                TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.7f, 0.7f, 0.7f), null);
+                TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.6f, 0.6f, 0.6f), null);
                 TRSRTransformation tr = trn.compose(trr).compose(trp).compose(trs);
 
                 IModelState state = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(tr));
@@ -207,7 +207,7 @@ public class ModelNullifierBaked implements IBakedModel
 
         Item item = stack.getItem();
         ModelResourceLocation mrl = null;
-        TIntObjectHashMap<ModelResourceLocation> map = LOCATIONS.get(item);
+        TIntObjectHashMap<ModelResourceLocation> map = LOCATIONS.get(item.delegate);
 
         if (map != null)
         {
@@ -224,17 +224,20 @@ public class ModelNullifierBaked implements IBakedModel
             }
         }
 
-        try
+        if (mrl != null)
         {
-            return ModelLoaderRegistry.getModel(mrl);
-        }
-        catch (Exception e)
-        {
-            IModel model = STATE_MODELS.get(mrl);
-
-            if (model != null)
+            try
             {
-                return model;
+                return ModelLoaderRegistry.getModel(mrl);
+            }
+            catch (Exception e)
+            {
+                IModel model = STATE_MODELS.get(mrl);
+
+                if (model != null)
+                {
+                    return model;
+                }
             }
         }
 
@@ -251,7 +254,7 @@ public class ModelNullifierBaked implements IBakedModel
                 ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
                 Field locs = ReflectionHelper.findField(ItemModelMesherForge.class, "locations");
-                LOCATIONS = (IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>>) locs.get(mesher);
+                LOCATIONS = (Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>>) locs.get(mesher);
 
                 Field shapers = ReflectionHelper.findField(ItemModelMesher.class, "field_178092_c", "shapers");
                 SHAPERS = (Map<Item, ItemMeshDefinition>) shapers.get(mesher);
