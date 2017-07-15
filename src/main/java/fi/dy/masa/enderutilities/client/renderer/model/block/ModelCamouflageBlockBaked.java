@@ -33,8 +33,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 
 public class ModelCamouflageBlockBaked implements IBakedModel
 {
-    public static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE =
-            new HashMap<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>();
+    public static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
     protected final ImmutableMap<String, String> textures;
     protected final IBlockState defaultState;
     protected final IBakedModel bakedBaseModel;
@@ -104,7 +103,7 @@ public class ModelCamouflageBlockBaked implements IBakedModel
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+    synchronized public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
         // Item model
         if (state == null)
