@@ -1,12 +1,12 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.12-latest": "0.7.1",
-        "1.12-recommended": "0.7.1",
-        "1.11.2-latest": "0.7.1",
-        "1.11.2-recommended": "0.7.1",
-        "1.10.2-latest": "0.7.3",
-        "1.10.2-recommended": "0.7.3",
+        "1.12-latest": "0.7.2",
+        "1.12-recommended": "0.7.2",
+        "1.11.2-latest": "0.7.2",
+        "1.11.2-recommended": "0.7.2",
+        "1.10.2-latest": "0.7.4",
+        "1.10.2-recommended": "0.7.4",
         "1.9.4-latest": "0.6.5",
         "1.9.4-recommended": "0.6.5",
         "1.9-latest": "0.6.1",
@@ -15,12 +15,14 @@
         "1.8.9-recommended": "0.5.6"
     },
     "1.12": {
-        "0.7.0": "Ported to Minecraft 1.12\nSome internal changes due to 1.12 and Forge changes",
-        "0.7.1": "Updated for Forge 2373+\nSmall possible compatibility improvement to TileEntity creation from NBT (Dolly, Builder's Wand, Drawbridge etc.)\nFix the Ender Tools' harvest level being 0 due to recent item registration changes\nFix item tooltips not rendering in the Ender Infuser and Tool Workstation GUIs\nFix the Dolly's 3rd person model transformations\nLMM: Update a relative rotation upon release\nVarious internal clean-up and changes (removed all SideOnly annotations for example)"
+        "0.7.2": "Change destroying blocks without spilling contents, again. Fixes some crashes with other modded TileEntities.\nPossibly fix/prevent rare rendering/model related crashes\nFix the Nullifier model crashing with recent Forge versions\nFix the Inserter trying to get the target inventory on the wrong side\nFix Placement Properties syncing to clients not working when joining a server",
+        "0.7.1": "Updated for Forge 2373+\nSmall possible compatibility improvement to TileEntity creation from NBT (Dolly, Builder's Wand, Drawbridge etc.)\nFix the Ender Tools' harvest level being 0 due to recent item registration changes\nFix item tooltips not rendering in the Ender Infuser and Tool Workstation GUIs\nFix the Dolly's 3rd person model transformations\nLMM: Update a relative rotation upon release\nVarious internal clean-up and changes (removed all SideOnly annotations for example)",
+        "0.7.0": "Ported to Minecraft 1.12\nSome internal changes due to 1.12 and Forge changes"
     },
     "1.11.2": {
-        "0.7.0": "Ported to Minecraft 1.11.2\nMore or less feature parity with 0.7.2 from 1.10.2, with some small improvements/additions",
-        "0.7.1": "Added some missing TileEntity ID conversions if updating from 1.10.2\nAdded middle clicking in the player inventory in many of the mod GUIs in creative mode to get a full stack to the cursor, like in vanilla\nPossibly fixed an inventory dupe with the Dolly, Drawbridge and the builder's wand\nPlus a few small bug fixes"
+        "0.7.2": "Change destroying blocks without spilling contents, again. Fixes some crashes with other modded TileEntities.\nPossibly fix/prevent rare rendering/model related crashes",
+        "0.7.1": "Added some missing TileEntity ID conversions if updating from 1.10.2\nAdded middle clicking in the player inventory in many of the mod GUIs in creative mode to get a full stack to the cursor, like in vanilla\nPossibly fixed an inventory dupe with the Dolly, Drawbridge and the builder's wand\nPlus a few small bug fixes",
+        "0.7.0": "Ported to Minecraft 1.11.2\nMore or less feature parity with 0.7.2 from 1.10.2, with some small improvements/additions"
     },
     "1.10.2": {
         "0.6.5": "Ported the 0.6.5 release from MC 1.9.4 to 1.10.2",
@@ -29,7 +31,8 @@
         "0.7.0": "Added several new blocks and items, check the full changelog on the CurseForge files page",
         "0.7.1": "Several bugfixes\nSome improvements to the Drawbridge\nAdded camouflage ability to the Drawbridge, Elevators and Portal Frames",
         "0.7.2": "Several bugfixes\nIncreased the maximum number of slots in the ASU to 27",
-        "0.7.3": "Added middle clicking in the player inventory in many of the mod GUIs in creative mode to get a full stack to the cursor, like in vanilla\nPossibly fixed an inventory dupe with the Dolly, Drawbridge and the builder's wand\nPlus a few small bug fixes"
+        "0.7.3": "Added middle clicking in the player inventory in many of the mod GUIs in creative mode to get a full stack to the cursor, like in vanilla\nPossibly fixed an inventory dupe with the Dolly, Drawbridge and the builder's wand\nPlus a few small bug fixes",
+        "0.7.4": "Change destroying blocks without spilling contents, again. Fixes some crashes with other modded TileEntities.\nPossibly fix/prevent rare rendering/model related crashes"
     },
     "1.9.4": {
         "0.6.5": "Lots of changes/fixes, see the full changelog on the CurseForge files page",
