@@ -36,6 +36,13 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEventHandler
 {
+    private static boolean preventItemSpawningInWorld;
+
+    public static void setPreventItemSpawning(boolean preventItemSpawning)
+    {
+        preventItemSpawningInWorld = preventItemSpawning;
+    }
+
     @SubscribeEvent
     public void onEntityInteractEvent(PlayerInteractEvent.EntityInteract event)
     {
@@ -150,10 +157,16 @@ public class EntityEventHandler
     @SubscribeEvent
     public void onJoinWorld(EntityJoinWorldEvent event)
     {
-        if (event.getWorld().isRemote == false && (event.getEntity() instanceof EntityLiving) &&
-            event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
+        if (event.getWorld().isRemote == false)
         {
-            ItemSyringe.passifyEntity((EntityLiving) event.getEntity());
+            if ((event.getEntity() instanceof EntityLiving) && event.getEntity().getTags().contains(ItemSyringe.TAG_PASSIFIED))
+            {
+                ItemSyringe.passifyEntity((EntityLiving) event.getEntity());
+            }
+            else if (preventItemSpawningInWorld && (event.getEntity() instanceof EntityItem))
+            {
+                event.setCanceled(true);
+            }
         }
     }
 

@@ -22,8 +22,8 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.event.EntityEventHandler;
 import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandleException;
-import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class BlockUtils
 {
@@ -138,22 +138,13 @@ public class BlockUtils
 
     public static void setBlockToAirWithoutSpillingContents(World world, BlockPos pos, int flags)
     {
-        TileEntity te = world.getTileEntity(pos);
-
-        if (te != null)
-        {
-            // Possible fix for inventories spilling their contents in some cases.
-            // No idea what mod is changing the block snapshot stuff in World that causes it though...
-            // Or maybe they don't respect the restoringBlockSnapshots field in World in their blocks'
-            // dropBlockAsItemWithChance() methods.
-            NBTTagCompound tag = new NBTTagCompound();
-            NBTUtils.setPositionInTileEntityNBT(tag, pos);
-            te.readFromNBT(tag);
-        }
-
+        EntityEventHandler.setPreventItemSpawning(true);
         world.restoringBlockSnapshots = true;
+
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
+
         world.restoringBlockSnapshots = false;
+        EntityEventHandler.setPreventItemSpawning(false);
     }
 
     /**
