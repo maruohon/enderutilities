@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.block;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -60,7 +60,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     public static final List<PropertyEnum<Connection>> CONNECTIONS = new ArrayList<PropertyEnum<Connection>>();
     private static final AxisAlignedBB[] SIDE_BOUNDS_BY_FACING = new AxisAlignedBB[] { BOUNDS_SIDE_DOWN, BOUNDS_SIDE_UP, BOUNDS_SIDE_NORTH, BOUNDS_SIDE_SOUTH, BOUNDS_SIDE_WEST, BOUNDS_SIDE_EAST };
 
-    private final Map<Pair<Part, EnumFacing>, AxisAlignedBB> hilightBoxMap = new HashMap<Pair<Part, EnumFacing>, AxisAlignedBB>();
+    private final Map<Pair<Part, EnumFacing>, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Pair<Part, EnumFacing>, AxisAlignedBB>();
 
     public BlockInserter(String name, float hardness, float resistance, int harvestLevel, Material material)
     {

@@ -1,7 +1,7 @@
 package fi.dy.masa.enderutilities.block;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -53,7 +53,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     public static final AxisAlignedBB BUTTON_8 = new AxisAlignedBB(BTN_X - 3 * BTN_D, BTN_Y2, BTN_ZS, BTN_X - 3 * BTN_D - BTN_W, BTN_Y2 + BTN_W, BTN_ZE);
     public static final AxisAlignedBB BUTTON_M = new AxisAlignedBB(4f / 16f, 5.5f / 16f, BTN_ZS, 12f / 16f, 10.5f / 16f, 10.5f / 16f);
 
-    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new HashMap<Integer, AxisAlignedBB>();
+    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
 
     public BlockPortalPanel(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
