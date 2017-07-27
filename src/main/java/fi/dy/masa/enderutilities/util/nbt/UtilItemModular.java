@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities.util.nbt;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -438,6 +439,77 @@ public class UtilItemModular
         setModuleSelection(containerStack, moduleType, current);
 
         return true;
+    }
+
+    /**
+     * Change the currently selected module of type <b>moduleType</b> to the next one (if any),
+     * on a modular item that uses absolute module selection index (ie. not empty slot skipping).
+     * This method selects the absolute slot number of the next/previous existing module, instead
+     * of just switching to the next slot whether or not it's empty, like changeSelectedModuleAbs() does.
+     * @param containerStack
+     * @param moduleType
+     * @param reverse
+     * @return true if the operation was successful
+     */
+    public static boolean changeSelectedModuleAbsSkipEmpty(ItemStack containerStack, ModuleType moduleType, boolean reverse)
+    {
+        int moduleCount = getInstalledModuleCount(containerStack, moduleType);
+
+        if (moduleCount <= 1)
+        {
+            return false;
+        }
+
+        NBTTagList nbtTagList = NBTUtils.getStoredItemsList(containerStack, false);
+
+        if (nbtTagList == null)
+        {
+            return false;
+        }
+
+        int listNumStacks = nbtTagList.tagCount();
+        int current = getStoredModuleSelection(containerStack, moduleType);
+        List<NBTTagCompound> tags = new ArrayList<NBTTagCompound>();
+
+        // Get all tags containing modules of the given type
+        for (int i = 0; i < listNumStacks; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            ItemStack moduleStack = NBTUtils.loadItemStackFromTag(tag);
+
+            if (moduleStack.isEmpty() == false && moduleTypeEquals(moduleStack, moduleType))
+            {
+                tags.add(tag);
+            }
+        }
+
+        listNumStacks = tags.size();
+
+        for (int i = 0; i < listNumStacks; i++)
+        {
+            NBTTagCompound tag = tags.get(i);
+
+            if (tag.getByte("Slot") == current)
+            {
+                int newRelPos = reverse ? i - 1 : i + 1;
+
+                if (newRelPos < 0)
+                {
+                    newRelPos = listNumStacks - 1;
+                }
+                else if (newRelPos >= listNumStacks)
+                {
+                    newRelPos = 0;
+                }
+
+                int newPos = tags.get(newRelPos).getByte("Slot");
+                setModuleSelection(containerStack, moduleType, newPos);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

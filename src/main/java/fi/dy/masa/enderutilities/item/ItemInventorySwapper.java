@@ -497,11 +497,6 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         {
             this.swapPlayerInventory(player);
         }
-        // Alt + Toggle mode: Toggle the private/public mode
-        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
-        {
-            UtilItemModular.changePrivacyModeOnSelectedModuleAbs(stack, player, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-        }
         // Alt + Shift + Toggle mode: Toggle the locked mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
@@ -531,6 +526,18 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             {
                 this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            }
+        }
+        // Alt + Toggle mode: Change the selected Memory Card, or Cycle the inventory to the PREVIOUS card
+        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
+        {
+            if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE))
+            {
+                this.cycleInventory(player, true);
+            }
+            else
+            {
+                this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, true);
             }
         }
     }

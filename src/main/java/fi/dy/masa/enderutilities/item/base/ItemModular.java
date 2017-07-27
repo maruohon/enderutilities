@@ -66,7 +66,7 @@ public abstract class ItemModular extends ItemEnderUtilities implements IModular
     {
         if (this.useAbsoluteModuleIndexing(containerStack))
         {
-            return UtilItemModular.changeSelectedModuleAbs(containerStack, moduleType, reverse);
+            return UtilItemModular.changeSelectedModuleAbsSkipEmpty(containerStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, reverse);
         }
 
         return UtilItemModular.changeSelectedModule(containerStack, moduleType, reverse);
