@@ -184,8 +184,8 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             slot2.onTake(this.player, stack2);
         }
 
-        slot1.putStack(stack2.copy());
-        slot2.putStack(stack1.copy());
+        slot1.putStack(stack2.isEmpty() ? ItemStack.EMPTY : stack2.copy());
+        slot2.putStack(stack1.isEmpty() ? ItemStack.EMPTY : stack1.copy());
 
         return true;
     }

@@ -9,6 +9,8 @@ import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.enderutilities.item.ItemNullifier;
 import fi.dy.masa.enderutilities.item.ItemNullifier.ItemHandlerNullifier;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -66,5 +68,27 @@ public class ContainerNullifier extends ContainerLargeStacks implements IContain
         }
 
         super.detectAndSendChanges();
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        // Ctrl + Middle click: Void the contents of the slot
+        if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_CTRL))
+        {
+            if (this.customInventorySlots.contains(element))
+            {
+                SlotItemHandlerGeneric slot = this.getSlotItemHandler(element);
+
+                if (slot != null)
+                {
+                    slot.putStack(ItemStack.EMPTY);
+                }
+            }
+        }
+        else
+        {
+            super.performGuiAction(player, action, element);
+        }
     }
 }

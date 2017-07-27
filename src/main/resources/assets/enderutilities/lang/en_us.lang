@@ -270,8 +270,9 @@ enderutilities.placement_properties.valuenames.inserter.redstone_mode.low=Low
 
 enderutilities.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties ***§r|lf- (Shift +) Toggle key to change property selection|lf- Shift/Ctrl/Alt + scroll to change the value
 
+
 ###################################
-# GUI and item labels/tooltips etc:
+# GUI InfoAreas
 ###################################
 
 enderutilities.gui.infoarea.asu=- The stack limit set here is the maximum stack size of the inventory|lf- (Ctrl/Shift +) left/right/middle click or scroll to change the value|lf- Middle click (items in cursor or slot): lock the slot to that item|lf- Alt + middle click: Swap two stacks|lf- Shift + Middle click (in Creative): Fill stack (> 1 item in cursor)|lf  or cycle the stack size in x10 increments (1 item in cursor)
@@ -283,12 +284,17 @@ enderutilities.gui.infoarea.inserter_normal=- Tries to insert items to the "side
 enderutilities.gui.infoarea.inventoryswapper=- Can swap the player's inventory with the|lf  currently selected memory card's contents|lf- Player inventory slots marked as blue|lf  are enabled for swap operation|lf- Middle click to toggle individual slots|lf- In Cycle mode changing the selected card|lf  effectively does 'swap + change card + swap',|lf  which allows quickly cycling through multiple|lf  sets of items
 enderutilities.gui.infoarea.memory_chest=- Middle click to lock the current item type for the slot|lf- You can also middle click (and/or drag)|lf  with items in cursor to do it faster|lf- Only that type of item can enter an empty slot|lf- A Private chest can't be opened by others,|lf  and it is also unbreakable
 enderutilities.gui.infoarea.msu=- Middle click (items in cursor or slot): lock the slot to that item|lf- Alt + middle click: Swap two stacks|lf- Shift + Middle click (in Creative): Fill stack (> 1 item in cursor)|lf  or cycle the stack size in x10 increments (1 item in cursor)
-enderutilities.gui.infoarea.nullifier=- Just a nullifier, but with 9 large slots...|lf- Will auto-pickup any matching items that it currently has stored|lf- Any partial stacks will be filled first, and then the rest will be voided|lf- Right click with to place the block that is currently selected|lf- Ctrl + Toggle/Scroll: Change slot selection
+enderutilities.gui.infoarea.nullifier=- Just a nullifier, but with 9 large slots...|lf- Will auto-pickup any matching items that it currently has stored|lf- Any partial stacks will be filled first, and then the rest will be voided|lf- Right click with to place the block that is currently selected|lf- Ctrl + Toggle/Scroll: Change slot selection|lf- Ctrl + middle click to empty/void a slot's contents
 enderutilities.gui.infoarea.pickupmanager=- Can control what the player is allowed to pick up|lf- Can also directly transport items to a remote inventory|lf- The transport filters are checked first|lf- If they are disabled, or the item is not allowed there|lf  then the Inventory filters are checked next|lf- The transport filters determine which items will get transported on pickup|lf- The Inventory filters determine which items the player can pick up,|lf  assuming the item didn't get transported|lf- Note: Needs a capacitor to transport items! (add in a Tool Workstation)
 enderutilities.gui.infoarea.portalpanel=- You can add a dye per destination in the Dye slot|lf- The dye will change the created portal's color (cosmetic only!)|lf- The destination location comes from the Link Crystal when a portal is activated|lf- A Portal Panel must be placed ON a Portal Frame block,|lf  which is connected to a valid portal "frame loop" via|lf  a "continuous path" of Portal Frame blocks|lf  (diagonal connection is not enough)|lf- The portal frame loop itself however can also contain diagonal corners|lf- The maximum sizes for the portal forming algorithm are configurable|lf  (see the config file or the in-game config menu)
 enderutilities.gui.infoarea.quickstacker=- By default only moves items that|lf  already exist in the target inventory|lf- Sneak to move all items from enabled slots|lf  (even if they aren't already present in the target inventory)|lf- Use the Toggle hotkey to activate|lf- Can be sneak + right clicked on inventories|lf  to quick stack matching items to that inventory|lf- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- Doesn't need to be held to use|lf  (but does then need to be the first found|lf  "unselected keybind operatable item" in the inventory)
 enderutilities.gui.infoarea.quick_stacker_advanced=- Player inventory slots marked as blue|lf  are enabled for quick stacking|lf- Middle click to toggle individual slots|lf- Double left-click the block to activate|lf- By default only moves items that already|lf  exist in the target inventory|lf- Sneak while activating to move all items|lf  from enabled slots|lf- Left click the module selection buttons to select|lf  that Memory Card/filters for configuration|lf- Right click the button to enable/disable|lf  that target inventory|lf- In Area mode the maximum range is 16 blocks|lf- In bound targets mode the maximum range is 32 blocks
 enderutilities.gui.infoarea.sound_block=- Volume values over 1 increase the maximum range|lf- The range will be Volume * 16 blocks
+
+
+###################################
+# GUI and item labels/tooltips etc:
+###################################
 
 enderutilities.gui.label.bag.disabled=Bag disabled
 enderutilities.gui.label.bag.enabled=Bag enabled
