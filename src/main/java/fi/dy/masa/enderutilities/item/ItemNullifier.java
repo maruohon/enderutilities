@@ -429,12 +429,11 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         @Override
         public boolean isItemValidForSlot(int slot, ItemStack stack)
         {
-            // Only allow in stackable, non-damageable items without NBT, so that there hopefully
+            // Only allow in stackable, non-damageable items, so that there hopefully
             // won't be many issues with item usage not consuming the item or changing it...
             return stack.isEmpty() == false &&
                    stack.getMaxStackSize() > 1 &&
-                   stack.isItemStackDamageable() == false &&
-                   stack.getTagCompound() == null;
+                   stack.isItemStackDamageable() == false;
         }
     }
 }
