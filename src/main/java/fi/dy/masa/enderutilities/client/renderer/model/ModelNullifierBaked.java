@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.ImmutableList;
@@ -64,7 +65,6 @@ public class ModelNullifierBaked implements IBakedModel
 
     private static final Map<NullifierState, IBakedModel> NULLIFIER_MODEL_CACHE = new HashMap<NullifierState, IBakedModel>();
     private static final Map<ItemType, IBakedModel> ITEM_MODEL_CACHE = new HashMap<ItemType, IBakedModel>();
-    private static final Map<Integer, IBakedModel>  TEXT_MODEL_CACHE = new HashMap<Integer, IBakedModel>();
     private static final ImmutableList<BakedQuad> EMPTY_LIST = ImmutableList.of();
     private final IBakedModel modelBase;
     private final IBakedModel modelLocked;
@@ -157,39 +157,33 @@ public class ModelNullifierBaked implements IBakedModel
 
         if (containedStack.isEmpty() == false)
         {
-            ItemType type = new ItemType(containedStack);
+            ItemType type = new ItemType(containedStack, true);
             itemModel = ITEM_MODEL_CACHE.get(type);
 
             if (itemModel == null)
             {
                 IModel iModel = this.getItemModel(containedStack);
 
-                TRSRTransformation trn = new TRSRTransformation(new javax.vecmath.Vector3f(-0.5f, -0.5f, -0.5f), null, null, null);
-                TRSRTransformation trr = new TRSRTransformation(ModelRotation.X0_Y180);
-                TRSRTransformation trp = new TRSRTransformation(new javax.vecmath.Vector3f( 0.5f,  0.5f,  0.5f), null, null, null);
-                TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.6f, 0.6f, 0.6f), null);
-                TRSRTransformation tr = trn.compose(trr).compose(trp).compose(trs);
+                if (iModel != null && iModel.getClass().getName().equals("net.minecraftforge.client.model.FancyMissingModel") == false)
+                {
+                    TRSRTransformation trn = new TRSRTransformation(new javax.vecmath.Vector3f(-0.5f, -0.5f, -0.5f), null, null, null);
+                    TRSRTransformation trr = new TRSRTransformation(ModelRotation.X0_Y180);
+                    TRSRTransformation trp = new TRSRTransformation(new javax.vecmath.Vector3f( 0.5f,  0.5f,  0.5f), null, null, null);
+                    TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.6f, 0.6f, 0.6f), null);
+                    TRSRTransformation tr = trn.compose(trr).compose(trp).compose(trs);
 
-                IModelState state = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(tr));
-                itemModel = iModel.bake(state, this.format, this.bakedTextureGetter);
+                    IModelState state = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(tr));
+                    itemModel = iModel.bake(state, this.format, this.bakedTextureGetter);
+                }
+                else
+                {
+                    Minecraft mc = Minecraft.getMinecraft();
+                    itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+                    itemModel = itemModel.getOverrides().handleItemState(itemModel, containedStack, mc.world, mc.player);
+                }
 
                 ITEM_MODEL_CACHE.put(type, itemModel);
             }
-
-            /* TODO Add/enable in 1.11 using the Forge font model renderer
-            int stackSize = containedStack.getCount();
-
-            if (stackSize > 1)
-            {
-                textModel = TEXT_MODEL_CACHE.get(stackSize);
-
-                if (textModel == null)
-                {
-                    textModel = todo;
-                    TEXT_MODEL_CACHE.put(stackSize, model);
-                }
-            }
-            */
         }
 
         this.addQuadsForSide(null, nullifierModel, itemModel, textModel, locked);
@@ -200,6 +194,7 @@ public class ModelNullifierBaked implements IBakedModel
         }
     }
 
+    @Nullable
     private IModel getItemModel(ItemStack stack)
     {
         // Unfortunately this can't be done before the init phase...
@@ -232,16 +227,11 @@ public class ModelNullifierBaked implements IBakedModel
             }
             catch (Exception e)
             {
-                IModel model = STATE_MODELS.get(mrl);
-
-                if (model != null)
-                {
-                    return model;
-                }
+                return STATE_MODELS.get(mrl);
             }
         }
 
-        return ModelLoaderRegistry.getMissingModel();
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -291,11 +281,6 @@ public class ModelNullifierBaked implements IBakedModel
             builder.addAll(itemModel.getQuads(null, side, 0));
         }
 
-        if (textModel != null)
-        {
-            builder.addAll(textModel.getQuads(null, side, 0));
-        }
-
         this.quads.put(side, builder.build());
     }
 
@@ -329,14 +314,14 @@ public class ModelNullifierBaked implements IBakedModel
     {
         private final ItemType containedItem;
         private final boolean locked;
-        private final int stackSize;
+        //private final int stackSize;
 
         public NullifierState(ItemStack nullifierStack)
         {
             this.locked = ItemNullifier.isNullifierEnabled(nullifierStack) == false;
             ItemStack containedStack = ItemNullifier.getSelectedStack(nullifierStack);
-            this.containedItem = containedStack.isEmpty() ? null : new ItemType(containedStack);
-            this.stackSize = containedStack.getCount();
+            this.containedItem = containedStack.isEmpty() ? null : new ItemType(containedStack, true);
+            //this.stackSize = containedStack.getCount();
         }
 
         @Override
@@ -346,7 +331,7 @@ public class ModelNullifierBaked implements IBakedModel
             int result = 1;
             result = prime * result + ((containedItem == null) ? 0 : containedItem.hashCode());
             result = prime * result + (locked ? 1231 : 1237);
-            result = prime * result + stackSize;
+            //result = prime * result + stackSize;
             return result;
         }
 
@@ -369,8 +354,8 @@ public class ModelNullifierBaked implements IBakedModel
                 return false;
             if (locked != other.locked)
                 return false;
-            if (stackSize != other.stackSize)
-                return false;
+            //if (stackSize != other.stackSize)
+            //    return false;
             return true;
         }
     }
@@ -447,7 +432,6 @@ public class ModelNullifierBaked implements IBakedModel
         {
             NULLIFIER_MODEL_CACHE.clear();
             ITEM_MODEL_CACHE.clear();
-            TEXT_MODEL_CACHE.clear();
         }
     }
 }
