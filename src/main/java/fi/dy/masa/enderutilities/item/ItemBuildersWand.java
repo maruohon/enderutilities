@@ -216,6 +216,38 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         return EnumActionResult.SUCCESS;
     }
 
+    @Override
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side,
+            float hitX, float hitY, float hitZ, EnumHand hand)
+    {
+        ItemStack stack = player.getHeldItem(hand);
+        Mode mode = Mode.getMode(stack);
+
+        if (mode == Mode.REPLACE_3D && player.isSneaking() && WandOption.BIND_MODE.isEnabled(stack, mode))
+        {
+            if (world.isRemote == false)
+            {
+                this.setSelectedFixedBlockType(stack, player, world, pos, true);
+                return EnumActionResult.SUCCESS;
+            }
+
+            return EnumActionResult.PASS;
+        }
+        else if (mode.hasTwoPlacableCorners())
+        {
+            if (world.isRemote == false)
+            {
+                BlockPosEU posEU = new BlockPosEU(player.isSneaking() ? pos : pos.offset(side), world.provider.getDimension(), side);
+                this.setPosition(posEU, POS_END, stack, player);
+                return EnumActionResult.SUCCESS;
+            }
+
+            return EnumActionResult.PASS;
+        }
+
+        return super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand);
+    }
+
     public void onLeftClickBlock(EntityPlayer player, World world, ItemStack stack, BlockPos pos, int dimension, EnumFacing side)
     {
         if (world.isRemote)
