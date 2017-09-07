@@ -90,7 +90,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
             EntityLivingBase thrower = this.getThrower();
             Entity entity = null;
             List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this,
-                    this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+                    this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
             double distance = 0.0d;
 
             for (int j = 0; j < list.size(); ++j)
@@ -104,7 +104,7 @@ public abstract class EntityThrowableEU extends EntityThrowable
                 if (entityIter.canBeCollidedWith() && (thrower == null || EntityUtils.doesEntityStackContainEntity(entityIter, thrower) == false))
                 {
                     double s = 0.1d;
-                    AxisAlignedBB axisalignedbb = entityIter.getEntityBoundingBox().expand(s, s, s);
+                    AxisAlignedBB axisalignedbb = entityIter.getEntityBoundingBox().grow(s, s, s);
                     currentPos = new Vec3d(this.posX, this.posY, this.posZ);
                     RayTraceResult rayTraceResult1 = axisalignedbb.calculateIntercept(currentPos, nextPos);
 

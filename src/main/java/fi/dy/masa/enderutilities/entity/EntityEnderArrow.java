@@ -244,7 +244,8 @@ public class EntityEnderArrow extends EntityArrow
 
         Entity shooter = this.getShooter();
         Entity entity = null;
-        List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).expand(1.0D, 1.0D, 1.0D));
+        List<Entity> list = this.getEntityWorld().getEntitiesWithinAABBExcludingEntity(this,
+                this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
         double d0 = 0.0D;
         int i;
         float f1;
@@ -256,7 +257,7 @@ public class EntityEnderArrow extends EntityArrow
             if (entity1.canBeCollidedWith() && EntityUtils.doesEntityStackContainEntity(shooter, entity1) == false)
             {
                 f1 = 0.3F;
-                AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().expand((double)f1, (double)f1, (double)f1);
+                AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().grow(f1);
                 RayTraceResult rayTraceResultTmp = axisalignedbb1.calculateIntercept(vec31, vec3);
 
                 if (rayTraceResultTmp != null)
