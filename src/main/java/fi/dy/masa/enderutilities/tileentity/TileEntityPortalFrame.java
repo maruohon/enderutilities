@@ -19,6 +19,11 @@ public class TileEntityPortalFrame extends TileEntityEnderUtilities
         if (this.camoState != null)
         {
             nbt.setInteger("Camo", Block.getStateId(this.camoState));
+
+            if (this.camoData != null)
+            {
+                nbt.setTag("CamoData", this.camoData);
+            }
         }
 
         return nbt;

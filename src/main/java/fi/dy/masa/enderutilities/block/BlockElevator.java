@@ -47,7 +47,7 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new ExtendedBlockState(this, new IProperty[] { COLOR }, new IUnlistedProperty<?>[] { CAMOBLOCK });
+        return new ExtendedBlockState(this, new IProperty[] { COLOR }, new IUnlistedProperty<?>[] { CAMOBLOCKSTATE, CAMOBLOCKSTATEEXTENDED });
     }
 
     @Override

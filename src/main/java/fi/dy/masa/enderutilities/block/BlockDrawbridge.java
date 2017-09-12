@@ -44,7 +44,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new ExtendedBlockState(this, new IProperty[] { ADVANCED, FACING }, new IUnlistedProperty<?>[] { CAMOBLOCK });
+        return new ExtendedBlockState(this, new IProperty[] { ADVANCED, FACING }, new IUnlistedProperty<?>[] { CAMOBLOCKSTATE, CAMOBLOCKSTATEEXTENDED });
     }
 
     @Override

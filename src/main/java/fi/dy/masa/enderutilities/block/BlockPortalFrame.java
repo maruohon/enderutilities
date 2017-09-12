@@ -27,7 +27,7 @@ public class BlockPortalFrame extends BlockEnderUtilitiesTileEntity
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty<?>[] { CAMOBLOCK });
+        return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty<?>[] { CAMOBLOCKSTATE, CAMOBLOCKSTATEEXTENDED });
     }
 
     @Override

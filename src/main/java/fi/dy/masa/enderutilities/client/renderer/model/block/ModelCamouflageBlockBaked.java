@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -33,7 +33,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 
 public class ModelCamouflageBlockBaked implements IBakedModel
 {
-    public static final Map<Long, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
+    public static final Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
     protected final ImmutableMap<String, String> textures;
     protected final IBlockState defaultState;
     protected final IBakedModel bakedBaseModel;
@@ -111,35 +111,39 @@ public class ModelCamouflageBlockBaked implements IBakedModel
             return this.bakedBaseModel.getQuads(state, side, rand);
         }
 
-        IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCK);
+        IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATE);
+        IBlockState camoExtendedState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATEEXTENDED);
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
-        long id = 0;
         boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
+        ImmutablePair<IBlockState, IBlockState> key;
+
+        // Get the base actualState, so that the map keys work properly (reference equality)
+        state = ((IExtendedBlockState) state).getClean();
 
         if (validCamo)
         {
-            id = ((long) Block.getStateId(state)) << 32 | Block.getStateId(camoState);
+            key = ImmutablePair.of(state, camoState);
         }
         else
         {
-            id = ((long) Block.getStateId(state)) << 32;
+            key = ImmutablePair.of(state, Blocks.AIR.getDefaultState());
         }
 
-        quads = QUAD_CACHE.get(id);
+        quads = QUAD_CACHE.get(key);
 
         if (quads == null)
         {
             if (validCamo)
             {
                 IBakedModel camoModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
-                quads = this.getCombinedQuads(camoModel, camoState, this.bakedOverlayModel, state);
+                quads = this.getCombinedQuads(camoModel, camoExtendedState, this.bakedOverlayModel, state);
             }
             else
             {
                 quads = this.getCombinedQuads(this.getBakedBaseModel(state), state, null, null);
             }
 
-            QUAD_CACHE.put(id, quads);
+            QUAD_CACHE.put(key, quads);
         }
 
         return quads.get(Optional.ofNullable(side));

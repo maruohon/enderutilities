@@ -29,10 +29,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 
 public class TileEntityEnderUtilities extends TileEntity
@@ -48,6 +50,8 @@ public class TileEntityEnderUtilities extends TileEntity
     protected EnumFacing facing;
     protected OwnerData ownerData;
     protected IBlockState camoState;
+    protected IBlockState camoStateExtended;
+    protected NBTTagCompound camoData;
 
     public TileEntityEnderUtilities(String name)
     {
@@ -94,6 +98,11 @@ public class TileEntityEnderUtilities extends TileEntity
     public IBlockState getCamoState()
     {
         return this.camoState != null ? this.camoState : Blocks.AIR.getDefaultState();
+    }
+
+    public IBlockState getCamoExtendedState()
+    {
+        return this.camoStateExtended != null ? this.camoStateExtended : this.getCamoState();
     }
 
     public void setOwner(Entity entity)
@@ -153,7 +162,7 @@ public class TileEntityEnderUtilities extends TileEntity
      */
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (this.hasCamouflageAbility())
+        if (this.hasCamouflageAbility() && player.getHeldItemMainhand().isEmpty())
         {
             return this.tryApplyCamouflage(player, hand, side, hitX, hitY, hitZ);
         }
@@ -168,42 +177,78 @@ public class TileEntityEnderUtilities extends TileEntity
         // Sneaking with an empty hand, clear the camo block
         if (player.isSneaking())
         {
-            if (this.camoState != null)
-            {
-                this.camoState = null;
-                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                this.notifyBlockUpdate(this.getPos());
-                // Check light changes in case the camo block emits light
-                this.getWorld().checkLight(this.getPos());
-                this.markDirty();
-            }
-
+            this.removeCamouflage();
             return true;
         }
         // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
-        else if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock &&
-                 player.getHeldItemMainhand().isEmpty())
+        else if (player.getHeldItemOffhand().isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock)
         {
-            ItemBlock item = (ItemBlock) stackOffHand.getItem();
-            Block block = item.getBlock();
+            return this.applyCamouflage(player, stackOffHand, side, hitX, hitY, hitZ);
+        }
 
-            if (block != null)
+        return false;
+    }
+
+    private void removeCamouflage()
+    {
+        if (this.getWorld().isRemote == false && this.camoState != null)
+        {
+            this.camoState = null;
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+            this.notifyBlockUpdate(this.getPos());
+            // Check light changes in case the camo block emits light
+            this.getWorld().checkLight(this.getPos());
+            this.markDirty();
+        }
+    }
+
+    private boolean applyCamouflage(EntityPlayer player, ItemStack stackOffhand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (stackOffhand.getItem() instanceof ItemBlock &&
+            ((ItemBlock) stackOffhand.getItem()).getBlock() != null)
+        {
+            World world = this.getWorld();
+            BlockPos posSelf = this.getPos();
+            Block block = ((ItemBlock) stackOffhand.getItem()).getBlock();
+            int meta = stackOffhand.getItem().getMetadata(stackOffhand.getMetadata());
+            IBlockState state = block.getStateForPlacement(world, posSelf, side, hitX, hitY, hitZ, meta, player, EnumHand.OFF_HAND);
+
+            if (state != this.camoState)
             {
-                int meta = item.getMetadata(stackOffHand.getMetadata());
-                IBlockState state = block.getStateForPlacement(this.getWorld(), this.getPos(), side, hitX, hitY, hitZ, meta, player, EnumHand.OFF_HAND);
-
-                if (state != this.camoState)
+                if (this.getWorld().isRemote == false)
                 {
                     this.camoState = state;
+                    BlockPos posUp = posSelf.up();
+
+                    // If there is an air block above, temporarily place the target block to be able to grab its TE data, if any
+                    if (world.getBlockState(posUp).getBlock() == Blocks.AIR &&
+                        world.setBlockState(posUp, state, 16))
+                    {
+                        state = world.getBlockState(posUp);
+                        state.getBlock().onBlockPlacedBy(world, posUp, state, player, stackOffhand.copy());
+                        this.camoState = world.getBlockState(posUp);
+                        TileEntity te = world.getTileEntity(posUp);
+
+                        if (te != null)
+                        {
+                            this.camoData = te.getUpdateTag();
+                            this.camoData.removeTag("x");
+                            this.camoData.removeTag("y");
+                            this.camoData.removeTag("z");
+                        }
+
+                        world.setBlockState(posUp, Blocks.AIR.getDefaultState(), 16);
+                    }
+
                     this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
                     this.notifyBlockUpdate(this.getPos());
 
                     // Check light changes in case the camo block emits light
                     this.getWorld().checkLight(this.getPos());
                     this.markDirty();
-
-                    return true;
                 }
+
+                return true;
             }
         }
 
@@ -263,6 +308,11 @@ public class TileEntityEnderUtilities extends TileEntity
             this.camoState = Block.getStateById(nbt.getInteger("Camo"));
         }
 
+        if (nbt.hasKey("CamoData", Constants.NBT.TAG_COMPOUND))
+        {
+            this.camoData = nbt.getCompoundTag("CamoData");
+        }
+
         this.ownerData = OwnerData.getOwnerDataFromNBT(nbt);
     }
 
@@ -287,6 +337,11 @@ public class TileEntityEnderUtilities extends TileEntity
             nbt.setTag("Camo", tag);
             */
             nbt.setInteger("Camo", Block.getStateId(this.camoState));
+
+            if (this.camoData != null)
+            {
+                nbt.setTag("CamoData", this.camoData);
+            }
         }
 
         if (this.ownerData != null)
@@ -319,6 +374,11 @@ public class TileEntityEnderUtilities extends TileEntity
         if (this.camoState != null)
         {
             nbt.setInteger("Camo", Block.getStateId(this.camoState));
+
+            if (this.camoData != null)
+            {
+                nbt.setTag("CD", this.camoData);
+            }
         }
 
         if (this.ownerData != null)
@@ -372,6 +432,44 @@ public class TileEntityEnderUtilities extends TileEntity
         if (tag.hasKey("Camo", Constants.NBT.TAG_INT))
         {
             this.camoState = Block.getStateById(tag.getInteger("Camo"));
+
+            World world = this.getWorld();
+            BlockPos pos = this.getPos();
+            IBlockState stateSelf = world.getBlockState(pos);
+
+            // If there is an air block above, temporarily place the target block to be able to grab its data
+            if (this.camoState != null && this.camoState.getBlock() != Blocks.AIR)
+            {
+                try
+                {
+                    BlockUtils.setBlockToAirWithoutSpillingContents(world, pos, 16);
+
+                    if (world.setBlockState(pos, this.camoState, 16))
+                    {
+                        if (tag.hasKey("CD", Constants.NBT.TAG_COMPOUND))
+                        {
+                            this.camoData = tag.getCompoundTag("CD");
+                            TileEntity te = world.getTileEntity(pos);
+
+                            if (te != null)
+                            {
+                                te.handleUpdateTag(this.camoData);
+                            }
+                        }
+
+                        this.camoState = this.camoState.getActualState(world, pos);
+                        this.camoStateExtended = this.camoState.getBlock().getExtendedState(this.camoState, world, pos);
+
+                        world.setBlockState(pos, stateSelf, 16);
+                        this.validate();
+                        world.setTileEntity(pos, this);
+                    }
+                }
+                catch (Exception e)
+                {
+                    EnderUtilities.logger.warn("Exception while trying to grab the Extended state for a camo block: {}", this.camoState, e);
+                }
+            }
         }
         else
         {

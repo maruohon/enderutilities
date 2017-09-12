@@ -28,7 +28,8 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
 {
     public static final PropertyBool CREATIVE = PropertyBool.create("creative");
-    public static final PropertyBlockState CAMOBLOCK = new PropertyBlockState("camo");
+    public static final PropertyBlockState CAMOBLOCKSTATE = new PropertyBlockState("camo");
+    public static final PropertyBlockState CAMOBLOCKSTATEEXTENDED = new PropertyBlockState("camoext");
 
     public BlockEnderUtilitiesTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -188,7 +189,9 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
             if (te != null)
             {
                 IExtendedBlockState state = (IExtendedBlockState) oldState;
-                return state.withProperty(CAMOBLOCK, te.getCamoState());
+                state = state.withProperty(CAMOBLOCKSTATE, te.getCamoState());
+                state = state.withProperty(CAMOBLOCKSTATEEXTENDED, te.getCamoExtendedState());
+                return state;
             }
         }
 
@@ -202,7 +205,7 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
         if (this.isCamoBlock())
         {
             IExtendedBlockState extendedState = (IExtendedBlockState) this.getExtendedState(state.getActualState(world, pos), world, pos);
-            IBlockState stateCamo = extendedState.getValue(CAMOBLOCK);
+            IBlockState stateCamo = extendedState.getValue(CAMOBLOCKSTATE);
 
             if (stateCamo != null)
             {
