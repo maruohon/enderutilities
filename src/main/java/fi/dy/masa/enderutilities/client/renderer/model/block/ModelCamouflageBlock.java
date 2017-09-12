@@ -1,11 +1,19 @@
 package fi.dy.masa.enderutilities.client.renderer.model.block;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
@@ -146,7 +154,10 @@ public class ModelCamouflageBlock
         @Override
         public void onResourceManagerReload(IResourceManager resourceManager)
         {
-            ModelCamouflageBlockBaked.QUAD_CACHE.clear();
+            for (Map.Entry<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> entry : ModelCamouflageBlockBaked.QUAD_CACHE.entrySet())
+            {
+                entry.getValue().clear();
+            }
         }
     }
 }

@@ -22,8 +22,10 @@ import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
@@ -33,7 +35,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 
 public class ModelCamouflageBlockBaked implements IBakedModel
 {
-    public static final Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
+    public static final Map<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> QUAD_CACHE = new HashMap<>();
     protected final ImmutableMap<String, String> textures;
     protected final IBlockState defaultState;
     protected final IBakedModel bakedBaseModel;
@@ -43,6 +45,14 @@ public class ModelCamouflageBlockBaked implements IBakedModel
     protected final VertexFormat format;
     protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     protected final TextureAtlasSprite particle;
+
+    static
+    {
+        for (BlockRenderLayer layer : BlockRenderLayer.values())
+        {
+            QUAD_CACHE.put(layer, new HashMap<>());
+        }
+    }
 
     public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
             IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
@@ -113,9 +123,24 @@ public class ModelCamouflageBlockBaked implements IBakedModel
 
         IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATE);
         IBlockState camoExtendedState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATEEXTENDED);
-        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
+
+        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = null;
         boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
+        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+        Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> map = QUAD_CACHE.get(layer);
         ImmutablePair<IBlockState, IBlockState> key;
+
+        if (state.getBlock().getBlockLayer() != layer &&
+            (camoState == null || camoState.getBlock().canRenderInLayer(camoState, layer) == false))
+        {
+            return ImmutableList.of();
+        }
+
+        if (map == null)
+        {
+            map = new HashMap<>();
+            QUAD_CACHE.put(layer, map);
+        }
 
         // Get the base actualState, so that the map keys work properly (reference equality)
         state = ((IExtendedBlockState) state).getClean();
@@ -129,29 +154,29 @@ public class ModelCamouflageBlockBaked implements IBakedModel
             key = ImmutablePair.of(state, Blocks.AIR.getDefaultState());
         }
 
-        quads = QUAD_CACHE.get(key);
+        quads = map.get(key);
 
         if (quads == null)
         {
             if (validCamo)
             {
                 IBakedModel camoModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
-                quads = this.getCombinedQuads(camoModel, camoExtendedState, this.bakedOverlayModel, state);
+                quads = this.getCombinedQuads(layer, camoModel, camoState, camoExtendedState, this.bakedOverlayModel, state);
             }
             else
             {
-                quads = this.getCombinedQuads(this.getBakedBaseModel(state), state, null, null);
+                quads = this.getCombinedQuads(layer, this.getBakedBaseModel(state), state, state, null, null);
             }
 
-            QUAD_CACHE.put(key, quads);
+            map.put(key, quads);
         }
 
         return quads.get(Optional.ofNullable(side));
     }
 
-    protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
-            @Nonnull IBakedModel baseModel, @Nonnull IBlockState stateBase,
-            @Nullable IBakedModel optionalModel, @Nullable IBlockState stateOptional)
+    protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(BlockRenderLayer layer,
+            @Nonnull IBakedModel baseModel, @Nonnull IBlockState baseActualState, @Nonnull IBlockState baseExtendedState,
+            @Nullable IBakedModel optionalModel, @Nullable IBlockState optionalState)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
 
@@ -159,23 +184,33 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-            if (optionalModel != null)
+            if (baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
             {
-                quads.addAll(optionalModel.getQuads(stateOptional, face, 0));
+                quads.addAll(baseModel.getQuads(baseExtendedState, face, 0));
             }
 
-            quads.addAll(baseModel.getQuads(stateBase, face, 0));
+            // The optional model is only used for the Elevator color overlay
+            if (optionalModel != null && optionalState != null && optionalState.getBlock().getBlockLayer() == layer)
+            {
+                quads.addAll(optionalModel.getQuads(optionalState, face, 0));
+            }
+
             builder.put(Optional.of(face), quads.build());
         }
 
         ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-        if (optionalModel != null)
+        if (baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
         {
-            quads.addAll(optionalModel.getQuads(stateOptional, null, 0));
+            quads.addAll(baseModel.getQuads(baseExtendedState, null, 0));
         }
 
-        quads.addAll(baseModel.getQuads(stateBase, null, 0));
+        // The optional model is only used for the Elevator color overlay
+        if (optionalModel != null && optionalState != null && optionalState.getBlock().getBlockLayer() == layer)
+        {
+            quads.addAll(optionalModel.getQuads(optionalState, null, 0));
+        }
+
         builder.put(Optional.empty(), quads.build());
 
         return builder.build();

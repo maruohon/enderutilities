@@ -161,6 +161,12 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     }
 
     @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
+    {
+        return this.isCamoBlock() ? true : layer == this.getBlockLayer();
+    }
+
+    @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
         TileEntityEnderUtilities te = getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
