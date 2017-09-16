@@ -1,14 +1,18 @@
 package fi.dy.masa.enderutilities.client.renderer.model.block;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
@@ -21,65 +25,46 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockDrawbridge;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlockBaked.ModelCamouflageBlockBase;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
 public class ModelCamouflageBlock
 {
-    private static class ModelElevator extends ModelCamouflageBlockBase
+    public static class ModelCamouflageBlockBase implements IModel
     {
-        public ModelElevator(IBlockState defaultState, String variant)
+        protected final IBlockState defaultState;
+        protected final ResourceLocation baseModelLocation;
+        @Nullable
+        protected final ResourceLocation overlayModelLocation;
+        protected final Map<String, String> textures = new HashMap<String, String>();
+        protected IModel baseModel;
+        protected IModel overlayModel;
+        protected static ImmutableList<ResourceLocation> texture_deps = ImmutableList.of();
+
+        // FIXME is there a way to get these from the blockstate json somehow (before retexture() is called)?
+        static
         {
-            super(defaultState,
-                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant),
-                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant + "_overlay"));
-
-            this.textures.put("particle",   "enderutilities:blocks/ender_elevator_side");
-            this.textures.put("side",       "enderutilities:blocks/ender_elevator_side");
-            this.textures.put("overlay",    "enderutilities:blocks/ender_elevator_top_overlay");
-        }
-    }
-
-    private static class ModelPortalFrame extends ModelCamouflageBlockBase
-    {
-        public ModelPortalFrame(IBlockState defaultState)
-        {
-            super(defaultState, new ResourceLocation("minecraft:block/cube_all"), null);
-
-            this.textures.put("particle",   "enderutilities:blocks/frame");
-            this.textures.put("all",        "enderutilities:blocks/frame");
-        }
-    }
-
-    private static class ModelDrawbridge extends ModelCamouflageBlockBase
-    {
-        public ModelDrawbridge(IBlockState defaultState, boolean advanced)
-        {
-            super(defaultState, new ResourceLocation(Reference.MOD_ID, "block/orientable_directional_individual"), null);
-
-            if (advanced)
-            {
-                this.textures.put("particle",   "enderutilities:blocks/draw_bridge_front_advanced");
-                this.textures.put("front",      "enderutilities:blocks/draw_bridge_front_advanced");
-            }
-            else
-            {
-                this.textures.put("particle",   "enderutilities:blocks/draw_bridge_front_normal");
-                this.textures.put("front",      "enderutilities:blocks/draw_bridge_front_normal");
-            }
-
-            this.textures.put("top",        "enderutilities:blocks/draw_bridge_side");
-            this.textures.put("bottom",     "enderutilities:blocks/draw_bridge_side");
-            this.textures.put("left",       "enderutilities:blocks/draw_bridge_side");
-            this.textures.put("right",      "enderutilities:blocks/draw_bridge_side");
-            this.textures.put("back",       "enderutilities:blocks/draw_bridge_back");
+            ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
+            builder.add(new ResourceLocation("enderutilities:blocks/ender_elevator_side"));
+            builder.add(new ResourceLocation("enderutilities:blocks/ender_elevator_top_overlay"));
+            builder.add(new ResourceLocation("enderutilities:blocks/ender_elevator_side_layer"));
+            builder.add(new ResourceLocation("enderutilities:blocks/ender_elevator_side_slab"));
+            builder.add(new ResourceLocation("enderutilities:blocks/draw_bridge_back"));
+            builder.add(new ResourceLocation("enderutilities:blocks/draw_bridge_front_advanced"));
+            builder.add(new ResourceLocation("enderutilities:blocks/draw_bridge_front_normal"));
+            builder.add(new ResourceLocation("enderutilities:blocks/draw_bridge_side_advanced"));
+            builder.add(new ResourceLocation("enderutilities:blocks/draw_bridge_side_normal"));
+            builder.add(new ResourceLocation("enderutilities:blocks/frame"));
+            texture_deps = builder.build();
         }
 
-        @Override
-        public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation)
         {
-            IModel baseModel = null;
+            this.defaultState = defaultState;
+            this.baseModelLocation = baseModelLocation;
+            this.overlayModelLocation = overlayModelLocation;
+
+            IModel baseModel    = ModelLoaderRegistry.getMissingModel();
             IModel overlayModel = null;
 
             try
@@ -93,31 +78,85 @@ public class ModelCamouflageBlock
             }
             catch (Exception e)
             {
-                EnderUtilities.logger.warn("Failed to load a model for a Drawbridge", e);
+                EnderUtilities.logger.warn("Failed to load a model for a camouflage block", e);
             }
 
-            return new ModelDrawbridgeBaked(this, baseModel, overlayModel, this.defaultState, state, format, bakedTextureGetter);
+            this.baseModel = baseModel;
+            this.overlayModel = overlayModel;
+        }
+
+        @Override
+        public IModelState getDefaultState()
+        {
+            return ModelRotation.X0_Y0;
+        }
+
+        @Override
+        public Collection<ResourceLocation> getDependencies()
+        {
+            if (this.overlayModelLocation != null)
+            {
+                return ImmutableList.of(this.baseModelLocation, this.overlayModelLocation);
+            }
+            else
+            {
+                return ImmutableList.of(this.baseModelLocation);
+            }
+        }
+
+        @Override
+        public Collection<ResourceLocation> getTextures()
+        {
+            return texture_deps;
+        }
+
+        @Override
+        public IModel retexture(ImmutableMap<String, String> textures)
+        {
+            this.textures.putAll(textures);
+            this.baseModel = this.baseModel.retexture(textures);
+
+            if (this.overlayModel != null)
+            {
+                this.overlayModel = this.overlayModel.retexture(textures);
+            }
+
+            return this;
+        }
+
+        @Override
+        public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+        {
+            return new BakedModelCamouflageBlock(ImmutableMap.copyOf(this.textures), this.baseModel, this.overlayModel, this.defaultState, state, format, bakedTextureGetter);
+        }
+    }
+
+    private static class ModelElevator extends ModelCamouflageBlockBase
+    {
+        public ModelElevator(IBlockState defaultState, String variant)
+        {
+            super(defaultState,
+                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant),
+                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant + "_overlay"));
         }
     }
 
     public static class ModelLoaderCamouflageBlocks implements ICustomModelLoader
     {
-        private static final ResourceLocation LOC_ELEVATOR_NORMAL = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator");
-        private static final ResourceLocation LOC_ELEVATOR_SLAB   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator_slab");
-        private static final ResourceLocation LOC_ELEVATOR_LAYER  = new ResourceLocation(Reference.MOD_ID, "models/block/custom/ender_elevator_layer");
-        private static final ResourceLocation LOC_PORTAL_FRAME    = new ResourceLocation(Reference.MOD_ID, "models/block/custom/frame");
-        private static final ResourceLocation LOC_DRAW_BRIDGE_N   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/draw_bridge_normal");
-        private static final ResourceLocation LOC_DRAW_BRIDGE_A   = new ResourceLocation(Reference.MOD_ID, "models/block/custom/draw_bridge_advanced");
+        private static final ResourceLocation LOC_ELEVATOR_NORMAL       = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_ender_elevator");
+        private static final ResourceLocation LOC_ELEVATOR_SLAB_TOP     = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_ender_elevator_slab_top");
+        private static final ResourceLocation LOC_ELEVATOR_SLAB_BOTTOM  = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_ender_elevator_slab_bottom");
+        private static final ResourceLocation LOC_ELEVATOR_LAYER_TOP    = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_ender_elevator_layer_top");
+        private static final ResourceLocation LOC_ELEVATOR_LAYER_BOTTOM = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_ender_elevator_layer_bottom");
+        private static final ResourceLocation LOC_PORTAL_FRAME          = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_frame");
+        private static final ResourceLocation LOC_DRAW_BRIDGE_N         = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_draw_bridge_normal");
+        private static final ResourceLocation LOC_DRAW_BRIDGE_A         = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_draw_bridge_advanced");
 
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.equals(LOC_ELEVATOR_NORMAL) ||
-                   modelLocation.equals(LOC_ELEVATOR_SLAB) ||
-                   modelLocation.equals(LOC_ELEVATOR_LAYER) ||
-                   modelLocation.equals(LOC_PORTAL_FRAME) ||
-                   modelLocation.equals(LOC_DRAW_BRIDGE_N) ||
-                   modelLocation.equals(LOC_DRAW_BRIDGE_A);
+            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) &&
+                   modelLocation.getResourcePath().startsWith("models/block/custom/camo_");
         }
 
         @Override
@@ -125,27 +164,35 @@ public class ModelCamouflageBlock
         {
             if (modelLocation.equals(LOC_ELEVATOR_NORMAL))
             {
-                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR.getDefaultState(), "");
+                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR.getDefaultState(), "_full");
             }
-            else if (modelLocation.equals(LOC_ELEVATOR_SLAB))
+            else if (modelLocation.equals(LOC_ELEVATOR_SLAB_TOP))
             {
-                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_SLAB.getDefaultState(), "_slab");
+                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_SLAB.getDefaultState(), "_slab_top");
             }
-            else if (modelLocation.equals(LOC_ELEVATOR_LAYER))
+            else if (modelLocation.equals(LOC_ELEVATOR_SLAB_BOTTOM))
             {
-                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_LAYER.getDefaultState(), "_layer");
+                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_SLAB.getDefaultState(), "_slab_bottom");
+            }
+            else if (modelLocation.equals(LOC_ELEVATOR_LAYER_TOP))
+            {
+                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_LAYER.getDefaultState(), "_layer_top");
+            }
+            else if (modelLocation.equals(LOC_ELEVATOR_LAYER_BOTTOM))
+            {
+                return new ModelElevator(EnderUtilitiesBlocks.ELEVATOR_LAYER.getDefaultState(), "_layer_bottom");
             }
             else if (modelLocation.equals(LOC_PORTAL_FRAME))
             {
-                return new ModelPortalFrame(EnderUtilitiesBlocks.PORTAL_FRAME.getDefaultState());
+                IBlockState defaultState = EnderUtilitiesBlocks.PORTAL_FRAME.getDefaultState();
+                return new ModelCamouflageBlockBase(defaultState, new ResourceLocation("minecraft:block/cube_all"), null);
             }
-            else if (modelLocation.equals(LOC_DRAW_BRIDGE_N))
+            else if (modelLocation.equals(LOC_DRAW_BRIDGE_N) || modelLocation.equals(LOC_DRAW_BRIDGE_A))
             {
-                return new ModelDrawbridge(EnderUtilitiesBlocks.DRAWBRIDGE.getDefaultState(), false);
-            }
-            else if (modelLocation.equals(LOC_DRAW_BRIDGE_A))
-            {
-                return new ModelDrawbridge(EnderUtilitiesBlocks.DRAWBRIDGE.getDefaultState().withProperty(BlockDrawbridge.ADVANCED, true), true);
+                IBlockState defaultState = EnderUtilitiesBlocks.DRAWBRIDGE.getDefaultState()
+                        .withProperty(BlockDrawbridge.ADVANCED, modelLocation.equals(LOC_DRAW_BRIDGE_A));
+                ResourceLocation baseModelLocation = new ResourceLocation(Reference.MOD_ID, "block/orientable_directional_individual");
+                return new ModelCamouflageBlockBase(defaultState, baseModelLocation, null);
             }
 
             return ModelLoaderRegistry.getMissingModel();
@@ -154,7 +201,7 @@ public class ModelCamouflageBlock
         @Override
         public void onResourceManagerReload(IResourceManager resourceManager)
         {
-            for (Map.Entry<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> entry : ModelCamouflageBlockBaked.QUAD_CACHE.entrySet())
+            for (Map.Entry<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> entry : BakedModelCamouflageBlock.QUAD_CACHE.entrySet())
             {
                 entry.getValue().clear();
             }

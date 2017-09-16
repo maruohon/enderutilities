@@ -1,8 +1,12 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:custom/frame",
-        "transform": "forge:default-block"
+        "model": "enderutilities:custom/camo_frame",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle": "enderutilities:blocks/frame",
+            "all":      "enderutilities:blocks/frame"
+        }
     },
     "variants": {
         "normal": [{}],

@@ -1,15 +1,9 @@
 {
     "parent": "minecraft:block/block",
-    "textures": {
-        "particle": "enderutilities:blocks/ender_elevator_side",
-        "top":      "enderutilities:blocks/ender_elevator_side",
-        "side":     "enderutilities:blocks/ender_elevator_layer_side",
-        "overlay":  "enderutilities:blocks/ender_elevator_top_overlay"
-    },
     "elements": [
         {
-            "from": [  0,  0,  0 ],
-            "to":   [ 16,  2, 16 ],
+            "from": [  0, 14,  0 ],
+            "to":   [ 16, 16, 16 ],
             "faces": {
                 "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#top" },
                 "down":  { "uv": [ 16, 16,  0,  0 ], "texture": "#top" },
@@ -20,8 +14,8 @@
             }
         },
         {
-            "from": [  0,  0,  0 ],
-            "to":   [ 16,  2, 16 ],
+            "from": [  0, 14,  0 ],
+            "to":   [ 16, 16, 16 ],
             "faces": {
                 "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#overlay", "tintindex": 1 },
                 "down":  { "uv": [ 16, 16,  0,  0 ], "texture": "#overlay", "tintindex": 1 }

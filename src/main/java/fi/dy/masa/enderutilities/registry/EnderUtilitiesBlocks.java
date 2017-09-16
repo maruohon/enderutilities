@@ -29,8 +29,8 @@ public class EnderUtilitiesBlocks
     public static final BlockEnderUtilities BARREL              = new BlockBarrel(ReferenceNames.NAME_TILE_BARREL,                      4.0f, 10f, 1, Material.IRON);
     public static final BlockEnderUtilities DRAWBRIDGE          = new BlockDrawbridge(ReferenceNames.NAME_TILE_DRAW_BRIDGE,             4.0f, 10f, 1, Material.IRON);
     public static final BlockEnderUtilities ELEVATOR            = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR,            4.0f, 10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities ELEVATOR_SLAB       = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB,       4.0f, 10f, 1, Material.ROCK);
-    public static final BlockEnderUtilities ELEVATOR_LAYER      = new BlockElevator(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,      4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities ELEVATOR_SLAB       = new BlockElevatorSlab(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_SLAB,   4.0f, 10f, 1, Material.ROCK);
+    public static final BlockEnderUtilities ELEVATOR_LAYER      = new BlockElevatorSlab(ReferenceNames.NAME_TILE_ENDER_ELEVATOR_LAYER,  4.0f, 10f, 1, Material.ROCK);
     public static final BlockEnderUtilities ENDER_FURNACE       = new BlockEnderFurnace(ReferenceNames.NAME_TILE_MACHINE_0,             6.0f, 20f, 1, Material.IRON);
     public static final BlockEnderUtilities ENERGY_BRIDGE       = new BlockEnergyBridge(ReferenceNames.NAME_TILE_ENERGY_BRIDGE,         8.0f, 20f, 2, Material.IRON);
     public static final BlockEnderUtilities FLOOR               = new BlockFloor(ReferenceNames.NAME_TILE_FLOOR,                        2.0f,  6f, 1, Material.WOOD);

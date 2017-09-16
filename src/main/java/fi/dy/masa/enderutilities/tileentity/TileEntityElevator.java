@@ -26,6 +26,7 @@ public class TileEntityElevator extends TileEntityEnderUtilities
     {
         return new Predicate<TileEntity> ()
         {
+            @Override
             public boolean apply(TileEntity te)
             {
                 if ((te instanceof TileEntityElevator) == false)
@@ -41,10 +42,21 @@ public class TileEntityElevator extends TileEntityEnderUtilities
     }
 
     private boolean redstoneState;
+    private boolean topHalf;
 
     public TileEntityElevator()
     {
         super(ReferenceNames.NAME_TILE_ENDER_ELEVATOR);
+    }
+
+    public boolean isTopHalf()
+    {
+        return this.topHalf;
+    }
+
+    public void setIsTopHalf(boolean isTopHalf)
+    {
+        this.topHalf = isTopHalf;
     }
 
     @Override
@@ -53,6 +65,7 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         super.readFromNBTCustom(nbt);
 
         this.redstoneState = nbt.getBoolean("Redstone");
+        this.topHalf = nbt.getBoolean("Top");
     }
 
     @Override
@@ -61,6 +74,7 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         // Override without calling super, because the Elevator
         // doesn't use/need rotation, owner data etc.
         nbt.setBoolean("Redstone", this.redstoneState);
+        nbt.setBoolean("Top", this.topHalf);
 
         if (this.camoState != null)
         {
@@ -73,6 +87,21 @@ public class TileEntityElevator extends TileEntityEnderUtilities
         }
 
         return nbt;
+    }
+
+    @Override
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
+    {
+        nbt = super.getUpdatePacketTag(nbt);
+        nbt.setBoolean("t", this.topHalf);
+        return nbt;
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag)
+    {
+        this.topHalf = tag.getBoolean("t");
+        super.handleUpdateTag(tag);
     }
 
     @Override

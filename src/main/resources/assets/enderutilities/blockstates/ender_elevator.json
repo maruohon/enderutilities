@@ -1,8 +1,13 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "enderutilities:custom/ender_elevator",
-        "transform": "forge:default-block"
+        "model": "enderutilities:custom/camo_ender_elevator",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle": "enderutilities:blocks/ender_elevator_side",
+            "side":     "enderutilities:blocks/ender_elevator_side",
+            "overlay":  "enderutilities:blocks/ender_elevator_top_overlay"
+        }
     },
     "variants": {
         "normal": [{}],

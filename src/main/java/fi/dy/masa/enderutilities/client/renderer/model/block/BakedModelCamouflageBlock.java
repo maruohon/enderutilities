@@ -1,6 +1,5 @@
 package fi.dy.masa.enderutilities.client.renderer.model.block;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +10,12 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.init.Blocks;
@@ -27,16 +24,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 
-public class ModelCamouflageBlockBaked implements IBakedModel
+public class BakedModelCamouflageBlock implements IBakedModel
 {
     public static final Map<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> QUAD_CACHE = new HashMap<>();
-    protected final ImmutableMap<String, String> textures;
     protected final IBlockState defaultState;
     protected final IBakedModel bakedBaseModel;
     @Nullable
@@ -54,20 +50,19 @@ public class ModelCamouflageBlockBaked implements IBakedModel
         }
     }
 
-    public ModelCamouflageBlockBaked(ITextureMapped textureMapping, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
-            IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    public BakedModelCamouflageBlock(ImmutableMap<String, String> textures, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
+            IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.baseModel = baseModel;
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
-        this.textures = ImmutableMap.copyOf(textureMapping.getTextureMapping());
         this.defaultState = defaultState;
-        this.particle = bakedTextureGetter.apply(new ResourceLocation(this.textures.get("particle")));
-        this.bakedBaseModel = baseModel.retexture(this.textures).bake(state, format, bakedTextureGetter);
+        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("particle")));
+        this.bakedBaseModel = baseModel.bake(modelState, format, bakedTextureGetter);
 
         if (overlayModel != null)
         {
-            this.bakedOverlayModel = overlayModel.retexture(this.textures).bake(state, format, bakedTextureGetter);
+            this.bakedOverlayModel = overlayModel.bake(modelState, format, bakedTextureGetter);
         }
         else
         {
@@ -218,83 +213,13 @@ public class ModelCamouflageBlockBaked implements IBakedModel
 
     protected IBakedModel getBakedBaseModel(IBlockState state)
     {
-        return this.bakedBaseModel;
-    }
-
-    public static class ModelCamouflageBlockBase implements IModel, ITextureMapped
-    {
-        protected final IBlockState defaultState;
-        protected final ResourceLocation baseModelLocation;
-        @Nullable
-        protected final ResourceLocation overlayModelLocation;
-        protected final Map<String, String> textures = new HashMap<String, String>();
-
-        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModel, @Nullable ResourceLocation overlayModel)
+        if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING))
         {
-            this.defaultState = defaultState;
-            this.baseModelLocation = baseModel;
-            this.overlayModelLocation = overlayModel;
+            return this.baseModel.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING)), this.format, this.bakedTextureGetter);
         }
-
-        @Override
-        public IModelState getDefaultState()
+        else
         {
-            return ModelRotation.X0_Y0;
-        }
-
-        @Override
-        public Collection<ResourceLocation> getDependencies()
-        {
-            if (this.overlayModelLocation != null)
-            {
-                return Lists.newArrayList(this.baseModelLocation, this.overlayModelLocation);
-            }
-            else
-            {
-                return Lists.newArrayList(this.baseModelLocation);
-            }
-        }
-
-        @Override
-        public Collection<ResourceLocation> getTextures()
-        {
-            List<ResourceLocation> textures = Lists.newArrayList();
-
-            for (String name : this.getTextureMapping().values())
-            {
-                textures.add(new ResourceLocation(name));
-            }
-
-            return textures;
-        }
-
-        @Override
-        public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
-        {
-            IModel baseModel = null;
-            IModel overlayModel = null;
-
-            try
-            {
-                baseModel = ModelLoaderRegistry.getModel(this.baseModelLocation);
-
-                if (this.overlayModelLocation != null)
-                {
-                    overlayModel = ModelLoaderRegistry.getModel(this.overlayModelLocation);
-                }
-            }
-            catch (Exception e)
-            {
-                EnderUtilities.logger.warn("Failed to load a model for a camouflage block", e);
-            }
-
-            return new ModelCamouflageBlockBaked(this, baseModel, overlayModel, this.defaultState, state, format, bakedTextureGetter);
-        }
-
-        @Override
-        public ImmutableMap<String, String> getTextureMapping()
-        {
-            return ImmutableMap.copyOf(this.textures);
+            return this.bakedBaseModel;
         }
     }
 }

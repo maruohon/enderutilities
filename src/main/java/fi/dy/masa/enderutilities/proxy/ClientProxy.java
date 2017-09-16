@@ -52,9 +52,9 @@ import fi.dy.masa.enderutilities.client.renderer.model.ItemMeshDefinitionWrapper
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelNullifierBaked;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelBarrelBaked;
+import fi.dy.masa.enderutilities.client.renderer.model.block.BakedModelBarrel;
 import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlock;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelInserterBaked;
+import fi.dy.masa.enderutilities.client.renderer.model.block.BakedModelInserter;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
@@ -445,11 +445,11 @@ public class ClientProxy extends CommonProxy
 
     private static void registerBlockModels()
     {
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new ModelBarrelBaked.StateMapper());
-        ModelLoaderRegistry.registerLoader(new ModelBarrelBaked.ModelLoaderBarrel());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.BARREL, new BakedModelBarrel.StateMapper());
+        ModelLoaderRegistry.registerLoader(new BakedModelBarrel.ModelLoaderBarrel());
 
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new ModelInserterBaked.StateMapper());
-        ModelLoaderRegistry.registerLoader(new ModelInserterBaked.ModelLoaderInserter());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.INSERTER, new BakedModelInserter.StateMapper());
+        ModelLoaderRegistry.registerLoader(new BakedModelInserter.ModelLoaderInserter());
 
         ModelLoaderRegistry.registerLoader(new ModelCamouflageBlock.ModelLoaderCamouflageBlocks());
     }

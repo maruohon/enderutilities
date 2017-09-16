@@ -1,20 +1,40 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "transform": "forge:default-block"
+        "transform": "forge:default-block",
+        "textures": {
+            "particle": "#side",
+            "top":      "#side",
+            "bottom":   "#side",
+            "left":     "#side",
+            "right":    "#side",
+            "back":     "enderutilities:blocks/draw_bridge_back"
+        }
     },
     "variants": {
         "advanced": {
-            "false": { "model": "enderutilities:custom/draw_bridge_normal"   },
-            "true": {  "model": "enderutilities:custom/draw_bridge_advanced" }
+            "false": {
+                "model": "enderutilities:custom/camo_draw_bridge_normal",
+                "textures": {
+                    "front":    "enderutilities:blocks/draw_bridge_front_normal",
+                    "side":     "enderutilities:blocks/draw_bridge_side_normal"
+                }
+            },
+            "true": {
+                "model": "enderutilities:custom/camo_draw_bridge_advanced",
+                "textures": {
+                    "front":    "enderutilities:blocks/draw_bridge_front_advanced",
+                    "side":     "enderutilities:blocks/draw_bridge_side_advanced"
+                }
+            }
         },
         "facing": {
-            "north": {},
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },
-            "east":  { "y":  90 },
-            "up":    { "x": 270 },
-            "down":  { "x":  90 }
+            "east":  { "y":  90 }
         }
     }
 }

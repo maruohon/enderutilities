@@ -17,7 +17,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -25,23 +24,19 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
-import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 
 public class BlockElevator extends BlockEnderUtilitiesTileEntity
 {
-    public static final AxisAlignedBB BOUNDS_SLAB   = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
-    public static final AxisAlignedBB BOUNDS_LAYER  = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 2 / 16D, 1.0D);
     public static final PropertyEnum<EnumDyeColor> COLOR = PropertyEnum.<EnumDyeColor>create("color", EnumDyeColor.class);
 
     public BlockElevator(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.getBlockState().getBaseState()
-                .withProperty(COLOR, EnumDyeColor.WHITE));
+        this.setDefaultState(this.getBlockState().getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
     }
 
     @Override
@@ -151,27 +146,6 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
-    {
-        if (this == EnderUtilitiesBlocks.ELEVATOR_SLAB)
-        {
-            return BOUNDS_SLAB;
-        }
-        else if (this == EnderUtilitiesBlocks.ELEVATOR_LAYER)
-        {
-            return BOUNDS_LAYER;
-        }
-
-        return FULL_BLOCK_AABB;
-    }
-
-    @Override
-    public boolean isFullCube(IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
     public IBlockState withRotation(IBlockState state, Rotation rotation)
     {
         return state;
@@ -183,14 +157,9 @@ public class BlockElevator extends BlockEnderUtilitiesTileEntity
         return state;
     }
 
-    /*
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
-        for (EnumDyeColor color : EnumDyeColor.values())
-        {
-            list.add(new ItemStack(item, 1, color.getMetadata()));
-        }
+        return false;
     }
-    */
 }

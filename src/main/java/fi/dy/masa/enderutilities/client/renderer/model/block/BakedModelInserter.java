@@ -33,7 +33,7 @@ import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.BlockInserter;
 import fi.dy.masa.enderutilities.reference.Reference;
 
-public class ModelInserterBaked implements IBakedModel
+public class BakedModelInserter implements IBakedModel
 {
     private static final String TEX_NORMAL_IN                   = Reference.MOD_ID + ":blocks/inserter_normal_in";
     private static final String TEX_NORMAL_OUT                  = Reference.MOD_ID + ":blocks/inserter_normal_out";
@@ -55,7 +55,7 @@ public class ModelInserterBaked implements IBakedModel
     private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     private final TextureAtlasSprite particle;
 
-    private ModelInserterBaked(ModelInserter inserterModel, IModel baseModel, IModel sideModel, IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    private BakedModelInserter(ModelInserter inserterModel, IModel baseModel, IModel sideModel, IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         ImmutableMap<String, String> textures = inserterModel.getTextureMapping();
         this.baseModel        = baseModel.retexture(textures);
@@ -230,7 +230,7 @@ public class ModelInserterBaked implements IBakedModel
                 EnderUtilities.logger.warn("Failed to load a model for the Inserter!");
             }
 
-            return new ModelInserterBaked(this, baseModel, sideModel, state, format, bakedTextureGetter);
+            return new BakedModelInserter(this, baseModel, sideModel, state, format, bakedTextureGetter);
         }
 
         public ImmutableMap<String, String> getTextureMapping()

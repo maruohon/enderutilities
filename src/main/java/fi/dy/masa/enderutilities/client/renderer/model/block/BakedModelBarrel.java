@@ -31,7 +31,7 @@ import fi.dy.masa.enderutilities.block.BlockBarrel;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
-public class ModelBarrelBaked implements IBakedModel
+public class BakedModelBarrel implements IBakedModel
 {
     public static final String TEX_NORMAL_FRONT   = Reference.MOD_ID + ":blocks/barrel_normal_front";
     public static final String TEX_NORMAL_SIDE    = Reference.MOD_ID + ":blocks/barrel_normal_side";
@@ -48,7 +48,7 @@ public class ModelBarrelBaked implements IBakedModel
     private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     private final TextureAtlasSprite particle;
 
-    public ModelBarrelBaked(ModelBarrelBase modelBarrel, IModel baseModel, IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    public BakedModelBarrel(ModelBarrelBase modelBarrel, IModel baseModel, IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.textures = modelBarrel.getTextureMapping();
         this.baseModel = baseModel;
@@ -181,7 +181,7 @@ public class ModelBarrelBaked implements IBakedModel
                 EnderUtilities.logger.warn("Failed to load a model for the Barrel!");
             }
 
-            return new ModelBarrelBaked(this, baseModel, state, format, bakedTextureGetter);
+            return new BakedModelBarrel(this, baseModel, state, format, bakedTextureGetter);
         }
 
         public ImmutableMap<String, String> getTextureMapping()
