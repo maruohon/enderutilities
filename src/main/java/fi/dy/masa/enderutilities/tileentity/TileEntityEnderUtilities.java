@@ -219,27 +219,6 @@ public class TileEntityEnderUtilities extends TileEntity
                 if (this.getWorld().isRemote == false)
                 {
                     this.camoState = state;
-                    BlockPos posUp = posSelf.up();
-
-                    // If there is an air block above, temporarily place the target block to be able to grab its TE data, if any
-                    if (world.getBlockState(posUp).getBlock() == Blocks.AIR &&
-                        world.setBlockState(posUp, state, 16))
-                    {
-                        state = world.getBlockState(posUp);
-                        state.getBlock().onBlockPlacedBy(world, posUp, state, player, stackOffhand.copy());
-                        this.camoState = world.getBlockState(posUp);
-                        TileEntity te = world.getTileEntity(posUp);
-
-                        if (te != null)
-                        {
-                            this.camoData = te.getUpdateTag();
-                            this.camoData.removeTag("x");
-                            this.camoData.removeTag("y");
-                            this.camoData.removeTag("z");
-                        }
-
-                        world.setBlockState(posUp, Blocks.AIR.getDefaultState(), 16);
-                    }
 
                     this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
                     this.notifyBlockUpdate(this.getPos());
