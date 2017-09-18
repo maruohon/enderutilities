@@ -25,6 +25,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
@@ -197,7 +198,7 @@ public class TileEntityEnderUtilities extends TileEntity
             this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
             this.notifyBlockUpdate(this.getPos());
             // Check light changes in case the camo block emits light
-            this.getWorld().checkLight(this.getPos());
+            this.getWorld().checkLightFor(EnumSkyBlock.BLOCK, this.getPos());
             this.markDirty();
         }
     }
@@ -244,7 +245,7 @@ public class TileEntityEnderUtilities extends TileEntity
                     this.notifyBlockUpdate(this.getPos());
 
                     // Check light changes in case the camo block emits light
-                    this.getWorld().checkLight(this.getPos());
+                    this.getWorld().checkLightFor(EnumSkyBlock.BLOCK, this.getPos());
                     this.markDirty();
                 }
 
@@ -437,7 +438,7 @@ public class TileEntityEnderUtilities extends TileEntity
             BlockPos pos = this.getPos();
             IBlockState stateSelf = world.getBlockState(pos);
 
-            // If there is an air block above, temporarily place the target block to be able to grab its data
+            // Temporarily place the target block to be able to grab its data
             if (this.camoState != null && this.camoState.getBlock() != Blocks.AIR)
             {
                 try
@@ -460,8 +461,9 @@ public class TileEntityEnderUtilities extends TileEntity
                         this.camoState = this.camoState.getActualState(world, pos);
                         this.camoStateExtended = this.camoState.getBlock().getExtendedState(this.camoState, world, pos);
 
+                        BlockUtils.setBlockToAirWithoutSpillingContents(world, pos, 16);
                         world.setBlockState(pos, stateSelf, 16);
-                        this.validate();
+                        this.validate(); // re-validate after being removed by the setBlockState() to air
                         world.setTileEntity(pos, this);
                     }
                 }
@@ -474,8 +476,10 @@ public class TileEntityEnderUtilities extends TileEntity
         else
         {
             this.camoState = null;
+            this.camoStateExtended = null;
         }
 
+        this.getWorld().checkLightFor(EnumSkyBlock.BLOCK, this.getPos());
         this.notifyBlockUpdate(this.getPos());
     }
 
