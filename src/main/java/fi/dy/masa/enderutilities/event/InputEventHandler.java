@@ -65,7 +65,7 @@ public class InputEventHandler
         ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
 
         return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockEnderUtilities) == false || 
-                ((ItemBlockEnderUtilities) stack.getItem()).hasPlacementProperties());
+                ((ItemBlockEnderUtilities) stack.getItem()).hasPlacementProperty(stack));
     }
 
     public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)

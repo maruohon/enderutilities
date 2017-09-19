@@ -50,9 +50,8 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockEnderUtilities item = new ItemBlockStorage(this);
-        item.setHasPlacementProperties(true);
-        item.addPlacementProperty("asu.stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
-        item.addPlacementProperty("asu.slots", Constants.NBT.TAG_BYTE, 1, TileEntityASU.MAX_INV_SIZE);
+        item.addPlacementProperty(0, "asu.stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
+        item.addPlacementProperty(0, "asu.slots", Constants.NBT.TAG_BYTE, 1, TileEntityASU.MAX_INV_SIZE);
         return item;
     }
 

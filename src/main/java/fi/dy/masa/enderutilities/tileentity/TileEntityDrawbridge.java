@@ -37,8 +37,8 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 {
-    private static final int MAX_LENGTH_NORMAL = 64;
-    private static final int MAX_LENGTH_ADVANCED = 32;
+    public static final int MAX_LENGTH_NORMAL = 64;
+    public static final int MAX_LENGTH_ADVANCED = 32;
     private ItemStackHandlerDrawbridge itemHandlerDrawbridge;
     private boolean advanced;
     private boolean redstoneState;
@@ -104,9 +104,14 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         return this.delay;
     }
 
+    public void setDelayFromByte(byte delay)
+    {
+        this.setDelay(((int) delay) & 0xFF);
+    }
+
     public void setDelay(int delay)
     {
-        this.delay = MathHelper.clamp(delay, 1, 72000);
+        this.delay = MathHelper.clamp(delay, 1, 255);
     }
 
     public void setStackLimit(int limit)
@@ -117,9 +122,9 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        if (tag.hasKey("draw_bridge.delay", Constants.NBT.TAG_INT))
+        if (tag.hasKey("draw_bridge.delay", Constants.NBT.TAG_BYTE))
         {
-            this.setDelay(tag.getInteger("draw_bridge.delay"));
+            this.setDelayFromByte(tag.getByte("draw_bridge.delay"));
         }
 
         if (tag.hasKey("draw_bridge.length", Constants.NBT.TAG_BYTE))
@@ -138,7 +143,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         this.setIsAdvanced(nbt.getBoolean("Advanced"));
         this.redstoneState = nbt.getBoolean("Powered");
         this.position = nbt.getByte("Position");
-        this.delay = nbt.getByte("Delay");
+        this.setDelayFromByte(nbt.getByte("Delay"));
         this.setMaxLength(nbt.getByte("Length"));
         this.state = State.fromId(nbt.getByte("State"));
 

@@ -28,6 +28,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
@@ -111,14 +112,12 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     {
         ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
 
-        item.setHasPlacementProperties(true);
-
-        item.addPlacementProperty("inserter.delay",         Constants.NBT.TAG_INT, 0, 72000);
-        item.addPlacementProperty("inserter.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
-        item.addPlacementProperty("inserter.stack_limit",   Constants.NBT.TAG_BYTE, 1, 64);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "inserter.delay",         Constants.NBT.TAG_INT, 0, 72000);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "inserter.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "inserter.stack_limit",   Constants.NBT.TAG_BYTE, 1, 64);
 
         String[] names = new String[] { "ignored", "low", "high" };
-        item.addPlacementPropertyValueNames("inserter.redstone_mode", names);
+        item.addPlacementPropertyValueNames(OreDictionary.WILDCARD_VALUE, "inserter.redstone_mode", names);
 
         return item;
     }

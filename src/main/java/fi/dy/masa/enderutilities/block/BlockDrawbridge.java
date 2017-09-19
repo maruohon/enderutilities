@@ -67,9 +67,11 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
-        item.setHasPlacementProperties(true);
-        item.addPlacementProperty("draw_bridge.delay", Constants.NBT.TAG_INT, 1, 72000);
-        item.addPlacementProperty("draw_bridge.length", Constants.NBT.TAG_BYTE, 1, 64);
+        item.addPlacementProperty(0, "draw_bridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
+        item.addPlacementProperty(0, "draw_bridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_NORMAL);
+
+        item.addPlacementProperty(1, "draw_bridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
+        item.addPlacementProperty(1, "draw_bridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_ADVANCED);
         return item;
     }
 

@@ -3,11 +3,14 @@ package fi.dy.masa.enderutilities.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -98,8 +101,8 @@ public class PlacementProperties
         {
             switch (valueType)
             {
-                case Constants.NBT.TAG_BYTE:    return tag.getByte(key);
-                case Constants.NBT.TAG_SHORT:   return tag.getShort(key);
+                case Constants.NBT.TAG_BYTE:    return ((int) tag.getByte(key)) & 0xFF;
+                case Constants.NBT.TAG_SHORT:   return ((int) tag.getShort(key)) & 0xFFFF;
                 case Constants.NBT.TAG_INT:     return tag.getInteger(key);
             }
         }
@@ -248,16 +251,20 @@ public class PlacementProperties
         {
             ItemStack stack = new ItemStack(tagData.getCompoundTag("ItemType"));
 
-            if (stack.isEmpty() == false)
+            if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
             {
-                boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
-                        ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
-                ItemType type = new ItemType(stack, nbtSensitive);
-                mapTags.put(type, tagData.getCompoundTag("Tag"));
+                ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
 
-                if (tagData.hasKey("Index", Constants.NBT.TAG_BYTE))
+                if (item.hasPlacementProperty(stack))
                 {
-                    mapIndices.put(type, Integer.valueOf(tagData.getByte("Index")));
+                    boolean nbtSensitive = item.getPlacementProperty(stack).isNBTSensitive();
+                    ItemType type = new ItemType(stack, nbtSensitive);
+                    mapTags.put(type, tagData.getCompoundTag("Tag"));
+
+                    if (tagData.hasKey("Index", Constants.NBT.TAG_BYTE))
+                    {
+                        mapIndices.put(type, Integer.valueOf(tagData.getByte("Index")));
+                    }
                 }
             }
         }
@@ -324,22 +331,29 @@ public class PlacementProperties
 
     public void syncCurrentlyHeldItemDataForPlayer(EntityPlayerMP player, ItemStack stack)
     {
-        UUID uuid = player.getUniqueID();
-        boolean nbtSensitive = (stack.getItem() instanceof ItemBlockEnderUtilities) &&
-                ((ItemBlockEnderUtilities) stack.getItem()).getPlacementPropertyNBTSensitive();
-        ItemType type = new ItemType(stack, nbtSensitive);
-        NBTTagCompound props = this.getPropertyTag(uuid, type);
-
-        if (props != null)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setString("UUID", uuid.toString());
-            tag.setTag("ItemType", stack.writeToNBT(new NBTTagCompound()));
-            tag.setByte("Index", (byte) this.getPropertyIndex(uuid, type));
-            tag.setTag("Tag", props);
+            ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
 
-            MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
-            PacketHandler.INSTANCE.sendTo(message, player);
+            if (item.hasPlacementProperty(stack))
+            {
+                UUID uuid = player.getUniqueID();
+                boolean nbtSensitive = item.getPlacementProperty(stack).isNBTSensitive();
+                ItemType type = new ItemType(stack, nbtSensitive);
+                NBTTagCompound props = this.getPropertyTag(uuid, type);
+
+                if (props != null)
+                {
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setString("UUID", uuid.toString());
+                    tag.setTag("ItemType", stack.writeToNBT(new NBTTagCompound()));
+                    tag.setByte("Index", (byte) this.getPropertyIndex(uuid, type));
+                    tag.setTag("Tag", props);
+
+                    MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
+                    PacketHandler.INSTANCE.sendTo(message, player);
+                }
+            }
         }
     }
 
@@ -354,6 +368,70 @@ public class PlacementProperties
 
             MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_FULL, tag);
             PacketHandler.INSTANCE.sendTo(message, player);
+        }
+    }
+
+    public static class PlacementProperty
+    {
+        private boolean isNBTSensitive;
+        private List<Pair<String, Integer>> propertyTypes = new ArrayList<Pair<String, Integer>>();
+        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<Pair<Integer, Integer>>();
+        private Map<String, String[]> propertyValueNames = new HashMap<String, String[]>();
+
+        public boolean hasPlacementProperties()
+        {
+            return this.propertyTypes.isEmpty() == false;
+        }
+
+        public boolean isNBTSensitive()
+        {
+            return this.isNBTSensitive;
+        }
+
+        public void setIsNBTSensitive(boolean checkNBT)
+        {
+            this.isNBTSensitive = checkNBT;
+        }
+
+        public void addProperty(String key, int type, int minValue, int maxValue)
+        {
+            this.propertyTypes.add(Pair.of(key, type));
+            this.propertyValueRange.add(Pair.of(minValue, maxValue));
+        }
+
+        public void addValueNames(String key, String[] names)
+        {
+            this.propertyValueNames.put(key, names);
+        }
+
+        @Nullable
+        public Pair<String, Integer> getProperty(int selection)
+        {
+            return selection >= 0 && selection < this.propertyTypes.size() ? this.propertyTypes.get(selection) : null;
+        }
+
+        @Nullable
+        public Pair<Integer, Integer> getPropertyValueRange(int selection)
+        {
+            return selection >= 0 && selection < this.propertyValueRange.size() ? this.propertyValueRange.get(selection) : null;
+        }
+
+        @Nullable
+        public String getPropertyValueName(String key, int value)
+        {
+            String[] names = this.propertyValueNames.get(key);
+
+            if (names != null && value >= 0 && value < names.length)
+            {
+                return names[value];
+            }
+
+            return null;
+        }
+
+        public int getPropertyCount()
+        {
+            return this.propertyTypes.size();
         }
     }
 }
