@@ -19,7 +19,7 @@ public class GuiASU extends GuiContainerLargeStacks
 
     public GuiASU(ContainerASU container, TileEntityASU te)
     {
-        super(container, 176, 175, "gui.container.asu");
+        super(container, 176, 195, "gui.container.asu");
 
         this.teasu = te;
         this.infoArea = new InfoArea(160, 5, 11, 11, "enderutilities.gui.infoarea.asu");
@@ -38,10 +38,13 @@ public class GuiASU extends GuiContainerLargeStacks
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         this.fontRenderer.drawString(I18n.format("enderutilities.container.asu"), 8, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 82, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 102, 0x404040);
 
-        String str = String.valueOf(this.teasu.getBaseItemHandler().getInventoryStackLimit());
-        this.fontRenderer.drawString(str, 116 - this.fontRenderer.getStringWidth(str), 16, 0x404040);
+        String str = I18n.format("enderutilities.gui.label.slot.amount.num", this.teasu.getBaseItemHandler().getSlots());
+        this.fontRenderer.drawString(str, 20, 18, 0x404040);
+
+        str = I18n.format("enderutilities.gui.label.stack.limit.num", this.teasu.getBaseItemHandler().getInventoryStackLimit());
+        this.fontRenderer.drawString(str, 20, 30, 0x404040);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class GuiASU extends GuiContainerLargeStacks
         for (int row = 0; row < rows; row++)
         {
             int rowLen = MathHelper.clamp(invSize - (row * 9), 1, 9);
-            this.drawTexturedModalRect(x + 7, y + 26 + row * 18, 7, 92, rowLen * 18, 18);
+            this.drawTexturedModalRect(x + 7, y + 42 + row * 18, 7, 111, rowLen * 18, 18);
         }
 
         this.drawLockedSlotBackgrounds(this.teasu.getInventoryASU());
@@ -73,11 +76,11 @@ public class GuiASU extends GuiContainerLargeStacks
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        this.buttonList.add(new GuiButtonHoverText(0, x + 120, y + 16, 8, 8, 0, 120,
-                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.stacklimit"));
-
-        this.buttonList.add(new GuiButtonHoverText(1, x + 138, y + 16, 8, 8, 0, 120,
+        this.buttonList.add(new GuiButtonHoverText(0, x + 8, y + 18, 8, 8, 0, 120,
                 this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.slot.amount"));
+
+        this.buttonList.add(new GuiButtonHoverText(1, x + 8, y + 30, 8, 8, 0, 120,
+                this.guiTextureWidgets, 8, 0, "enderutilities.gui.label.stacklimit"));
     }
 
     @Override
@@ -97,12 +100,12 @@ public class GuiASU extends GuiContainerLargeStacks
 
         if (button.id == 0 || button.id == 1)
         {
-            if (button.id == 0 && mouseButton == 2)
+            if (button.id == 1 && mouseButton == 2)
             {
                 amount = GuiScreen.isShiftKeyDown() ? TileEntityASU.MAX_STACK_SIZE : -TileEntityASU.MAX_STACK_SIZE;
             }
 
-            if (button.id == 0)
+            if (button.id == 1)
             {
                 if (GuiScreen.isShiftKeyDown()) { amount *= 16; }
                 if (GuiScreen.isCtrlKeyDown())  { amount *= 64; }

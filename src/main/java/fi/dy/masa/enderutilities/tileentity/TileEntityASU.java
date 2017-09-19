@@ -147,11 +147,11 @@ public class TileEntityASU extends TileEntityEnderUtilitiesInventory
     {
         if (action == 0)
         {
-            this.setStackLimit(this.getBaseItemHandler().getInventoryStackLimit() + element);
+            this.changeInventorySize(element);
         }
         else if (action == 1)
         {
-            this.changeInventorySize(element);
+            this.setStackLimit(this.getBaseItemHandler().getInventoryStackLimit() + element);
         }
     }
 

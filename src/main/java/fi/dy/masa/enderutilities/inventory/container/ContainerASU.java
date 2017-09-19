@@ -31,14 +31,14 @@ public class ContainerASU extends ContainerTileLargeStacks implements ICustomSlo
         this.inventorySlots.clear();
         this.inventoryItemStacks.clear();
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 93);
+        this.addPlayerInventorySlots(8, 112);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
         int posX = 8;
-        int posY = 27;
+        int posY = 43;
         int slots = this.inventory.getSlots();
 
         this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
