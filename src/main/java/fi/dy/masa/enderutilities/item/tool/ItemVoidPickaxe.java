@@ -231,7 +231,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     }
 
     @Override
-    public float getStrVsBlock(ItemStack stack, IBlockState state)
+    public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         if (this.isToolBroken(stack))
         {
@@ -272,7 +272,7 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
         }
 
         //System.out.printf("getStrVsBlock(); not effective: eff: %f\n", super.getStrVsBlock(stack, state));
-        return super.getStrVsBlock(stack, state);
+        return super.getDestroySpeed(stack, state);
     }
 
     @Override

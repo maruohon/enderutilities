@@ -261,7 +261,7 @@ public class TeleportEntity
         if (entity instanceof EntityLiving)
         {
             ((EntityLiving) entity).setMoveForward(0.0f);
-            ((EntityLiving) entity).getNavigator().clearPathEntity();
+            ((EntityLiving) entity).getNavigator().clearPath();
         }
 
         if (entity.getEntityWorld().provider.getDimension() != dimDst)

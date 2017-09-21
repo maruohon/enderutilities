@@ -94,7 +94,7 @@ public class EntityEnderArrow extends EntityArrow
             double d5 = d2 / d3;
             this.setLocationAndAngles(shooter.posX + d4, this.posY, shooter.posZ + d5, f2, f3);
             float f4 = (float)d3 * 0.2F;
-            this.setThrowableHeading(d0, d1 + (double)f4, d2, par4, par5);
+            this.shoot(d0, d1 + (double)f4, d2, par4, par5);
         }
     }
 
@@ -134,7 +134,7 @@ public class EntityEnderArrow extends EntityArrow
         this.motionX = (double)(-MathHelper.sin(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionZ = (double)(MathHelper.cos(this.rotationYaw / 180.0F * (float)Math.PI) * MathHelper.cos(this.rotationPitch / 180.0F * (float)Math.PI));
         this.motionY = (double)(-MathHelper.sin(this.rotationPitch / 180.0F * (float)Math.PI));
-        this.setThrowableHeading(this.motionX, this.motionY, this.motionZ, velocity * 1.8F, 1.0F);
+        this.shoot(this.motionX, this.motionY, this.motionZ, velocity * 1.8F, 1.0F);
     }
 
     public void setTpMode(byte mode)

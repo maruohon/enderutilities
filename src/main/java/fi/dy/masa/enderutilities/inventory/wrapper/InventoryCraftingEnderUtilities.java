@@ -161,9 +161,9 @@ public class InventoryCraftingEnderUtilities extends InventoryCrafting
             IRecipe recipe = CraftingManager.findMatchingRecipe(this, world);
 
             if (recipe != null &&
-                    (recipe.isHidden() || // isHidden() is rather something like "isNBT()" or "modifiesData()"
+                    (recipe.isDynamic() ||
                      world.getGameRules().getBoolean("doLimitedCrafting") == false ||
-                     player.getRecipeBook().containsRecipe(recipe)))
+                     player.getRecipeBook().isUnlocked(recipe)))
             {
                 this.craftResult.setRecipe(recipe);
                 stack = recipe.getCraftingResult(this);

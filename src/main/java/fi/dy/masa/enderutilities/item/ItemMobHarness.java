@@ -90,7 +90,7 @@ public class ItemMobHarness extends ItemEnderUtilities
             {
                 EntityLiving living = (EntityLiving) entityTmp;
 
-                living.getNavigator().clearPathEntity();
+                living.getNavigator().clearPath();
 
                 // Add a new AI task as the highest priority task after swimming and panic AI tasks
                 EntityUtils.addAITaskAfterTasks(living, new EntityAIBlockRiderIdleTasks(living),

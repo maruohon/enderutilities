@@ -732,7 +732,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     }
 
     @Override
-    public float getStrVsBlock(ItemStack stack, IBlockState state)
+    public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         if (this.isToolBroken(stack))
         {
@@ -784,7 +784,7 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         }
 
         //System.out.println("getStrVsBlock(); not effective: " + super.getStrVsBlock(stack, block, meta));
-        return super.getStrVsBlock(stack, state);
+        return super.getDestroySpeed(stack, state);
     }
 
     @Override

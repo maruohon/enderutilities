@@ -65,7 +65,7 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
 
         IRecipe recipe = this.craftResult.getRecipe();
 
-        if (recipe != null && recipe.isHidden() == false)
+        if (recipe != null && recipe.isDynamic() == false)
         {
             this.player.unlockRecipes(Lists.newArrayList(recipe));
             this.craftResult.setRecipe(null);

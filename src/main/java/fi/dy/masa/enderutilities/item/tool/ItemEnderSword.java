@@ -137,7 +137,7 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     }
 
     @Override
-    public float getStrVsBlock(ItemStack stack, IBlockState state)
+    public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         if (this.isToolBroken(stack))
         {

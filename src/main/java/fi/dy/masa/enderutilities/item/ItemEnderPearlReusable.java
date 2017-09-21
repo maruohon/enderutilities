@@ -57,7 +57,7 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
 
         EntityEnderPearlReusable pearl = new EntityEnderPearlReusable(world, player, stack.getMetadata() == 1);
         float velocity = stack.getMetadata() == 1 ? 2.5f : 1.9f;
-        pearl.setHeadingFromThrower(player, player.rotationPitch, player.rotationYaw, 0.0f, velocity, 0.8f);
+        pearl.shoot(player, player.rotationPitch, player.rotationYaw, 0.0f, velocity, 0.8f);
         world.spawnEntity(pearl);
 
         if (stack.getMetadata() == 1)

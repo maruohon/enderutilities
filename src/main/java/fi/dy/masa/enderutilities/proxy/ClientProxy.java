@@ -163,7 +163,7 @@ public class ClientProxy extends CommonProxy
                     new IItemColor()
                     {
                         @Override
-                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        public int colorMultiplier(ItemStack stack, int tintIndex)
                         {
                             return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
@@ -186,7 +186,7 @@ public class ClientProxy extends CommonProxy
                     new IItemColor()
                     {
                         @Override
-                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        public int colorMultiplier(ItemStack stack, int tintIndex)
                         {
                             return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
@@ -211,7 +211,7 @@ public class ClientProxy extends CommonProxy
                     new IItemColor()
                     {
                         @Override
-                        public int getColorFromItemstack(ItemStack stack, int tintIndex)
+                        public int colorMultiplier(ItemStack stack, int tintIndex)
                         {
                             return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
                         }
