@@ -33,7 +33,6 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 public class BakedModelCamouflageBlock implements IBakedModel
 {
     public static final Map<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> QUAD_CACHE = new HashMap<>();
-    protected final IBlockState defaultState;
     protected final IBakedModel bakedBaseModel;
     @Nullable
     protected final IBakedModel bakedOverlayModel;
@@ -50,13 +49,12 @@ public class BakedModelCamouflageBlock implements IBakedModel
         }
     }
 
-    public BakedModelCamouflageBlock(ImmutableMap<String, String> textures, IModel baseModel, @Nullable IModel overlayModel, IBlockState defaultState,
+    public BakedModelCamouflageBlock(ImmutableMap<String, String> textures, IModel baseModel, @Nullable IModel overlayModel,
             IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.baseModel = baseModel;
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
-        this.defaultState = defaultState;
         this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("particle")));
         this.bakedBaseModel = baseModel.bake(modelState, format, bakedTextureGetter);
 
@@ -125,20 +123,14 @@ public class BakedModelCamouflageBlock implements IBakedModel
         Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> map = QUAD_CACHE.get(layer);
         ImmutablePair<IBlockState, IBlockState> key;
 
-        if (state.getBlock().getBlockLayer() != layer &&
-            (camoState == null || camoState.getBlock().canRenderInLayer(camoState, layer) == false))
-        {
-            return ImmutableList.of();
-        }
+        // Get the base actualState, so that the map keys work properly (reference equality)
+        state = ((IExtendedBlockState) state).getClean();
 
         if (map == null)
         {
             map = new HashMap<>();
             QUAD_CACHE.put(layer, map);
         }
-
-        // Get the base actualState, so that the map keys work properly (reference equality)
-        state = ((IExtendedBlockState) state).getClean();
 
         if (validCamo)
         {
@@ -155,12 +147,13 @@ public class BakedModelCamouflageBlock implements IBakedModel
         {
             if (validCamo)
             {
-                IBakedModel camoModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
-                quads = this.getCombinedQuads(layer, camoModel, camoState, camoExtendedState, this.bakedOverlayModel, state);
+                IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
+                quads = this.getCombinedQuads(layer, model, camoState, camoExtendedState, this.bakedOverlayModel, state, true);
             }
             else
             {
-                quads = this.getCombinedQuads(layer, this.getBakedBaseModel(state), state, state, null, null);
+                IBakedModel model = this.getBakedBaseModel(state);
+                quads = this.getCombinedQuads(layer, model, state, state, this.bakedOverlayModel, state, false);
             }
 
             map.put(key, quads);
@@ -171,7 +164,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
 
     protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(BlockRenderLayer layer,
             @Nonnull IBakedModel baseModel, @Nonnull IBlockState baseActualState, @Nonnull IBlockState baseExtendedState,
-            @Nullable IBakedModel optionalModel, @Nullable IBlockState optionalState)
+            @Nullable IBakedModel optionalModel, @Nullable IBlockState optionalState, boolean isCamoModel)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
 
@@ -179,13 +172,18 @@ public class BakedModelCamouflageBlock implements IBakedModel
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-            if (baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
+            // This allows the camo models to render on all layers they need to,
+            // but restricts the base model to only render on the one layer they say they should be in.
+            // This is because the canRenderInLayer() returns true for all layers for camo blocks,
+            // so that the camo model can render in all the layers it needs to.
+            if ((isCamoModel || baseActualState.getBlock().getBlockLayer() == layer) &&
+                baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
             {
                 quads.addAll(baseModel.getQuads(baseExtendedState, face, 0));
             }
 
             // The optional model is only used for the Elevator color overlay
-            if (optionalModel != null && optionalState != null && optionalState.getBlock().getBlockLayer() == layer)
+            if (optionalModel != null && optionalState != null && layer == BlockRenderLayer.CUTOUT)
             {
                 quads.addAll(optionalModel.getQuads(optionalState, face, 0));
             }
@@ -195,13 +193,14 @@ public class BakedModelCamouflageBlock implements IBakedModel
 
         ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-        if (baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
+        if ((isCamoModel || baseActualState.getBlock().getBlockLayer() == layer) &&
+            baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
         {
             quads.addAll(baseModel.getQuads(baseExtendedState, null, 0));
         }
 
         // The optional model is only used for the Elevator color overlay
-        if (optionalModel != null && optionalState != null && optionalState.getBlock().getBlockLayer() == layer)
+        if (optionalModel != null && optionalState != null && layer == BlockRenderLayer.CUTOUT)
         {
             quads.addAll(optionalModel.getQuads(optionalState, null, 0));
         }

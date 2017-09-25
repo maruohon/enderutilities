@@ -24,7 +24,6 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.block.BlockDrawbridge;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
@@ -32,7 +31,6 @@ public class ModelCamouflageBlock
 {
     public static class ModelCamouflageBlockBase implements IModel
     {
-        protected final IBlockState defaultState;
         protected final ResourceLocation baseModelLocation;
         @Nullable
         protected final ResourceLocation overlayModelLocation;
@@ -58,9 +56,8 @@ public class ModelCamouflageBlock
             texture_deps = builder.build();
         }
 
-        public ModelCamouflageBlockBase(IBlockState defaultState, ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation)
+        public ModelCamouflageBlockBase(ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation)
         {
-            this.defaultState = defaultState;
             this.baseModelLocation = baseModelLocation;
             this.overlayModelLocation = overlayModelLocation;
 
@@ -127,7 +124,7 @@ public class ModelCamouflageBlock
         @Override
         public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
         {
-            return new BakedModelCamouflageBlock(ImmutableMap.copyOf(this.textures), this.baseModel, this.overlayModel, this.defaultState, state, format, bakedTextureGetter);
+            return new BakedModelCamouflageBlock(ImmutableMap.copyOf(this.textures), this.baseModel, this.overlayModel, state, format, bakedTextureGetter);
         }
     }
 
@@ -135,9 +132,8 @@ public class ModelCamouflageBlock
     {
         public ModelElevator(IBlockState defaultState, String variant)
         {
-            super(defaultState,
-                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant),
-                    new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant + "_overlay"));
+            super(new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant),
+                  new ResourceLocation(Reference.MOD_ID, "block/ender_elevator" + variant + "_overlay"));
         }
     }
 
@@ -184,15 +180,12 @@ public class ModelCamouflageBlock
             }
             else if (modelLocation.equals(LOC_PORTAL_FRAME))
             {
-                IBlockState defaultState = EnderUtilitiesBlocks.PORTAL_FRAME.getDefaultState();
-                return new ModelCamouflageBlockBase(defaultState, new ResourceLocation("minecraft:block/cube_all"), null);
+                return new ModelCamouflageBlockBase(new ResourceLocation("minecraft:block/cube_all"), null);
             }
             else if (modelLocation.equals(LOC_DRAW_BRIDGE_N) || modelLocation.equals(LOC_DRAW_BRIDGE_A))
             {
-                IBlockState defaultState = EnderUtilitiesBlocks.DRAWBRIDGE.getDefaultState()
-                        .withProperty(BlockDrawbridge.ADVANCED, modelLocation.equals(LOC_DRAW_BRIDGE_A));
                 ResourceLocation baseModelLocation = new ResourceLocation(Reference.MOD_ID, "block/orientable_directional_individual");
-                return new ModelCamouflageBlockBase(defaultState, baseModelLocation, null);
+                return new ModelCamouflageBlockBase(baseModelLocation, null);
             }
 
             return ModelLoaderRegistry.getMissingModel();

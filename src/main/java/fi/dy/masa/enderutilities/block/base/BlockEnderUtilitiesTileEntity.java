@@ -163,7 +163,7 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
     {
-        return this.isCamoBlock() ? true : layer == this.getBlockLayer();
+        return this.isCamoBlock() || layer == this.getBlockLayer();
     }
 
     @Override
@@ -227,12 +227,6 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     public boolean isOpaqueCube(IBlockState state)
     {
         return this.isCamoBlock() == false;
-    }
-
-    @Override
-    public BlockRenderLayer getBlockLayer()
-    {
-        return this.isCamoBlock() ? BlockRenderLayer.CUTOUT : BlockRenderLayer.SOLID;
     }
 
     @Override
