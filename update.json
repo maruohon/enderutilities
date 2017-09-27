@@ -1,30 +1,33 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.12.2-latest":        "0.7.4",
-        "1.12.2-recommended":   "0.7.4",
-        "1.12.1-latest":        "0.7.4",
-        "1.12.1-recommended":   "0.7.4",
-        "1.12-latest":          "0.7.4",
-        "1.12-recommended":     "0.7.4",
-        "1.11.2-latest": "0.7.2",
-        "1.11.2-recommended": "0.7.2",
-        "1.10.2-latest": "0.7.4",
-        "1.10.2-recommended": "0.7.4",
-        "1.9.4-latest": "0.6.5",
-        "1.9.4-recommended": "0.6.5",
-        "1.9-latest": "0.6.1",
-        "1.9-recommended": "0.6.1",
-        "1.8.9-latest": "0.5.6",
-        "1.8.9-recommended": "0.5.6"
+        "1.12.2-latest":        "0.7.5",
+        "1.12.2-recommended":   "0.7.5",
+        "1.12.1-latest":        "0.7.5",
+        "1.12.1-recommended":   "0.7.5",
+        "1.12-latest":          "0.7.5",
+        "1.12-recommended":     "0.7.5",
+        "1.11.2-latest":        "0.7.2",
+        "1.11.2-recommended":   "0.7.2",
+        "1.10.2-latest":        "0.7.4",
+        "1.10.2-recommended":   "0.7.4",
+        "1.9.4-latest":         "0.6.5",
+        "1.9.4-recommended":    "0.6.5",
+        "1.9-latest":           "0.6.1",
+        "1.9-recommended":      "0.6.1",
+        "1.8.9-latest":         "0.5.6",
+        "1.8.9-recommended":    "0.5.6"
     },
     "1.12.2": {
+        "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes"
     },
     "1.12.1": {
+        "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes"
     },
     "1.12": {
+        "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes",
         "0.7.3": "Fix a possible crash with the Inserter and Portal Panel highlight boxes\nNullifier: Allow in items with NBT (like C&B bits), and improve the model (it can now render C&B bits for example)\nNullifier: Add Ctrl + middle clicking to empty/void slots\nInventory Swapper: Don't cycle/change card to empty slots using the hotkeys",
         "0.7.2": "Change destroying blocks without spilling contents, again. Fixes some crashes with other modded TileEntities.\nPossibly fix/prevent rare rendering/model related crashes\nFix the Nullifier model crashing with recent Forge versions\nFix the Inserter trying to get the target inventory on the wrong side\nFix Placement Properties syncing to clients not working when joining a server",
