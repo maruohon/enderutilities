@@ -67,11 +67,17 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
-        item.addPlacementProperty(0, "draw_bridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
-        item.addPlacementProperty(0, "draw_bridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_NORMAL);
+        String[] names = new String[] { "extend", "retract", "toggle" };
 
-        item.addPlacementProperty(1, "draw_bridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
-        item.addPlacementProperty(1, "draw_bridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_ADVANCED);
+        item.addPlacementProperty(0, "drawbridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
+        item.addPlacementProperty(0, "drawbridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_NORMAL);
+        item.addPlacementProperty(0, "drawbridge.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
+        item.addPlacementPropertyValueNames(0, "drawbridge.redstone_mode", names);
+
+        item.addPlacementProperty(1, "drawbridge.delay", Constants.NBT.TAG_BYTE, 1, 255);
+        item.addPlacementProperty(1, "drawbridge.length", Constants.NBT.TAG_BYTE, 1, TileEntityDrawbridge.MAX_LENGTH_ADVANCED);
+        item.addPlacementProperty(1, "drawbridge.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);
+        item.addPlacementPropertyValueNames(1, "drawbridge.redstone_mode", names);
         return item;
     }
 

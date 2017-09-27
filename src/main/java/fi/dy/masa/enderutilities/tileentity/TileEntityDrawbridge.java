@@ -43,6 +43,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private boolean advanced;
     private boolean redstoneState;
     private State state = State.IDLE;
+    private RedstoneMode redstoneMode = RedstoneMode.EXTEND;
     private int position;
     private int delay = 4;
     private int maxLength = 1;
@@ -114,6 +115,17 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         this.delay = MathHelper.clamp(delay, 1, 255);
     }
 
+    public void setRedstoneMode(int id)
+    {
+        id = MathHelper.clamp(id, 0, 2);
+        this.redstoneMode = RedstoneMode.fromId(id);
+    }
+
+    public int getRedstoneModeIntValue()
+    {
+        return this.redstoneMode.getId();
+    }
+
     public void setStackLimit(int limit)
     {
         this.getBaseItemHandler().setStackLimit(MathHelper.clamp(limit, 1, MAX_LENGTH_NORMAL));
@@ -122,14 +134,19 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        if (tag.hasKey("draw_bridge.delay", Constants.NBT.TAG_BYTE))
+        if (tag.hasKey("drawbridge.delay", Constants.NBT.TAG_BYTE))
         {
-            this.setDelayFromByte(tag.getByte("draw_bridge.delay"));
+            this.setDelayFromByte(tag.getByte("drawbridge.delay"));
         }
 
-        if (tag.hasKey("draw_bridge.length", Constants.NBT.TAG_BYTE))
+        if (tag.hasKey("drawbridge.length", Constants.NBT.TAG_BYTE))
         {
-            this.setMaxLength(tag.getByte("draw_bridge.length"));
+            this.setMaxLength(tag.getByte("drawbridge.length"));
+        }
+
+        if (tag.hasKey("drawbridge.redstone_mode", Constants.NBT.TAG_BYTE))
+        {
+            this.setRedstoneMode(tag.getByte("drawbridge.redstone_mode"));
         }
 
         this.markDirty();
@@ -146,6 +163,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         this.setDelayFromByte(nbt.getByte("Delay"));
         this.setMaxLength(nbt.getByte("Length"));
         this.state = State.fromId(nbt.getByte("State"));
+        this.setRedstoneMode(nbt.getByte("RedstoneMode"));
 
         this.readBlockInfoFromNBT(nbt);
     }
@@ -161,6 +179,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         nbt.setByte("Delay", (byte) this.delay);
         nbt.setByte("Length", (byte) this.maxLength);
         nbt.setByte("State", (byte) this.state.getId());
+        nbt.setByte("RedstoneMode", (byte) this.redstoneMode.getId());
 
         this.writeBlockInfoToNBT(nbt);
 
@@ -473,7 +492,43 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
         if (powered != this.redstoneState)
         {
-            this.state = powered ? State.EXTEND : State.CONTRACT;
+            switch (this.redstoneMode)
+            {
+                case EXTEND:
+                    this.state = powered ? State.EXTEND : State.RETRACT;
+                    break;
+
+                case RETRACT:
+                    this.state = powered ? State.RETRACT : State.EXTEND;
+                    break;
+
+                case TOGGLE:
+                    if (powered)
+                    {
+                        if (this.state == State.EXTEND)
+                        {
+                            this.state = State.RETRACT;
+                        }
+                        else if (this.state == State.RETRACT)
+                        {
+                            this.state = State.EXTEND;
+                        }
+                        else
+                        {
+                            if (this.position == (this.maxLength - 1))
+                            {
+                                this.state = State.RETRACT;
+                            }
+                            else
+                            {
+                                this.state = State.EXTEND;
+                            }
+                        }
+                    }
+
+                    break;
+            }
+
             this.redstoneState = powered;
             this.scheduleBlockUpdate(this.delay, true);
         }
@@ -505,7 +560,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                 this.scheduleBlockUpdate(this.delay, false);
             }
         }
-        else if (this.state == State.CONTRACT)
+        else if (this.state == State.RETRACT)
         {
             while (this.position >= 0)
             {
@@ -563,34 +618,49 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
-        // Take block states from world
-        if (action == 0)
+        switch (action)
         {
-            this.takeAllBlocksFromWorld();
-        }
-        // Change delay
-        else if (action == 1)
-        {
-            this.setDelay(this.delay + element);
-        }
-        // Change max length
-        else if (action == 2 && this.state == State.IDLE)
-        {
-            if (this.isAdvanced())
-            {
-                this.changeInventorySize(element);
-            }
-            else
-            {
-                this.setMaxLength(this.maxLength + element);
-            }
+            // Take block states from world
+            case 0:
+                this.takeAllBlocksFromWorld();
+                break;
 
-            // If the device is in the extended idle state, set the position to the end of
-            // the newly set length.
-            if (this.redstoneState)
-            {
-                this.position = (this.maxLength - 1);
-            }
+            // Change the delay
+            case 1:
+                this.setDelay(this.delay + element);
+                break;
+
+            // Change the max length
+            case 2:
+                if (this.state == State.IDLE)
+                {
+                    int oldMaxLength = this.maxLength;
+
+                    if (this.isAdvanced())
+                    {
+                        this.changeInventorySize(element);
+                    }
+                    else
+                    {
+                        this.setMaxLength(this.maxLength + element);
+                    }
+
+                    // If the device is in the extended idle state, set the position to the end of
+                    // the newly set length.
+                    if (this.position >= oldMaxLength)
+                    {
+                        this.position = (this.maxLength - 1);
+                    }
+                }
+                break;
+
+            // Change the redstone mode
+            case 3:
+                if (this.state == State.IDLE)
+                {
+                    this.setRedstoneMode(this.redstoneMode.getId() + (element > 0 ? 1 : -1));
+                }
+                break;
         }
 
         this.markDirty();
@@ -666,7 +736,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     {
         IDLE        (0),
         EXTEND      (1),
-        CONTRACT    (2);
+        RETRACT    (2);
 
         private final int id;
 
@@ -686,6 +756,29 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
     }
 
+    private enum RedstoneMode
+    {
+        EXTEND  (0),
+        RETRACT (1),
+        TOGGLE  (2);
+
+        private final int id;
+
+        private RedstoneMode(int id)
+        {
+            this.id = id;
+        }
+
+        public int getId()
+        {
+            return id;
+        }
+
+        public static RedstoneMode fromId(int id)
+        {
+            return values()[id % values().length];
+        }
+    }
     @Override
     protected boolean hasCamouflageAbility()
     {

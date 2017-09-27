@@ -12,6 +12,7 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
     private final boolean advanced;
     private int lengthLast = -1;
     private int delayLast = -1;
+    private int rsModeLast = -1;
 
     public ContainerDrawbridge(EntityPlayer player, TileEntityDrawbridge te)
     {
@@ -57,7 +58,7 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
         }
         else
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 80, 21));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 8, 21));
         }
     }
 
@@ -71,6 +72,7 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
 
         int maxLength = this.tedb.getMaxLength();
         int delay = this.tedb.getDelay();
+        int rsMode = this.tedb.getRedstoneModeIntValue();
 
         for (int i = 0; i < this.listeners.size(); i++)
         {
@@ -83,6 +85,11 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
             {
                 this.listeners.get(i).sendWindowProperty(this, 1, delay);
             }
+
+            if (rsMode != this.rsModeLast)
+            {
+                this.listeners.get(i).sendWindowProperty(this, 2, rsMode);
+            }
         }
 
         if (maxLength != this.lengthLast)
@@ -92,6 +99,7 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
 
         this.lengthLast = maxLength;
         this.delayLast = delay;
+        this.rsModeLast = rsMode;
 
         super.detectAndSendChanges();
     }
@@ -109,6 +117,9 @@ public class ContainerDrawbridge extends ContainerTileLargeStacks
                 break;
             case 1:
                 this.tedb.setDelay(data);
+                break;
+            case 2:
+                this.tedb.setRedstoneMode(data);
                 break;
         }
     }
