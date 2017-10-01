@@ -414,6 +414,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                     {
                         TileUtils.storeTileEntityInStack(stack, te, false);
                         nbt = te.writeToNBT(new NBTTagCompound());
+                        NBTUtils.removePositionFromTileEntityNBT(nbt);
                     }
                 }
 

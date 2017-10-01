@@ -11,6 +11,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
@@ -88,8 +89,13 @@ public class TileUtils
      */
     public static boolean createAndAddTileEntity(World world, BlockPos pos, @Nonnull NBTTagCompound nbt, Rotation rotation, Mirror mirror)
     {
+        BlockPos posOrig = null;
+
         // Just store and later restore the original position instead of copying the entire (possibly large) NBT tag
-        BlockPos posOrig = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        if (nbt.hasKey("x", Constants.NBT.TAG_INT) && nbt.hasKey("y", Constants.NBT.TAG_INT) && nbt.hasKey("z", Constants.NBT.TAG_INT))
+        {
+            posOrig = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+        }
 
         // Set the correct position in the NBT prior to creating the TileEntity.
         // This can improve compatibility/reduce glitches with some tiles.
@@ -101,9 +107,12 @@ public class TileUtils
         // friendly than just doing world.getTileEntity(pos).readFromNBT(tag)
         TileEntity te = TileEntity.create(world, nbt);
 
-        // Restore the original position, in case the tag ends up written back to somewhere.
-        // (Although when does the original position matter anyway?)
-        NBTUtils.setPositionInTileEntityNBT(nbt, posOrig);
+        if (posOrig != null)
+        {
+            // Restore the original position, in case the tag ends up written back to somewhere.
+            // (Although when does the original position matter anyway?)
+            NBTUtils.setPositionInTileEntityNBT(nbt, posOrig);
+        }
 
         if (te != null)
         {

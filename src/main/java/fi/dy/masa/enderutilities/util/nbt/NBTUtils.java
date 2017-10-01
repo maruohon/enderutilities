@@ -928,6 +928,13 @@ public class NBTUtils
         tag.setInteger("z", pos.getZ());
     }
 
+    public static void removePositionFromTileEntityNBT(@Nonnull NBTTagCompound tag)
+    {
+        tag.removeTag("x");
+        tag.removeTag("y");
+        tag.removeTag("z");
+    }
+
     /**
      * Writes the given IBlockState to the given tag.
      * @param state
