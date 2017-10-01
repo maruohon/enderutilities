@@ -563,9 +563,21 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
         else if (this.state == State.RETRACT)
         {
+            final int len = Math.min(this.maxLength, this.blockStatesPlaced.length);
+            int numPlaced = 0;
+
+            for (int i = 0; i < len; i++)
+            {
+                if (this.blockStatesPlaced[i] != null)
+                {
+                    numPlaced++;
+                    break;
+                }
+            }
+
             while (this.position >= 0)
             {
-                boolean result = this.retractOneBlock(this.position, this.getPlayer(), false, true);
+                boolean result = this.retractOneBlock(this.position, this.getPlayer(), numPlaced == 0, true);
                 this.position--;
 
                 if (result)
