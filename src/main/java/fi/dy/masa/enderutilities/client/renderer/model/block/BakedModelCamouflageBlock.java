@@ -108,8 +108,10 @@ public class BakedModelCamouflageBlock implements IBakedModel
     @Override
     synchronized public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
+        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+
         // Item model
-        if (state == null)
+        if (state == null || layer == null)
         {
             return this.bakedBaseModel.getQuads(state, side, rand);
         }
@@ -119,7 +121,6 @@ public class BakedModelCamouflageBlock implements IBakedModel
 
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = null;
         boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
-        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
         Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> map = QUAD_CACHE.get(layer);
         ImmutablePair<IBlockState, IBlockState> key;
 
