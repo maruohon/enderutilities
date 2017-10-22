@@ -1,12 +1,12 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/ender-utilities",
     "promos": {
-        "1.12.2-latest":        "0.7.5",
-        "1.12.2-recommended":   "0.7.5",
-        "1.12.1-latest":        "0.7.5",
-        "1.12.1-recommended":   "0.7.5",
-        "1.12-latest":          "0.7.5",
-        "1.12-recommended":     "0.7.5",
+        "1.12.2-latest":        "0.7.6",
+        "1.12.2-recommended":   "0.7.6",
+        "1.12.1-latest":        "0.7.6",
+        "1.12.1-recommended":   "0.7.6",
+        "1.12-latest":          "0.7.6",
+        "1.12-recommended":     "0.7.6",
         "1.11.2-latest":        "0.7.2",
         "1.11.2-recommended":   "0.7.2",
         "1.10.2-latest":        "0.7.4",
@@ -19,14 +19,17 @@
         "1.8.9-recommended":    "0.5.6"
     },
     "1.12.2": {
+        "0.7.6": "Fix a crash with the camouflage block models when breaking camouflaged blocks with certain camo blocks/models",
         "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes"
     },
     "1.12.1": {
+        "0.7.6": "Fix a crash with the camouflage block models when breaking camouflaged blocks with certain camo blocks/models",
         "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes"
     },
     "1.12": {
+        "0.7.6": "Fix a crash with the camouflage block models when breaking camouflaged blocks with certain camo blocks/models",
         "0.7.5": "Added a redstone mode option to the Drawbridges",
         "0.7.4": "Added top-half Ender Elevator slabs & layers\nImproved the camouflage model stuff, it should now work with more blocks\nA few small bugfixes",
         "0.7.3": "Fix a possible crash with the Inserter and Portal Panel highlight boxes\nNullifier: Allow in items with NBT (like C&B bits), and improve the model (it can now render C&B bits for example)\nNullifier: Add Ctrl + middle clicking to empty/void slots\nInventory Swapper: Don't cycle/change card to empty slots using the hotkeys",
