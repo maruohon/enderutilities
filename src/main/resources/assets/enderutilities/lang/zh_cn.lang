@@ -238,40 +238,40 @@ tile.enderutilities.inserter_filtered.tooltips=- 像是管道，但不是真正�
 tile.enderutilities.inserter_normal.tooltips=- 像是管道，但不是真正的管道|lf- 首先会尝试将物品插入允许的面|lf- 然后将转而将物品插入它的前面|lf- 如果多个面可以传输，将在它们之间循环|lf-  如果多个面可以传输，将在它们之间循环|lf  (就是均匀分配物品)|lf- 空手潜行右击转换输出面
 tile.enderutilities.floor_cracked.tooltips=- 劣质的地板……|lf- 物品和经验球会从裂缝中漏过去
 tile.enderutilities.frame.tooltips=- 传送门可以是任何尺寸|lf  (合理范围内可以配置尺寸限制)|lf- 只需要用框架搭建一个封闭环|lf- 副手拿着伪装方块时|lf-  可以通过主手空手右击来伪装|lf- 空手潜行右击移除伪装方块
-tile.enderutilities.handy_chest.tooltips=- Easier inventory management and lots|lf  of storage space|lf- Middle click to swap two large stacks|lf- Shift + click a move button|lf  to set it as the quick action|lf- Double-left-click the chest to|lf  execute the selected quick action|lf- The owner of a Memory Card can|lf  right click the card selection button to lock|lf  that card into the slot, so nobody else can|lf  take the card itself out of that slot|lf- A chest with locked-in-place cards is unbreakable
-tile.enderutilities.jsu.tooltips=- Can only store normally non-stackable items|lf- 270 slots of storage space, max 256 items per stack
-tile.enderutilities.msu_0.tooltips=- 1 slot, which can store large amounts of items|lf- Middle click the slots in creative mode to fill/clear the slot|lf  - 1 item in cursor => grow the stack size by x10|lf  - More than 1 item in cursor => fill/clear the slot
-tile.enderutilities.msu_1.tooltips=- 9 slots, which can store large amounts of items|lf- Middle click the slots in creative mode to fill/clear the slot|lf  - 1 item in cursor => grow the stack size by x10|lf  - More than 1 item in cursor => fill/clear the slot
-tile.enderutilities.memory_chest.tooltips=Each slot can be locked to an item type
-tile.enderutilities.portal_panel.tooltips=- Used to activate a Portal made of Portal Frame blocks|lf- The panel must be placed on a Portal Frame block|lf- That frame must connect to the actual portal frame loop/rim|lf  via a _continuous_ "path" of Portal Frame blocks|lf  (no diagonal gaps allowed in it)|lf- However the portal frame rim itself can have "diagonal corners"
-tile.enderutilities.molecular_exciter.tooltips=- Turns blocks infront of itself into falling|lf  blocks on redstone pulse or block update|lf- Needs a redstone signal to be active
-tile.enderutilities.phasing.tooltips=- Changes state between solid and non-solid based on redstone signal
-tile.enderutilities.phasing_inverted.tooltips=- Changes state between solid and non-solid based on redstone signal
-tile.enderutilities.quick_stacker_advanced.tooltips=- A more configurable, stationary version of Quick Stacker
-tile.enderutilities.sound_block.tooltips=- Yes, it plays sounds...|lf- Select any sound from the registered sounds|lf- Adjustable pitch and volume
-tile.enderutilities.tool_workstation.tooltips=- Used to access/change the modules in modular items|lf- Can also rename any item for free
+tile.enderutilities.handy_chest.tooltips=- 更简单的物品管理 |lf 以及很大的存储空间|lf- 中键（滚轮）点击切换两个大物品堆|lf- Shift + 单击一个物品移动按钮|lf  将其设置为快捷操作|lf- 双击箱子以|lf  执行设定的快捷操作|lf- 存储卡的主人可以|lf  右击某个卡片选择按钮将|lf  这个卡片锁定在格子里，这样就没有人可以|lf 将这张卡片拿出箱子了|lf- 带有被锁定卡片的箱子是不可破坏的
+tile.enderutilities.jsu.tooltips=- 只能存储正常情况下不可堆叠的物品|lf- 存储空间270格，每格最多堆叠256物品
+tile.enderutilities.msu_0.tooltips=- 一个格子，可以存储极大量的物品|lf- 创造模式下中键（滚轮）点击某个格子以填满它|lf  - 鼠标指针带着一个物品 => 物品堆叠数乘10|lf  - 鼠标指针带着超过一个物品 => 填满/清空这一格子
+tile.enderutilities.msu_1.tooltips=- 9个格子，可以存储极大量的物品|lf- 创造模式下中键（滚轮）点击某个格子以填满它|lf  - 鼠标指针带着一个物品 => 物品堆叠数乘10|lf  - 鼠标指针带着超过一个物品 => 填满/清空这一格子
+tile.enderutilities.memory_chest.tooltips=每个格子都可以锁定成一个物品类型
+tile.enderutilities.portal_panel.tooltips=- 激活由传送门框架搭建成的传送门|lf- 控制板必须放在传送门框架上|lf- 放置控制板的框架必须在传送门环里或者可以|lf  通过一个_连续的_ 由传送门框架组成的"路径"连接到这个环 |lf  (内部不允许对角线缝隙)|lf- 但是传送门框架环本身可以用"对角角落"
+tile.enderutilities.molecular_exciter.tooltips=- 将其前方的方块变成掉落状态|lf  blocks on redstone pulse or block update|lf- 需要红石信号激活
+tile.enderutilities.phasing.tooltips=- 基于红石信号将方块在固态和非固态之间转换
+tile.enderutilities.phasing_inverted.tooltips=- 基于红石信号将方块在固态和非固态之间转换
+tile.enderutilities.quick_stacker_advanced.tooltips=- 快速存放器的可配置性更强，固定化版本
+tile.enderutilities.sound_block.tooltips=- 是的，它会放出声音……|lf- 从已经注册的声音里任意选择|lf- 可调整音高和音量
+tile.enderutilities.tool_workstation.tooltips=- 用来调取/改变模块化工具里的模块|lf- 可以无代价重命名任何物品
 
 
 ###################################
 # Placement Properties HUD:
 ###################################
-enderutilities.placement_properties.title=Placement Properties
-enderutilities.placement_properties.asu.slots=Number of slots
-enderutilities.placement_properties.asu.stack_limit=Stack Limit
-enderutilities.placement_properties.drawbridge.delay=Delay
-enderutilities.placement_properties.drawbridge.length=Length
-enderutilities.placement_properties.drawbridge.redstone_mode=Redstone Mode
-enderutilities.placement_properties.inserter.delay=Delay
-enderutilities.placement_properties.inserter.redstone_mode=Redstone Mode
-enderutilities.placement_properties.inserter.stack_limit=Stack Limit
-enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.extend=Extend
-enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.retract=Retract
-enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.toggle=Toggle
-enderutilities.placement_properties.valuenames.inserter.redstone_mode.high=High
-enderutilities.placement_properties.valuenames.inserter.redstone_mode.ignored=Ignored
-enderutilities.placement_properties.valuenames.inserter.redstone_mode.low=Low
+enderutilities.placement_properties.title=放置属性
+enderutilities.placement_properties.asu.slots=格子数量
+enderutilities.placement_properties.asu.stack_limit=堆叠数限制
+enderutilities.placement_properties.drawbridge.delay=延迟
+enderutilities.placement_properties.drawbridge.length=长度
+enderutilities.placement_properties.drawbridge.redstone_mode=红石模式
+enderutilities.placement_properties.inserter.delay=延迟
+enderutilities.placement_properties.inserter.redstone_mode=红石模式
+enderutilities.placement_properties.inserter.stack_limit=堆叠数限制
+enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.extend=扩展
+enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.retract=缩回
+enderutilities.placement_properties.valuenames.drawbridge.redstone_mode.toggle=切换
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.high=高
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.ignored=忽略
+enderutilities.placement_properties.valuenames.inserter.redstone_mode.low=低
 
-enderutilities.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties ***§r|lf- (Shift +) Toggle key to change property selection|lf- Shift/Ctrl/Alt + scroll to change the value
+enderutilities.tooltip.placementproperties.tooltips= |lf§f*** 放置属性 ***§r|lf- (Shift +) 转换键以改变属性选择|lf- Shift/Ctrl/Alt + scroll改变相应数值
 
 
 ###################################
