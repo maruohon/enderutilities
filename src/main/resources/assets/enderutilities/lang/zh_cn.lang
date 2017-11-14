@@ -541,25 +541,25 @@ enderutilities.chat.message.areasavedtotemplate=区域被保存到模板 %d 中
 enderutilities.chat.message.areatoofar=区域太远了
 enderutilities.chat.message.areatoolargeortoofar=区域太大或太远了
 enderutilities.chat.message.areatoolarge=区域太大，最大长度是 %d
-enderutilities.chat.message.builderswand.areasarethesame=Areas are exactly the same - aborting
-enderutilities.chat.message.creativeonly=This feature is only available in Creative mode
-enderutilities.chat.message.bound.block.changed=The target block has changed since binding, removing the bind.
-enderutilities.chat.message.enderbag.blocknotwhitelisted=The target block is not whitelisted:
-enderutilities.chat.message.enderbag.outofrange=The target is outside of the client's range
-enderutilities.chat.message.failedtosaveareatotemplate=Failed to save area to template
-enderutilities.chat.message.featuredisabled=This feature has been disabled on the server
-enderutilities.chat.message.featuredisabledinsurvivalmode=This feature has been disabled for survival mode players on this server
-enderutilities.chat.message.itembindlocked=The item is currently locked from binding
-enderutilities.chat.message.itemboundtolocation=Bound to this location
-enderutilities.chat.message.killedentitieswithcount=Killed %d entities
-enderutilities.chat.message.memorycard.full=Memory Card is full
-enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=Target entity not found or out of range (max 64 blocks)
-enderutilities.chat.message.notenoughendercharge=Not enough Ender Charge
-enderutilities.chat.message.positionoutsideworld=The position or area would be outside world limits
-enderutilities.chat.message.private.owned.by=Set to Private, owned by %s
+enderutilities.chat.message.builderswand.areasarethesame=区域完全一样--中止中
+enderutilities.chat.message.creativeonly=该特性只可用于创造模式
+enderutilities.chat.message.bound.block.changed=绑定之后目标方块发生变动，正在移除绑定
+enderutilities.chat.message.enderbag.blocknotwhitelisted=目标方块没有白名单:
+enderutilities.chat.message.enderbag.outofrange=目标在客户端范围之外
+enderutilities.chat.message.failedtosaveareatotemplate=无法将区域保存到模板中
+enderutilities.chat.message.featuredisabled=该特性无法用于服务端
+enderutilities.chat.message.featuredisabledinsurvivalmode=本服务器生存模式下该特性被禁用
+enderutilities.chat.message.itembindlocked=该物品当前被绑定锁定
+enderutilities.chat.message.itemboundtolocation=绑定到该位置
+enderutilities.chat.message.killedentitieswithcount=杀死 %d 实体
+enderutilities.chat.message.memorycard.full=存储卡是空的
+enderutilities.chat.message.mobharness.targetnotfoundoroutofrange=找不到目标实体或超出范围 (最大64方块)
+enderutilities.chat.message.notenoughendercharge=末影充能不足
+enderutilities.chat.message.positionoutsideworld=位置或区域超出世界限制
+enderutilities.chat.message.private.owned.by=设定为私人，由 %s拥有
 
 ##################
 #   Subtitles    #
 ##################
-enderutilities.subtitle.jailer=Jailer module screeks
-enderutilities.subtitle.molecular_exciter=Molecular Exciter Zaps
+enderutilities.subtitle.jailer=狱卒模块 screeks
+enderutilities.subtitle.molecular_exciter=分子激发辐射
