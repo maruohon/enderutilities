@@ -1,5 +1,6 @@
 package fi.dy.masa.enderutilities;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraftforge.common.util.ModFixs;
@@ -27,7 +28,7 @@ import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, certificateFingerprint = Reference.FINGERPRINT,
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
-     acceptedMinecraftVersions = "[1.12,1.12.2]",
+     acceptedMinecraftVersions = "1.12",
      dependencies = "required-after:forge@[14.21.0.2373,);")
 public class EnderUtilities
 {
@@ -38,12 +39,12 @@ public class EnderUtilities
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
     public static IProxy proxy;
-    public static Logger logger;
+
+    public static final Logger logger = LogManager.getLogger(Reference.MOD_ID);
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        logger = event.getModLog();
         ConfigReader.loadConfigsFromFile(event.getSuggestedConfigurationFile());
         ModRegistry.checkLoadedMods();
 
