@@ -241,7 +241,7 @@ public class EntityEndermanFighter extends EntityMob
 
     public boolean isWithinTargetingDistance(@Nonnull Entity entity)
     {
-        return this.getDistanceSqToEntity(entity) <= 1024d;
+        return this.getDistanceSq(entity) <= 1024d;
     }
 
     public boolean isBeingControlled()

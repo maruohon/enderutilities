@@ -22,7 +22,6 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -74,14 +73,14 @@ public class EntityUtils
         double f7 = f2 * f4;
         double reach = 5.0D;
 
-        if (player instanceof EntityPlayerMP)
+        if (player instanceof EntityPlayer)
         {
-            reach = ((EntityPlayerMP) player).interactionManager.getBlockReachDistance();
+            reach = ((EntityPlayer) player).getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         }
 
         Vec3d vec3d1 = vec3d.addVector(f6 * reach, f5 * reach, f7 * reach);
 
-        return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false);
+        return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, false, false);
     }
 
     public static Vec3d getEyesVec(Entity entity)
