@@ -246,8 +246,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             if (notifyBlockUpdate)
             {
-                IBlockState state = this.getWorld().getBlockState(this.getPos());
-                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+                this.notifyBlockUpdate(this.getPos());
             }
         }
     }
@@ -304,6 +303,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             this.tryApplyUpgrade(player, hand, 0, EnderUtilitiesItems.ENDER_PART, 70))
         {
             this.labels.add(side);
+            this.updateLabels(false);
             return true;
         }
 
@@ -364,6 +364,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        if (this.getWorld().isRemote)
+        {
+            return player.isSneaking() == false;
+        }
+
         ItemStack stack = player.getHeldItem(hand);
 
         if (stack.isEmpty() == false)
@@ -375,6 +380,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 this.tryApplyUpgrade(player, hand, 3, EnderUtilitiesItems.ENDER_PART, 73) || // Void Upgrade
                 this.tryToggleCreativeMode(player, stack))
             {
+                this.notifyBlockUpdate(this.getPos());
                 return true;
             }
 
