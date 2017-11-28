@@ -62,12 +62,12 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < this.upgradeInv.getSlots(); i++)
         {
             // Draw the upgrade slot backgrounds for empty slots
             if (this.upgradeInv.getStackInSlot(i).isEmpty())
             {
-                this.drawTexturedModalRect(x + 62 + i * 18, y + 59, 176, i * 16, 16, 16);
+                this.drawTexturedModalRect(x + 44 + i * 18, y + 59, 176, i * 16, 16, 16);
             }
         }
 

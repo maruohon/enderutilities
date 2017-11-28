@@ -103,6 +103,7 @@ public class ItemEnderPart extends ItemModule
             case 70: // Barrel Label
             case 71: // Barrel Structural Upgrade
             case 72: // Barrel Capacity Upgrade
+            case 73: // Barrel Void Upgrade
                 return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_BARREL_UPGRADE + "_" + (damage - 70);
 
             case 80: // Storage Key
@@ -421,6 +422,7 @@ public class ItemEnderPart extends ItemModule
         list.add(new ItemStack(this, 1, 70)); // Barrel Label
         list.add(new ItemStack(this, 1, 71)); // Barrel Structural Upgrade
         list.add(new ItemStack(this, 1, 72)); // Barrel Capacity Upgrade
+        list.add(new ItemStack(this, 1, 73)); // Barrel Void Upgrade
         list.add(new ItemStack(this, 1, 80)); // Storage Key
         list.add(new ItemStack(this, 1, 81)); // Creative Storage Key
     }
@@ -453,6 +455,7 @@ public class ItemEnderPart extends ItemModule
                 new ModelResourceLocation(rl, "tex=barrel_label"),
                 new ModelResourceLocation(rl, "tex=barrel_structure"),
                 new ModelResourceLocation(rl, "tex=barrel_capacity"),
+                new ModelResourceLocation(rl, "tex=barrel_void"),
                 new ModelResourceLocation(rl, "tex=storage_key"),
                 new ModelResourceLocation(rl, "tex=storage_key_creative")
         };

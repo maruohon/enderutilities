@@ -111,6 +111,11 @@
                     "layer0": "enderutilities:items/enderpart_barrel_capacity"
                 }
             },
+            "barrel_void": {
+                "textures": {
+                    "layer0": "enderutilities:items/enderpart_barrel_void"
+                }
+            },
             "creative_breaking": {
                 "textures": {
                     "layer0": "enderutilities:items/enderpart_creative_breaking"

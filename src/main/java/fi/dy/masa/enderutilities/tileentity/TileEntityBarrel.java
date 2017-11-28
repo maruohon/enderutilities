@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nonnull;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -49,6 +49,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     private int labelMask;
     private int maxStacks = 64;
     private boolean hasStructureUpgrade;
+    private boolean hasVoidUpgrade;
     private ItemStack cachedStack = ItemStack.EMPTY;
     public ItemStack renderStack = ItemStack.EMPTY;
     public String cachedStackSizeString;
@@ -66,8 +67,8 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         int maxUpgrades = Configs.barrelMaxCapacityUpgrades;
         this.itemHandlerLockable    = new ItemStackHandlerLockable(0, 1, 4096, true, "Items", this);
         this.itemHandlerBase        = this.itemHandlerLockable;
-        this.itemHandlerUpgrades    = new ItemHandlerBarrelUpgrades(1, 3, maxUpgrades, true, "ItemsUpgrades", this);
-        this.itemHandlerExternal    = new ItemHandlerWrapperCreative(this.itemHandlerLockable, this);
+        this.itemHandlerUpgrades    = new ItemHandlerBarrelUpgrades(1, 4, maxUpgrades, true, "ItemsUpgrades", this);
+        this.itemHandlerExternal    = new ItemHandlerBarrel(this.itemHandlerLockable, this);
     }
 
     public ItemStackHandlerLockable getInventoryBarrel()
@@ -113,6 +114,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         super.readItemsFromNBT(nbt);
 
         this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1).isEmpty() == false;
+        this.hasVoidUpgrade = this.itemHandlerUpgrades.getStackInSlot(3).isEmpty() == false;
         ItemStack stack = this.itemHandlerLockable.getStackInSlot(0);
         this.cachedStack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
     }
@@ -296,58 +298,25 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         }
     }
 
-    private boolean applyLabel(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack, EnumFacing side)
+    private boolean tryApplyLabel(EntityPlayer player, EnumHand hand, EnumFacing side)
     {
-        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 70)
+        if (this.labels.contains(side) == false && side != this.getFacing() &&
+            this.tryApplyUpgrade(player, hand, 0, EnderUtilitiesItems.ENDER_PART, 70))
         {
-            if (this.labels.contains(side) == false && side != this.getFacing())
-            {
-                this.labels.add(side);
-                this.itemHandlerUpgrades.insertItem(0, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 70), false);
-
-                if (player.capabilities.isCreativeMode == false)
-                {
-                    stack.shrink(1);
-                    player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
-                }
-
-                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
-            }
-
+            this.labels.add(side);
             return true;
         }
 
         return false;
     }
 
-    private boolean applyStructureUpgrade(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack)
+    private boolean tryApplyUpgrade(EntityPlayer player, EnumHand hand, int slot, Item item, int meta)
     {
-        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 71)
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (stack.getItem() == item && stack.getMetadata() == meta)
         {
-            if (this.itemHandlerUpgrades.getStackInSlot(1).isEmpty())
-            {
-                this.itemHandlerUpgrades.insertItem(1, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 71), false);
-
-                if (player.capabilities.isCreativeMode == false)
-                {
-                    stack.shrink(1);
-                    player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
-                }
-
-                this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean applyCapacityUpgrade(EntityPlayer player, EnumHand hand, @Nonnull ItemStack stack)
-    {
-        if (stack.getItem() == EnderUtilitiesItems.ENDER_PART && stack.getMetadata() == 72)
-        {
-            if (this.itemHandlerUpgrades.insertItem(2, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, 72), false).isEmpty())
+            if (this.itemHandlerUpgrades.insertItem(slot, new ItemStack(EnderUtilitiesItems.ENDER_PART, 1, meta), false).isEmpty())
             {
                 if (player.capabilities.isCreativeMode == false)
                 {
@@ -356,15 +325,15 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
                 }
 
                 this.getWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ITEMFRAME_PLACE, SoundCategory.BLOCKS, 1f, 1f);
-            }
 
-            return true;
+                return true;
+            }
         }
 
         return false;
     }
 
-    private boolean toggleLocked(ItemStack stack)
+    private boolean tryToggleLocked(ItemStack stack)
     {
         if (ItemEnderPart.itemMatches(stack, ItemPartType.STORAGE_KEY))
         {
@@ -382,7 +351,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return false;
     }
 
-    private boolean toggleCreativeMode(EntityPlayer player, ItemStack stack)
+    private boolean tryToggleCreativeMode(EntityPlayer player, ItemStack stack)
     {
         if (ItemEnderPart.itemMatches(stack, ItemPartType.CREATIVE_STORAGE_KEY))
         {
@@ -399,11 +368,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         if (stack.isEmpty() == false)
         {
-            if (this.toggleLocked(stack) ||
-                this.applyLabel(player, hand, stack, side) ||
-                this.applyStructureUpgrade(player, hand, stack) ||
-                this.applyCapacityUpgrade(player, hand, stack) ||
-                this.toggleCreativeMode(player, stack))
+            if (this.tryToggleLocked(stack) ||
+                this.tryApplyLabel(player, hand, side) ||
+                this.tryApplyUpgrade(player, hand, 1, EnderUtilitiesItems.ENDER_PART, 71) || // Structure Upgrade
+                this.tryApplyUpgrade(player, hand, 2, EnderUtilitiesItems.ENDER_PART, 72) || // Capacity Upgrade
+                this.tryApplyUpgrade(player, hand, 3, EnderUtilitiesItems.ENDER_PART, 73) || // Void Upgrade
+                this.tryToggleCreativeMode(player, stack))
             {
                 return true;
             }
@@ -534,13 +504,16 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             else if (slot == 1)
             {
                 this.hasStructureUpgrade = this.itemHandlerUpgrades.getStackInSlot(1).isEmpty() == false;
-
-                IBlockState state = this.getWorld().getBlockState(this.getPos());
-                this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
+                this.notifyBlockUpdate(this.getPos());
             }
             else if (slot == 2)
             {
                 this.setMaxStacksFromUpgrades();
+            }
+            else if (slot == 3)
+            {
+                this.hasVoidUpgrade = this.itemHandlerUpgrades.getStackInSlot(3).isEmpty() == false;
+                this.notifyBlockUpdate(this.getPos());
             }
 
             int stackSize = this.cachedStack.isEmpty() ? 0 : this.cachedStack.getCount();
@@ -629,6 +602,36 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return new Vec3d(x, y, z);
     }
 
+    private class ItemHandlerBarrel extends ItemHandlerWrapperCreative
+    {
+        private final TileEntityBarrel te;
+
+        public ItemHandlerBarrel(IItemHandler baseHandler, TileEntityBarrel te)
+        {
+            super(baseHandler, te);
+
+            this.te = te;
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            stack = super.insertItem(slot, stack, simulate);
+
+            // Barrel is full (the super handler can't insert, but the item is identical), and has a void upgrade
+            if (this.te.isCreative() == false &&
+                this.te.hasVoidUpgrade &&
+                this.getStackInSlot(slot).getCount() == this.getInventoryStackLimit() &&
+                stack.isEmpty() == false &&
+                InventoryUtils.areItemStacksEqual(stack, this.getStackInSlot(slot)))
+            {
+                return ItemStack.EMPTY;
+            }
+
+            return stack;
+        }
+    }
+
     private class ItemHandlerBarrelUpgrades extends ItemStackHandlerTileEntity
     {
         private final TileEntityBarrel te;
@@ -648,7 +651,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             {
                 int meta = stack.getMetadata();
 
-                if (meta == 71) // Barrel Structural Upgrade
+                if (meta == 71 || meta == 73) // Barrel Structural Upgrade or Void Upgrade
                 {
                     return 1;
                 }
@@ -668,17 +671,13 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             {
                 int meta = stack.getMetadata();
 
-                if (slot == 0) // Barrel Label
+                switch (slot)
                 {
-                    return meta == 70;
-                }
-                else if (slot == 1) // Barrel Structural Upgrade
-                {
-                    return meta == 71;
-                }
-                else if (slot == 2) // Barrel Capacity Upgrade
-                {
-                    return meta == 72;
+                    case 0: return meta == 70; // Barrel Label
+                    case 1: return meta == 71; // Barrel Structural Upgrade
+                    case 2: return meta == 72; // Barrel Capacity Upgrade
+                    case 3: return meta == 73; // Barrel Void Upgrade
+                    default: return false;
                 }
             }
 

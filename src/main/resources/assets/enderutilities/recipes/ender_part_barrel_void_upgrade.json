@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:enderpart"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:enderpart",
+        "data" : 73,
+        "count" : 2
+    },
+    "pattern":
+    [
+        "AAA",
+        "ALA",
+        "AAA"
+    ],
+    "key":
+    {
+        "A" : { "item" : "#ALLOY_0" },
+        "L" : { "item" : "minecraft:lava_bucket" }
+    }
+}

@@ -30,9 +30,9 @@ public class ContainerBarrel extends ContainerTileLargeStacks
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 80, 23));
 
         // Upgrade slots
-        for (int slot = 0; slot < 3; slot++)
+        for (int slot = 0; slot < this.upgradeInv.getSlots(); slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.upgradeInv, slot, 62 + slot * 18, 59));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.upgradeInv, slot, 44 + slot * 18, 59));
         }
     }
 
