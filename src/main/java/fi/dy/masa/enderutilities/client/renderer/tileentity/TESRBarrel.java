@@ -22,6 +22,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
 public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
 {
     private static final ResourceLocation TEXTURE_LOCK = ReferenceTextures.getResourceLocation("textures/gui/barrel_lock_icon.png");
+    private static final ResourceLocation TEXTURE_VOID = ReferenceTextures.getResourceLocation("textures/gui/barrel_void_icon.png");
     /** The rotation around the y-axis, when on the horizontal faces */
     private static final float[] MODEL_ROT_SIDE_Y = {    0f,    0f,  180f,    0f,  270f,   90f };
     private static final float[] LABEL_ROT_SIDE_Y = {    0f,    0f,    0f, -180f,   90f,  -90f };
@@ -32,7 +33,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
     public void render(TileEntityBarrel te, double x, double y, double z, float partialTicks, int destroyStage, float partial)
     {
         this.mc = Minecraft.getMinecraft();
-        BlockPos pos = te.getPos();
+        final BlockPos pos = te.getPos();
 
         if (this.mc.player.getDistanceSq(pos) < 900) // 30m
         {
@@ -42,20 +43,35 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
             z += 0.5;
 
             // Render a small lock icon if the barrel has been locked to an item type
-            if (te.getInventoryBarrel().isSlotLocked(0) && this.mc.player.getDistanceSq(pos) < 100) // 10m
+            // and render a small void upgrade icon if a void upgrade has been installed
+            if (this.mc.player.getDistanceSq(pos) < 100) // 10m
             {
-                for (EnumFacing side : te.getLabeledFaces())
+                final boolean locked = te.getInventoryBarrel().isSlotLocked(0);
+                final boolean hasVoid = te.hasVoidUpgrade();
+
+                if (locked || hasVoid)
                 {
-                    int ambLight = this.getWorld().getCombinedLight(pos.offset(side), 0);
-                    int lu = ambLight % 65536;
-                    int lv = ambLight / 65536;
-                    OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
+                    for (EnumFacing side : te.getLabeledFaces())
+                    {
+                        int ambLight = this.getWorld().getCombinedLight(pos.offset(side), 0);
+                        int lu = ambLight % 65536;
+                        int lv = ambLight / 65536;
+                        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
-                    double posX = x + 0.502 * side.getFrontOffsetX();
-                    double posY = y + 0.502 * side.getFrontOffsetY();
-                    double posZ = z + 0.502 * side.getFrontOffsetZ();
+                        double posX = x + 0.502 * side.getFrontOffsetX();
+                        double posY = y + 0.502 * side.getFrontOffsetY();
+                        double posZ = z + 0.502 * side.getFrontOffsetZ();
 
-                    this.renderLockIcon(posX, posY, posZ, side, barrelFront);
+                        if (locked)
+                        {
+                            this.renderLockIcon(posX, posY, posZ, 0.365, 0.33, side, barrelFront, TEXTURE_LOCK);
+                        }
+
+                        if (hasVoid)
+                        {
+                            this.renderLockIcon(posX, posY, posZ, 0.365, -0.50, side, barrelFront, TEXTURE_VOID);
+                        }
+                    }
                 }
             }
 
@@ -64,7 +80,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                 return;
             }
 
-            boolean fancy = this.mc.gameSettings.fancyGraphics;
+            final boolean fancy = this.mc.gameSettings.fancyGraphics;
             this.renderItem = this.mc.getRenderItem();
             this.mc.gameSettings.fancyGraphics = true;
 
@@ -304,7 +320,8 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         GlStateManager.popMatrix();
     }
 
-    private void renderLockIcon(double x, double y, double z, EnumFacing side, EnumFacing barrelFront)
+    private void renderLockIcon(double x, double y, double z, double offsetX, double offsetY,
+            EnumFacing side, EnumFacing barrelFront, ResourceLocation texture)
     {
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
@@ -320,22 +337,22 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         }
 
         GlStateManager.rotate(180, 0, 0, 1);
-        GlStateManager.translate(0.365, 0.33, -0.001);
+        GlStateManager.translate(offsetX, offsetY, -0.001);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         GlStateManager.enableRescaleNormal();
         GlStateManager.disableLighting();
 
-        this.mc.getTextureManager().bindTexture(TEXTURE_LOCK);
+        this.mc.getTextureManager().bindTexture(texture);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
 
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
-        buffer.pos(  0,   0, 0).tex(0, 0).endVertex();
-        buffer.pos(  0, 0.15, 0).tex(0, 1).endVertex();
+        buffer.pos(   0,    0, 0).tex(0, 0).endVertex();
+        buffer.pos(   0, 0.15, 0).tex(0, 1).endVertex();
         buffer.pos(0.15, 0.15, 0).tex(1, 1).endVertex();
-        buffer.pos(0.15,   0, 0).tex(1, 0).endVertex();
+        buffer.pos(0.15,    0, 0).tex(1, 0).endVertex();
 
         tessellator.draw();
 

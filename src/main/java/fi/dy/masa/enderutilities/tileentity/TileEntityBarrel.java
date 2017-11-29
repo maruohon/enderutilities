@@ -106,6 +106,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return this.labels;
     }
 
+    public boolean hasVoidUpgrade()
+    {
+        return this.hasVoidUpgrade;
+    }
+
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
@@ -170,11 +175,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             nbt.setTag("stl", stack.writeToNBT(new NBTTagCompound()));
         }
 
-        nbt.setBoolean("cr", this.isCreative());
-        nbt.setByte("la", (byte) this.getLabelMask(true));
-        nbt.setBoolean("lo", this.itemHandlerLockable.isSlotLocked(0));
+        short mask = 0;
+        mask |= this.isCreative() ? 0x8000 : 0;
+        mask |= this.itemHandlerLockable.isSlotLocked(0) ? 0x4000 : 0;
+        mask |= this.hasStructureUpgrade ? 0x0800 : 0;
+        mask |= this.hasVoidUpgrade ? 0x0400 : 0;
+        mask |= this.getLabelMask(true) & 0xFF;
+        nbt.setShort("msk", mask);
         nbt.setInteger("mxs", this.maxStacks);
-        nbt.setBoolean("stu", this.hasStructureUpgrade);
 
         return nbt;
     }
@@ -182,10 +190,14 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.hasStructureUpgrade = tag.getBoolean("stu");
-        this.setCreative(tag.getBoolean("cr"));
-        this.setLabelsFromMask(tag.getByte("la"));
-        this.itemHandlerLockable.setSlotLocked(0, tag.getBoolean("lo"));
+        short mask = tag.getShort("msk");
+
+        this.setCreative((mask & 0x8000) != 0);
+        this.itemHandlerLockable.setSlotLocked(0, (mask & 0x4000) != 0);
+        this.hasStructureUpgrade = (mask & 0x0800) != 0;
+        this.hasVoidUpgrade = (mask & 0x0400) != 0;
+
+        this.setLabelsFromMask(mask & 0xFF);
 
         if (tag.hasKey("stl", Constants.NBT.TAG_COMPOUND))
         {
