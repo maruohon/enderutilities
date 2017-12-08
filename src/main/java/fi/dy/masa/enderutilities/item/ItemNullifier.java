@@ -150,15 +150,17 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     public static boolean onEntityItemPickupEvent(EntityItemPickupEvent event)
     {
         EntityItem entityItem = event.getItem();
-        ItemStack stackItems = entityItem.getItem();
+        ItemStack stack = entityItem.getItem();
         EntityPlayer player = event.getEntityPlayer();
 
-        if (player.getEntityWorld().isRemote || entityItem.isDead || stackItems.isEmpty())
+        if (player.getEntityWorld().isRemote || entityItem.isDead || stack.isEmpty())
         {
             return true;
         }
 
-        int origStackSize = stackItems.getCount();
+        ItemStack origStack = ItemStack.EMPTY;
+        final int origStackSize = stack.getCount();
+        int stackSizeLast = origStackSize;
         boolean ret = false;
 
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -172,28 +174,44 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
             // Nullifier is not disabled
             if (nullifierStack.isEmpty() == false && isNullifierEnabled(nullifierStack))
             {
-                stackItems = handleItems(stackItems, nullifierStack, player);
-
-                if (stackItems.isEmpty())
+                // Delayed the stack copying until we know if there is a valid bag,
+                // so check if the stack was copied already or not.
+                if (origStack == ItemStack.EMPTY)
                 {
-                    entityItem.setDead();
-                    FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
-                    player.onItemPickup(entityItem, origStackSize);
-                    event.setCanceled(true);
-                    ret = true;
-                    break;
+                    origStack = stack.copy();
                 }
+
+                stack = handleItems(stack, nullifierStack, player);
+
+                if (stack.isEmpty() || stack.getCount() != stackSizeLast)
+                {
+                    if (stack.isEmpty())
+                    {
+                        entityItem.setDead();
+                        event.setCanceled(true);
+                        ret = true;
+                        break;
+                    }
+
+                    ItemStack pickedUpStack = origStack.copy();
+                    pickedUpStack.setCount(stackSizeLast - stack.getCount());
+
+                    FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem, pickedUpStack);
+                    player.onItemPickup(entityItem, origStackSize);
+                }
+
+                stackSizeLast = stack.getCount();
             }
         }
 
         // Not everything was handled, update the stack
-        if (entityItem.isDead == false && stackItems.getCount() != origStackSize)
+        if (entityItem.isDead == false && stack.getCount() != origStackSize)
         {
-            entityItem.setItem(stackItems);
+            entityItem.setItem(stack);
         }
 
         // At least some items were picked up
-        if (entityItem.isSilent() == false && (entityItem.isDead || stackItems.getCount() != origStackSize))
+        if (entityItem.isSilent() == false && (entityItem.isDead || stack.getCount() != origStackSize))
         {
             player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.MASTER,
                     0.2F, ((itemRand.nextFloat() - itemRand.nextFloat()) * 0.7F + 1.0F) * 2.0F);

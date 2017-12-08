@@ -505,7 +505,8 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
             return true;
         }
 
-        int origStackSize = stack.getCount();
+        ItemStack origStack = ItemStack.EMPTY;
+        final int origStackSize = stack.getCount();
         List<ItemStack> managers = getEnabledItems(player);
         // If there are enabled managers in the player's inventory, then initialize to "deny"
         boolean deny = managers.size() > 0;
@@ -513,6 +514,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         //int i = 0;
         for (ItemStack manager : managers)
         {
+            // Delayed the stack copying until we know if there is a valid bag,
+            // so check if the stack was copied already or not.
+            if (origStack == ItemStack.EMPTY)
+            {
+                origStack = stack.copy();
+            }
+
             Result result = ((ItemPickupManager) manager.getItem()).handleItems(player, manager, stack);
 
             //System.out.println("i: " + i++ + " result: " + result);
@@ -553,7 +561,7 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
             if (stack.isEmpty() || entityItem.isDead)
             {
-                FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
+                FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem, origStack);
                 player.onItemPickup(entityItem, origStackSize);
             }
         }

@@ -29,7 +29,7 @@ import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
      acceptedMinecraftVersions = "1.12",
-     dependencies = "required-after:forge@[14.21.0.2373,);")
+     dependencies = "required-after:forge@[14.23.1.2558,);") // Currently depends on the item pickup event changes in 2557/2558
 public class EnderUtilities
 {
     public static final int DATA_FIXER_VERSION = 922;

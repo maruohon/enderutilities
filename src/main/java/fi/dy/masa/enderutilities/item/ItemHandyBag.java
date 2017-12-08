@@ -577,7 +577,9 @@ public class ItemHandyBag extends ItemInventoryModular
             return true;
         }
 
-        int origStackSize = stack.getCount();
+        ItemStack origStack = ItemStack.EMPTY;
+        final int origStackSize = stack.getCount();
+        int stackSizeLast = origStackSize;
         boolean ret = false;
 
         IItemHandler playerInv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -591,17 +593,33 @@ public class ItemHandyBag extends ItemInventoryModular
             // Bag is not locked
             if (bagStack.isEmpty() == false && bagStack.getItem() == EnderUtilitiesItems.HANDY_BAG && ItemHandyBag.bagIsOpenable(bagStack))
             {
+                // Delayed the stack copying until we know if there is a valid bag,
+                // so check if the stack was copied already or not.
+                if (origStack == ItemStack.EMPTY)
+                {
+                    origStack = stack.copy();
+                }
+
                 stack = handleItems(stack, bagStack, player);
 
-                if (stack.isEmpty())
+                if (stack.isEmpty() || stack.getCount() != stackSizeLast)
                 {
-                    entityItem.setDead();
-                    FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem);
+                    if (stack.isEmpty())
+                    {
+                        entityItem.setDead();
+                        event.setCanceled(true);
+                        ret = true;
+                        break;
+                    }
+
+                    ItemStack pickedUpStack = origStack.copy();
+                    pickedUpStack.setCount(stackSizeLast - stack.getCount());
+
+                    FMLCommonHandler.instance().firePlayerItemPickupEvent(player, entityItem, pickedUpStack);
                     player.onItemPickup(entityItem, origStackSize);
-                    event.setCanceled(true);
-                    ret = true;
-                    break;
                 }
+
+                stackSizeLast = stack.getCount();
             }
         }
 
