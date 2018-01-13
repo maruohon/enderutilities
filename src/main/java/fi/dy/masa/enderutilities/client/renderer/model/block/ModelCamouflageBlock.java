@@ -1,7 +1,6 @@
 package fi.dy.masa.enderutilities.client.renderer.model.block;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -34,9 +33,9 @@ public class ModelCamouflageBlock
         protected final ResourceLocation baseModelLocation;
         @Nullable
         protected final ResourceLocation overlayModelLocation;
-        protected final Map<String, String> textures = new HashMap<String, String>();
-        protected IModel baseModel;
-        protected IModel overlayModel;
+        protected final ImmutableMap<String, String> textures;
+        protected final IModel baseModel;
+        protected final IModel overlayModel;
         protected static ImmutableList<ResourceLocation> texture_deps = ImmutableList.of();
 
         // FIXME is there a way to get these from the blockstate json somehow (before retexture() is called)?
@@ -56,10 +55,11 @@ public class ModelCamouflageBlock
             texture_deps = builder.build();
         }
 
-        public ModelCamouflageBlockBase(ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation)
+        protected ModelCamouflageBlockBase(ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation)
         {
             this.baseModelLocation = baseModelLocation;
             this.overlayModelLocation = overlayModelLocation;
+            this.textures = ImmutableMap.of();
 
             IModel baseModel    = ModelLoaderRegistry.getMissingModel();
             IModel overlayModel = null;
@@ -80,6 +80,16 @@ public class ModelCamouflageBlock
 
             this.baseModel = baseModel;
             this.overlayModel = overlayModel;
+        }
+
+        protected ModelCamouflageBlockBase(ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation,
+                IModel baseModel, IModel overlayModel, ImmutableMap<String, String> textures)
+        {
+            this.baseModelLocation = baseModelLocation;
+            this.overlayModelLocation = overlayModelLocation;
+            this.baseModel = baseModel;
+            this.overlayModel = overlayModel;
+            this.textures = textures;
         }
 
         @Override
@@ -110,15 +120,10 @@ public class ModelCamouflageBlock
         @Override
         public IModel retexture(ImmutableMap<String, String> textures)
         {
-            this.textures.putAll(textures);
-            this.baseModel = this.baseModel.retexture(textures);
+            IModel baseModel = this.baseModel.retexture(textures);
+            IModel overlayModel = this.overlayModel != null ? this.overlayModel.retexture(textures) : null;
 
-            if (this.overlayModel != null)
-            {
-                this.overlayModel = this.overlayModel.retexture(textures);
-            }
-
-            return this;
+            return new ModelCamouflageBlockBase(this.baseModelLocation, this.overlayModelLocation, baseModel, overlayModel, textures);
         }
 
         @Override
