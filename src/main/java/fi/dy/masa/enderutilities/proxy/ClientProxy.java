@@ -11,8 +11,6 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +31,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -53,8 +50,8 @@ import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderBucket;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelEnderTools;
 import fi.dy.masa.enderutilities.client.renderer.model.ModelNullifierBaked;
 import fi.dy.masa.enderutilities.client.renderer.model.block.BakedModelBarrel;
-import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlock;
 import fi.dy.masa.enderutilities.client.renderer.model.block.BakedModelInserter;
+import fi.dy.masa.enderutilities.client.renderer.model.block.ModelCamouflageBlock;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TESRBarrel;
 import fi.dy.masa.enderutilities.client.renderer.tileentity.TileEntityRendererEnergyBridge;
 import fi.dy.masa.enderutilities.config.ConfigReader;
@@ -287,36 +284,11 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerRenderers()
     {
-        RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class,
-                new IRenderFactory<EntityEnderArrow>() {
-                    @Override public Render<? super EntityEnderArrow> createRenderFor (RenderManager manager) {
-                        return new RenderEnderArrow<EntityEnderArrow>(manager);
-                    }
-                });
-        RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class,
-                new IRenderFactory<EntityEnderPearlReusable>() {
-                    @Override public Render<? super EntityEnderPearlReusable> createRenderFor (RenderManager manager) {
-                        return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.ENDER_PEARL_REUSABLE);
-                    }
-                });
-        RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class,
-                new IRenderFactory<EntityEndermanFighter>() {
-                    @Override public Render<? super EntityEndermanFighter> createRenderFor (RenderManager manager) {
-                        return new RenderEndermanFighter(manager);
-                    }
-                });
-        RenderingRegistry.registerEntityRenderingHandler(EntityChair.class,
-                new IRenderFactory<EntityChair>() {
-                    @Override public Render<? super EntityChair> createRenderFor (RenderManager manager) {
-                        return new RenderChair(manager);
-                    }
-                });
-        RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlockEU.class,
-                new IRenderFactory<EntityFallingBlockEU>() {
-                    @Override public Render<? super EntityFallingBlockEU> createRenderFor (RenderManager manager) {
-                        return new RenderFallingBlockEU(manager);
-                    }
-                });
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderArrow.class, manager -> { return new RenderEnderArrow<EntityEnderArrow>(manager); });
+        RenderingRegistry.registerEntityRenderingHandler(EntityEnderPearlReusable.class, manager -> { return new RenderEntityEnderPearl(manager, EnderUtilitiesItems.ENDER_PEARL_REUSABLE); });
+        RenderingRegistry.registerEntityRenderingHandler(EntityEndermanFighter.class, manager -> { return new RenderEndermanFighter(manager); });
+        RenderingRegistry.registerEntityRenderingHandler(EntityChair.class, manager -> { return new RenderChair(manager); });
+        RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlockEU.class, manager -> { return new RenderFallingBlockEU(manager); });
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBarrel.class, new TESRBarrel());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnergyBridge.class, new TileEntityRendererEnergyBridge());
