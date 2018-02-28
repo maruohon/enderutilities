@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -16,7 +15,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import fi.dy.masa.enderutilities.config.ConfigReader;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
-import fi.dy.masa.enderutilities.proxy.IProxy;
+import fi.dy.masa.enderutilities.proxy.CommonProxy;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.ModRegistry;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
@@ -28,8 +27,8 @@ import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, certificateFingerprint = Reference.FINGERPRINT,
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
-     acceptedMinecraftVersions = "1.12",
-     dependencies = "required-after:forge@[14.23.1.2558,);") // Currently depends on the item pickup event changes in 2557/2558
+     acceptedMinecraftVersions = "[1.12.2]",
+     dependencies = "required-after:forge@[14.23.1.2571,);") // Currently depends on the item/block color handler registration event
 public class EnderUtilities
 {
     public static final int DATA_FIXER_VERSION = 922;
@@ -38,7 +37,7 @@ public class EnderUtilities
     public static EnderUtilities instance;
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
-    public static IProxy proxy;
+    public static CommonProxy proxy;
 
     public static final Logger logger = LogManager.getLogger(Reference.MOD_ID);
 
@@ -55,12 +54,6 @@ public class EnderUtilities
 
         PacketHandler.init(); // Initialize network stuff
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
-    }
-
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        proxy.registerColorHandlers();
     }
 
     @Mod.EventHandler

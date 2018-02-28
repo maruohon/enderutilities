@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.proxy;
 
 import net.minecraft.block.material.MapColor;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound.AttenuationType;
@@ -9,21 +10,23 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -141,83 +144,29 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    @Override
-    public void registerColorHandlers()
+    @SubscribeEvent
+    public void registerBlockColorHandlers(ColorHandlerEvent.Block event)
     {
+        BlockColors colors = event.getBlockColors();
+
         if (EnderUtilitiesBlocks.ELEVATOR.isEnabled())
         {
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-                new IBlockColor()
-                {
-                    @Override
-                    public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
-                    {
-                        return tintIndex == 1 ? MapColor.getBlockColor(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
-                    }
-                }, EnderUtilitiesBlocks.ELEVATOR);
-
-            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                    new IItemColor()
-                    {
-                        @Override
-                        public int colorMultiplier(ItemStack stack, int tintIndex)
-                        {
-                            return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
-                        }
-                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR));
+            colors.registerBlockColorHandler(new BlockColorHandlerDyes(1, 0xFFFFFF, BlockElevator.COLOR), EnderUtilitiesBlocks.ELEVATOR);
         }
 
         if (EnderUtilitiesBlocks.ELEVATOR_SLAB.isEnabled())
         {
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-                    new IBlockColor()
-                    {
-                        @Override
-                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
-                        {
-                            return tintIndex == 1 ? MapColor.getBlockColor(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
-                        }
-                    }, EnderUtilitiesBlocks.ELEVATOR_SLAB);
-
-            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                    new IItemColor()
-                    {
-                        @Override
-                        public int colorMultiplier(ItemStack stack, int tintIndex)
-                        {
-                            return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
-                        }
-                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_SLAB));
+            colors.registerBlockColorHandler(new BlockColorHandlerDyes(1, 0xFFFFFF, BlockElevator.COLOR), EnderUtilitiesBlocks.ELEVATOR_SLAB);
         }
 
         if (EnderUtilitiesBlocks.ELEVATOR_LAYER.isEnabled())
         {
-
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
-                    new IBlockColor()
-                    {
-                        @Override
-                        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
-                        {
-                            return tintIndex == 1 ? MapColor.getBlockColor(state.getValue(BlockElevator.COLOR)).colorValue : 0xFFFFFF;
-                        }
-                    }, EnderUtilitiesBlocks.ELEVATOR_LAYER);
-
-
-            Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-                    new IItemColor()
-                    {
-                        @Override
-                        public int colorMultiplier(ItemStack stack, int tintIndex)
-                        {
-                            return tintIndex == 1 ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : 0xFFFFFF;
-                        }
-                    }, Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_LAYER));
+            colors.registerBlockColorHandler(new BlockColorHandlerDyes(1, 0xFFFFFF, BlockElevator.COLOR), EnderUtilitiesBlocks.ELEVATOR_LAYER);
         }
 
         if (EnderUtilitiesBlocks.PORTAL.isEnabled())
         {
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+            colors.registerBlockColorHandler(
                 new IBlockColor()
                 {
                     @Override
@@ -226,10 +175,11 @@ public class ClientProxy extends CommonProxy
                         // ParticleDigging#init() passes a null BlockPos for running/digging particles... wtf
                         if (tintIndex == 1 && pos != null)
                         {
-                            TileEntity te = worldIn.getTileEntity(pos);
-                            if (te instanceof TileEntityPortal)
+                            TileEntityPortal te = BlockEnderUtilities.getTileEntitySafely(worldIn, pos, TileEntityPortal.class);
+
+                            if (te != null)
                             {
-                                return ((TileEntityPortal) te).getColor();
+                                return te.getColor();
                             }
                         }
                         return 0xA010F0;
@@ -239,7 +189,7 @@ public class ClientProxy extends CommonProxy
 
         if (EnderUtilitiesBlocks.PORTAL_PANEL.isEnabled())
         {
-            Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(
+            colors.registerBlockColorHandler(
                 new IBlockColor()
                 {
                     @Override
@@ -248,15 +198,75 @@ public class ClientProxy extends CommonProxy
                         // ParticleDigging#init() passes a null BlockPos for running/digging particles... wtf
                         if (tintIndex >= 0 && tintIndex <= 8 && pos != null)
                         {
-                            TileEntity te = worldIn.getTileEntity(pos);
-                            if (te instanceof TileEntityPortalPanel)
+                            TileEntityPortalPanel te = BlockEnderUtilities.getTileEntitySafely(worldIn, pos, TileEntityPortalPanel.class);
+
+                            if (te != null)
                             {
-                                return ((TileEntityPortalPanel) te).getColor(tintIndex);
+                                return te.getColor(tintIndex);
                             }
                         }
                         return 0xFFFFFF;
                     }
                 }, EnderUtilitiesBlocks.PORTAL_PANEL);
+        }
+    }
+
+    @SubscribeEvent
+    public void registerItemColorHandlers(ColorHandlerEvent.Item event)
+    {
+        ItemColors colors = event.getItemColors();
+
+        if (EnderUtilitiesBlocks.ELEVATOR.isEnabled())
+        {
+            colors.registerItemColorHandler(new ItemColorHandlerDyes(1, 0xFFFFFF), Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR));
+        }
+
+        if (EnderUtilitiesBlocks.ELEVATOR_SLAB.isEnabled())
+        {
+            colors.registerItemColorHandler(new ItemColorHandlerDyes(1, 0xFFFFFF), Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_SLAB));
+        }
+
+        if (EnderUtilitiesBlocks.ELEVATOR_LAYER.isEnabled())
+        {
+            colors.registerItemColorHandler(new ItemColorHandlerDyes(1, 0xFFFFFF), Item.getItemFromBlock(EnderUtilitiesBlocks.ELEVATOR_LAYER));
+        }
+    }
+
+    private static class BlockColorHandlerDyes implements IBlockColor
+    {
+        private final int targetTintIndex;
+        private final int defaultColor;
+        private final PropertyEnum<EnumDyeColor> prop;
+
+        private BlockColorHandlerDyes(int targetTintIndex, int defaultColor, PropertyEnum<EnumDyeColor> prop)
+        {
+            this.targetTintIndex = targetTintIndex;
+            this.defaultColor = defaultColor;
+            this.prop = prop;
+        }
+
+        @Override
+        public int colorMultiplier(IBlockState state, IBlockAccess worldIn, BlockPos pos, int tintIndex)
+        {
+            return tintIndex == this.targetTintIndex ? MapColor.getBlockColor(state.getValue(this.prop)).colorValue : this.defaultColor;
+        }
+    }
+
+    private static class ItemColorHandlerDyes implements IItemColor
+    {
+        private final int targetTintIndex;
+        private final int defaultColor;
+
+        private ItemColorHandlerDyes(int targetTintIndex, int defaultColor)
+        {
+            this.targetTintIndex = targetTintIndex;
+            this.defaultColor = defaultColor;
+        }
+
+        @Override
+        public int colorMultiplier(ItemStack stack, int tintIndex)
+        {
+            return tintIndex == this.targetTintIndex ? MapColor.getBlockColor(EnumDyeColor.byMetadata(stack.getMetadata())).colorValue : this.defaultColor;
         }
     }
 

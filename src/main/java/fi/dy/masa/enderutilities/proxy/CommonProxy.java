@@ -31,22 +31,19 @@ import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 
-public class CommonProxy implements IProxy
+public class CommonProxy
 {
     @SuppressWarnings("deprecation")
-    @Override
     public String format(String key, Object... args)
     {
         return net.minecraft.util.text.translation.I18n.translateToLocalFormatted(key, args);
     }
 
-    @Override
     public EntityPlayer getClientPlayer()
     {
         return null;
     }
 
-    @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
         switch (ctx.side)
@@ -59,15 +56,8 @@ public class CommonProxy implements IProxy
         }
     }
 
-    @Override
-    public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z)
-    {
-    }
+    public void playSound(int soundId, float pitch, float volume, boolean repeat, boolean stop, float x, float y, float z) {}
 
-    @Override
-    public void registerColorHandlers() { }
-
-    @Override
     public ModFixs getDataFixer()
     {
         // On a server, the DataFixer gets created for and is stored inside MinecraftServer,
@@ -76,7 +66,6 @@ public class CommonProxy implements IProxy
         return FMLCommonHandler.instance().getDataFixer().init(Reference.MOD_ID, EnderUtilities.DATA_FIXER_VERSION);
     }
 
-    @Override
     public void registerEntities()
     {
         int id = 0;
@@ -101,7 +90,6 @@ public class CommonProxy implements IProxy
         EntityRegistry.registerModEntity(registryName, entityClass, prefixedName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates, eggPrimary, eggSecondary);
     }
 
-    @Override
     public void registerEventHandlers()
     {
         MinecraftForge.EVENT_BUS.register(new AnvilUpdateEventHandler());
@@ -118,10 +106,7 @@ public class CommonProxy implements IProxy
         ForgeChunkManager.setForcedChunkLoadingCallback(EnderUtilities.instance, new ChunkLoading());
     }
 
-    @Override
     public void registerKeyBindings() { }
-
-    @Override
     public void registerRenderers() { }
 
     @SubscribeEvent
@@ -141,19 +126,16 @@ public class CommonProxy implements IProxy
         registry.register(sound);
     }
 
-    @Override
     public boolean isShiftKeyDown()
     {
         return false;
     }
 
-    @Override
     public boolean isControlKeyDown()
     {
         return false;
     }
 
-    @Override
     public boolean isAltKeyDown()
     {
         return false;
