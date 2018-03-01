@@ -40,6 +40,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
     protected final VertexFormat format;
     protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     protected final TextureAtlasSprite particle;
+    protected final ImmutableList<BakedQuad> itemQuads;
 
     static
     {
@@ -66,6 +67,27 @@ public class BakedModelCamouflageBlock implements IBakedModel
         {
             this.bakedOverlayModel = null;
         }
+
+        ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
+
+        for (EnumFacing side : EnumFacing.values())
+        {
+            quads.addAll(this.bakedBaseModel.getQuads(null, side, 0));
+
+            if (this.bakedOverlayModel != null)
+            {
+                quads.addAll(this.bakedOverlayModel.getQuads(null, side, 0));
+            }
+        }
+
+        quads.addAll(this.bakedBaseModel.getQuads(null, null, 0));
+
+        if (this.bakedOverlayModel != null)
+        {
+            quads.addAll(this.bakedOverlayModel.getQuads(null, null, 0));
+        }
+
+        this.itemQuads = quads.build();
     }
 
     @Override
@@ -113,7 +135,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
         // Item model
         if (state == null || layer == null)
         {
-            return this.bakedBaseModel.getQuads(state, side, rand);
+            return this.itemQuads;
         }
 
         IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATE);
@@ -216,6 +238,10 @@ public class BakedModelCamouflageBlock implements IBakedModel
         if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING))
         {
             return this.baseModel.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING)), this.format, this.bakedTextureGetter);
+        }
+        else if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING_H))
+        {
+            return this.baseModel.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING_H)), this.format, this.bakedTextureGetter);
         }
         else
         {
