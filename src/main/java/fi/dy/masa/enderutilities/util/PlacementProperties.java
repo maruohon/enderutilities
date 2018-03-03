@@ -19,7 +19,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
-import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockPlacementProperty;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageSyncNBTTag;
 import fi.dy.masa.enderutilities.reference.Reference;
@@ -251,9 +251,9 @@ public class PlacementProperties
         {
             ItemStack stack = new ItemStack(tagData.getCompoundTag("ItemType"));
 
-            if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
+            if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockPlacementProperty)
             {
-                ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
+                ItemBlockPlacementProperty item = (ItemBlockPlacementProperty) stack.getItem();
 
                 if (item.hasPlacementProperty(stack))
                 {
@@ -331,9 +331,9 @@ public class PlacementProperties
 
     public void syncCurrentlyHeldItemDataForPlayer(EntityPlayerMP player, ItemStack stack)
     {
-        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockPlacementProperty)
         {
-            ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
+            ItemBlockPlacementProperty item = (ItemBlockPlacementProperty) stack.getItem();
 
             if (item.hasPlacementProperty(stack))
             {

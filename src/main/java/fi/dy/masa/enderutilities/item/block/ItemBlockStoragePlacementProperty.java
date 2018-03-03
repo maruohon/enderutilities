@@ -4,13 +4,12 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
-public class ItemBlockStorage extends ItemBlockEnderUtilities
+public class ItemBlockStoragePlacementProperty extends ItemBlockPlacementProperty
 {
-    public ItemBlockStorage(BlockEnderUtilities block)
+    public ItemBlockStoragePlacementProperty(BlockEnderUtilities block)
     {
         super(block);
     }
@@ -30,20 +29,6 @@ public class ItemBlockStorage extends ItemBlockEnderUtilities
     @Override
     public NBTTagCompound getNBTShareTag(ItemStack stack)
     {
-        return getNBTShareTagImpl(stack);
-    }
-
-    public static NBTTagCompound getNBTShareTagImpl(ItemStack stack)
-    {
-        NBTTagCompound nbt = stack.getTagCompound();
-
-        if (nbt != null && nbt.hasKey("InvCache", Constants.NBT.TAG_COMPOUND))
-        {
-            NBTTagCompound shareNBT = new NBTTagCompound();
-            shareNBT.setTag("InvCache", nbt.getCompoundTag("InvCache").copy());
-            return shareNBT;
-        }
-
-        return nbt;
+        return ItemBlockStorage.getNBTShareTagImpl(stack);
     }
 }

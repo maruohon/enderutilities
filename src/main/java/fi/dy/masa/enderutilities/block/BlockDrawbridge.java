@@ -21,7 +21,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockPlacementProperty;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityDrawbridge;
@@ -66,7 +66,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     @Override
     public ItemBlock createItemBlock()
     {
-        ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
+        ItemBlockPlacementProperty item = new ItemBlockPlacementProperty(this);
         String[] names = new String[] { "extend", "retract", "toggle" };
 
         item.addPlacementProperty(0, "drawbridge.delay", Constants.NBT.TAG_BYTE, 1, 255);

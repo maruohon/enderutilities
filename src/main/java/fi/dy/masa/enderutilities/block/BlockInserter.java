@@ -32,7 +32,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.event.RenderEventHandler;
-import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockPlacementProperty;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityInserter;
@@ -110,7 +110,7 @@ public class BlockInserter extends BlockEnderUtilitiesInventory
     @Override
     public ItemBlock createItemBlock()
     {
-        ItemBlockEnderUtilities item = new ItemBlockEnderUtilities(this);
+        ItemBlockPlacementProperty item = new ItemBlockPlacementProperty(this);
 
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "inserter.delay",         Constants.NBT.TAG_INT, 0, 72000);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "inserter.redstone_mode", Constants.NBT.TAG_BYTE, 0, 2);

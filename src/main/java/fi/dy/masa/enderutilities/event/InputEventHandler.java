@@ -24,7 +24,7 @@ import fi.dy.masa.enderutilities.item.ItemBuildersWand.Mode;
 import fi.dy.masa.enderutilities.item.ItemHandyBag;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
-import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockPlacementProperty;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
@@ -68,8 +68,8 @@ public class InputEventHandler
     {
         ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
 
-        return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockEnderUtilities) == false || 
-                ((ItemBlockEnderUtilities) stack.getItem()).hasPlacementProperty(stack));
+        return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockPlacementProperty) == false || 
+                ((ItemBlockPlacementProperty) stack.getItem()).hasPlacementProperty(stack));
     }
 
     public static boolean hasKeyBoundUnselectedItem(EntityPlayer player)

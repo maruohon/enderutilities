@@ -20,8 +20,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
-import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
-import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
+import fi.dy.masa.enderutilities.item.block.ItemBlockStoragePlacementProperty;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.tileentity.TileEntityASU;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
@@ -49,7 +48,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
     @Override
     public ItemBlock createItemBlock()
     {
-        ItemBlockEnderUtilities item = new ItemBlockStorage(this);
+        ItemBlockStoragePlacementProperty item = new ItemBlockStoragePlacementProperty(this);
         item.addPlacementProperty(0, "asu.stack_limit", Constants.NBT.TAG_INT, 1, TileEntityASU.MAX_STACK_SIZE);
         item.addPlacementProperty(0, "asu.slots", Constants.NBT.TAG_BYTE, 1, TileEntityASU.MAX_INV_SIZE);
         return item;

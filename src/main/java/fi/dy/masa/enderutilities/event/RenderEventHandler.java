@@ -43,6 +43,7 @@ import fi.dy.masa.enderutilities.client.renderer.util.RenderUtils;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.entity.EntityChair;
 import fi.dy.masa.enderutilities.item.block.ItemBlockEnderUtilities;
+import fi.dy.masa.enderutilities.item.block.ItemBlockPlacementProperty;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
@@ -345,9 +346,9 @@ public class RenderEventHandler
             stack = player.getHeldItemOffhand();
         }
 
-        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockEnderUtilities)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockPlacementProperty)
         {
-            ItemBlockEnderUtilities item = (ItemBlockEnderUtilities) stack.getItem();
+            ItemBlockPlacementProperty item = (ItemBlockPlacementProperty) stack.getItem();
 
             if (item.hasPlacementProperty(stack))
             {
@@ -356,7 +357,7 @@ public class RenderEventHandler
         }
     }
 
-    private List<String> getPlacementPropertiesText(ItemBlockEnderUtilities item, ItemStack stack, EntityPlayer player)
+    private List<String> getPlacementPropertiesText(ItemBlockPlacementProperty item, ItemStack stack, EntityPlayer player)
     {
         String preGreen = TextFormatting.GREEN.toString();
         String rst = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
