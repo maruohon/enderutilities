@@ -80,4 +80,10 @@ public class ShapedMetadataOreRecipe extends ShapedOreRecipe
 
         return result;
     }
+
+    @Override
+    public boolean isDynamic()
+    {
+        return true;
+    }
 }
