@@ -48,6 +48,7 @@ public class ReferenceNames
     public static final String NAME_ITEM_LIVING_MANIPULATOR     = "livingmanipulator";
     public static final String NAME_ITEM_MOB_HARNESS            = "mobharness";
     public static final String NAME_ITEM_NULLIFIER              = "nullifier";
+    public static final String NAME_ITEM_PET_CONTRACT           = "pet_contract";
     public static final String NAME_ITEM_PICKUP_MANAGER         = "pickupmanager";
     public static final String NAME_ITEM_QUICK_STACKER          = "quickstacker";
     public static final String NAME_ITEM_PORTAL_SCALER          = "portalscaler";

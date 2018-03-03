@@ -1,0 +1,14 @@
+{
+    "parent": "enderutilities:item/standard_item",
+    "textures": {
+        "layer0": "enderutilities:items/pet_contract_blank"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "enderutilities:signed": 1
+            },
+            "model": "enderutilities:item/pet_contract_signed"
+        }
+    ]
+}

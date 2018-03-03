@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "enderutilities:pet_contract"
+        }
+    ],
+    "result" :
+    {
+        "item" : "enderutilities:pet_contract",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "  P",
+        " I ",
+        "S  "
+    ],
+    "key":
+    {
+        "P" : { "item" : "minecraft:paper" },
+        "I" : { "item" : "#ORE_DYE_BLACK" },
+        "S" : { "item" : "#ENDER_STICK" }
+    }
+}

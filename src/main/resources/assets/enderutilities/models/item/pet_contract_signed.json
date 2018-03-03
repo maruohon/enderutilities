@@ -1,0 +1,6 @@
+{
+    "parent": "enderutilities:item/pet_contract",
+    "textures": {
+        "layer0": "enderutilities:items/pet_contract_signed"
+    }
+}

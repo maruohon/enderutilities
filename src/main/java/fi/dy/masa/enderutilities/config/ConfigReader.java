@@ -303,6 +303,7 @@ public class ConfigReader
         Configs.disableItemLivingManipulator      = getProp("disableItemLivingManipulator", false).getBoolean();
         Configs.disableItemMobHarness             = getProp("disableItemMobHarness", false).getBoolean();
         Configs.disableItemNullifier              = getProp("disableItemNullifier", false).getBoolean();
+        Configs.disableItemPetContract            = getProp("disableItemPetContract", false).getBoolean();
         Configs.disableItemPickupManager          = getProp("disableItemPickupManager", false).getBoolean();
         Configs.disableItemQuickStacker           = getProp("disableItemQuickStacker", false).getBoolean();
         Configs.disableItemPortalScaler           = getProp("disableItemPortalScaler", false).getBoolean();

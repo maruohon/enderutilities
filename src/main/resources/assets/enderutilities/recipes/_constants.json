@@ -15,6 +15,7 @@
 
 
     { "name" : "ORE_CHEST_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "chestWood"          } },
+    { "name" : "ORE_DYE_BLACK",         "ingredient": { "type" : "forge:ore_dict", "ore" : "dyeBlack"           } },
     { "name" : "ORE_GLASS",             "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlass"         } },
     { "name" : "ORE_GLASS_BLUE",        "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlassBlue"     } },
     { "name" : "ORE_GLASS_GREEN",       "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlassGreen"    } },

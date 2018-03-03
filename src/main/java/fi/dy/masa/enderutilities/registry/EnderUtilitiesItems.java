@@ -42,6 +42,7 @@ public class EnderUtilitiesItems
     public static final ItemEnderUtilities LIVING_MANIPULATOR   = new ItemLivingManipulator(ReferenceNames.NAME_ITEM_LIVING_MANIPULATOR);
     public static final ItemEnderUtilities MOB_HARNESS          = new ItemMobHarness(ReferenceNames.NAME_ITEM_MOB_HARNESS);
     public static final ItemEnderUtilities NULLIFIER            = new ItemNullifier(ReferenceNames.NAME_ITEM_NULLIFIER);
+    public static final ItemEnderUtilities PET_CONTRACT         = new ItemPetContract(ReferenceNames.NAME_ITEM_PET_CONTRACT);
     public static final ItemEnderUtilities PICKUP_MANAGER       = new ItemPickupManager(ReferenceNames.NAME_ITEM_PICKUP_MANAGER);
     public static final ItemEnderUtilities QUICK_STACKER        = new ItemQuickStacker(ReferenceNames.NAME_ITEM_QUICK_STACKER);
     public static final ItemEnderUtilities PORTAL_SCALER        = new ItemPortalScaler(ReferenceNames.NAME_ITEM_PORTAL_SCALER);
@@ -76,6 +77,7 @@ public class EnderUtilitiesItems
         registerItem(registry, LIVING_MANIPULATOR,      Configs.disableItemLivingManipulator);
         registerItem(registry, MOB_HARNESS,             Configs.disableItemMobHarness);
         registerItem(registry, NULLIFIER,               Configs.disableItemNullifier);
+        registerItem(registry, PET_CONTRACT,            Configs.disableItemPetContract);
         registerItem(registry, PICKUP_MANAGER,          Configs.disableItemPickupManager);
         registerItem(registry, QUICK_STACKER,           Configs.disableItemQuickStacker);
         registerItem(registry, PORTAL_SCALER,           Configs.disableItemPortalScaler);

@@ -94,6 +94,7 @@ public class Configs
     public static boolean disableItemLivingManipulator;
     public static boolean disableItemMobHarness;
     public static boolean disableItemNullifier;
+    public static boolean disableItemPetContract;
     public static boolean disableItemPickupManager;
     public static boolean disableItemQuickStacker;
     public static boolean disableItemPortalScaler;

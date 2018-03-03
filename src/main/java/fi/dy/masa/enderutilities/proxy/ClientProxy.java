@@ -354,6 +354,7 @@ public class ClientProxy extends CommonProxy
         registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.LIVING_MANIPULATOR);
         registerItemModel(EnderUtilitiesItems.MOB_HARNESS);
         registerItemModelWithNamePrefix(EnderUtilitiesItems.NULLIFIER, 0, "item_");
+        registerItemModel(EnderUtilitiesItems.PET_CONTRACT);
         registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.PICKUP_MANAGER);
         registerItemModelWithVariantsAndMeshDefinition(EnderUtilitiesItems.QUICK_STACKER);
         registerItemModel(EnderUtilitiesItems.PORTAL_SCALER);
