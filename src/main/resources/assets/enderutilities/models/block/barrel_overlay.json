@@ -1,0 +1,16 @@
+{
+    "elements": [
+        {
+            "from": [ -0.04, -0.04, -0.04 ],
+            "to":   [ 16.04, 16.04, 16.04 ],
+            "faces": {
+                "down":  { "uv": [ 16, 16,  0,  0 ], "texture": "#front_camo", "cullface": "down",  "rotation":   0 },
+                "up":    { "uv": [  0,  0, 16, 16 ], "texture": "#front_camo", "cullface": "up",    "rotation": 180 },
+                "north": { "uv": [  0,  0, 16, 16 ], "texture": "#front_camo", "cullface": "north", "rotation":   0 },
+                "south": { "uv": [  0,  0, 16, 16 ], "texture": "#front_camo", "cullface": "south", "rotation":   0 },
+                "west":  { "uv": [  0,  0, 16, 16 ], "texture": "#front_camo", "cullface": "west",  "rotation":   0 },
+                "east":  { "uv": [  0,  0, 16, 16 ], "texture": "#front_camo", "cullface": "east",  "rotation":   0 }
+            }
+        }
+    ]
+}

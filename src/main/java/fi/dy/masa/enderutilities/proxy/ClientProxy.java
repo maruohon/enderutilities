@@ -434,6 +434,10 @@ public class ClientProxy extends CommonProxy
         ModelLoaderRegistry.registerLoader(new BakedModelInserter.ModelLoaderInserter());
 
         ModelLoaderRegistry.registerLoader(new ModelCamouflageBlock.ModelLoaderCamouflageBlocks());
+
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,       (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_SLAB,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
+        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_LAYER, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
     }
 
     private static void registerItemBlockModels()
@@ -449,10 +453,6 @@ public class ClientProxy extends CommonProxy
             registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_SLAB, i, "inventory");
             registerItemBlockModel(EnderUtilitiesBlocks.ELEVATOR_LAYER, i, "inventory");
         }
-
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR,       (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_SLAB,  (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
-        ModelLoader.setCustomStateMapper(EnderUtilitiesBlocks.ELEVATOR_LAYER, (new StateMap.Builder()).ignore(BlockElevator.COLOR).build());
 
         registerAllItemBlockModels(EnderUtilitiesBlocks.ENERGY_BRIDGE, "active=false,facing=north,type=", "");
         registerAllItemBlockModels(EnderUtilitiesBlocks.MACHINE_1, "facing=north,type=", "");

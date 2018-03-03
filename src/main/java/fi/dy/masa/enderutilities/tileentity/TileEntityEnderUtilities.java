@@ -173,16 +173,17 @@ public class TileEntityEnderUtilities extends TileEntity
 
     private boolean tryApplyCamouflage(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        ItemStack stackOffHand = player.getHeldItemOffhand();
-
         // Sneaking with an empty hand, clear the camo block
-        if (player.isSneaking())
+        if (player.isSneaking() && this.camoState != null)
         {
             this.removeCamouflage();
             return true;
         }
+
+        ItemStack stackOffHand = player.getHeldItemOffhand();
+
         // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
-        else if (player.getHeldItemOffhand().isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock)
+        if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock)
         {
             return this.applyCamouflage(player, stackOffHand, side, hitX, hitY, hitZ);
         }

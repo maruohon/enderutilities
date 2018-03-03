@@ -1,12 +1,38 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "transform": "forge:default-block"
+        "model": "enderutilities:barrel_base",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle": "#top",
+            "down":     "#top",
+            "up":       "#top",
+            "north":    "#front_normal",
+            "south":    "#side",
+            "west":     "#side",
+            "east":     "#side"
+        }
     },
     "variants": {
         "creative": {
-            "true":  { "model": "enderutilities:custom/barrel_creative" },
-            "false": { "model": "enderutilities:custom/barrel_normal"   }
+            "false": {
+                "model": "enderutilities:custom/camo_barrel_normal",
+                "textures": {
+                    "front_normal": "enderutilities:blocks/barrel_normal_front",
+                    "front_camo":   "enderutilities:blocks/barrel_normal_front_camo",
+                    "top":          "enderutilities:blocks/barrel_normal_top",
+                    "side":         "enderutilities:blocks/barrel_normal_side"
+                }
+            },
+            "true":  {
+                "model": "enderutilities:custom/camo_barrel_creative",
+                "textures": {
+                    "front_normal": "enderutilities:blocks/barrel_creative_front",
+                    "front_camo":   "enderutilities:blocks/barrel_creative_front_camo",
+                    "top":          "enderutilities:blocks/barrel_creative_top",
+                    "side":         "enderutilities:blocks/barrel_creative_side"
+                }
+            }
         }
     }
 }

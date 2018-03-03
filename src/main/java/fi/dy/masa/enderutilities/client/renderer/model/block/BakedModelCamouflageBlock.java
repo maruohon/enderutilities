@@ -33,13 +33,14 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 public class BakedModelCamouflageBlock implements IBakedModel
 {
     public static final Map<BlockRenderLayer, Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>> QUAD_CACHE = new HashMap<>();
-    protected final IBakedModel bakedBaseModel;
-    @Nullable
-    protected final IBakedModel bakedOverlayModel;
     protected final IModel baseModel;
+    @Nullable
+    protected final IModel overlayModel;
+    protected final IBakedModel bakedBaseModel;
+    protected final IBakedModel bakedOverlayModel;
+    protected final IModelState modelState;
     protected final VertexFormat format;
     protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
-    protected final TextureAtlasSprite particle;
     protected final ImmutableList<BakedQuad> itemQuads;
 
     static
@@ -50,44 +51,18 @@ public class BakedModelCamouflageBlock implements IBakedModel
         }
     }
 
-    public BakedModelCamouflageBlock(ImmutableMap<String, String> textures, IModel baseModel, @Nullable IModel overlayModel,
+    public BakedModelCamouflageBlock(IModel baseModel, @Nullable IModel overlayModel, ImmutableMap<String, String> textures,
             IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.baseModel = baseModel;
+        this.overlayModel = overlayModel;
+        this.modelState = modelState;
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
-        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("particle")));
         this.bakedBaseModel = baseModel.bake(modelState, format, bakedTextureGetter);
+        this.bakedOverlayModel = overlayModel != null ? overlayModel.bake(modelState, format, bakedTextureGetter) : null;
 
-        if (overlayModel != null)
-        {
-            this.bakedOverlayModel = overlayModel.bake(modelState, format, bakedTextureGetter);
-        }
-        else
-        {
-            this.bakedOverlayModel = null;
-        }
-
-        ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
-
-        for (EnumFacing side : EnumFacing.values())
-        {
-            quads.addAll(this.bakedBaseModel.getQuads(null, side, 0));
-
-            if (this.bakedOverlayModel != null)
-            {
-                quads.addAll(this.bakedOverlayModel.getQuads(null, side, 0));
-            }
-        }
-
-        quads.addAll(this.bakedBaseModel.getQuads(null, null, 0));
-
-        if (this.bakedOverlayModel != null)
-        {
-            quads.addAll(this.bakedOverlayModel.getQuads(null, null, 0));
-        }
-
-        this.itemQuads = quads.build();
+        this.itemQuads = buildItemModel(this.bakedBaseModel, this.bakedOverlayModel);
     }
 
     @Override
@@ -124,7 +99,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
     @Override
     public TextureAtlasSprite getParticleTexture()
     {
-        return this.particle;
+        return this.bakedBaseModel.getParticleTexture();
     }
 
     @Override
@@ -138,16 +113,17 @@ public class BakedModelCamouflageBlock implements IBakedModel
             return this.itemQuads;
         }
 
-        IBlockState camoState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATE);
-        IBlockState camoExtendedState = ((IExtendedBlockState) state).getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATEEXTENDED);
+        IExtendedBlockState extendedState = (IExtendedBlockState) state;
+        IBlockState camoState = extendedState.getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATE);
+        IBlockState camoExtendedState = extendedState.getValue(BlockEnderUtilitiesTileEntity.CAMOBLOCKSTATEEXTENDED);
 
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = null;
-        boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
         Map<ImmutablePair<IBlockState, IBlockState>, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> map = QUAD_CACHE.get(layer);
         ImmutablePair<IBlockState, IBlockState> key;
+        boolean validCamo = camoState != null && camoState.getBlock() != Blocks.AIR;
 
         // Get the base actualState, so that the map keys work properly (reference equality)
-        state = ((IExtendedBlockState) state).getClean();
+        IBlockState stateClean = extendedState.getClean();
 
         if (map == null)
         {
@@ -157,26 +133,30 @@ public class BakedModelCamouflageBlock implements IBakedModel
 
         if (validCamo)
         {
-            key = ImmutablePair.of(state, camoState);
+            key = ImmutablePair.of(stateClean, camoState);
         }
         else
         {
-            key = ImmutablePair.of(state, Blocks.AIR.getDefaultState());
+            key = ImmutablePair.of(stateClean, Blocks.AIR.getDefaultState());
         }
 
         quads = map.get(key);
 
         if (quads == null)
         {
+            @Nullable
+            //IBakedModel bakedOverlayModel = getRotatedBakedModel(this.overlayModel, null, extendedState, this.format, this.bakedTextureGetter);
+            IBakedModel bakedOverlayModel = this.overlayModel != null ? this.overlayModel.bake(this.modelState, this.format, this.bakedTextureGetter) : null;
+
             if (validCamo)
             {
-                IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
-                quads = this.getCombinedQuads(layer, model, camoState, camoExtendedState, this.bakedOverlayModel, state, true);
+                IBakedModel bakedBaseModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(camoState);
+                quads = this.getCombinedQuads(layer, bakedBaseModel, camoState, camoExtendedState, bakedOverlayModel, extendedState, true);
             }
             else
             {
-                IBakedModel model = this.getBakedBaseModel(state);
-                quads = this.getCombinedQuads(layer, model, state, state, this.bakedOverlayModel, state, false);
+                IBakedModel bakedBaseModel = getRotatedBakedModel(this.baseModel, this.bakedBaseModel, state, this.format, this.bakedTextureGetter);
+                quads = this.getCombinedQuads(layer, bakedBaseModel, stateClean, extendedState, bakedOverlayModel, extendedState, false);
             }
 
             map.put(key, quads);
@@ -185,9 +165,14 @@ public class BakedModelCamouflageBlock implements IBakedModel
         return quads.get(Optional.ofNullable(side));
     }
 
-    protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(BlockRenderLayer layer,
-            @Nonnull IBakedModel baseModel, @Nonnull IBlockState baseActualState, @Nonnull IBlockState baseExtendedState,
-            @Nullable IBakedModel optionalModel, @Nullable IBlockState optionalState, boolean isCamoModel)
+    protected ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getCombinedQuads(
+            BlockRenderLayer layer,
+            @Nonnull IBakedModel baseModel,
+            @Nonnull IBlockState baseActualState,
+            @Nonnull IBlockState baseExtendedState,
+            @Nullable IBakedModel overlayModel,
+            @Nullable IBlockState overlayState,
+            boolean isCamoModel)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
 
@@ -195,9 +180,9 @@ public class BakedModelCamouflageBlock implements IBakedModel
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-            // This allows the camo models to render on all layers they need to,
-            // but restricts the base model to only render on the one layer they say they should be in.
-            // This is because the canRenderInLayer() returns true for all layers for camo blocks,
+            // This allows the camo model to render on all layers it needs to,
+            // but restricts the base model to only render on the one layer it says it should be on.
+            // This is because canRenderInLayer() returns true for all layers for camo blocks,
             // so that the camo model can render in all the layers it needs to.
             if ((isCamoModel || baseActualState.getBlock().getBlockLayer() == layer) &&
                 baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
@@ -205,10 +190,10 @@ public class BakedModelCamouflageBlock implements IBakedModel
                 quads.addAll(baseModel.getQuads(baseExtendedState, face, 0));
             }
 
-            // The optional model is only used for the Elevator color overlay
-            if (optionalModel != null && optionalState != null && layer == BlockRenderLayer.CUTOUT)
+            // The overlay model is used for cutout type overlays
+            if (overlayModel != null && overlayState != null && layer == BlockRenderLayer.CUTOUT)
             {
-                quads.addAll(optionalModel.getQuads(optionalState, face, 0));
+                quads.addAll(overlayModel.getQuads(overlayState, face, 0));
             }
 
             builder.put(Optional.of(face), quads.build());
@@ -222,10 +207,10 @@ public class BakedModelCamouflageBlock implements IBakedModel
             quads.addAll(baseModel.getQuads(baseExtendedState, null, 0));
         }
 
-        // The optional model is only used for the Elevator color overlay
-        if (optionalModel != null && optionalState != null && layer == BlockRenderLayer.CUTOUT)
+        // The overlay model is used for cutout type overlays
+        if (overlayModel != null && overlayState != null && layer == BlockRenderLayer.CUTOUT)
         {
-            quads.addAll(optionalModel.getQuads(optionalState, null, 0));
+            quads.addAll(overlayModel.getQuads(overlayState, null, 0));
         }
 
         builder.put(Optional.empty(), quads.build());
@@ -233,19 +218,46 @@ public class BakedModelCamouflageBlock implements IBakedModel
         return builder.build();
     }
 
-    protected IBakedModel getBakedBaseModel(IBlockState state)
+    public static ImmutableList<BakedQuad> buildItemModel(IBakedModel bakedBaseModel, @Nullable IBakedModel bakedOverlayModel)
     {
-        if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING))
+        ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
+
+        for (EnumFacing side : EnumFacing.values())
         {
-            return this.baseModel.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING)), this.format, this.bakedTextureGetter);
+            quads.addAll(bakedBaseModel.getQuads(null, side, 0));
+
+            if (bakedOverlayModel != null)
+            {
+                quads.addAll(bakedOverlayModel.getQuads(null, side, 0));
+            }
         }
-        else if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING_H))
+
+        quads.addAll(bakedBaseModel.getQuads(null, null, 0));
+
+        if (bakedOverlayModel != null)
         {
-            return this.baseModel.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING_H)), this.format, this.bakedTextureGetter);
+            quads.addAll(bakedOverlayModel.getQuads(null, null, 0));
         }
-        else
+
+        return quads.build();
+    }
+
+    @Nullable
+    public static IBakedModel getRotatedBakedModel(@Nullable IModel model, @Nullable IBakedModel bakedModelDefault, IBlockState state,
+            VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    {
+        if (model != null)
         {
-            return this.bakedBaseModel;
+            if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING))
+            {
+                return model.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING)), format, bakedTextureGetter);
+            }
+            else if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING_H))
+            {
+                return model.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING_H)), format, bakedTextureGetter);
+            }
         }
+
+        return bakedModelDefault;
     }
 }

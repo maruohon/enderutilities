@@ -23,6 +23,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.client.renderer.model.block.BakedModelBarrel.ModelLoaderBarrel;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 
@@ -34,8 +35,9 @@ public class ModelCamouflageBlock
         @Nullable
         protected final ResourceLocation overlayModelLocation;
         protected final ImmutableMap<String, String> textures;
-        protected final IModel baseModel;
-        protected final IModel overlayModel;
+        protected IModel baseModel;
+        @Nullable
+        protected IModel overlayModel;
         protected static ImmutableList<ResourceLocation> texture_deps = ImmutableList.of();
 
         // FIXME is there a way to get these from the blockstate json somehow (before retexture() is called)?
@@ -60,30 +62,10 @@ public class ModelCamouflageBlock
             this.baseModelLocation = baseModelLocation;
             this.overlayModelLocation = overlayModelLocation;
             this.textures = ImmutableMap.of();
-
-            IModel baseModel    = ModelLoaderRegistry.getMissingModel();
-            IModel overlayModel = null;
-
-            try
-            {
-                baseModel = ModelLoaderRegistry.getModel(this.baseModelLocation);
-
-                if (this.overlayModelLocation != null)
-                {
-                    overlayModel = ModelLoaderRegistry.getModel(this.overlayModelLocation);
-                }
-            }
-            catch (Exception e)
-            {
-                EnderUtilities.logger.warn("Failed to load a model for a camouflage block", e);
-            }
-
-            this.baseModel = baseModel;
-            this.overlayModel = overlayModel;
         }
 
         protected ModelCamouflageBlockBase(ResourceLocation baseModelLocation, @Nullable ResourceLocation overlayModelLocation,
-                IModel baseModel, IModel overlayModel, ImmutableMap<String, String> textures)
+                IModel baseModel, @Nullable IModel overlayModel, ImmutableMap<String, String> textures)
         {
             this.baseModelLocation = baseModelLocation;
             this.overlayModelLocation = overlayModelLocation;
@@ -120,8 +102,24 @@ public class ModelCamouflageBlock
         @Override
         public IModel retexture(ImmutableMap<String, String> textures)
         {
-            IModel baseModel = this.baseModel.retexture(textures);
-            IModel overlayModel = this.overlayModel != null ? this.overlayModel.retexture(textures) : null;
+            IModel baseModel    = ModelLoaderRegistry.getMissingModel();
+            IModel overlayModel = null;
+
+            try
+            {
+                baseModel = ModelLoaderRegistry.getModel(this.baseModelLocation);
+                baseModel = baseModel.retexture(textures);
+
+                if (this.overlayModelLocation != null)
+                {
+                    overlayModel = ModelLoaderRegistry.getModel(this.overlayModelLocation);
+                    overlayModel = overlayModel.retexture(textures);
+                }
+            }
+            catch (Exception e)
+            {
+                EnderUtilities.logger.warn("Failed to load a model for a camouflage block", e);
+            }
 
             return new ModelCamouflageBlockBase(this.baseModelLocation, this.overlayModelLocation, baseModel, overlayModel, textures);
         }
@@ -129,7 +127,7 @@ public class ModelCamouflageBlock
         @Override
         public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
         {
-            return new BakedModelCamouflageBlock(ImmutableMap.copyOf(this.textures), this.baseModel, this.overlayModel, state, format, bakedTextureGetter);
+            return new BakedModelCamouflageBlock(this.baseModel, this.overlayModel, this.textures, state, format, bakedTextureGetter);
         }
     }
 
@@ -152,6 +150,8 @@ public class ModelCamouflageBlock
         private static final ResourceLocation LOC_PORTAL_FRAME          = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_frame");
         private static final ResourceLocation LOC_DRAW_BRIDGE_N         = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_draw_bridge_normal");
         private static final ResourceLocation LOC_DRAW_BRIDGE_A         = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_draw_bridge_advanced");
+        private static final ResourceLocation LOC_BARREL_NORMAL         = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_barrel_normal");
+        private static final ResourceLocation LOC_BARREL_CREATIVE       = new ResourceLocation(Reference.MOD_ID, "models/block/custom/camo_barrel_creative");
 
         @Override
         public boolean accepts(ResourceLocation modelLocation)
@@ -191,6 +191,16 @@ public class ModelCamouflageBlock
             {
                 ResourceLocation baseModelLocation = new ResourceLocation(Reference.MOD_ID, "block/orientable_directional_individual");
                 return new ModelCamouflageBlockBase(baseModelLocation, null);
+            }
+            else if (modelLocation.equals(LOC_BARREL_NORMAL))
+            {
+                // The Barrel handles both normal and overlay models with the same custom model
+                return new ModelCamouflageBlockBase(ModelLoaderBarrel.LOCATION_NORMAL, ModelLoaderBarrel.LOCATION_NORMAL);
+            }
+            else if (modelLocation.equals(LOC_BARREL_CREATIVE))
+            {
+                // The Barrel handles both normal and overlay models with the same custom model
+                return new ModelCamouflageBlockBase(ModelLoaderBarrel.LOCATION_CREATIVE, ModelLoaderBarrel.LOCATION_CREATIVE);
             }
 
             return ModelLoaderRegistry.getMissingModel();

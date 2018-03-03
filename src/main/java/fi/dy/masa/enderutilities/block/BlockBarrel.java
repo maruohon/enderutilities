@@ -15,6 +15,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.item.block.ItemBlockStorage;
@@ -52,8 +54,15 @@ public class BlockBarrel extends BlockEnderUtilitiesInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING_H, CREATIVE,
-                LABEL_UP, LABEL_DOWN, LABEL_FRONT, LABEL_BACK, LABEL_LEFT, LABEL_RIGHT });
+        return new ExtendedBlockState(this, new IProperty[] { FACING_H, CREATIVE,
+                LABEL_UP, LABEL_DOWN, LABEL_FRONT, LABEL_BACK, LABEL_LEFT, LABEL_RIGHT },
+                new IUnlistedProperty<?>[] { CAMOBLOCKSTATE, CAMOBLOCKSTATEEXTENDED });
+    }
+
+    @Override
+    protected boolean isCamoBlock()
+    {
+        return true;
     }
 
     @Override

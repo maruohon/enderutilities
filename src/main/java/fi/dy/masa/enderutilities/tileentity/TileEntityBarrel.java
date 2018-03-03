@@ -87,6 +87,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     }
 
     @Override
+    protected boolean hasCamouflageAbility()
+    {
+        return true;
+    }
+
+    @Override
     public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
     {
         return oldState.getBlock() != newState.getBlock();
@@ -398,6 +404,12 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
             stack = InventoryUtils.tryInsertItemStackToInventory(this.itemHandlerExternal, stack);
             player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
+        }
+
+        // Try to apply camouflage
+        if (super.onRightClickBlock(player, hand, side, hitX, hitY, hitZ))
+        {
+            return true;
         }
 
         long time = System.currentTimeMillis();
