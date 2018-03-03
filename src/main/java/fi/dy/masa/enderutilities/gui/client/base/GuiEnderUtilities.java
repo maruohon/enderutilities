@@ -210,13 +210,7 @@ public class GuiEnderUtilities extends GuiContainer
                 slotId = slotIn.slotNumber;
             }
 
-            int modifier = 0;
-
-            if (isShiftKeyDown()) { modifier |= HotKeys.MOD_SHIFT; }
-            if (isCtrlKeyDown())  { modifier |= HotKeys.MOD_CTRL;  }
-            if (isAltKeyDown())   { modifier |= HotKeys.MOD_ALT;   }
-
-            int action = HotKeys.KEYCODE_MIDDLE_CLICK | modifier;
+            int action = HotKeys.KEYCODE_MIDDLE_CLICK | HotKeys.getActiveModifierMask();
 
             // Send a packet to the server
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(0, BlockPos.ORIGIN,

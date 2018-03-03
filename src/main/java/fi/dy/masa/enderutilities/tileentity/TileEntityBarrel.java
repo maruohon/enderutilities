@@ -34,6 +34,8 @@ import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart.ItemPartType;
 import fi.dy.masa.enderutilities.network.message.ISyncableTile;
 import fi.dy.masa.enderutilities.network.message.MessageSyncTileEntity;
+import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -406,12 +408,6 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
             player.setHeldItem(hand, stack.isEmpty() ? ItemStack.EMPTY : stack);
         }
 
-        // Try to apply camouflage
-        if (super.onRightClickBlock(player, hand, side, hitX, hitY, hitZ))
-        {
-            return true;
-        }
-
         long time = System.currentTimeMillis();
         Long last = this.rightClickTimes.get(player.getUniqueID());
 
@@ -425,6 +421,18 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         // When this method returns false, then the GUI is opened
         return player.isSneaking() == false;
+    }
+
+    @Override
+    public boolean onInputAction(int keyMask, EntityPlayer player, RayTraceResult trace, World world, BlockPos pos)
+    {
+        if (EnumKey.MIDDLE_CLICK.matches(keyMask, HotKeys.MOD_NONE, HotKeys.MOD_SHIFT))
+        {
+            Vec3d hit = trace.hitVec;
+            return this.tryApplyCamouflage(player, EnumHand.OFF_HAND, trace.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+        }
+
+        return false;
     }
 
     @Override

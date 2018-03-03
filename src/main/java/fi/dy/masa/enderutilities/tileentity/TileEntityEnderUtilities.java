@@ -25,6 +25,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -163,29 +164,32 @@ public class TileEntityEnderUtilities extends TileEntity
      */
     public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (this.hasCamouflageAbility() && player.getHeldItemMainhand().isEmpty())
-        {
-            return this.tryApplyCamouflage(player, hand, side, hitX, hitY, hitZ);
-        }
+        return this.tryApplyCamouflage(player, hand, side, hitX, hitY, hitZ);
+    }
 
+    public boolean onInputAction(int keyMask, EntityPlayer player, RayTraceResult trace, World world, BlockPos pos)
+    {
         return false;
     }
 
-    private boolean tryApplyCamouflage(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    protected boolean tryApplyCamouflage(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        // Sneaking with an empty hand, clear the camo block
-        if (player.isSneaking() && this.camoState != null)
+        if (this.hasCamouflageAbility() && player.getHeldItemMainhand().isEmpty())
         {
-            this.removeCamouflage();
-            return true;
-        }
+            // Sneaking with an empty hand, clear the camo block
+            if (player.isSneaking() && this.camoState != null)
+            {
+                this.removeCamouflage();
+                return true;
+            }
 
-        ItemStack stackOffHand = player.getHeldItemOffhand();
+            ItemStack stackOffHand = player.getHeldItemOffhand();
 
-        // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
-        if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock)
-        {
-            return this.applyCamouflage(player, stackOffHand, side, hitX, hitY, hitZ);
+            // Apply camouflage when right clicking with an empty main hand, and a block in the off hand
+            if (stackOffHand.isEmpty() == false && stackOffHand.getItem() instanceof ItemBlock)
+            {
+                return this.applyCamouflage(player, stackOffHand, side, hitX, hitY, hitZ);
+            }
         }
 
         return false;

@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -11,11 +12,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.enderutilities.EnderUtilities;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IKeyBoundUnselected;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.tileentity.TileEntityElevator;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import io.netty.buffer.ByteBuf;
@@ -102,6 +105,10 @@ public class MessageKeyPressed implements IMessage
                 {
                     ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);
                 }
+                else
+                {
+                    this.handleKeysGeneric(message.keyPressed, player);
+                }
             }
         }
 
@@ -126,6 +133,23 @@ public class MessageKeyPressed implements IMessage
             }
 
             return false;
+        }
+
+        private void handleKeysGeneric(int key, EntityPlayer player)
+        {
+            World world = player.getEntityWorld();
+            RayTraceResult trace = EntityUtils.getRayTraceFromPlayer(world, player, true);
+
+            if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK)
+            {
+                BlockPos pos = trace.getBlockPos();
+                TileEntityEnderUtilities te = BlockEnderUtilities.getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+                if (te != null)
+                {
+                    te.onInputAction(key, player, trace, world, pos);
+                }
+            }
         }
     }
 }

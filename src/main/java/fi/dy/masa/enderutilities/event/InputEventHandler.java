@@ -1,11 +1,13 @@
 package fi.dy.masa.enderutilities.event;
 
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.MouseEvent;
@@ -13,6 +15,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import fi.dy.masa.enderutilities.block.BlockElevator;
+import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiHandyBag;
 import fi.dy.masa.enderutilities.gui.client.GuiScreenBuilderWandTemplate;
@@ -29,6 +32,7 @@ import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.registry.Keybindings;
+import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -177,6 +181,7 @@ public class InputEventHandler
     public void onMouseEvent(MouseEvent event)
     {
         int dWheel = event.getDwheel();
+
         if (dWheel != 0)
         {
             dWheel /= 120;
@@ -205,6 +210,31 @@ public class InputEventHandler
                     }
 
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                }
+            }
+        }
+        else if (Mouse.getEventButtonState() &&
+                 Mouse.getEventButton() == Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getKeyCode() + 100)
+        {
+            Minecraft mc = Minecraft.getMinecraft();
+            EntityPlayer player = mc.player;
+
+            if (player != null)
+            {
+                World world = player.getEntityWorld();
+                RayTraceResult trace = EntityUtils.getRayTraceFromPlayer(world, player, true);
+
+                if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK)
+                {
+                    int key = HotKeys.KEYCODE_MIDDLE_CLICK | HotKeys.getActiveModifierMask();
+                    BlockPos pos = trace.getBlockPos();
+                    TileEntityEnderUtilities te = BlockEnderUtilities.getTileEntitySafely(world, pos, TileEntityEnderUtilities.class);
+
+                    if (te != null && te.onInputAction(key, player, trace, world, pos))
+                    {
+                        PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                        event.setCanceled(true);
+                    }
                 }
             }
         }

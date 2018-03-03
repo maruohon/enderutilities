@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.reference;
 
 import org.lwjgl.input.Keyboard;
+import fi.dy.masa.enderutilities.EnderUtilities;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 public class HotKeys
@@ -41,6 +42,17 @@ public class HotKeys
     public static int getModifierMask(int keyCode)
     {
         return KEY_CODE_MAPPINGS.get(keyCode);
+    }
+
+    public static int getActiveModifierMask()
+    {
+        int modifier = 0;
+
+        if (EnderUtilities.proxy.isShiftKeyDown())      { modifier |= HotKeys.MOD_SHIFT; }
+        if (EnderUtilities.proxy.isControlKeyDown())    { modifier |= HotKeys.MOD_CTRL;  }
+        if (EnderUtilities.proxy.isAltKeyDown())        { modifier |= HotKeys.MOD_ALT;   }
+
+        return modifier;
     }
 
     static
