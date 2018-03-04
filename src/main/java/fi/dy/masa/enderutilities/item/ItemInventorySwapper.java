@@ -309,20 +309,20 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
     }
 
-    private void swapPlayerInventory(final int swapperSlot, EntityPlayer player)
+    private boolean swapPlayerInventory(final int swapperSlot, EntityPlayer player)
     {
         ItemStack swapperStack = player.inventory.getStackInSlot(swapperSlot);
 
         if (swapperStack.isEmpty())
         {
-            return;
+            return false;
         }
 
         InventoryItemModular swapperInv = new InventoryItemModular(swapperStack, player, false, ModuleType.TYPE_MEMORY_CARD_ITEMS);
 
         if (swapperInv.isAccessibleBy(player) == false)
         {
-            return;
+            return false;
         }
 
         final long mask = this.getEnabledSlotsMask(swapperStack);
@@ -364,6 +364,8 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
 
         player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.2f, 1.8f);
+
+        return true;
     }
 
     private void swapRegularSlot(InventoryItemModular swapperInv, final int slot, final int mainInvSize, final int invMax, EntityPlayer player)
@@ -450,17 +452,19 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         }
     }
 
-    private void swapPlayerInventory(EntityPlayer player)
+    private boolean swapPlayerInventory(EntityPlayer player)
     {
         int slot = this.getSlotContainingEnabledItem(player);
 
         if (slot != -1)
         {
-            this.swapPlayerInventory(slot, player);
+            return this.swapPlayerInventory(slot, player);
         }
+
+        return false;
     }
 
-    private void cycleInventory(EntityPlayer player, boolean reverse)
+    private boolean cycleInventory(EntityPlayer player, boolean reverse)
     {
         int slot = this.getSlotContainingEnabledItem(player);
 
@@ -473,34 +477,41 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
                 this.swapPlayerInventory(slot, player);
                 this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, reverse);
                 this.swapPlayerInventory(slot, player);
+                return true;
             }
         }
+
+        return false;
     }
 
     @Override
-    public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Re-fetch the item to check if it's enabled
         stack = this.getEnabledItem(player);
 
         if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.INVENTORY_SWAPPER)
         {
-            ((ItemInventorySwapper) stack.getItem()).doKeyBindingAction(player, stack, key);
+            return ((ItemInventorySwapper) stack.getItem()).doKeyBindingAction(player, stack, key);
         }
+
+        return false;
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode: Fire the swapping action
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             this.swapPlayerInventory(player);
+            return true;
         }
         // Alt + Shift + Toggle mode: Toggle the locked mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
+            return true;
         }
         // Shift + Toggle mode: Cycle the slot mask preset
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
@@ -508,11 +519,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
                     EnumKey.keypressActionIsReversed(key));
+            return true;
         }
         // Ctrl + Alt + Shift + Toggle: Toggle cycle mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE);
+            return true;
         }
         // Ctrl (+ Shift) + Toggle mode: Change the selected Memory Card, or Cycle the inventory to the next card
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -521,11 +534,13 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE))
             {
                 this.cycleInventory(player, EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+                return true;
             }
             else
             {
                 this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+                return true;
             }
         }
         // Alt + Toggle mode: Change the selected Memory Card, or Cycle the inventory to the PREVIOUS card
@@ -534,12 +549,16 @@ public class ItemInventorySwapper extends ItemInventoryModular implements IKeyBo
             if (NBTUtils.getBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_CYCLE_MODE))
             {
                 this.cycleInventory(player, true);
+                return true;
             }
             else
             {
                 this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_ITEMS, true);
+                return true;
             }
         }
+
+        return false;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)

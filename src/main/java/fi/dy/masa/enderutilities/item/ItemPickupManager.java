@@ -575,12 +575,13 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode: Toggle locked state
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
+            return true;
         }
         // Shift + Toggle mode: Cycle the slot mask preset
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
@@ -588,10 +589,11 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
                     EnumKey.keypressActionIsReversed(key));
+            return true;
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
     }
 

@@ -916,28 +916,32 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
         return this.getInstalledModuleCount(stack, ModuleType.CREATIVE_BREAKING) > 0 &&
                CreativeBreaking.fromStack(stack) == CreativeBreaking.ENABLED;
     }
+
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change the dig mode
         if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.cyclePoweredMode(stack);
+            return true;
         }
         // Shift + Toggle mode: Toggle the block drops handling mode: normal, player, remote
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleDropsMode(stack);
+            return true;
         }
         // Ctrl + Shift + Toggle mode: Toggle the creative-like breaking mode on/off
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL) &&
                  ToolType.fromStack(stack) != ToolType.HOE)
         {
             this.cycleCreativeBreakingMode(stack);
+            return true;
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
     }
 

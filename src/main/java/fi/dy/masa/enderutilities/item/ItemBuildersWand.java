@@ -2462,12 +2462,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         if (key == HotKeys.KEYCODE_CUSTOM_1)
         {
             this.placeHelperBlock(player);
-            return;
+            return true;
         }
 
         Mode mode = Mode.getMode(stack);
@@ -2478,10 +2478,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.REPLACE_3D)
             {
                 this.changeSecondarySelectionIndex(stack, EnumKey.keypressActionIsReversed(key));
+                return true;
             }
             else if (mode == Mode.STACK)
             {
                 this.changeAreaDimensions(player, stack, EnumKey.keypressActionIsReversed(key));
+                return true;
             }
         }
         // Alt + Scroll: Change the selected block type
@@ -2493,6 +2495,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 this.updateTemplateMetadata(stack, player);
             }
+            return true;
         }
         // Shift + Scroll: Change the dimensions of the current mode
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
@@ -2507,6 +2510,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 {
                     this.changeAreaDimensions(player, stack, EnumKey.keypressActionIsReversed(key));
                 }
+                return true;
             }
         }
         // Shift + Toggle key: Toggle the mirroring in the appropriate modes
@@ -2515,14 +2519,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.REPLACE_3D)
             {
                 WandOption.BIND_MODE.toggle(stack, mode);
+                return true;
             }
             else if (mode.isAreaMode())
             {
                 this.toggleMirror(stack, mode, player);
+                return true;
             }
             else if (mode != Mode.WALLS || mode != Mode.CUBE)
             {
                 WandOption.MOVE_POSITION.toggle(stack, mode);
+                return true;
             }
         }
         // Ctrl + Toggle key: Cycle the mode
@@ -2535,11 +2542,13 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             {
                 this.updateTemplateMetadata(stack, player);
             }
+            return true;
         }
         // Ctrl + Alt + Shift + Scroll: Change the selected link crystal
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL, EnumKey.keypressActionIsReversed(key));
+            return true;
         }
         // Ctrl + Alt + Shift + Toggle
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_CTRL_ALT))
@@ -2547,6 +2556,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.COPY)
             {
                 WandOption.CHISELS_AND_BITS_CROSSWORLD.toggle(stack, mode);
+                return true;
             }
         }
         // Ctrl + Alt + Toggle key: Toggle some mode-specific features
@@ -2555,18 +2565,22 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.PASTE || mode == Mode.MOVE_DST || mode == Mode.STACK)
             {
                 WandOption.REPLACE_EXISTING.toggle(stack, mode);
+                return true;
             }
             else if (mode == Mode.DELETE)
             {
                 WandOption.AFFECT_ENTITIES.toggle(stack, mode);
+                return true;
             }
             else if (mode == Mode.EXTEND_CONTINUOUS || mode == Mode.REPLACE)
             {
                 WandOption.ALLOW_DIAGONALS.toggle(stack, mode);
+                return true;
             }
             else if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
             {
                 WandOption.CONTINUE_THROUGH.toggle(stack, mode);
+                return true;
             }
         }
         // Alt + Shift + Toggle key: Toggle ghost blocks
@@ -2575,10 +2589,12 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.PASTE || mode == Mode.STACK)
             {
                 WandOption.AFFECT_ENTITIES.toggle(stack, mode);
+                return true;
             }
             else if (mode.isAreaMode() == false)
             {
                 WandOption.RENDER_GHOST.toggle(stack, mode);
+                return true;
             }
         }
         // Just Toggle key: Toggle the area flipped property
@@ -2587,14 +2603,17 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.REPLACE)
             {
                 WandOption.REPLACE_MODE_IS_AREA.toggle(stack, mode);
+                return true;
             }
             else if (mode.isAreaMode() && mode != Mode.COPY)
             {
                 this.setAreaFacing(stack, mode, player);
+                return true;
             }
             else if (mode.isAreaMode() == false)
             {
                 this.toggleAreaFlipped(stack, player);
+                return true;
             }
         }
         // Alt + Toggle: FIXME Temporary key for toggling replace on build modes
@@ -2603,8 +2622,11 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
             if (mode == Mode.COLUMN || mode == Mode.LINE || mode == Mode.PLANE || mode == Mode.EXTEND_AREA)
             {
                 WandOption.REPLACE_EXISTING.toggle(stack, mode);
+                return true;
             }
         }
+
+        return false;
     }
 
     @Override

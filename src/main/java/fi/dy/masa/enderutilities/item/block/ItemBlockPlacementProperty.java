@@ -81,7 +81,7 @@ public class ItemBlockPlacementProperty extends ItemBlockEnderUtilities implemen
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         ItemBlockPlacementProperty item = (ItemBlockPlacementProperty) stack.getItem();
 
@@ -132,7 +132,11 @@ public class ItemBlockPlacementProperty extends ItemBlockEnderUtilities implemen
                     PlacementProperties.getInstance().syncCurrentlyHeldItemDataForPlayer((EntityPlayerMP) player, stack);
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
     @Override

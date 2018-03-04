@@ -1053,30 +1053,32 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change operation mode between normal, fill-only, drain-only and bind-to-tanks
         if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             BucketMode.cycleMode(stack);
+            return true;
         }
         // Shift + Toggle mode: Toggle the bucket's link mode between regular-bucket-mode and linked-to-a-tank
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             LinkMode.cycleMode(stack);
+            return true;
         }
         // Ctrl + (Shift +) Toggle mode: Change the selected link crystal, if we are in tank mode
-        else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
-                 EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL))
+        else if ((EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT)
+                  ||
+                  EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL)
+                  )
+                  && LinkMode.fromStack(stack) == LinkMode.ENABLED)
         {
-            if (LinkMode.fromStack(stack) == LinkMode.ENABLED)
-            {
-                super.doKeyBindingAction(player, stack, key);
-            }
+            return super.doKeyBindingAction(player, stack, key);
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
     }
 

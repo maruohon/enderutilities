@@ -497,7 +497,7 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -505,18 +505,23 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
         // Shift + Toggle Mode: Change entity selection within the current module
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
                  EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
             this.changeEntitySelection(stack, EnumKey.keypressActionIsReversed(key));
+            return true;
         }
         // Just Toggle key, cycle the mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             NBTUtils.cycleByteValue(stack, WRAPPER_TAG_NAME, TAG_NAME_MODE, Mode.values().length - 1);
+            return true;
         }
+
+        return false;
     }
 
     @Override

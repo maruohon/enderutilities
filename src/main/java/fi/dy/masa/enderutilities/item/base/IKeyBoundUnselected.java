@@ -5,5 +5,5 @@ import net.minecraft.item.ItemStack;
 
 public interface IKeyBoundUnselected
 {
-    public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key);
+    public boolean doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key);
 }

@@ -442,16 +442,17 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Shift + Toggle mode: Toggle the sword mode: normal, drops to player, drops tp remote, summon fighters
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleSwordMode(stack);
+            return true;
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
     }
 

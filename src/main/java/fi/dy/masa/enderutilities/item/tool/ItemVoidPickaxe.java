@@ -329,13 +329,16 @@ public class ItemVoidPickaxe extends ItemEnderUtilities implements IKeyBound, IA
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change the dig mode
         if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             NBTUtils.cycleByteValue(stack, null, "FastMode", 1);
+            return true;
         }
+
+        return false;
     }
 
     @Override

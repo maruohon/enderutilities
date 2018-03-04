@@ -85,17 +85,21 @@ public class ItemChairWand  extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Shift + Scroll: Change entity width
         if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
             NBTUtils.cycleByteValue(stack, "Chair", "Width", 1, 64, EnumKey.keypressActionIsReversed(key) == false);
+            return true;
         }
         // Alt + Scroll: Change entity height
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_ALT))
         {
             NBTUtils.cycleByteValue(stack, "Chair", "Height", 1, 64, EnumKey.keypressActionIsReversed(key) == false);
+            return true;
         }
+
+        return false;
     }
 }

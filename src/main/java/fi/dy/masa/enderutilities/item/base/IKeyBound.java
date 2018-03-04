@@ -10,6 +10,7 @@ public interface IKeyBound
      * @param player The player performing this action
      * @param stack The target ItemStack
      * @param key The mod-specific key id, including modifier bits.
+     * @return true if the keybind was used/valid and something happened
      */
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key);
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key);
 }

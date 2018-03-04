@@ -233,18 +233,22 @@ public class ItemLocationBound extends ItemEnderUtilities implements ILocationBo
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Alt + Toggle mode: Toggle the private/public mode
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
         {
             this.changePrivacyMode(stack, player);
+            return true;
         }
         // Alt + Shift + Toggle mode: Store the player's current location, including rotation
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             this.setTarget(stack, player, true);
+            return true;
         }
+
+        return false;
     }
 
     @Override

@@ -289,16 +289,17 @@ public class ItemEnderBow extends ItemLocationBoundModular implements IKeyBound,
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode key: Change Bow mode
         if (key == HotKeys.KEYBIND_ID_TOGGLE_MODE)
         {
             this.toggleBowMode(player, stack);
+            return true;
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
     }
 

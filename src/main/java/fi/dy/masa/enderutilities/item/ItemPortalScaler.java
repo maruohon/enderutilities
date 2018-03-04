@@ -318,7 +318,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Ctrl + (Shift + ) Toggle mode: Change selected Memory Card
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -326,19 +326,24 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
         // Shift + (Ctrl + ) Alt + Toggle Mode: Change scaling factor
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT, HotKeys.MOD_CTRL))
         {
             int amount = EnumKey.keypressContainsControl(key) ? 1 : -1;
             this.changeCoordinateScaleFactor(stack, player, amount);
+            return true;
         }
         // Shift + Alt + Scroll: Change scaling factor
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             int amount = EnumKey.keypressActionIsReversed(key) ? 1 : -1;
             this.changeCoordinateScaleFactor(stack, player, amount);
+            return true;
         }
+
+        return false;
     }
 
     public boolean memoryCardHasScaleFactor(ItemStack cardStack)

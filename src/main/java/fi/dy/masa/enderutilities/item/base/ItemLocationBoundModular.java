@@ -267,7 +267,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Ctrl + (Shift + ) Toggle mode
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -275,6 +275,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_LINKCRYSTAL,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
         // Shift + Toggle: Toggle bind lockd state
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
@@ -282,12 +283,15 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
             if (this.useBindLocking(stack))
             {
                 NBTUtils.toggleBoolean(stack, null, "BindLocked");
+                return true;
             }
         }
         else
         {
-            super.doKeyBindingAction(player, stack, key);
+            return super.doKeyBindingAction(player, stack, key);
         }
+
+        return false;
     }
 
     @Override

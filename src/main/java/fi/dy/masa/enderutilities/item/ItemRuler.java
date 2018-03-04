@@ -465,33 +465,38 @@ public class ItemRuler extends ItemModular
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Shift + Toggle key: Cycle location selection
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ||
             EnumKey.SCROLL.matches(key, HotKeys.MOD_SHIFT))
         {
             this.cycleLocationSelection(stack, EnumKey.keypressActionIsReversed(key));
+            return true;
         }
         // Alt + Toggle key: Toggle "Render when unselected"
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_ALT))
         {
             this.toggleRenderWhenUnselected(stack);
+            return true;
         }
         // Ctrl + Alt + Toggle key: Toggle distance display mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL_ALT))
         {
             this.toggleDistanceMode(stack);
+            return true;
         }
         // Alt + Shift + Toggle key: Toggle "Render all locations"
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             this.toggleRenderAllLocations(stack);
+            return true;
         }
         // Just Toggle key: Toggle the "Render with all" option on the selected location
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             this.toggleAlwaysRenderSelectedLocation(stack);
+            return true;
         }
         // Ctrl + Toggle key: Change selected Memory Card
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -499,6 +504,9 @@ public class ItemRuler extends ItemModular
         {
             this.changeSelectedModule(stack, ModuleType.TYPE_MEMORY_CARD_MISC,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
+
+        return false;
     }
 }

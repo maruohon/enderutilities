@@ -93,23 +93,21 @@ public class MessageKeyPressed implements IMessage
 
             ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
 
-            if (stack.isEmpty() == false)
+            if (stack.isEmpty() == false &&
+                ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed))
             {
-                ((IKeyBound) stack.getItem()).doKeyBindingAction(player, stack, message.keyPressed);
+                return;
             }
-            else
-            {
-                stack = InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class);
 
-                if (stack.isEmpty() == false)
-                {
-                    ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed);
-                }
-                else
-                {
-                    this.handleKeysGeneric(message.keyPressed, player);
-                }
+            stack = InventoryUtils.getFirstItemOfType(player, IKeyBoundUnselected.class);
+
+            if (stack.isEmpty() == false &&
+                ((IKeyBoundUnselected) stack.getItem()).doUnselectedKeyAction(player, stack, message.keyPressed))
+            {
+                return;
             }
+
+            this.handleKeysGeneric(message.keyPressed, player);
         }
 
         protected boolean handleEnderElevator(final MessageKeyPressed message, EntityPlayer player)
@@ -135,7 +133,7 @@ public class MessageKeyPressed implements IMessage
             return false;
         }
 
-        private void handleKeysGeneric(int key, EntityPlayer player)
+        private boolean handleKeysGeneric(int key, EntityPlayer player)
         {
             World world = player.getEntityWorld();
             RayTraceResult trace = EntityUtils.getRayTraceFromPlayer(world, player, true);
@@ -147,9 +145,11 @@ public class MessageKeyPressed implements IMessage
 
                 if (te != null)
                 {
-                    te.onInputAction(key, player, trace, world, pos);
+                    return te.onInputAction(key, player, trace, world, pos);
                 }
             }
+
+            return false;
         }
     }
 }

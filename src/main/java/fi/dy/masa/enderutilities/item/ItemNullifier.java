@@ -346,23 +346,28 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode: Open the GUI
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
             openGui(stack, player);
+            return true;
         }
         // Shift + Toggle: Toggle disabled state
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_DISABLED);
+            return true;
         }
         else if (EnumKey.SCROLL.matches(key, HotKeys.MOD_CTRL) || EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL))
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION, NUM_SLOTS - 1,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
+
+        return false;
     }
 
     @Override

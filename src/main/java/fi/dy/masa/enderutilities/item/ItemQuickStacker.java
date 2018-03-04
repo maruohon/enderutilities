@@ -200,29 +200,33 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
     }
 
     @Override
-    public void doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doUnselectedKeyAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Re-fetch the item to check if it's enabled
         stack = getEnabledItem(player);
 
         if (stack.isEmpty() == false)
         {
-            ((ItemQuickStacker) stack.getItem()).doKeyBindingAction(player, stack, key);
+            return ((ItemQuickStacker) stack.getItem()).doKeyBindingAction(player, stack, key);
         }
+
+        return false;
     }
 
     @Override
-    public void doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
+    public boolean doKeyBindingAction(EntityPlayer player, ItemStack stack, int key)
     {
         // Just Toggle mode or Shift + Toggle mode: Fire the swapping action
         if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE, HotKeys.MOD_SHIFT))
         {
             quickStackItems(player);
+            return true;
         }
         // Alt + Shift + Toggle mode: Toggle the locked mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT_ALT))
         {
             NBTUtils.toggleBoolean(stack, TAG_NAME_CONTAINER, TAG_NAME_LOCKED);
+            return true;
         }
         // Ctrl + Toggle mode: Cycle the slot mask preset
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_CTRL, HotKeys.MOD_SHIFT) ||
@@ -230,7 +234,10 @@ public class ItemQuickStacker extends ItemEnderUtilities implements IKeyBound, I
         {
             NBTUtils.cycleByteValue(stack, TAG_NAME_CONTAINER, TAG_NAME_PRESET_SELECTION, NUM_PRESETS - 1,
                     EnumKey.keypressActionIsReversed(key) || EnumKey.keypressContainsShift(key));
+            return true;
         }
+
+        return false;
     }
 
     public static void performGuiAction(EntityPlayer player, int action, int element)
