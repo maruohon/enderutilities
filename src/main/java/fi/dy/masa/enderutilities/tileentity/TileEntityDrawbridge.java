@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -47,6 +48,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private int position;
     private int delay = 4;
     private int maxLength = 1;
+    private int numPlaced;
+    private int failedPlacements;
     private BlockInfo[] blockInfoTaken = new BlockInfo[MAX_LENGTH_NORMAL];
     private IBlockState[] blockStatesPlaced = new IBlockState[MAX_LENGTH_NORMAL];
     private FakePlayer fakePlayer;
@@ -164,6 +167,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         this.setMaxLength(nbt.getByte("Length"));
         this.state = State.fromId(nbt.getByte("State"));
         this.setRedstoneMode(nbt.getByte("RedstoneMode"));
+        this.numPlaced = nbt.getByte("NumPlaced");
+        this.failedPlacements = nbt.getByte("Failed");
 
         this.readBlockInfoFromNBT(nbt);
     }
@@ -180,6 +185,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         nbt.setByte("Length", (byte) this.maxLength);
         nbt.setByte("State", (byte) this.state.getId());
         nbt.setByte("RedstoneMode", (byte) this.redstoneMode.getId());
+        nbt.setByte("NumPlaced", (byte) this.numPlaced);
+        nbt.setByte("Failed", (byte) this.failedPlacements);
 
         this.writeBlockInfoToNBT(nbt);
 
@@ -310,7 +317,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             ItemBlock itemBlock = (ItemBlock) stack.getItem();
             Block block = itemBlock.getBlock();
 
-            if (block != null)
+            if (block != null && block != Blocks.AIR)
             {
                 int meta = itemBlock.getMetadata(stack.getMetadata());
                 player.rotationYaw = this.getFacing().getHorizontalAngle();
@@ -323,7 +330,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     }
 
     @Nullable
-    private NBTTagCompound getPlacementTileNBT(int invPosition)
+    private NBTTagCompound getPlacementTileNBT(int invPosition, ItemStack stack)
     {
         NBTTagCompound nbt = null;
 
@@ -331,11 +338,6 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         {
             nbt = this.blockInfoTaken[invPosition].getTileEntityNBT();
         }
-
-        // This extract will also clear the blockInfoTaken, if the slot becomes empty.
-        // This will prevent item duping exploits by swapping the item to something else
-        // after the drawbridge has taken the state and TE data from the world for a given block.
-        ItemStack stack = this.itemHandlerDrawbridge.extractItem(invPosition, 1, false);
 
         // This fixes TE data loss on the placed blocks in case blocks with stored TE data
         // were manually placed into the slots, and not taken from the world by the drawbridge
@@ -364,8 +366,15 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             ((playPistonSoundInsteadOfPlaceSound && world.setBlockState(pos, placementState)) ||
              (playPistonSoundInsteadOfPlaceSound == false && BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3))))
         {
+            // This extract will also clear the blockInfoTaken, if the slot becomes empty.
+            // This will prevent item duping exploits by swapping the item to something else
+            // after the drawbridge has taken the state and TE data from the world for a given block.
+            stack = this.itemHandlerDrawbridge.extractItem(invPosition, 1, false);
+
             this.blockStatesPlaced[position] = placementState;
-            NBTTagCompound nbt = this.getPlacementTileNBT(invPosition);
+            this.numPlaced++;
+
+            NBTTagCompound nbt = this.getPlacementTileNBT(invPosition, stack);
 
             if (nbt != null && placementState.getBlock().hasTileEntity(placementState))
             {
@@ -378,6 +387,10 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             }
 
             return true;
+        }
+        else if (stack.isEmpty() == false)
+        {
+            this.failedPlacements++;
         }
 
         return false;
@@ -514,6 +527,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                         {
                             this.state = State.EXTEND;
                         }
+                        // IDLE
                         else
                         {
                             if (this.position == (this.maxLength - 1))
@@ -563,21 +577,13 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
         else if (this.state == State.RETRACT)
         {
-            final int len = Math.min(this.maxLength, this.blockStatesPlaced.length);
-            int numPlaced = 0;
-
-            for (int i = 0; i < len; i++)
-            {
-                if (this.blockStatesPlaced[i] != null)
-                {
-                    numPlaced++;
-                    break;
-                }
-            }
+            // Only take non-placed blocks when "retracting from an empty extension".
+            // So when no blocks were placed, and no blocks also failed to get placed.
+            boolean takeNonPlaced = this.numPlaced == 0 && this.failedPlacements == 0;
 
             while (this.position >= 0)
             {
-                boolean result = this.retractOneBlock(this.position, this.getPlayer(), numPlaced == 0, true);
+                boolean result = this.retractOneBlock(this.position, this.getPlayer(), takeNonPlaced, true);
                 this.position--;
 
                 if (result)
@@ -589,6 +595,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             if (this.position < 0)
             {
                 this.position = 0;
+                this.numPlaced = 0;
+                this.failedPlacements = 0;
                 this.state = State.IDLE;
             }
             else
