@@ -827,6 +827,7 @@ public class PositionUtils
             return target;
         }
 
+        target = target.copy();
         float widthAdj = entity.width / 2;
         target.dPosX += target.facing.getFrontOffsetX() * widthAdj;
         target.dPosZ += target.facing.getFrontOffsetZ() * widthAdj;

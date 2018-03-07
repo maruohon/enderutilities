@@ -152,20 +152,23 @@ public class TeleportEntity
 
         if (target != null)
         {
-            return teleportEntityUsingTarget(entity, target, allowMounts, allowRiders);
+            return teleportEntityUsingTarget(entity, target, true, allowMounts, allowRiders);
         }
 
         return null;
     }
 
-    public static Entity teleportEntityUsingTarget(Entity entity, TargetData target, boolean allowMounts, boolean allowRiders)
+    public static Entity teleportEntityUsingTarget(Entity entity, TargetData target, boolean adjustTargetPosition, boolean allowMounts, boolean allowRiders)
     {
         if (target == null || entity == null)
         {
             return null;
         }
 
-        PositionUtils.adjustTargetPosition(target, entity);
+        if (adjustTargetPosition)
+        {
+            target = PositionUtils.adjustTargetPosition(target, entity);
+        }
 
         if (target.hasRotation)
         {

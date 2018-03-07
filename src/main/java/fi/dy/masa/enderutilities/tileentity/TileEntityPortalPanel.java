@@ -17,10 +17,10 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.gui.client.GuiPortalPanel;
 import fi.dy.masa.enderutilities.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.enderutilities.inventory.container.ContainerPortalPanel;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.enderutilities.inventory.wrapper.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -28,6 +28,7 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortal.PortalData;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
 import fi.dy.masa.enderutilities.util.PortalFormer;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
@@ -65,6 +66,18 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     {
         ItemStack stack = this.itemHandlerBase.getStackInSlot(this.getActiveTargetId());
         return stack.isEmpty() == false ? TargetData.getTargetFromItem(stack) : null;
+    }
+
+    public boolean targetIsPortal()
+    {
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(this.getActiveTargetId());
+
+        if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL)
+        {
+            return ((IModule) stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_PORTAL;
+        }
+
+        return false;
     }
 
     private OwnerData getOwner()
@@ -278,8 +291,17 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
             if (slot < 8)
             {
-                return stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL &&
-                        ((IModule)stack.getItem()).getModuleTier(stack) == ItemLinkCrystal.TYPE_LOCATION;
+                if (stack.getItem() == EnderUtilitiesItems.LINK_CRYSTAL)
+                {
+                    int tier = ((IModule) stack.getItem()).getModuleTier(stack);
+
+                    return tier == ItemLinkCrystal.TYPE_PORTAL ||
+                          (tier == ItemLinkCrystal.TYPE_LOCATION && Configs.portalOnlyAllowsPortalTypeLinkCrystals == false);
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             return stack.getItem() == Items.DYE;
@@ -293,9 +315,9 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
         BlockEnderUtilities blockPanel = EnderUtilitiesBlocks.PORTAL_PANEL;
         BlockPos posFrame = posPanel.offset(world.getBlockState(posPanel).getValue(blockPanel.propFacing).getOpposite());
 
-        PortalFormer portalFormer = new PortalFormer(world, posFrame,
-                EnderUtilitiesBlocks.PORTAL_FRAME, EnderUtilitiesBlocks.PORTAL);
-        portalFormer.setPortalData(this.getActiveTarget(), this.getOwner(), this.getPortalColor());
+        PortalFormer portalFormer = new PortalFormer(world, posFrame, EnderUtilitiesBlocks.PORTAL_FRAME, EnderUtilitiesBlocks.PORTAL);
+        PortalData data = new PortalData(this.getActiveTarget(), this.getOwner(), this.getPortalColor(), this.targetIsPortal());
+        portalFormer.setPortalData(data);
         portalFormer.analyzePortal();
         boolean state = portalFormer.getPortalState();
         boolean recreate = this.activeTargetId != this.portalTargetId;
@@ -327,7 +349,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
     }
 
     @Override
-    public ContainerEnderUtilities getContainer(EntityPlayer player)
+    public ContainerPortalPanel getContainer(EntityPlayer player)
     {
         return new ContainerPortalPanel(player, this);
     }

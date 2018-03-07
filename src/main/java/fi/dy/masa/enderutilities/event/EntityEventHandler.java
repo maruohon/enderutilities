@@ -11,11 +11,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumActionResult;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.enderutilities.capabilities.EnderUtilitiesCapabilities;
+import fi.dy.masa.enderutilities.capabilities.EnderUtilitiesCapabilities.PortalCooldownCapabilityProvider;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
@@ -39,6 +42,12 @@ public class EntityEventHandler
     public static void setPreventItemSpawning(boolean preventItemSpawning)
     {
         preventItemSpawningInWorld = preventItemSpawning;
+    }
+
+    @SubscribeEvent
+    public void onAttachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> event)
+    {
+        event.addCapability(EnderUtilitiesCapabilities.PORTAL_COOLDOWN_CAP_NAME, new PortalCooldownCapabilityProvider());
     }
 
     @SubscribeEvent

@@ -11,7 +11,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.enderutilities.gui.client.base.GuiEnderUtilities;
 import fi.dy.masa.enderutilities.gui.client.button.GuiButtonIcon;
-import fi.dy.masa.enderutilities.inventory.container.base.ContainerEnderUtilities;
+import fi.dy.masa.enderutilities.inventory.container.ContainerPortalPanel;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.network.PacketHandler;
 import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
@@ -22,13 +22,16 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityPortalPanel;
 
 public class GuiPortalPanel extends GuiEnderUtilities
 {
+    private final ContainerPortalPanel containerPP;
     private final TileEntityPortalPanel tepp;
     protected GuiTextField nameField;
     protected String nameLast = "";
 
-    public GuiPortalPanel(ContainerEnderUtilities container, TileEntityPortalPanel te)
+    public GuiPortalPanel(ContainerPortalPanel container, TileEntityPortalPanel te)
     {
         super(container, 176, 251, "gui.container." + te.getTEName());
+
+        this.containerPP = container;
         this.tepp = te;
         this.infoArea = new InfoArea(153, 5, 18, 18, "enderutilities.gui.infoarea." + te.getTEName());
     }
@@ -161,10 +164,27 @@ public class GuiPortalPanel extends GuiEnderUtilities
         Slot slot = this.getSlotUnderMouse();
 
         // Hovering over an empty dye slot
-        if (slot != null && slot.getHasStack() == false && slot.slotNumber >= 8 && slot.slotNumber <= 15)
+        if (slot != null && slot.getHasStack() == false)
         {
             List<String> list = new ArrayList<String>();
-            ItemEnderUtilities.addTranslatedTooltip("enderutilities.gui.label.portalpanel.dyeslot", list, false);
+
+            if (slot.slotNumber >= 8 && slot.slotNumber <= 15)
+            {
+                ItemEnderUtilities.addTranslatedTooltip("enderutilities.gui.label.portalpanel.dyeslot", list, false);
+            }
+            else
+            {
+                if (this.containerPP.portalOnly())
+                {
+                    list.add(I18n.format("item.enderutilities.linkcrystal_2.name"));
+                }
+                else
+                {
+                    list.add(I18n.format("item.enderutilities.linkcrystal_2.name") + " / " +
+                             I18n.format("item.enderutilities.linkcrystal_0.name"));
+                }
+            }
+
             this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
         }
         else

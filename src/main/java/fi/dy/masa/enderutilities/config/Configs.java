@@ -21,6 +21,7 @@ public class Configs
     public static boolean barrelRenderFullnessBar;
     public static boolean fallingBlockDropsAsItemOnPlacementFail;
     public static boolean handyBagEnableItemUpdate;
+    public static boolean portalOnlyAllowsPortalTypeLinkCrystals;
     public static boolean useEnderCharge;
     public static boolean replaceEntityItemCollisionBoxHandling;
 

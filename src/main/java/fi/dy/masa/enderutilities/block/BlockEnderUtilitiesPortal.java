@@ -21,6 +21,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilitiesTileEntity;
+import fi.dy.masa.enderutilities.capabilities.EnderUtilitiesCapabilities;
+import fi.dy.masa.enderutilities.capabilities.IPortalCooldownCapability;
 import fi.dy.masa.enderutilities.effects.Effects;
 import fi.dy.masa.enderutilities.event.TickHandler;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
@@ -28,6 +30,7 @@ import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
 import fi.dy.masa.enderutilities.util.PositionUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
+import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
@@ -170,13 +173,52 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
             if (te != null && te.getDestination() != null &&
                 entity.getEntityBoundingBox().intersects(state.getBoundingBox(world, pos).offset(pos)))
             {
-                OwnerData owner = te.getOwner();
+                final long currentTime = world.getTotalWorldTime();
 
-                if (owner == null || owner.canAccess(entity))
+                // The entity needs to be outside a portal for 10 ticks
+                if (this.isEntityUnderPortalCooldown(entity, currentTime, 10) == false)
                 {
-                    TeleportEntity.teleportEntityUsingTarget(entity, te.getDestination(), true, true);
+                    OwnerData ownerData = te.getOwner();
+
+                    if (ownerData == null || ownerData.canAccess(entity))
+                    {
+                        TargetData target = te.getDestination();
+
+                        if (te.targetIsPortal())
+                        {
+                            World worldDst = entity.getServer().getWorld(target.dimension);
+
+                            if (worldDst == null || worldDst.getBlockState(target.pos).getBlock() != EnderUtilitiesBlocks.PORTAL)
+                            {
+                                return;
+                            }
+                        }
+
+                        entity = TeleportEntity.teleportEntityUsingTarget(entity, target, false, true, true);
+                    }
+                }
+
+                if (entity != null)
+                {
+                    this.updatePortalCooldown(entity, currentTime);
                 }
             }
+        }
+    }
+
+    private boolean isEntityUnderPortalCooldown(Entity entity, long currentTime, int cooldown)
+    {
+        IPortalCooldownCapability cap = entity.getCapability(EnderUtilitiesCapabilities.CAPABILITY_PORTAL_COOLDOWN, null);
+        return cap != null && ((currentTime - cap.getLastInPortalTime()) < cooldown);
+    }
+
+    private void updatePortalCooldown(Entity entity, long currentTime)
+    {
+        IPortalCooldownCapability cap = entity.getCapability(EnderUtilitiesCapabilities.CAPABILITY_PORTAL_COOLDOWN, null);
+
+        if (cap != null)
+        {
+            cap.setLastInPortalTime(currentTime);
         }
     }
 

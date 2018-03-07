@@ -10,6 +10,7 @@ public class TileEntityPortal extends TileEntityEnderUtilities
     private TargetData destination;
     private OwnerData owner;
     private int color;
+    private boolean targetIsPortal;
 
     public TileEntityPortal()
     {
@@ -25,11 +26,6 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         return this.color;
     }
 
-    public void setColor(int color)
-    {
-        this.color = color;
-    }
-
     public TargetData getDestination()
     {
         return this.destination;
@@ -40,14 +36,17 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         return this.owner;
     }
 
-    public void setDestination(TargetData destination)
+    public boolean targetIsPortal()
     {
-        this.destination = destination;
+        return this.targetIsPortal;
     }
 
-    public void setOwner(OwnerData owner)
+    public void setPortalData(PortalData data)
     {
-        this.owner = owner;
+        this.destination = data.getDestination();
+        this.owner = data.getOwner();
+        this.color = data.getColor();
+        this.targetIsPortal = data.targetIsPortal();
     }
 
     @Override
@@ -58,6 +57,7 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         this.color = nbt.getInteger("Color");
         this.destination = TargetData.readTargetFromNBT(nbt);
         this.owner = OwnerData.getOwnerDataFromNBT(nbt);
+        this.targetIsPortal = nbt.getBoolean("Paired");
     }
 
     @Override
@@ -66,6 +66,11 @@ public class TileEntityPortal extends TileEntityEnderUtilities
         super.writeToNBT(nbt);
 
         nbt.setInteger("Color", this.color);
+
+        if (this.targetIsPortal)
+        {
+            nbt.setBoolean("Paired", this.targetIsPortal);
+        }
 
         if (this.destination != null)
         {
@@ -105,5 +110,41 @@ public class TileEntityPortal extends TileEntityEnderUtilities
     public boolean hasGui()
     {
         return false;
+    }
+
+    public static class PortalData
+    {
+        private final TargetData destination;
+        private final OwnerData owner;
+        private final int color;
+        private final boolean targetIsPortal;
+
+        public PortalData(TargetData destination, OwnerData owner, int color, boolean targetIsPortal)
+        {
+            this.destination = destination;
+            this.owner = owner;
+            this.color = color;
+            this.targetIsPortal = targetIsPortal;
+        }
+
+        public TargetData getDestination()
+        {
+            return destination;
+        }
+
+        public OwnerData getOwner()
+        {
+            return owner;
+        }
+
+        public int getColor()
+        {
+            return color;
+        }
+
+        public boolean targetIsPortal()
+        {
+            return targetIsPortal;
+        }
     }
 }

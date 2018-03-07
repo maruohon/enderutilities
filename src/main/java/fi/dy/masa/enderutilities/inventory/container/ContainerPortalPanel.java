@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.inventory.container.base.ContainerTile;
 import fi.dy.masa.enderutilities.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerGeneric;
@@ -13,6 +14,7 @@ public class ContainerPortalPanel extends ContainerTile implements IStringInput
 {
     private final TileEntityPortalPanel tepp;
     private int targetLast;
+    private boolean portalOnlyLast;
 
     public ContainerPortalPanel(EntityPlayer player, TileEntityPortalPanel te)
     {
@@ -64,15 +66,23 @@ public class ContainerPortalPanel extends ContainerTile implements IStringInput
     {
         super.detectAndSendChanges();
 
+        boolean portalOnly = Configs.portalOnlyAllowsPortalTypeLinkCrystals;
+
         for (int i = 0; i < this.listeners.size(); ++i)
         {
             if (this.targetLast != this.tepp.getActiveTargetId())
             {
                 this.listeners.get(i).sendWindowProperty(this, 0, this.tepp.getActiveTargetId());
             }
+
+            if (this.portalOnlyLast != portalOnly)
+            {
+                this.listeners.get(i).sendWindowProperty(this, 1, portalOnly ? 1 : 0);
+            }
         }
 
         this.targetLast = this.tepp.getActiveTargetId();
+        this.portalOnlyLast = portalOnly;
     }
 
     @Override
@@ -80,10 +90,20 @@ public class ContainerPortalPanel extends ContainerTile implements IStringInput
     {
         super.updateProgressBar(id, data);
 
-        if (id == 0)
+        switch (id)
         {
-            this.tepp.setActiveTargetId(data);
+            case 0:
+                this.tepp.setActiveTargetId(data);
+                break;
+            case 1:
+                this.portalOnlyLast = data == 1;
+                break;
         }
+    }
+
+    public boolean portalOnly()
+    {
+        return this.portalOnlyLast;
     }
 
     @Override

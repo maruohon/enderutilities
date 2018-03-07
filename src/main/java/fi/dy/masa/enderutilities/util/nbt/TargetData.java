@@ -55,6 +55,28 @@ public class TargetData
         this.facing = EnumFacing.UP;
     }
 
+    public TargetData copy()
+    {
+        TargetData data = new TargetData();
+
+        data.pos = this.pos;
+        data.dPosX = this.dPosX;
+        data.dPosY = this.dPosY;
+        data.dPosZ = this.dPosZ;
+        data.dimension = this.dimension;
+        data.dimensionName = this.dimensionName;
+        data.hasRotation = this.hasRotation;
+        data.yaw = this.yaw;
+        data.pitch = this.pitch;
+        data.blockName = this.blockName;
+        data.blockMeta = this.blockMeta;
+        data.itemMeta = this.itemMeta;
+        data.blockFace = this.blockFace;
+        data.facing = this.facing;
+
+        return data;
+    }
+
     public static TargetData getTargetFromItem(ItemStack stack)
     {
         if (stack.isEmpty() == false)
@@ -152,7 +174,7 @@ public class TargetData
         return target;
     }
 
-    public static NBTTagCompound writeTargetTagToNBT(NBTTagCompound nbt, BlockPos pos, double dx, double dy, double dz, int dim,
+    public static NBTTagCompound writeTargetTagToNBT(@Nullable NBTTagCompound nbt, BlockPos pos, double dx, double dy, double dz, int dim,
             String dimName, String blockName, int blockMeta, int itemMeta, EnumFacing side, float yaw, float pitch, boolean hasAngle)
     {
         if (nbt == null)
@@ -203,6 +225,11 @@ public class TargetData
             dPosY += hitY;
             dPosZ += hitZ;
         }
+        else
+        {
+            dPosX += 0.5d;
+            dPosZ += 0.5d;
+        }
 
         String dimName = "";
         String blockName = "";
@@ -242,7 +269,7 @@ public class TargetData
         return writeTargetTagToNBT(nbt, pos, dPosX, dPosY, dPosZ, dim, dimName, blockName, blockMeta, itemMeta, side, yaw, pitch, hasAngle);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(@Nullable NBTTagCompound nbt)
     {
         return writeTargetTagToNBT(nbt, this.pos, this.dPosX, this.dPosY, this.dPosZ, this.dimension,
             this.dimensionName, this.blockName, this.blockMeta, this.itemMeta, this.facing, this.yaw, this.pitch, this.hasRotation);

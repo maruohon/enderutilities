@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import fi.dy.masa.enderutilities.capabilities.EnderUtilitiesCapabilities;
 import fi.dy.masa.enderutilities.config.ConfigReader;
 import fi.dy.masa.enderutilities.gui.EnderUtilitiesGUIHandler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -52,6 +53,7 @@ public class EnderUtilities
         proxy.registerKeyBindings();
         proxy.registerRenderers();
 
+        EnderUtilitiesCapabilities.register();
         PacketHandler.init(); // Initialize network stuff
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new EnderUtilitiesGUIHandler());
     }

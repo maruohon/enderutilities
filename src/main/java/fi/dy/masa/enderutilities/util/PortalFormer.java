@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,15 +13,12 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal;
-import fi.dy.masa.enderutilities.util.nbt.OwnerData;
-import fi.dy.masa.enderutilities.util.nbt.TargetData;
+import fi.dy.masa.enderutilities.tileentity.TileEntityPortal.PortalData;
 
 public class PortalFormer
 {
     private final World world;
-    private TargetData target;
-    private OwnerData owner;
-    private int portalColor;
+    private PortalData portalData;
     /*private final Set<BlockPos> visited;
     private final Set<BlockPos> branches;
     private final Set<BlockPos> corners;*/
@@ -46,7 +42,6 @@ public class PortalFormer
     public PortalFormer(World world, BlockPos startPos, Block frameBlock, Block portalBlock)
     {
         this.world = world;
-        this.portalColor = 8339378;
         /*this.visited = new HashSet<BlockPos>();
         this.branches = new HashSet<BlockPos>();
         this.corners = new HashSet<BlockPos>();*/
@@ -66,11 +61,9 @@ public class PortalFormer
     public List<BlockPos> getBranches() { return this.branches; }
     public List<BlockPos> getCorners() { return this.corners; }*/
 
-    public void setPortalData(TargetData target, OwnerData owner, int color)
+    public void setPortalData(PortalData data)
     {
-        this.target = target;
-        this.owner = owner;
-        this.portalColor = color;
+        this.portalData = data;
     }
 
     public void setLimits(int frameCheckLimit, int frameLoopCheckLimit, int portalAreaCheckLimit)
@@ -280,12 +273,11 @@ public class PortalFormer
                 {
                     this.world.setBlockState(posPortal, state, 2);
 
-                    TileEntity te = this.world.getTileEntity(posPortal);
-                    if (te instanceof TileEntityPortal)
+                    TileEntityPortal te = BlockEnderUtilities.getTileEntitySafely(this.world, posPortal, TileEntityPortal.class);
+
+                    if (te != null)
                     {
-                        ((TileEntityPortal) te).setDestination(this.target);
-                        ((TileEntityPortal) te).setOwner(this.owner);
-                        ((TileEntityPortal) te).setColor(this.portalColor);
+                        te.setPortalData(this.portalData);
                     }
                 }
 

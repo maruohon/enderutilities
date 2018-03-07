@@ -143,6 +143,12 @@ public class ConfigReader
         prop.setComment("How many blocks to check at most when checking portal enclosing loops");
         Configs.portalLoopCheckLimit = prop.getInt();
 
+        prop = getProp("portalOnlyAllowsPortalTypeLinkCrystals", false);
+        prop.setComment("If true, then the Portal Panel only accepts Portal type Link Crystals.\n" +
+                        "This allows forcing the Portals to be used in pairs (or rather, that there\n" +
+                        "must always also be _some_ Portal in the destination location.)");
+        Configs.portalOnlyAllowsPortalTypeLinkCrystals = prop.getBoolean();
+
         prop = getProp("replaceEntityItemCollisionBoxHandling", false);
         prop.setComment("If enabled, then a custom event replaces fetching the block collision boxes for\n" +
                         "EntityItems and EntityXPOrbs when they are being pushed out of blocks.\n" +
