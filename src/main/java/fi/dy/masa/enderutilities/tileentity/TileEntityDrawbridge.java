@@ -50,6 +50,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     private int maxLength = 1;
     private int numPlaced;
     private int failedPlacements;
+    private int numTaken;
     private BlockInfo[] blockInfoTaken = new BlockInfo[MAX_LENGTH_NORMAL];
     private IBlockState[] blockStatesPlaced = new IBlockState[MAX_LENGTH_NORMAL];
     private FakePlayer fakePlayer;
@@ -169,6 +170,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         this.setRedstoneMode(nbt.getByte("RedstoneMode"));
         this.numPlaced = nbt.getByte("NumPlaced");
         this.failedPlacements = nbt.getByte("Failed");
+        this.numTaken = nbt.getByte("NumTaken");
 
         this.readBlockInfoFromNBT(nbt);
     }
@@ -187,6 +189,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         nbt.setByte("RedstoneMode", (byte) this.redstoneMode.getId());
         nbt.setByte("NumPlaced", (byte) this.numPlaced);
         nbt.setByte("Failed", (byte) this.failedPlacements);
+        nbt.setByte("NumTaken", (byte) this.numTaken);
 
         this.writeBlockInfoToNBT(nbt);
 
@@ -303,16 +306,17 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     }
 
     @Nullable
-    private IBlockState getPlacementStateForPosition(int invPosition, World world, BlockPos pos, FakePlayer player)
+    private IBlockState getPlacementStateForPosition(int position, World world, BlockPos pos, FakePlayer player, ItemStack stack)
     {
-        if (this.blockInfoTaken[invPosition] != null)
+        if (this.blockInfoTaken[position] != null)
         {
-            return this.blockInfoTaken[invPosition].getState();
+            return this.blockInfoTaken[position].getState();
         }
 
-        ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
-
-        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlock)
+        // The Normal variant shouldn't place blocks into positions it didn't take them from,
+        // unless it hasn't taken any blocks but was instead extended with inserted-only items.
+        if ((this.isAdvanced() || this.numTaken == 0) &&
+             stack.isEmpty() == false && stack.getItem() instanceof ItemBlock)
         {
             ItemBlock itemBlock = (ItemBlock) stack.getItem();
             Block block = itemBlock.getBlock();
@@ -330,33 +334,32 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
     }
 
     @Nullable
-    private NBTTagCompound getPlacementTileNBT(int invPosition, ItemStack stack)
+    private NBTTagCompound getPlacementTileNBT(int position, ItemStack stack)
     {
-        NBTTagCompound nbt = null;
-
-        if (this.blockInfoTaken[invPosition] != null)
+        if (this.blockInfoTaken[position] != null)
         {
-            nbt = this.blockInfoTaken[invPosition].getTileEntityNBT();
+            return this.blockInfoTaken[position].getTileEntityNBT();
         }
 
         // This fixes TE data loss on the placed blocks in case blocks with stored TE data
         // were manually placed into the slots, and not taken from the world by the drawbridge
-        if (nbt == null && stack.isEmpty() == false && stack.getTagCompound() != null &&
+        if (stack.isEmpty() == false &&
+            stack.getTagCompound() != null &&
             stack.getTagCompound().hasKey("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
         {
-            nbt = stack.getTagCompound().getCompoundTag("BlockEntityTag");
+            return stack.getTagCompound().getCompoundTag("BlockEntityTag");
         }
 
-        return nbt;
+        return null;
     }
 
     private boolean extendOneBlock(int position, FakePlayer player, boolean playPistonSoundInsteadOfPlaceSound)
     {
-        int invPosition = this.isAdvanced() ? position : 0;
+        final int invPosition = this.isAdvanced() ? position : 0;
         World world = this.getWorld();
         BlockPos pos = this.getPos().offset(this.getFacing(), position + 1);
-        IBlockState placementState = this.getPlacementStateForPosition(invPosition, world, pos, player);
         ItemStack stack = this.itemHandlerDrawbridge.getStackInSlot(invPosition);
+        IBlockState placementState = this.getPlacementStateForPosition(position, world, pos, player, stack);
 
         if (placementState != null &&
             stack.isEmpty() == false &&
@@ -374,7 +377,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             this.blockStatesPlaced[position] = placementState;
             this.numPlaced++;
 
-            NBTTagCompound nbt = this.getPlacementTileNBT(invPosition, stack);
+            NBTTagCompound nbt = this.getPlacementTileNBT(position, stack);
 
             if (nbt != null && placementState.getBlock().hasTileEntity(placementState))
             {
@@ -406,7 +409,6 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             return false;
         }
 
-        int invPosition = this.isAdvanced() ? position : 0;
         IBlockState state = world.getBlockState(pos);
 
         if ((takeNonPlaced || state == this.blockStatesPlaced[position]) &&
@@ -418,6 +420,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             if (stack.isEmpty() == false)
             {
                 NBTTagCompound nbt = null;
+                final int invPosition = this.isAdvanced() ? position : 0;
 
                 if (state.getBlock().hasTileEntity(state))
                 {
@@ -433,12 +436,8 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
                 if (this.itemHandlerDrawbridge.insertItem(invPosition, stack, false).isEmpty())
                 {
-                    // This check is for the Normal variant, where the same BlockInfo
-                    // position 0 is used for all block positions
-                    if (this.blockInfoTaken[invPosition] == null)
-                    {
-                        this.blockInfoTaken[invPosition] = new BlockInfo(state, nbt);
-                    }
+                    this.blockInfoTaken[position] = new BlockInfo(state, nbt);
+                    this.numTaken++;
 
                     if (playPistonSound)
                     {
@@ -474,6 +473,24 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
         }
 
         return false;
+    }
+
+    private void clearBlockInfoFor(int invPosition)
+    {
+        if (this.isAdvanced())
+        {
+            this.blockInfoTaken[invPosition] = null;
+        }
+        // When the Normal version's inventory slot is empty, clear all BlockInfo entries
+        else
+        {
+            for (int i = 0; i < this.blockInfoTaken.length; i++)
+            {
+                this.blockInfoTaken[i] = null;
+            }
+
+            this.numTaken = 0;
+        }
     }
 
     @Nonnull
@@ -568,6 +585,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             if (this.position >= this.maxLength)
             {
                 this.position = this.maxLength - 1;
+                this.numTaken = 0;
                 this.state = State.IDLE;
             }
             else
@@ -709,7 +727,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
             // Clear the stored block info to prevent duplicating or transmuting stuff
             if (simulate == false && this.getStackInSlot(slot).isEmpty())
             {
-                TileEntityDrawbridge.this.blockInfoTaken[slot] = null;
+                TileEntityDrawbridge.this.clearBlockInfoFor(slot);
             }
 
             return stack;
