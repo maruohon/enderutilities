@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -809,18 +810,13 @@ public class EntityUtils
 
     public static boolean spawnEnderCrystal(World world, BlockPos pos)
     {
-        // Only allow the activation to happen in The End
-        if (world == null || world.provider == null)
-        {
-            return false;
-        }
-
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
+        IBlockState state = world.getBlockState(pos);
 
-        // The item must be right clicked on an obsidian block on top of the obsidian pillars
-        if (world.provider.getDimension() == 1 && world.getBlockState(pos).getBlock() == Blocks.OBSIDIAN)
+        // The item must be right clicked on an obsidian or bedrock block on top of the obsidian pillars in an End dimension
+        if (WorldUtils.isEndDimension(world) && (state.getBlock() == Blocks.OBSIDIAN || state.getBlock() == Blocks.BEDROCK))
         {
             double r = 1.0d;
             // Check that there aren't already Ender Crystals nearby

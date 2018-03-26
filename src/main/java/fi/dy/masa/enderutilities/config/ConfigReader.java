@@ -13,6 +13,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEve
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.registry.BlackLists;
+import fi.dy.masa.enderutilities.util.WorldUtils;
 
 public class ConfigReader
 {
@@ -425,15 +426,20 @@ public class ConfigReader
 
         currentCategory = CATEGORY_LISTS;
 
-        prop = getProp(currentCategory, "enderBagListType", "whitelist", false);
+        prop = getProp("endDimensions", new String[0]);
+        prop.setComment("A list of dimension IDs that should be considered End dimensions, although they may otherwise not seem like it.\n" +
+                        "This is mainly used for the Energy Bridges, to allow the Transmitters to work in custom End dimensions.");
+        Configs.endDimensions = prop.getStringList();
+
+        prop = getProp("enderBagListType", "whitelist");
         prop.setComment("Target control list type used for Ender Bag. Allowed values: blacklist, whitelist.");
         Configs.enderBagListTypeIsWhitelist = prop.getString().equalsIgnoreCase("whitelist");
 
-        prop = getProp(currentCategory, "enderBagBlackList", new String[] {}, false);
+        prop = getProp("enderBagBlackList", new String[0]);
         prop.setComment("Block types the Ender Bag is NOT allowed to (= doesn't properly) work with.");
         Configs.enderBagBlacklist = prop.getStringList();
 
-        prop = getProp(currentCategory, "enderBagWhiteList",
+        prop = getProp("enderBagWhiteList",
                 new String[] {
                         "minecraft:chest",
                         "minecraft:dispenser",
@@ -442,37 +448,38 @@ public class ConfigReader
                         "minecraft:furnace",
                         "minecraft:hopper",
                         "minecraft:trapped_chest"
-                        }, false);
+                        });
         prop.setComment("Block types the Ender Bag is allowed to (= should properly) work with. **NOTE** Only some vanilla blocks work properly atm!!");
         Configs.enderBagWhitelist = prop.getStringList();
 
-        prop = getProp(currentCategory, "livingMatterManipulatorListType", "blacklist", false);
+        prop = getProp("livingMatterManipulatorListType", "blacklist");
         prop.setComment("The list type used for the Living Matter Manipulator. Allowed values: blacklist, whitelist.");
         Configs.lmmListIsWhitelist = prop.getString().equalsIgnoreCase("whitelist");
 
-        prop = getProp(currentCategory, "livingMatterManipulatorBlackList",
+        prop = getProp("livingMatterManipulatorBlackList",
                 new String[] {
                         "minecraft:ender_dragon",
                         "minecraft:wither"
-                        }, false);
+                        });
         prop.setComment("List of entity names the LMM is not allowed to store, if 'livingMatterManipulatorListType' is 'blacklist'.");
         Configs.lmmBlacklist = prop.getStringList();
 
-        prop = getProp(currentCategory, "livingMatterManipulatorWhiteList", new String[] {}, false);
+        prop = getProp("livingMatterManipulatorWhiteList", new String[] {});
         prop.setComment("List of entity names the LMM is only allowed to store, if 'livingMatterManipulatorListType' is 'whitelist'.");
         Configs.lmmWhitelist = prop.getStringList();
 
-        prop = getProp(currentCategory, "teleportBlackList",
+        prop = getProp("teleportBlackList",
                 new String[] {
                         "minecraft:ender_dragon",
                         "minecraft:ender_crystal",
                         "minecraft:wither"
-                        }, false);
+                        });
         prop.setComment("Entities that are not allowed to be teleported using any methods");
         Configs.teleportBlacklist = prop.getStringList();
 
         BlackLists.registerEnderBagLists(Configs.enderBagBlacklist, Configs.enderBagWhitelist);
         BlackLists.registerTeleportBlacklist(Configs.teleportBlacklist);
+        WorldUtils.setCustomEndDimensions(Configs.endDimensions);
     }
 
     private static Property getProp(String key, boolean defaultValue)
@@ -514,12 +521,22 @@ public class ConfigReader
         return prop;
     }
 
+    private static Property getProp(String key, String defaultValue)
+    {
+        return getProp(currentCategory, key, defaultValue, currentRequiresMcRestart);
+    }
+
     private static Property getProp(String category, String key, String defaultValue, boolean requiresMcRestart)
     {
         VALID_CATEGORIES.add(category);
         Property prop = config.get(category, key, defaultValue).setRequiresMcRestart(requiresMcRestart);
         VALID_CONFIGS.add(category + "_" + key);
         return prop;
+    }
+
+    private static Property getProp(String key, String[] defaultValue)
+    {
+        return getProp(currentCategory, key, defaultValue, currentRequiresMcRestart);
     }
 
     private static Property getProp(String category, String key, String[] defaultValue, boolean requiresMcRestart)

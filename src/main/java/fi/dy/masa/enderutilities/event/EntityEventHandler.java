@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -31,6 +32,7 @@ import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.util.EntityUtils;
+import fi.dy.masa.enderutilities.util.WorldUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
@@ -105,7 +107,7 @@ public class EntityEventHandler
                 }
             }
         }
-        else if (player.getEntityWorld().provider.getDimension() == 1 && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
+        else if (WorldUtils.isEndDimension(player.getEntityWorld()) && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
         {
             if (item instanceof IChargeable)
             {
@@ -135,11 +137,8 @@ public class EntityEventHandler
         }
 
         Entity entity = event.getEntity();
-        int dim = event.getDimension();
-        int entityDim = entity.getEntityWorld().provider.getDimension();
 
-        // Check that the entity is traveling between the overworld and the nether, and that it is a player
-        if ((dim == 0 || dim == -1) && (entityDim == 0 || entityDim == -1 ) && (entity instanceof EntityPlayer))
+        if (entity instanceof EntityPlayer)
         {
             // If the player is holding a Portal Scaler, then try to use that and cancel the regular
             // teleport if the Portal Scaler teleportation succeeds
@@ -147,9 +146,18 @@ public class EntityEventHandler
 
             if (stack.isEmpty() == false && EntityUtils.isEntityCollidingWithBlockSpace(entity.getEntityWorld(), entity, Blocks.PORTAL))
             {
-                if (((ItemPortalScaler) stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer) entity))
+                World worldSource = entity.getEntityWorld();
+                World worldDestination = entity.getServer().getWorld(event.getDimension());
+                boolean validSource = WorldUtils.isNetherDimension(worldSource) || WorldUtils.isOverworldDimension(worldSource);
+                boolean validDestination = worldDestination != null && (WorldUtils.isNetherDimension(worldDestination) || WorldUtils.isOverworldDimension(worldDestination));
+
+                // Check that the player is traveling between the overworld and the nether
+                if (validSource && validDestination)
                 {
-                    event.setCanceled(true);
+                    if (((ItemPortalScaler) stack.getItem()).usePortalWithPortalScaler(stack, entity.getEntityWorld(), (EntityPlayer) entity))
+                    {
+                        event.setCanceled(true);
+                    }
                 }
             }
         }

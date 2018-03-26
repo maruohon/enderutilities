@@ -3,65 +3,57 @@ package fi.dy.masa.enderutilities.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 public class EnergyBridgeTracker
 {
+    private static final Set<BlockPosEU> BRIDGE_LOCATIONS = new HashSet<>();
+    private static final Int2IntOpenHashMap BRIDGE_COUNTS = new Int2IntOpenHashMap();
+    private static int bridgeCountInEndDimensions;
     private static boolean dirty = false;
-    private static List<BlockPosEU> bridgeLocations = new ArrayList<BlockPosEU>();
-    private static TIntObjectHashMap<Integer> bridgeCounts = new TIntObjectHashMap<Integer>();
 
-    public static void addBridgeLocation(BlockPos pos, int dimension)
+    public static void addBridgeLocation(World world, BlockPos pos)
     {
-        addBridgeLocation(new BlockPosEU(pos, dimension, 1), true);
-    }
+        addBridgeLocation(new BlockPosEU(pos, world.provider.getDimension(), EnumFacing.UP), true);
 
-    private static void addBridgeLocation(BlockPosEU pos, boolean markDirty)
-    {
-        Integer count = bridgeCounts.get(pos.getDimension());
-
-        if (count == null)
+        if (WorldUtils.isEndDimension(world))
         {
-            count = Integer.valueOf(0);
-        }
-
-        bridgeCounts.put(pos.getDimension(), Integer.valueOf(count.intValue() + 1));
-
-        if (bridgeLocations.contains(pos) == false)
-        {
-            bridgeLocations.add(pos);
-        }
-
-        if (markDirty)
-        {
-            dirty = true;
+            bridgeCountInEndDimensions++;
         }
     }
 
-    public static void removeBridgeLocation(BlockPos posIn, int dimension)
+    public static void removeBridgeLocation(World world, BlockPos posIn)
     {
-        BlockPosEU pos = new BlockPosEU(posIn, dimension, 1);
-        Integer count = bridgeCounts.get(dimension);
+        final int dimension = world.provider.getDimension();
+        BlockPosEU pos = new BlockPosEU(posIn, dimension, EnumFacing.UP);
 
-        if (count == null)
+        if (BRIDGE_LOCATIONS.remove(pos))
         {
-            count = Integer.valueOf(1);
-        }
+            if (BRIDGE_COUNTS.get(dimension) <= 1)
+            {
+                BRIDGE_COUNTS.remove(dimension);
+            }
+            else
+            {
+                BRIDGE_COUNTS.addTo(dimension, -1);
+            }
 
-        if (bridgeLocations.remove(pos))
-        {
-            bridgeCounts.put(dimension, Integer.valueOf(count.intValue() - 1));
+            if (WorldUtils.isEndDimension(world))
+            {
+                bridgeCountInEndDimensions--;
+            }
         }
 
         dirty = true;
@@ -69,8 +61,26 @@ public class EnergyBridgeTracker
 
     public static boolean dimensionHasEnergyBridge(int dimension)
     {
-        Integer count = bridgeCounts.get(dimension);
-        return count != null && count.intValue() > 0;
+        return BRIDGE_COUNTS.getOrDefault(dimension, 0) > 0;
+    }
+
+    public static boolean endHasEnergyBridges()
+    {
+        return bridgeCountInEndDimensions > 0;
+    }
+
+    private static void addBridgeLocation(BlockPosEU pos, boolean markDirty)
+    {
+        if (BRIDGE_LOCATIONS.contains(pos) == false)
+        {
+            BRIDGE_LOCATIONS.add(pos);
+            BRIDGE_COUNTS.addTo(pos.getDimension(), 1);
+        }
+
+        if (markDirty)
+        {
+            dirty = true;
+        }
     }
 
     /**
@@ -87,6 +97,8 @@ public class EnergyBridgeTracker
 
         NBTTagList tagList = nbt.getTagList("EnergyBridges", Constants.NBT.TAG_COMPOUND);
         int count = tagList.tagCount();
+        boolean hasEndBridgeCount = nbt.hasKey("BridgeCountInEnd", Constants.NBT.TAG_INT);
+        bridgeCountInEndDimensions = nbt.getInteger("BridgeCountInEnd");
 
         for (int i = 0; i < count; ++i)
         {
@@ -97,23 +109,28 @@ public class EnergyBridgeTracker
                 tag.hasKey("posY", Constants.NBT.TAG_INT) &&
                 tag.hasKey("posZ", Constants.NBT.TAG_INT))
             {
+                int dim = tag.getInteger("Dim");
+
                 addBridgeLocation(new BlockPosEU(tag.getInteger("posX"), tag.getInteger("posY"), tag.getInteger("posZ"),
-                        tag.getInteger("Dim"), EnumFacing.UP), false);
+                        dim, EnumFacing.UP), false);
+
+                // Backwards compatibility for reading data from before the end bridge count was saved
+                if (hasEndBridgeCount == false && dim == 1)
+                {
+                    bridgeCountInEndDimensions++;
+                }
             }
         }
     }
 
     public static NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        int count = bridgeLocations.size();
-
-        if (count > 0)
+        if (BRIDGE_LOCATIONS.isEmpty() == false)
         {
             NBTTagList tagList = new NBTTagList();
 
-            for (int i = 0; i < count; ++i)
+            for (BlockPosEU pos : BRIDGE_LOCATIONS)
             {
-                BlockPosEU pos = bridgeLocations.get(i);
                 if (pos != null)
                 {
                     NBTTagCompound tag = new NBTTagCompound();
@@ -129,6 +146,8 @@ public class EnergyBridgeTracker
             {
                 nbt.setTag("EnergyBridges", tagList);
             }
+
+            nbt.setInteger("BridgeCountInEnd", bridgeCountInEndDimensions);
         }
 
         return nbt;
@@ -138,8 +157,9 @@ public class EnergyBridgeTracker
     {
         // Clear the data structures when reading the data for a world/save, so that valid Energy Bridges
         // from another world won't carry over to a world/save that doesn't have the file yet.
-        bridgeLocations.clear();
-        bridgeCounts.clear();
+        BRIDGE_LOCATIONS.clear();
+        BRIDGE_COUNTS.clear();
+        bridgeCountInEndDimensions = 0;
 
         try
         {
@@ -154,7 +174,9 @@ public class EnergyBridgeTracker
 
             if (file.exists() && file.isFile())
             {
-                readFromNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+                FileInputStream is = new FileInputStream(file);
+                readFromNBT(CompressedStreamTools.readCompressed(is));
+                is.close();
             }
         }
         catch (Exception e)
@@ -192,7 +214,9 @@ public class EnergyBridgeTracker
 
             File fileTmp = new File(saveDir, "energybridges.dat.tmp");
             File fileReal = new File(saveDir, "energybridges.dat");
-            CompressedStreamTools.writeCompressed(writeToNBT(new NBTTagCompound()), new FileOutputStream(fileTmp));
+            FileOutputStream os = new FileOutputStream(fileTmp);
+            CompressedStreamTools.writeCompressed(writeToNBT(new NBTTagCompound()), os);
+            os.close();
 
             if (fileReal.exists())
             {

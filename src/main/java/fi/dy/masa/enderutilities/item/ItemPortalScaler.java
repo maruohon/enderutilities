@@ -33,6 +33,7 @@ import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.PositionUtils;
+import fi.dy.masa.enderutilities.util.WorldUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 import fi.dy.masa.enderutilities.util.teleport.TeleportEntityNetherPortal;
@@ -121,7 +122,7 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
 
         if (world.isRemote == false &&
             EnergyBridgeTracker.dimensionHasEnergyBridge(dim) &&
-            (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1)))
+            (WorldUtils.isEndDimension(world) || EnergyBridgeTracker.endHasEnergyBridges()))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
         }

@@ -17,6 +17,7 @@ import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
+import fi.dy.masa.enderutilities.util.WorldUtils;
 
 public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements ITickable
 {
@@ -177,7 +178,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             if (this.isActive == false)
             {
                 this.activateMultiBlock(world, center, masterType);
-                EnergyBridgeTracker.addBridgeLocation(this.getMasterPos(center), world.provider.getDimension());
+                EnergyBridgeTracker.addBridgeLocation(world, this.getMasterPos(center));
             }
 
             this.updatePoweredState(world, center, masterType);
@@ -203,12 +204,12 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
     private Type getMasterType()
     {
-        return this.getWorld().provider.getDimension() == 1 ? Type.TRANSMITTER : Type.RECEIVER;
+        return WorldUtils.isEndDimension(this.getWorld()) ? Type.TRANSMITTER : Type.RECEIVER;
     }
 
     private BlockPos getMasterPos(BlockPos center)
     {
-        return this.getWorld().provider.getDimension() == 1 ? center.up(3) : center;
+        return WorldUtils.isEndDimension(this.getWorld()) ? center.up(3) : center;
     }
 
     private BlockInfo[] getStructure(Type masterType)
@@ -358,7 +359,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     private void disableMultiBlock(World world, BlockPos center, Type masterType)
     {
         this.setActiveStateForStructure(world, center, masterType, false);
-        EnergyBridgeTracker.removeBridgeLocation(this.getMasterPos(center), world.provider.getDimension());
+        EnergyBridgeTracker.removeBridgeLocation(world, this.getMasterPos(center));
     }
 
     private void setActiveStateForStructure(World world, BlockPos center, Type masterType, boolean active)
@@ -385,7 +386,8 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
     {
         BlockInfo[] structure = this.getStructure(masterType);
         int dim = world.provider.getDimension();
-        boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) && (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1));
+        boolean powered = EnergyBridgeTracker.dimensionHasEnergyBridge(dim) &&
+                            (WorldUtils.isEndDimension(world) || EnergyBridgeTracker.endHasEnergyBridges());
 
         for (BlockInfo info : structure)
         {

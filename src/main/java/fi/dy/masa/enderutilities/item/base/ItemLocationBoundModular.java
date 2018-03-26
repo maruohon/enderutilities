@@ -19,6 +19,7 @@ import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.reference.HotKeys;
 import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
+import fi.dy.masa.enderutilities.util.WorldUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -66,7 +67,7 @@ public abstract class ItemLocationBoundModular extends ItemLocationBound impleme
 
         if (world.isRemote == false &&
             EnergyBridgeTracker.dimensionHasEnergyBridge(dim) &&
-            (dim == 1 || EnergyBridgeTracker.dimensionHasEnergyBridge(1)))
+            (WorldUtils.isEndDimension(world) || EnergyBridgeTracker.endHasEnergyBridges()))
         {
             UtilItemModular.addEnderCharge(stack, ItemEnderCapacitor.CHARGE_RATE_FROM_ENERGY_BRIDGE, true);
         }

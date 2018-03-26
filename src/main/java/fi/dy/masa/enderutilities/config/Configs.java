@@ -47,6 +47,7 @@ public class Configs
     // Black lists and white lists
     public static boolean enderBagListTypeIsWhitelist;
     public static boolean lmmListIsWhitelist;
+    public static String[] endDimensions;
     public static String[] enderBagBlacklist;
     public static String[] enderBagWhitelist;
     public static String[] lmmBlacklist;
