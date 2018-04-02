@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.world.storage.ThreadedFileIOBase;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -117,28 +118,29 @@ public class TemplateManagerEU
                 return false;
             }
 
-            File templateFile = new File(this.directory, fileName + ".nbt");
-            NBTTagCompound nbt = new NBTTagCompound();
-            TemplateEnderUtilities template = this.templates.get(fileName);
-            OutputStream outputStream = null;
+            final File templateFile = new File(this.directory, fileName + ".nbt");
+            final NBTTagCompound nbt = new NBTTagCompound();
+            final TemplateEnderUtilities template = this.templates.get(fileName);
 
-            try
-            {
-                template.write(nbt);
-                outputStream = new FileOutputStream(templateFile);
-                CompressedStreamTools.writeCompressed(nbt, outputStream);
-                return true;
-            }
-            catch (IOException e)
-            {
-                EnderUtilities.logger.warn("Failed to write template to file '{}'", templateFile, e);
-            }
-            finally
-            {
-                IOUtils.closeQuietly(outputStream);
-            }
+            template.write(nbt);
 
-            return false;
+            ThreadedFileIOBase.getThreadedIOInstance().queueIO(() ->
+            {
+                try
+                {
+                    OutputStream outputStream = new FileOutputStream(templateFile);
+                    CompressedStreamTools.writeCompressed(nbt, outputStream);
+                    outputStream.close();
+                }
+                catch (IOException e)
+                {
+                    EnderUtilities.logger.warn("Failed to write template to file '{}'", templateFile, e);
+                }
+
+                return false;
+            });
+
+            return true;
         }
     }
 
@@ -221,28 +223,29 @@ public class TemplateManagerEU
                 return false;
             }
 
-            File templateFile = new File(this.directory, fileName + "_meta.nbt");
-            NBTTagCompound nbt = new NBTTagCompound();
-            TemplateMetadata templateMeta = this.templateMetas.get(fileName);
-            OutputStream outputStream = null;
+            final File templateFile = new File(this.directory, fileName + "_meta.nbt");
+            final NBTTagCompound nbt = new NBTTagCompound();
+            final TemplateMetadata templateMeta = this.templateMetas.get(fileName);
 
-            try
-            {
-                templateMeta.write(nbt);
-                outputStream = new FileOutputStream(templateFile);
-                CompressedStreamTools.writeCompressed(nbt, outputStream);
-                return true;
-            }
-            catch (Throwable e)
-            {
-                EnderUtilities.logger.warn("Failed to write template metadata to file '{}'", templateFile);
-            }
-            finally
-            {
-                IOUtils.closeQuietly(outputStream);
-            }
+            templateMeta.write(nbt);
 
-            return false;
+            ThreadedFileIOBase.getThreadedIOInstance().queueIO(() ->
+            {
+                try
+                {
+                    OutputStream outputStream = new FileOutputStream(templateFile);
+                    CompressedStreamTools.writeCompressed(nbt, outputStream);
+                    outputStream.close();
+                }
+                catch (IOException e)
+                {
+                    EnderUtilities.logger.warn("Failed to write template metadata to file '{}'", templateFile);
+                }
+
+                return false;
+            });
+
+            return true;
         }
     }
 
