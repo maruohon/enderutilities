@@ -132,12 +132,12 @@ public class BakedModelBarrel implements IBakedModel
     private IBakedModel getBakedBaseModel(IBlockState actualState)
     {
         IModel model = this.baseModel.retexture(this.getTexturesBaseModel(actualState, this.textures));
-        return model.bake(new TRSRTransformation(actualState.getValue(BlockBarrel.FACING_H)), this.format, this.bakedTextureGetter);
+        return model.bake(TRSRTransformation.from(actualState.getValue(BlockBarrel.FACING_H)), this.format, this.bakedTextureGetter);
     }
 
     private IBakedModel getBakedOverlayModel(IBlockState actualState)
     {
-        return this.overlayModel.bake(new TRSRTransformation(actualState.getValue(BlockBarrel.FACING_H)), this.format, this.bakedTextureGetter);
+        return this.overlayModel.bake(TRSRTransformation.from(actualState.getValue(BlockBarrel.FACING_H)), this.format, this.bakedTextureGetter);
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> getQuadsForState(

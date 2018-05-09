@@ -117,8 +117,7 @@ public class BakedModelInserter implements IBakedModel
 
         if (quads == null)
         {
-            //IModelState modelState = new ModelStateComposition(new TRSRTransformation(state.getValue(BlockInserter.FACING)), this.modelState);
-            IModelState modelState = new TRSRTransformation(state.getValue(BlockInserter.FACING));
+            IModelState modelState = TRSRTransformation.from(state.getValue(BlockInserter.FACING));
             IBakedModel bakedBaseModel = this.baseModel.bake(modelState, this.format, this.bakedTextureGetter);
 
             quads = this.bakeFullModel(bakedBaseModel, state, side);
@@ -171,11 +170,11 @@ public class BakedModelInserter implements IBakedModel
 
             if (conn == BlockInserter.Connection.VALID)
             {
-                models.add(this.sideModelValid.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                models.add(this.sideModelValid.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
             }
             else if (conn == BlockInserter.Connection.INVALID)
             {
-                models.add(this.sideModelInvalid.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                models.add(this.sideModelInvalid.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
             }
         }
 

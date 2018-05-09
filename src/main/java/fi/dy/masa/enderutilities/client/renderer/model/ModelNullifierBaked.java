@@ -167,7 +167,7 @@ public class ModelNullifierBaked implements IBakedModel
                 if (iModel != null && iModel.getClass().getName().equals("net.minecraftforge.client.model.FancyMissingModel") == false)
                 {
                     TRSRTransformation trn = new TRSRTransformation(new javax.vecmath.Vector3f(-0.5f, -0.5f, -0.5f), null, null, null);
-                    TRSRTransformation trr = new TRSRTransformation(ModelRotation.X0_Y180);
+                    TRSRTransformation trr = TRSRTransformation.from(ModelRotation.X0_Y180);
                     TRSRTransformation trp = new TRSRTransformation(new javax.vecmath.Vector3f( 0.5f,  0.5f,  0.5f), null, null, null);
                     TRSRTransformation trs = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(0.6f, 0.6f, 0.6f), null);
                     TRSRTransformation tr = trn.compose(trr).compose(trp).compose(trs);

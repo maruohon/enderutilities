@@ -250,11 +250,11 @@ public class BakedModelCamouflageBlock implements IBakedModel
         {
             if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING))
             {
-                return model.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING)), format, bakedTextureGetter);
+                return model.bake(TRSRTransformation.from(state.getValue(BlockEnderUtilities.FACING)), format, bakedTextureGetter);
             }
             else if (state.getPropertyKeys().contains(BlockEnderUtilities.FACING_H))
             {
-                return model.bake(new TRSRTransformation(state.getValue(BlockEnderUtilities.FACING_H)), format, bakedTextureGetter);
+                return model.bake(TRSRTransformation.from(state.getValue(BlockEnderUtilities.FACING_H)), format, bakedTextureGetter);
             }
         }
 
