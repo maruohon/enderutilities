@@ -7,8 +7,10 @@ import gnu.trove.map.hash.TIntIntHashMap;
 public class HotKeys
 {
     public static final String KEYBIND_CATEGORY_ENDERUTILITIES = "category." + Reference.MOD_ID;
-    public static final String KEYBIND_NAME_TOGGLE_MODE = Reference.MOD_ID + ".key.togglemode";
-    public static final int DEFAULT_KEYBIND_TOGGLE_MODE = Keyboard.KEY_G;
+    public static final String KEYBIND_NAME_ACTIVATE_UNSELECTED     = Reference.MOD_ID + ".key.activate_unselected";
+    public static final String KEYBIND_NAME_TOGGLE_MODE             = Reference.MOD_ID + ".key.togglemode";
+    public static final int DEFAULT_KEYBIND_ACTIVATE_UNSELECTED     = Keyboard.KEY_G;
+    public static final int DEFAULT_KEYBIND_TOGGLE_MODE             = Keyboard.KEY_G;
     private static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);
 
     // These are used to identify the pressed key on the server side. They have nothing to do with actual key codes.

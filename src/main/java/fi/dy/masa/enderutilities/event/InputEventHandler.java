@@ -111,18 +111,26 @@ public class InputEventHandler
         // In-game (no GUI open)
         if (FMLClientHandler.instance().getClient().inGameHasFocus)
         {
-            if (eventKey == Keybindings.keyToggleMode.getKeyCode() && keyState)
+            if (keyState && eventKey == Keybindings.keyToggleMode.getKeyCode())
             {
                 if (this.buildersWandClientSideHandling())
                 {
                     return;
                 }
 
-                if (isHoldingKeyboundItem(player) || hasKeyBoundUnselectedItem(player))
+                if (isHoldingKeyboundItem(player))
                 {
                     int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
+                    return;
                 }
+            }
+
+            if (keyState && eventKey == Keybindings.keyActivateUnselected.getKeyCode() && hasKeyBoundUnselectedItem(player))
+            {
+                int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
+                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
+                return;
             }
             // Track the event of opening and closing the player's inventory.
             // This is intended to have the Handy Bag either open or not open ie. do the same thing for the duration

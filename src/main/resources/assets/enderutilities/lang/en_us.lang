@@ -3,6 +3,7 @@ language.region=US
 language.code=en_US
 
 category.enderutilities=Ender Utilities
+enderutilities.key.activate_unselected=Activate Unselected
 enderutilities.key.togglemode=Toggle Mode
 
 

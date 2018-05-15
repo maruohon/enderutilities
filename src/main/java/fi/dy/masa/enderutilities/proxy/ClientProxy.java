@@ -284,10 +284,15 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerKeyBindings()
     {
+        Keybindings.keyActivateUnselected = new KeyBinding( HotKeys.KEYBIND_NAME_ACTIVATE_UNSELECTED,
+                                                            HotKeys.DEFAULT_KEYBIND_ACTIVATE_UNSELECTED,
+                                                            HotKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
+
         Keybindings.keyToggleMode = new KeyBinding(HotKeys.KEYBIND_NAME_TOGGLE_MODE,
                                                    HotKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
                                                    HotKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
 
+        ClientRegistry.registerKeyBinding(Keybindings.keyActivateUnselected);
         ClientRegistry.registerKeyBinding(Keybindings.keyToggleMode);
     }
 
