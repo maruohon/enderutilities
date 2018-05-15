@@ -125,7 +125,12 @@ public class TileEntityElevator extends TileEntityEnderUtilities
 
     public void activateByRedstone(boolean goingUp)
     {
-        List<Entity> entities = this.getWorld().getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(this.getPos().up()));
+        BlockPos pos = this.getPos();
+        AxisAlignedBB bbBlock = this.getWorld().getBlockState(pos).getBoundingBox(this.getWorld(), pos);
+        AxisAlignedBB bb = new AxisAlignedBB(
+                pos.getX(),     pos.getY() + bbBlock.maxY,     pos.getZ(),
+                pos.getX() + 1, pos.getY() + bbBlock.maxY + 1, pos.getZ() + 1);
+        List<Entity> entities = this.getWorld().getEntitiesWithinAABB(Entity.class, bb);
 
         for (Entity entity : entities)
         {
