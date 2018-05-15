@@ -186,18 +186,24 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
                 ItemStack stackTool = playerIn.getHeldItem(hand);
                 playerIn.inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
                 EntityUtils.setHeldItemWithoutEquipSound(playerIn, hand, targetStack);
+                int sizeOrig = targetStack.getCount();
+                EnumActionResult result = EnumActionResult.PASS;
 
-                EnumActionResult result = targetStack.onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
+                try
+                {
+                    result = targetStack.onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
+                }
+                catch (Exception e) {}
 
                 EntityUtils.setHeldItemWithoutEquipSound(playerIn, hand, stackTool);
 
-                // Items left, return them to the original slot
-                if (targetStack.isEmpty() == false)
+                if (playerIn.capabilities.isCreativeMode)
                 {
-                    // Somewhere in the hotbar
-                    playerIn.inventory.setInventorySlotContents(slot, targetStack.isEmpty() ? ItemStack.EMPTY : targetStack);
+                    targetStack.setCount(sizeOrig);
                 }
 
+                // Return the items to their original slot
+                playerIn.inventory.setInventorySlotContents(slot, targetStack.isEmpty() ? ItemStack.EMPTY : targetStack);
                 playerIn.inventoryContainer.detectAndSendChanges();
 
                 return result;
