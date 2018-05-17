@@ -79,6 +79,7 @@ public class ItemHandyBag extends ItemInventoryModular
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
+        this.commonTooltip = "item.enderutilities.handybag.tooltips";
     }
 
     @Override
