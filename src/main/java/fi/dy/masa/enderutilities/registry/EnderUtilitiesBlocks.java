@@ -161,7 +161,7 @@ public class EnderUtilitiesBlocks
 
     private static void registerTileEntity(Class<? extends TileEntity> clazz, String id)
     {
-        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
+        GameRegistry.registerTileEntity(clazz, new ResourceLocation(Reference.MOD_ID, id));
     }
 
     private static void registerBlock(IForgeRegistry<Block> registry, BlockEnderUtilities block, boolean isDisabled)
