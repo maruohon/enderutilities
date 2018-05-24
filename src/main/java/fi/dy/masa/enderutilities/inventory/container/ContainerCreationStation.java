@@ -51,8 +51,8 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         this.tecs = te;
 
         this.craftingInventories = new InventoryCraftingPermissions[] {
-            te.getCraftingInventory(0, player),
-            te.getCraftingInventory(1, player)
+            te.getCraftingInventory(0, player, this),
+            te.getCraftingInventory(1, player, this)
         };
 
         this.wrappedCraftingInventories = new IItemHandler[] {

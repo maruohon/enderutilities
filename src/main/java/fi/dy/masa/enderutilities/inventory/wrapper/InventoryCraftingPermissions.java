@@ -1,6 +1,7 @@
 package fi.dy.masa.enderutilities.inventory.wrapper;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import fi.dy.masa.enderutilities.inventory.IItemHandlerSyncable;
 
@@ -9,9 +10,9 @@ public class InventoryCraftingPermissions extends InventoryCraftingEnderUtilitie
     private final ItemHandlerWrapperPermissions craftMatrix;
 
     public InventoryCraftingPermissions(int width, int height,
-            ItemHandlerWrapperPermissions craftMatrix, ItemHandlerCraftResult resultInventory, EntityPlayer player)
+            ItemHandlerWrapperPermissions craftMatrix, ItemHandlerCraftResult resultInventory, EntityPlayer player, Container container)
     {
-        super(width, height, craftMatrix, resultInventory, player);
+        super(width, height, craftMatrix, resultInventory, player, container);
         this.craftMatrix = craftMatrix;
     }
 

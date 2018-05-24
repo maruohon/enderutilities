@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -20,9 +21,9 @@ public class InventoryCraftingEnderUtilities extends InventoryCrafting
     protected final EntityPlayer player;
 
     public InventoryCraftingEnderUtilities(int width, int height,
-            IItemHandlerModifiable craftMatrix, ItemHandlerCraftResult resultInventory, EntityPlayer player)
+            IItemHandlerModifiable craftMatrix, ItemHandlerCraftResult resultInventory, EntityPlayer player, Container container)
     {
-        super(null, 0, 0); // dummy
+        super(container, 0, 0); // dummy
 
         this.inventoryWidth = width;
         this.inventoryHeight = height;

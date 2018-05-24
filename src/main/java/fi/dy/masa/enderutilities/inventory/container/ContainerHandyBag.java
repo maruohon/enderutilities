@@ -42,7 +42,7 @@ public class ContainerHandyBag extends ContainerLargeStacks implements IContaine
         super(player, new InventoryItemModular(containerStack, player, true, ModuleType.TYPE_MEMORY_CARD_ITEMS));
         this.inventoryItemModular = (InventoryItemModular) this.inventory;
         this.inventoryItemModular.setHostInventory(this.playerInv);
-        this.craftMatrix = new InventoryCraftingEnderUtilities(2, 2, new ItemStackHandlerBasic(4), this.craftResult, player);
+        this.craftMatrix = new InventoryCraftingEnderUtilities(2, 2, new ItemStackHandlerBasic(4), this.craftResult, player, this);
         this.craftMatrixWrapper = new InvWrapper(this.craftMatrix);
         this.inventoryNonWrapped = (InventoryItemModular) this.inventory;
 

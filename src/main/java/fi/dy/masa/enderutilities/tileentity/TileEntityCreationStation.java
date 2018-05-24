@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -172,10 +173,10 @@ public class TileEntityCreationStation extends TileEntityEnderUtilitiesInventory
         return this.getItemInventory(player);
     }
 
-    public InventoryCraftingPermissions getCraftingInventory(int invId, EntityPlayer player)
+    public InventoryCraftingPermissions getCraftingInventory(int invId, EntityPlayer player, Container container)
     {
         ItemHandlerWrapperPermissions invPerm = new ItemHandlerWrapperPermissions(this.craftingInventories[invId], player);
-        return new InventoryCraftingPermissions(3, 3, invPerm, this.craftResults[invId], player);
+        return new InventoryCraftingPermissions(3, 3, invPerm, this.craftResults[invId], player, container);
     }
 
     public ItemHandlerCraftResult getCraftResultInventory(int invId)
