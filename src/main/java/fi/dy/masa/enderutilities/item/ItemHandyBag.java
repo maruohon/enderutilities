@@ -1048,16 +1048,15 @@ public class ItemHandyBag extends ItemInventoryModular
             return this.variantName;
         }
 
-        public static PickupMode fromStack(ItemStack stack)
+        public static PickupMode fromStack(ItemStack bagStack)
         {
-            int id = NBTUtils.getByte(stack, "HandyBag", "PickupMode");
+            int id = getModeId(bagStack);
             return (id >= 0 && id < values().length) ? values()[id] : NONE;
         }
 
-        public static void cycleMode(ItemStack stack, boolean reverse)
+        public static void cycleMode(ItemStack bagStack, boolean reverse)
         {
-            PickupMode mode = PickupMode.fromStack(stack);
-            int id = mode.ordinal() + (reverse ? -1 : 1);
+            int id = getModeId(bagStack) + (reverse ? -1 : 1);
 
             if (id < 0)
             {
@@ -1068,7 +1067,29 @@ public class ItemHandyBag extends ItemInventoryModular
                 id = 0;
             }
 
-            NBTUtils.setByte(stack, "HandyBag", "PickupMode", (byte) id);
+            setModeId(bagStack, id);
+        }
+
+        private static int getModeId(ItemStack bagStack)
+        {
+            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (cardStack.isEmpty() == false)
+            {
+                return NBTUtils.getByte(cardStack, "HandyBag", "PickupMode");
+            }
+
+            return PickupMode.NONE.ordinal();
+        }
+
+        private static void setModeId(ItemStack bagStack, int id)
+        {
+            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (cardStack.isEmpty() == false)
+            {
+                NBTUtils.setByte(cardStack, "HandyBag", "PickupMode", (byte) id);
+            }
         }
     }
 
@@ -1095,16 +1116,15 @@ public class ItemHandyBag extends ItemInventoryModular
             return I18n.format("enderutilities.tooltip.item." + this.getName());
         }
 
-        public static RestockMode fromStack(ItemStack stack)
+        public static RestockMode fromStack(ItemStack bagStack)
         {
-            int id = NBTUtils.getByte(stack, "HandyBag", "RestockMode");
+            int id = getModeId(bagStack);
             return (id >= 0 && id < values().length) ? values()[id] : DISABLED;
         }
 
-        public static void cycleMode(ItemStack stack, boolean reverse)
+        public static void cycleMode(ItemStack bagStack, boolean reverse)
         {
-            RestockMode mode = RestockMode.fromStack(stack);
-            int id = mode.ordinal() + (reverse ? -1 : 1);
+            int id = getModeId(bagStack) + (reverse ? -1 : 1);
 
             if (id < 0)
             {
@@ -1115,7 +1135,29 @@ public class ItemHandyBag extends ItemInventoryModular
                 id = 0;
             }
 
-            NBTUtils.setByte(stack, "HandyBag", "RestockMode", (byte) id);
+            setModeId(bagStack, id);
+        }
+
+        private static int getModeId(ItemStack bagStack)
+        {
+            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (cardStack.isEmpty() == false)
+            {
+                return NBTUtils.getByte(cardStack, "HandyBag", "RestockMode");
+            }
+
+            return RestockMode.DISABLED.ordinal();
+        }
+
+        private static void setModeId(ItemStack bagStack, int id)
+        {
+            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (cardStack.isEmpty() == false)
+            {
+                NBTUtils.setByte(cardStack, "HandyBag", "RestockMode", (byte) id);
+            }
         }
     }
 
@@ -1147,17 +1189,17 @@ public class ItemHandyBag extends ItemInventoryModular
             return (id >= 0 && id < values().length) ? values()[id] : TO_BAG;
         }
 
-        public static ShiftMode fromStack(ItemStack stack)
+        public static ShiftMode fromStack(ItemStack bagStack)
         {
-            return fromId(NBTUtils.getByte(stack, "HandyBag", "ShiftMode") & 0x03);
+            return fromId(getModeId(bagStack) & 0x03);
         }
 
-        public static void cycleMode(ItemStack stack, boolean reverse)
+        public static void cycleMode(ItemStack bagStack, boolean reverse)
         {
             // The topmost bit indicates the current "double-tapped-mode"
             // So when the main mode is "double-tap-to-toggle", then the topmost bit indicates
             // whether the currently active mode is to-bag or between-inventory-and-hotbar
-            int rawMode = NBTUtils.getByte(stack, "HandyBag", "ShiftMode");
+            int rawMode = getModeId(bagStack);
             int id = (rawMode & 0x03) + (reverse ? -1 : 1);
 
             if (id < 0)
@@ -1169,26 +1211,26 @@ public class ItemHandyBag extends ItemInventoryModular
                 id = 0;
             }
 
-            rawMode = (rawMode & 0x80) + id;
-            NBTUtils.setByte(stack, "HandyBag", "ShiftMode", (byte) rawMode);
+            rawMode = (rawMode & 0x80) | id;
+            setModeId(bagStack, rawMode);
         }
 
-        public static void toggleDoubleTapEffectiveMode(ItemStack stack)
+        public static void toggleDoubleTapEffectiveMode(ItemStack bagStack)
         {
             // The topmost bit indicates the current "double-tapped-mode"
             // So when the main mode is "double-tap-to-toggle", then the topmost bit indicates
             // whether the currently active mode is to-bag or between-inventory-and-hotbar
-            byte rawMode = (byte) (NBTUtils.getByte(stack, "HandyBag", "ShiftMode") ^ 0x80);
-            NBTUtils.setByte(stack, "HandyBag", "ShiftMode", rawMode);
+            byte rawMode = (byte) (getModeId(bagStack) ^ 0x80);
+            setModeId(bagStack, rawMode);
         }
 
         /**
          * Returns either TO_BAG or INV_HOTBAR, taking into account
          * a possible active DOUBLE_TAP mode's current "double-tap-status".
          */
-        public static ShiftMode getEffectiveMode(ItemStack stack)
+        public static ShiftMode getEffectiveMode(ItemStack bagStack)
         {
-            int rawMode = NBTUtils.getByte(stack, "HandyBag", "ShiftMode");
+            int rawMode = getModeId(bagStack);
             ShiftMode mode = fromId(rawMode & 0x03);
 
             if (mode == ShiftMode.DOUBLE_TAP)
@@ -1199,6 +1241,16 @@ public class ItemHandyBag extends ItemInventoryModular
             {
                 return mode;
             }
+        }
+
+        private static int getModeId(ItemStack bagStack)
+        {
+            return NBTUtils.getByte(bagStack, "HandyBag", "ShiftMode");
+        }
+
+        private static void setModeId(ItemStack bagStack, int id)
+        {
+            NBTUtils.setByte(bagStack, "HandyBag", "ShiftMode", (byte) id);
         }
     }
 }
