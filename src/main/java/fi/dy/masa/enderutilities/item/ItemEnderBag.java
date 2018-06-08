@@ -21,7 +21,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.item.base.IChunkLoadingItem;
 import fi.dy.masa.enderutilities.item.base.IKeyBound;
 import fi.dy.masa.enderutilities.item.base.IModule;
@@ -168,8 +167,7 @@ public class ItemEnderBag extends ItemLocationBoundModular implements IChunkLoad
     {
         TileEntity te = world.getTileEntity(pos);
 
-        if (player.isSneaking() && te != null &&
-            (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)))
+        if (player.isSneaking() && te != null && te.getClass() == TileEntityEnderChest.class)
         {
             return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
         }

@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.util.nbt;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -817,6 +818,7 @@ public class UtilItemModular
      * Returns the inventory that the selected Link Crystal in the given modular item is currently bound to,
      * or null in case of errors.
      */
+    @Nullable
     public static IItemHandler getBoundInventory(ItemStack modularStack, EntityPlayer player, int chunkLoadDuration)
     {
         if (modularStack.isEmpty() || (modularStack.getItem() instanceof IModular) == false)

@@ -242,7 +242,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
                 return EnumActionResult.SUCCESS;
             }
 
-            return EnumActionResult.PASS;
+            return EnumActionResult.SUCCESS;
         }
 
         return super.onItemUseFirst(player, world, pos, side, hitX, hitY, hitZ, hand);

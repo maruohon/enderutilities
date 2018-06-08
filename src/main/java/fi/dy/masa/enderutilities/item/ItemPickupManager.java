@@ -11,11 +11,14 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -82,6 +85,27 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
         this.setMaxStackSize(1);
         this.setMaxDamage(0);
+    }
+
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (world.isRemote == false)
+        {
+            TileEntity te = world.getTileEntity(pos);
+
+            // When sneak-right-clicking on an inventory or an Ender Chest, and the installed Link Crystal is a block type crystal,
+            // then bind the crystal to the block clicked on.
+            if (player.isSneaking() && te != null &&
+                (te.getClass() == TileEntityEnderChest.class || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)))
+            {
+                ItemStack stack = player.getHeldItem(hand);
+                UtilItemModular.setTarget(stack, player,pos, side, hitX, hitY, hitZ, false, false);
+            }
+        }
+
+        return EnumActionResult.SUCCESS;
     }
 
     @Override
