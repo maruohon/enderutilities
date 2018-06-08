@@ -121,7 +121,7 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
 
     public void setRedstoneMode(int id)
     {
-        id = MathHelper.clamp(id, 0, 2);
+        id = MathHelper.clamp(id, 0, RedstoneMode.values().length - 1);
         this.redstoneMode = RedstoneMode.fromId(id);
     }
 
@@ -547,7 +547,9 @@ public class TileEntityDrawbridge extends TileEntityEnderUtilitiesInventory
                         // IDLE
                         else
                         {
-                            if (this.position == (this.maxLength - 1))
+                            // Special check for 1-length, because the position will only ever be 0 >_>
+                            if (this.position == (this.maxLength - 1) &&
+                                (this.maxLength > 1 || (this.maxLength == 1 && (this.numPlaced > 0 || this.failedPlacements > 0))))
                             {
                                 this.state = State.RETRACT;
                             }
