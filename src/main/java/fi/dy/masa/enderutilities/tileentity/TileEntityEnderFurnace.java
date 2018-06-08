@@ -14,13 +14,16 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.enderutilities.gui.client.GuiEnderFurnace;
@@ -48,6 +51,8 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
     public static final int SLOT_FUEL = 1;
     public static final int SLOT_OUTPUT = 2;
 
+    private final IItemHandler inventoryWrapperSmeltables;
+    private final IItemHandler inventoryWrapperNonSmeltables;
     public boolean fastMode;
     public boolean outputToEnderChest;
     private ItemStack smeltingResultCache = ItemStack.EMPTY;
@@ -73,7 +78,12 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         this.burnTimeRemaining = 0;
         this.cookTime = 0;
         this.timer = 0;
+
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 3, 1024, true, "Items", this);
+        this.inventoryWrapperSmeltables = new ItemHandlerWrapperEnderFurnaceSmeltables(this.getBaseItemHandler(), this);
+        this.inventoryWrapperNonSmeltables = new ItemHandlerWrapperEnderFurnaceNonSmeltables(this.getBaseItemHandler(), this);
+
+        // This is only used for the container
         this.itemHandlerExternal = new ItemHandlerWrapperEnderFurnace(this.getBaseItemHandler(), this);
     }
 
@@ -567,6 +577,24 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         return itemContainsFluidFuel(stack) || getItemBurnTime(stack) > 0;
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    {
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        {
+            if (facing == EnumFacing.UP)
+            {
+                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventoryWrapperSmeltables);
+            }
+            else
+            {
+                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventoryWrapperNonSmeltables);
+            }
+        }
+
+        return super.getCapability(capability, facing);
+    }
+
     private class ItemHandlerWrapperEnderFurnace extends ItemHandlerWrapperSelective
     {
         private final TileEntityEnderFurnace teef;
@@ -598,6 +626,100 @@ public class TileEntityEnderFurnace extends TileEntityEnderUtilitiesInventory im
         {
             return (slot == SLOT_FUEL && isItemFuel(this.getStackInSlot(slot)) == false) ||
                    (slot == SLOT_OUTPUT && this.teef.outputToEnderChest == false);
+        }
+    }
+
+    /**
+     * Wrapper inventory for the fuel slot and output slot.
+     * The backing inventory is a 3-slot inventory, thus the slot indices are shifted by one here to account for
+     * the slot 0 in the backing inventory being the input/smeltables slot.
+     */
+    private class ItemHandlerWrapperEnderFurnaceNonSmeltables extends ItemHandlerWrapperSelective
+    {
+        private final TileEntityEnderFurnace teef;
+
+        public ItemHandlerWrapperEnderFurnaceNonSmeltables(IItemHandler baseHandler, TileEntityEnderFurnace te)
+        {
+            super(baseHandler);
+            this.teef = te;
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return 2;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return super.getStackInSlot(slot + 1);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            if (this.isItemValidForSlot(slot, stack))
+            {
+                return this.baseHandler.insertItem(slot + 1, stack, simulate);
+            }
+
+            return stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            if (this.canExtractFromSlot(slot))
+            {
+                return this.baseHandler.extractItem(slot + 1, amount, simulate);
+            }
+
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            if (stack.isEmpty())
+            {
+                return false;
+            }
+
+            return slot == 0 && isItemFuel(stack);
+        }
+
+        @Override
+        public boolean canExtractFromSlot(int slot)
+        {
+            return (slot == 0 && isItemFuel(this.getStackInSlot(slot)) == false) ||
+                   (slot == 1 && this.teef.outputToEnderChest == false);
+        }
+    }
+
+    private class ItemHandlerWrapperEnderFurnaceSmeltables extends ItemHandlerWrapperSelective
+    {
+        public ItemHandlerWrapperEnderFurnaceSmeltables(IItemHandler baseHandler, TileEntityEnderFurnace te)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        public int getSlots()
+        {
+            return 1;
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int slot, ItemStack stack)
+        {
+            return stack.isEmpty() == false && FurnaceRecipes.instance().getSmeltingResult(stack).isEmpty() == false;
+        }
+
+        @Override
+        public boolean canExtractFromSlot(int slot)
+        {
+            return false;
         }
     }
 
