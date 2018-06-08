@@ -29,7 +29,7 @@ import fi.dy.masa.enderutilities.util.datafixer.TileEntityID;
      guiFactory = "fi.dy.masa.enderutilities.config.EnderUtilitiesGuiFactory",
      updateJSON = "https://raw.githubusercontent.com/maruohon/enderutilities/master/update.json",
      acceptedMinecraftVersions = "[1.12.2]",
-     dependencies = "required-after:forge@[14.23.1.2571,);") // Currently depends on the item/block color handler registration event
+     dependencies = "required-after:forge@[14.23.3.2694,);") // Currently depends on the new TileEntity registration method with a RL
 public class EnderUtilities
 {
     public static final int DATA_FIXER_VERSION = 922;
