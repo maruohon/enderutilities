@@ -41,11 +41,8 @@ import fi.dy.masa.enderutilities.reference.HotKeys.EnumKey;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
-import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
-import fi.dy.masa.enderutilities.util.nbt.OwnerData;
-import fi.dy.masa.enderutilities.util.nbt.TargetData;
 import fi.dy.masa.enderutilities.util.nbt.UtilItemModular;
 
 public class ItemPickupManager extends ItemLocationBoundModular implements IKeyBound
@@ -294,80 +291,52 @@ public class ItemPickupManager extends ItemLocationBoundModular implements IKeyB
 
     public ItemStack tryTransportItems(EntityPlayer player, ItemStack manager, ItemStack itemsIn)
     {
-        ItemStack moduleStack = this.getSelectedModuleStack(manager, ModuleType.TYPE_LINKCRYSTAL);
-
-        if (moduleStack.isEmpty() || itemsIn.isEmpty())
+        if (itemsIn.isEmpty())
         {
             return itemsIn;
         }
 
-        OwnerData owner = OwnerData.getOwnerDataFromItem(moduleStack);
+        IItemHandler inv = UtilItemModular.getBoundInventory(manager, player, 30);
 
-        if (owner != null && owner.canAccess(player) == false)
+        if (inv == null)
         {
             return itemsIn;
         }
 
-        TargetData target = TargetData.getTargetFromItem(moduleStack);
+        //return InventoryUtils.tryInsertItemStackToInventory(inv, itemsIn);
+        ItemStack stackToSend = itemsIn.copy();
 
-        if (target != null)
+        int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
+
+        // Not enough Ender Charge to send all the items
+        if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.getCount(), true) == false)
         {
-            World world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
+            int available = UtilItemModular.getAvailableEnderCharge(manager);
 
-            // Force load the target chunk with a 30 second unload delay.
-            if (world == null || ChunkLoading.getInstance().loadChunkForcedWithModTicket(target.dimension,
-                    target.pos.getX() >> 4, target.pos.getZ() >> 4, 30) == false)
+            if (available < cost)
             {
                 return itemsIn;
             }
 
-            TileEntity te = world.getTileEntity(target.pos);
+            stackToSend.setCount(Math.min(itemsIn.getCount(), available / cost));
+        }
 
-            if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing))
-            {
-                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, target.facing);
+        int numTransported = stackToSend.getCount();
+        ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory(inv, stackToSend);
 
-                if (inv == null)
-                {
-                    return itemsIn;
-                }
+        if (itemsRemaining.isEmpty() == false)
+        {
+            numTransported -= itemsRemaining.getCount();
+        }
 
-                //return InventoryUtils.tryInsertItemStackToInventory(inv, itemsIn);
-                ItemStack stackToSend = itemsIn.copy();
+        itemsIn.shrink(numTransported);
 
-                int cost = ENDER_CHARGE_COST_PER_SENT_ITEM;
+        // Get the final charge amount
+        UtilItemModular.useEnderCharge(manager, numTransported * cost, false);
 
-                // Not enough Ender Charge to send all the items
-                if (UtilItemModular.useEnderCharge(manager, cost * itemsIn.getCount(), true) == false)
-                {
-                    int available = UtilItemModular.getAvailableEnderCharge(manager);
-
-                    if (available < cost)
-                    {
-                        return itemsIn;
-                    }
-
-                    stackToSend.setCount(Math.min(itemsIn.getCount(), available / cost));
-                }
-
-                int numTransported = stackToSend.getCount();
-                ItemStack itemsRemaining = InventoryUtils.tryInsertItemStackToInventory(inv, stackToSend);
-
-                if (itemsRemaining.isEmpty() == false)
-                {
-                    numTransported -= itemsRemaining.getCount();
-                }
-
-                itemsIn.shrink(numTransported);
-
-                // Get the final charge amount
-                UtilItemModular.useEnderCharge(manager, numTransported * cost, false);
-
-                if (itemsIn.isEmpty())
-                {
-                    return ItemStack.EMPTY;
-                }
-            }
+        if (itemsIn.isEmpty())
+        {
+            return ItemStack.EMPTY;
         }
 
         return itemsIn;
