@@ -111,7 +111,7 @@ public class InputEventHandler
         // In-game (no GUI open)
         if (FMLClientHandler.instance().getClient().inGameHasFocus)
         {
-            if (keyState && eventKey == Keybindings.keyToggleMode.getKeyCode())
+            if (keyState && Keybindings.keyToggleMode.isActiveAndMatches(eventKey))
             {
                 if (this.buildersWandClientSideHandling())
                 {
@@ -126,7 +126,7 @@ public class InputEventHandler
                 }
             }
 
-            if (keyState && eventKey == Keybindings.keyActivateUnselected.getKeyCode() && hasKeyBoundUnselectedItem(player))
+            if (keyState && Keybindings.keyActivateUnselected.isActiveAndMatches(eventKey) && hasKeyBoundUnselectedItem(player))
             {
                 int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                 PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
