@@ -2,6 +2,7 @@ package fi.dy.masa.enderutilities.gui.client;
 
 import java.io.IOException;
 import java.util.Collection;
+import org.lwjgl.input.Keyboard;
 import com.google.common.collect.Ordering;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -106,6 +107,10 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         this.updatePositions();
 
         this.updateActivePotionEffects();
+
+        // This fixes the vanilla Realms notification stuff (if enabled) enabling this,
+        // which causes the double-tap shift behavior to quickly flicker
+        Keyboard.enableRepeatEvents(false);
     }
 
     @Override
