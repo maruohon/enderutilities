@@ -188,7 +188,6 @@ public class ItemPetContract extends ItemEnderUtilities
                     {
                         ItemStack stackSigned = stack.copy();
                         stackSigned.setCount(1);
-                        stack.shrink(1);
 
                         this.signContract(stackSigned, player, target);
 
@@ -196,6 +195,8 @@ public class ItemPetContract extends ItemEnderUtilities
                         {
                             player.dropItem(stackSigned, false);
                         }
+
+                        stack.shrink(1);
                     }
                 }
             }
