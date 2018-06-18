@@ -1,8 +1,19 @@
 package fi.dy.masa.enderutilities.util;
 
 import java.lang.invoke.MethodHandle;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
+import com.google.common.base.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,12 +24,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -27,6 +40,7 @@ import fi.dy.masa.enderutilities.util.MethodHandleUtils.UnableToFindMethodHandle
 
 public class BlockUtils
 {
+    public static final Pattern PATTERN_BLOCK_STATE_STRING = Pattern.compile("(?<name>([a-z0-9_]+:)?[a-z0-9\\._]+)\\[(?<props>[a-z0-9_]+=[a-z0-9_]+(,[a-z0-9_]+=[a-z0-9_]+)*)\\]");
     private static MethodHandle methodHandle_Block_getSilkTouchDrop;
 
     static
@@ -40,6 +54,99 @@ public class BlockUtils
         {
             EnderUtilities.logger.error("BlockUtils: Failed to get a MethodHandle for Block#getSilkTouchDrop()", e);
         }
+    }
+
+    public static Set<IBlockState> getMatchingBlockStatesForString(String blockStateString)
+    {
+        Set<IBlockState> validStates = new HashSet<>();
+        ResourceLocation air = new ResourceLocation("minecraft:air");
+        int index = blockStateString.indexOf('[');
+        String name = index > 0 ? blockStateString.substring(0, index) : blockStateString;
+        ResourceLocation key = new ResourceLocation(name);
+        Block block = ForgeRegistries.BLOCKS.getValue(key);
+
+        if (block != null && (block != Blocks.AIR || key.equals(air)))
+        {
+            // First get all valid states for this block
+            Collection<IBlockState> statesTmp = block.getBlockState().getValidStates();
+            // Then get the list of properties and their values in the given name (if any)
+            List<Pair<String, String>> props = getBlockStatePropertiesFromString(blockStateString);
+
+            // ... and then filter the list of all valid states by the provided properties and their values
+            if (props.isEmpty() == false)
+            {
+                for (Pair<String, String> pair : props)
+                {
+                    statesTmp = getFilteredStates(statesTmp, pair.getLeft(), pair.getRight());
+                }
+            }
+
+            validStates.addAll(statesTmp);
+        }
+        else
+        {
+            EnderUtilities.logger.warn("BlockUtils.getMatchingBlockStatesForString(): Invalid block state string '{}'", blockStateString);
+        }
+
+        return validStates;
+    }
+
+    public static List<Pair<String, String>> getBlockStatePropertiesFromString(String blockStateString)
+    {
+        Matcher matcherNameProps = PATTERN_BLOCK_STATE_STRING.matcher(blockStateString);
+
+        if (matcherNameProps.matches())
+        {
+            List<Pair<String, String>> props = new ArrayList<>();
+            // name[props]
+            //String name = matcherNameProps.group("name");
+            String propStr = matcherNameProps.group("props");
+            String[] propParts = propStr.split(",");
+            Pattern patternProp = Pattern.compile("(?<prop>[a-zA-Z0-9\\._-]+)=(?<value>[a-zA-Z0-9\\._-]+)");
+
+            for (int i = 0; i < propParts.length; i++)
+            {
+                Matcher matcherProp = patternProp.matcher(propParts[i]);
+
+                if (matcherProp.matches())
+                {
+                    props.add(Pair.of(matcherProp.group("prop"), matcherProp.group("value")));
+                }
+                else
+                {
+                    EnderUtilities.logger.warn("BlockUtils.getBlockStatePropertiesFromString(): Invalid block property '{}'", propParts[i]);
+                }
+            }
+
+            Collections.sort(props); // the properties need to be in alphabetical order
+            //System.out.printf("name: %s, props: %s (propStr: %s)\n", name, String.join(",", props), propStr);
+            return props;
+        }
+
+        return Collections.emptyList();
+    }
+
+    public static <T extends Comparable<T>> List<IBlockState> getFilteredStates(Collection<IBlockState> initialStates, String propName, String propValue)
+    {
+        List<IBlockState> list = new ArrayList<>();
+
+        for (IBlockState state : initialStates)
+        {
+            @SuppressWarnings("unchecked")
+            IProperty<T> prop = (IProperty<T>) state.getBlock().getBlockState().getProperty(propName);
+
+            if (prop != null)
+            {
+                Optional<T> value = prop.parseValue(propValue);
+
+                if (value.isPresent() && state.getValue(prop).equals(value.get()))
+                {
+                    list.add(state);
+                }
+            }
+        }
+
+        return list;
     }
 
     /**

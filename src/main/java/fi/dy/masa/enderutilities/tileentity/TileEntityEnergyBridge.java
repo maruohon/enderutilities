@@ -4,7 +4,6 @@ import java.util.List;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -15,6 +14,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.enderutilities.block.BlockEnergyBridge;
 import fi.dy.masa.enderutilities.block.base.BlockEnderUtilities;
 import fi.dy.masa.enderutilities.reference.ReferenceNames;
+import fi.dy.masa.enderutilities.registry.BlackLists;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.util.EnergyBridgeTracker;
 import fi.dy.masa.enderutilities.util.WorldUtils;
@@ -333,11 +333,14 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         // Check that there are no light obstructing blocks before hitting the first bedrock block
         for ( ; pos.getY() != yEnd; )
         {
-            IBlockState state = world.getBlockState(pos);
-
-            if (world.isAirBlock(pos) == false && state.getLightOpacity(world, pos) > 3)
+            if (world.isAirBlock(pos) == false)
             {
-                return state.getBlock() != Blocks.BEDROCK;
+                IBlockState state = world.getBlockState(pos);
+
+                if (state.getLightOpacity(world, pos) > 3)
+                {
+                    return BlackLists.isBlockValidBedrockForEnergyBridge(state) == false;
+                }
             }
 
             pos.setY(pos.getY() + increment);
@@ -416,7 +419,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         int posX = this.getPos().getX();
         int posY = this.getPos().getY();
         int posZ = this.getPos().getZ();
-        int top = world.getChunkFromChunkCoords(posX >> 4, posZ >> 4).getTopFilledSegment() + 15;
+        int top = this.getWorld().getChunkFromChunkCoords(posX >> 4, posZ >> 4).getTopFilledSegment() + 15;
 
         // Energy Bridge Transmitter
         if (Type.fromMeta(this.getBlockMetadata()) == Type.TRANSMITTER)
@@ -430,7 +433,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
             for ( ; pos.getY() >= 0; )
             {
-                if (this.getWorld().getBlockState(pos).getBlock() == Blocks.BEDROCK)
+                IBlockState state = this.getWorld().getBlockState(pos);
+
+                if (BlackLists.isBlockValidBedrockForEnergyBridge(state))
                 {
                     break;
                 }
@@ -446,7 +451,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
         for ( ; pos.getY() <= top; )
         {
-            if (this.getWorld().getBlockState(pos).getBlock() == Blocks.BEDROCK)
+            IBlockState state = this.getWorld().getBlockState(pos);
+
+            if (BlackLists.isBlockValidBedrockForEnergyBridge(state))
             {
                 y = pos.getY();
                 break;

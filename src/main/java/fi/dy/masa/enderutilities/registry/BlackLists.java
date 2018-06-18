@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.registry;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.boss.EntityDragon;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.config.Configs;
+import fi.dy.masa.enderutilities.util.BlockUtils;
 
 public class BlackLists
 {
@@ -21,7 +23,27 @@ public class BlackLists
     private static final Set<String> ENDER_BAG_WHITELIST_NAMES = new HashSet<String>();
     private static final Set<Block> ENDER_BAG_BLACKLIST_BLOCKS = new HashSet<Block>();
     private static final Set<Block> ENDER_BAG_WHITELIST_BLOCKS = new HashSet<Block>();
+    private static final Set<IBlockState> ENERGY_BRIDGE_BEDROCK_WHITELIST = new HashSet<>();
     private static final Set<Class<? extends Entity>> TELEPORT_BLACKLIST_CLASSES = new HashSet<Class<? extends Entity>>();
+
+    public static void registerEnergyBridgeBedrockWhitelist(String[] whitelist)
+    {
+        ENERGY_BRIDGE_BEDROCK_WHITELIST.clear();
+
+        for (String name : whitelist)
+        {
+            Set<IBlockState> states = BlockUtils.getMatchingBlockStatesForString(name);
+
+            if (states.isEmpty() == false)
+            {
+                ENERGY_BRIDGE_BEDROCK_WHITELIST.addAll(states);
+            }
+            else
+            {
+                EnderUtilities.logger.warn("Invalid block state '{}' in the energy bridge bedrock whitelist", name);
+            }
+        }
+    }
 
     public static void registerEnderBagLists(String[] blacklist, String[] whitelist)
     {
@@ -78,6 +100,11 @@ public class BlackLists
         {
             return ENDER_BAG_BLACKLIST_NAMES.contains(blockName) == false;
         }
+    }
+
+    public static boolean isBlockValidBedrockForEnergyBridge(IBlockState state)
+    {
+        return ENERGY_BRIDGE_BEDROCK_WHITELIST.contains(state);
     }
 
     public static void registerTeleportBlacklist(String[] blacklist)

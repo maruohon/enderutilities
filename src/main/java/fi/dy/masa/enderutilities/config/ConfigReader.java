@@ -424,8 +424,16 @@ public class ConfigReader
     {
         Property prop;
 
+        currentRequiresMcRestart = false;
         currentCategory = CATEGORY_LISTS;
 
+        prop = getProp("energyBridgeBedrockWhitelist", new String[] { "minecraft:bedrock" });
+        prop.setComment("A list of blockstates that are valid for the Energy Bridge's Bedrock requirement.\n" +
+                        "Use a blockstate string, for example: 'minecraft:gold_block' or 'minecraft:stone[variant=andesite]'.\n" +
+                        "A block name without properties will match all states, for example: 'minecraft:stone'\n" +
+                        "would match smooth stone and all the granite/andesite/diorite variants that are in the same block.");
+        Configs.energyBridgeBedrockWhitelist = prop.getStringList();
+        
         prop = getProp("endDimensions", new String[0]);
         prop.setComment("A list of dimension IDs that should be considered End dimensions, although they may otherwise not seem like it.\n" +
                         "This is mainly used for the Energy Bridges, to allow the Transmitters to work in custom End dimensions.");
@@ -477,6 +485,7 @@ public class ConfigReader
         prop.setComment("Entities that are not allowed to be teleported using any methods");
         Configs.teleportBlacklist = prop.getStringList();
 
+        BlackLists.registerEnergyBridgeBedrockWhitelist(Configs.energyBridgeBedrockWhitelist);
         BlackLists.registerEnderBagLists(Configs.enderBagBlacklist, Configs.enderBagWhitelist);
         BlackLists.registerTeleportBlacklist(Configs.teleportBlacklist);
         WorldUtils.setCustomEndDimensions(Configs.endDimensions);
