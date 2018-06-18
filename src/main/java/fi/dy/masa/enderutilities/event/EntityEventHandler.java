@@ -24,6 +24,7 @@ import fi.dy.masa.enderutilities.config.Configs;
 import fi.dy.masa.enderutilities.item.ItemEnderLasso;
 import fi.dy.masa.enderutilities.item.ItemLivingManipulator;
 import fi.dy.masa.enderutilities.item.ItemMobHarness;
+import fi.dy.masa.enderutilities.item.ItemPetContract;
 import fi.dy.masa.enderutilities.item.ItemPortalScaler;
 import fi.dy.masa.enderutilities.item.ItemSyringe;
 import fi.dy.masa.enderutilities.item.base.IChargeable;
@@ -105,6 +106,14 @@ public class EntityEventHandler
                         event.setCancellationResult(EnumActionResult.SUCCESS);
                     }
                 }
+            }
+        }
+        else if (item == EnderUtilitiesItems.PET_CONTRACT && event.getTarget() instanceof EntityLivingBase)
+        {
+            if (((ItemPetContract) stack.getItem()).itemInteractionForEntity(stack, player, (EntityLivingBase) event.getTarget(), event.getHand()))
+            {
+                event.setCanceled(true);
+                event.setCancellationResult(EnumActionResult.SUCCESS);
             }
         }
         else if (WorldUtils.isEndDimension(player.getEntityWorld()) && event.getTarget() instanceof EntityEnderCrystal && isRemote == false)
