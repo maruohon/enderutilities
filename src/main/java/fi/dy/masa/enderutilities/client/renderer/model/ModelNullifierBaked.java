@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.client.renderer.model;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -54,13 +55,15 @@ import fi.dy.masa.enderutilities.item.ItemNullifier;
 import fi.dy.masa.enderutilities.reference.Reference;
 import fi.dy.masa.enderutilities.util.ItemType;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 @EventBusSubscriber(Side.CLIENT)
 public class ModelNullifierBaked implements IBakedModel
 {
     private static ModelLoader MODEL_LOADER;
     private static Map<ModelResourceLocation, IModel> STATE_MODELS;
-    private static Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> LOCATIONS;
+    private static Map<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>> LOCATIONS;
     private static Map<Item, ItemMeshDefinition> SHAPERS;
 
     private static final Map<NullifierState, IBakedModel> NULLIFIER_MODEL_CACHE = new HashMap<NullifierState, IBakedModel>();
@@ -202,7 +205,7 @@ public class ModelNullifierBaked implements IBakedModel
 
         Item item = stack.getItem();
         ModelResourceLocation mrl = null;
-        TIntObjectHashMap<ModelResourceLocation> map = LOCATIONS.get(item.delegate);
+        Int2ObjectMap<ModelResourceLocation> map = LOCATIONS.get(item.delegate);
 
         if (map != null)
         {
@@ -244,7 +247,49 @@ public class ModelNullifierBaked implements IBakedModel
                 ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
                 Field locs = ReflectionHelper.findField(ItemModelMesherForge.class, "locations");
-                LOCATIONS = (Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>>) locs.get(mesher);
+
+                try
+                {
+                    Map<IRegistryDelegate<Item>, ?> mapObj = (Map<IRegistryDelegate<Item>, ?>) locs.get(mesher);
+                    Iterator<?> iter = mapObj.values().iterator();
+
+                    if (iter.hasNext())
+                    {
+                        Object o = iter.next();
+
+                        if (o instanceof Int2ObjectMap)
+                        {
+                            LOCATIONS = (Map<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>>) mapObj;
+                        }
+                        // Support the old Trove map...
+                        else if (o instanceof TIntObjectHashMap)
+                        {
+                            Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> map = (Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>>) mapObj;
+                            LOCATIONS = new HashMap<>();
+
+                            for (Map.Entry<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> entry : map.entrySet())
+                            {
+                                Int2ObjectMap<ModelResourceLocation> mrlMap = new Int2ObjectOpenHashMap<>();
+                                TIntObjectHashMap<ModelResourceLocation> oldMap = entry.getValue();
+
+                                for (int key : oldMap.keys())
+                                {
+                                    ModelResourceLocation mrl = oldMap.get(key);
+
+                                    if (mrl != null)
+                                    {
+                                        mrlMap.put(key, mrl);
+                                    }
+                                }
+
+                                LOCATIONS.put(entry.getKey(), mrlMap);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                }
 
                 Field shapers = ReflectionHelper.findField(ItemModelMesher.class, "field_178092_c", "shapers");
                 SHAPERS = (Map<Item, ItemMeshDefinition>) shapers.get(mesher);
