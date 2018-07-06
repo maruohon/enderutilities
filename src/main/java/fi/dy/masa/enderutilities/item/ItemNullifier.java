@@ -66,7 +66,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
             EntityUtils.setHeldItemWithoutEquipSound(player, hand, useStack);
             EnumActionResult result = useStack.onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 
-            if (useStack.isEmpty() == false)
+            if (world.isRemote == false && player.capabilities.isCreativeMode == false && useStack.isEmpty() == false)
             {
                 tryInsertItemsToNullifier(useStack, stack, player);
             }
@@ -93,7 +93,7 @@ public class ItemNullifier extends ItemEnderUtilities implements IKeyBound
         ItemHandlerNullifier inv = createInventoryForItem(stackNullifier, false);
 
         int slot = MathHelper.clamp(NBTUtils.getByte(stackNullifier, TAG_NAME_CONTAINER, TAG_NAME_SLOT_SELECTION), 0, inv.getSlots() - 1);
-        boolean simulate = player.getEntityWorld().isRemote;
+        boolean simulate = player.getEntityWorld().isRemote || player.capabilities.isCreativeMode;
         return inv.extractItem(slot, 1, simulate);
     }
 
