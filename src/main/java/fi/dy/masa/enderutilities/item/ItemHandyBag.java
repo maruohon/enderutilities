@@ -1089,6 +1089,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (cardStack.isEmpty() == false)
             {
                 NBTUtils.setByte(cardStack, "HandyBag", "PickupMode", (byte) id);
+                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
             }
         }
     }
@@ -1157,6 +1158,7 @@ public class ItemHandyBag extends ItemInventoryModular
             if (cardStack.isEmpty() == false)
             {
                 NBTUtils.setByte(cardStack, "HandyBag", "RestockMode", (byte) id);
+                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
             }
         }
     }
