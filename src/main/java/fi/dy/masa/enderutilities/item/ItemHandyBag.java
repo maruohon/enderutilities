@@ -787,10 +787,10 @@ public class ItemHandyBag extends ItemInventoryModular
                             NBTUtils.toggleBoolean(stack, "HandyBag", "DisableOpen");
                             break;
                         case 1:
-                            PickupMode.cycleMode(stack, (element & 0x8000) != 0);
+                            PickupMode.cycleMode(stack, player, (element & 0x8000) != 0);
                             break;
                         case 2:
-                            RestockMode.cycleMode(stack, (element & 0x8000) != 0);
+                            RestockMode.cycleMode(stack, player, (element & 0x8000) != 0);
                             break;
                         default:
                     }
@@ -914,13 +914,13 @@ public class ItemHandyBag extends ItemInventoryModular
         // Shift + Toggle mode: Cycle Pickup Mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
         {
-            PickupMode.cycleMode(stack, EnumKey.keypressActionIsReversed(key));
+            PickupMode.cycleMode(stack, player, EnumKey.keypressActionIsReversed(key));
             return true;
         }
         // Just Toggle mode: Toggle Restock mode
         else if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE))
         {
-            RestockMode.cycleMode(stack, EnumKey.keypressActionIsReversed(key));
+            RestockMode.cycleMode(stack, player, EnumKey.keypressActionIsReversed(key));
             return true;
         }
         // Alt + Shift + Toggle mode: Toggle Locked Mode
@@ -1023,6 +1023,50 @@ public class ItemHandyBag extends ItemInventoryModular
         return new ModelResourceLocation(Reference.MOD_ID + ":" + "item_" + this.name, variant);
     }
 
+    private static void setModeOnCard(ItemStack bagStack, EntityPlayer player, String modeName, int value)
+    {
+        InventoryItemModular bagInv = null;
+
+        // If this bag is currently open, then use that inventory instead of creating a new one,
+        // otherwise the open GUI/inventory will overwrite the changes from the picked up items.
+        if (player.openContainer instanceof ContainerHandyBag &&
+            ((ContainerHandyBag) player.openContainer).inventoryItemModular.getModularItemStack() == bagStack)
+        {
+            bagInv = ((ContainerHandyBag) player.openContainer).inventoryItemModular;
+        }
+
+        if (bagInv != null)
+        {
+            if (bagInv.isAccessibleBy(player) == false)
+            {
+                return;
+            }
+
+            int moduleSlot = bagInv.getSelectedModuleIndex();
+
+            if (moduleSlot >= 0)
+            {
+                ItemStack cardStack = bagInv.getModuleInventory().getStackInSlot(moduleSlot);
+
+                if (cardStack.isEmpty() == false)
+                {
+                    NBTUtils.setByte(cardStack, "HandyBag", modeName, (byte) value);
+                    bagInv.getModuleInventory().onContentsChanged(moduleSlot); // Write to NBT
+                }
+            }
+        }
+        else
+        {
+            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
+
+            if (cardStack.isEmpty() == false)
+            {
+                NBTUtils.setByte(cardStack, "HandyBag", modeName, (byte) value);
+                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
+            }
+        }
+    }
+
     public enum PickupMode
     {
         NONE     (0, "enderutilities.tooltip.item.disabled", "none"),
@@ -1054,7 +1098,7 @@ public class ItemHandyBag extends ItemInventoryModular
             return (id >= 0 && id < values().length) ? values()[id] : NONE;
         }
 
-        public static void cycleMode(ItemStack bagStack, boolean reverse)
+        public static void cycleMode(ItemStack bagStack, EntityPlayer player, boolean reverse)
         {
             int id = getModeId(bagStack) + (reverse ? -1 : 1);
 
@@ -1067,7 +1111,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 id = 0;
             }
 
-            setModeId(bagStack, id);
+            setModeId(bagStack, player, id);
         }
 
         private static int getModeId(ItemStack bagStack)
@@ -1082,15 +1126,9 @@ public class ItemHandyBag extends ItemInventoryModular
             return PickupMode.NONE.ordinal();
         }
 
-        private static void setModeId(ItemStack bagStack, int id)
+        private static void setModeId(ItemStack bagStack, EntityPlayer player, int id)
         {
-            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-
-            if (cardStack.isEmpty() == false)
-            {
-                NBTUtils.setByte(cardStack, "HandyBag", "PickupMode", (byte) id);
-                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
-            }
+            setModeOnCard(bagStack, player, "PickupMode", (byte) id);
         }
     }
 
@@ -1123,7 +1161,7 @@ public class ItemHandyBag extends ItemInventoryModular
             return (id >= 0 && id < values().length) ? values()[id] : DISABLED;
         }
 
-        public static void cycleMode(ItemStack bagStack, boolean reverse)
+        public static void cycleMode(ItemStack bagStack, EntityPlayer player, boolean reverse)
         {
             int id = getModeId(bagStack) + (reverse ? -1 : 1);
 
@@ -1136,7 +1174,7 @@ public class ItemHandyBag extends ItemInventoryModular
                 id = 0;
             }
 
-            setModeId(bagStack, id);
+            setModeId(bagStack, player, id);
         }
 
         private static int getModeId(ItemStack bagStack)
@@ -1151,15 +1189,9 @@ public class ItemHandyBag extends ItemInventoryModular
             return RestockMode.DISABLED.ordinal();
         }
 
-        private static void setModeId(ItemStack bagStack, int id)
+        private static void setModeId(ItemStack bagStack, EntityPlayer player, int id)
         {
-            ItemStack cardStack = UtilItemModular.getSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS);
-
-            if (cardStack.isEmpty() == false)
-            {
-                NBTUtils.setByte(cardStack, "HandyBag", "RestockMode", (byte) id);
-                UtilItemModular.setSelectedModuleStackAbs(bagStack, ModuleType.TYPE_MEMORY_CARD_ITEMS, cardStack);
-            }
+            setModeOnCard(bagStack, player, "RestockMode", (byte) id);
         }
     }
 
