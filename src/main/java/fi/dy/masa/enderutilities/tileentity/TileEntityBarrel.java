@@ -628,9 +628,9 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
     protected Vec3d getSpawnedItemPosition(EnumFacing side)
     {
-        double x = this.getPos().getX() + 0.5 + side.getFrontOffsetX() * 0.625;
-        double y = this.getPos().getY() + 0.5 + side.getFrontOffsetY() * 0.5;
-        double z = this.getPos().getZ() + 0.5 + side.getFrontOffsetZ() * 0.625;
+        double x = this.getPos().getX() + 0.5 + side.getXOffset() * 0.625;
+        double y = this.getPos().getY() + 0.5 + side.getYOffset() * 0.5;
+        double z = this.getPos().getZ() + 0.5 + side.getZOffset() * 0.625;
 
         if (side == EnumFacing.DOWN)
         {

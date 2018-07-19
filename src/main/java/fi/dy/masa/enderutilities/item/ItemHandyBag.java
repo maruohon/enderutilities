@@ -144,9 +144,9 @@ public class ItemHandyBag extends ItemInventoryModular
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return super.getUnlocalizedName() + "_" + stack.getMetadata();
+        return super.getTranslationKey() + "_" + stack.getMetadata();
     }
 
     @Override

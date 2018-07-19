@@ -33,9 +33,9 @@ public class ItemPetContract extends ItemEnderUtilities
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        String name = super.getUnlocalizedName();
+        String name = super.getTranslationKey();
         return this.isSigned(stack) ? name + "_signed" : name + "_blank";
     }
 

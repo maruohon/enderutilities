@@ -33,7 +33,7 @@ public class BlockPosEU
 
     public BlockPosEU(BlockPos pos, int dim, int facing)
     {
-        this(pos.getX(), pos.getY(), pos.getZ(), dim, EnumFacing.getFront(facing));
+        this(pos.getX(), pos.getY(), pos.getZ(), dim, EnumFacing.byIndex(facing));
     }
 
     public BlockPosEU(BlockPos pos, int dim, EnumFacing facing)
@@ -109,9 +109,9 @@ public class BlockPosEU
      */
     public BlockPosEU offset(EnumFacing facing, int distance)
     {
-        return new BlockPosEU(  this.posX + facing.getFrontOffsetX() * distance,
-                                this.posY + facing.getFrontOffsetY() * distance,
-                                this.posZ + facing.getFrontOffsetZ() * distance,
+        return new BlockPosEU(  this.posX + facing.getXOffset() * distance,
+                                this.posY + facing.getYOffset() * distance,
+                                this.posZ + facing.getZOffset() * distance,
                                 this.dimension, this.facing);
     }
 
@@ -184,7 +184,7 @@ public class BlockPosEU
         int dim = tag.getInteger("dim");
         int face = tag.getByte("face");
 
-        return new BlockPosEU(x, y, z, dim, EnumFacing.getFront(face));
+        return new BlockPosEU(x, y, z, dim, EnumFacing.byIndex(face));
     }
 
     public static BlockPosEU readFromNBT(NBTTagCompound nbt)

@@ -167,7 +167,7 @@ public class BlockUtils
 
             if (harvest)
             {
-                blockExisting.onBlockDestroyedByPlayer(world, pos, stateExisting);
+                blockExisting.onPlayerDestroy(world, pos, stateExisting);
                 blockExisting.harvestBlock(world, playerMP, pos, stateExisting, world.getTileEntity(pos), toolStack);
             }
         }

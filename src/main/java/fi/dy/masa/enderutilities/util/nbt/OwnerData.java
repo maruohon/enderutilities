@@ -347,7 +347,7 @@ public class OwnerData
         {
             stack.getTagCompound().removeTag("Owner");
 
-            if (stack.getTagCompound().hasNoTags())
+            if (stack.getTagCompound().isEmpty())
             {
                 stack.setTagCompound(null);
             }

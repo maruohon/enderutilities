@@ -37,17 +37,17 @@ public class ItemLinkCrystal extends ItemLocationBound implements IModule
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         // Damage 0: Link Crystal (In-World)
         // Damage 1: Link Crystal (Inventory)
         // Damage 2: Link Crystal (Portal)
         if (stack.getMetadata() >= 0 && stack.getMetadata() <= 2)
         {
-            return super.getUnlocalizedName() + "_" + stack.getMetadata();
+            return super.getTranslationKey() + "_" + stack.getMetadata();
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     @Override

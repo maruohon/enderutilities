@@ -163,7 +163,7 @@ public abstract class BlockEnderUtilitiesTileEntity extends BlockEnderUtilities
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
     {
-        return this.isCamoBlock() || layer == this.getBlockLayer();
+        return this.isCamoBlock() || layer == this.getRenderLayer();
     }
 
     @Override

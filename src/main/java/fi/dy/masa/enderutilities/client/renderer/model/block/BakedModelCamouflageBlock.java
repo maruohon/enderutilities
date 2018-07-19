@@ -184,7 +184,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
             // but restricts the base model to only render on the one layer it says it should be on.
             // This is because canRenderInLayer() returns true for all layers for camo blocks,
             // so that the camo model can render in all the layers it needs to.
-            if ((isCamoModel || baseActualState.getBlock().getBlockLayer() == layer) &&
+            if ((isCamoModel || baseActualState.getBlock().getRenderLayer() == layer) &&
                 baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
             {
                 quads.addAll(baseModel.getQuads(baseExtendedState, face, 0));
@@ -201,7 +201,7 @@ public class BakedModelCamouflageBlock implements IBakedModel
 
         ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
-        if ((isCamoModel || baseActualState.getBlock().getBlockLayer() == layer) &&
+        if ((isCamoModel || baseActualState.getBlock().getRenderLayer() == layer) &&
             baseActualState.getBlock().canRenderInLayer(baseActualState, layer))
         {
             quads.addAll(baseModel.getQuads(baseExtendedState, null, 0));

@@ -29,9 +29,9 @@ public class ItemSyringe extends ItemEnderUtilities
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        String name = super.getUnlocalizedName();
+        String name = super.getTranslationKey();
 
         switch (stack.getMetadata())
         {

@@ -43,14 +43,14 @@ public class ItemEnderPorter extends ItemLocationBoundModular
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         if (this.isAdvancedPorter(stack))
         {
-            return super.getUnlocalizedName() + "_advanced";
+            return super.getTranslationKey() + "_advanced";
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     private boolean isAdvancedPorter(ItemStack stack)

@@ -111,7 +111,7 @@ public class BlockDrawbridge extends BlockEnderUtilitiesInventory
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState()
-                .withProperty(FACING, EnumFacing.getFront(meta >> 1))
+                .withProperty(FACING, EnumFacing.byIndex(meta >> 1))
                 .withProperty(ADVANCED, (meta & 0x1) == 1);
     }
 

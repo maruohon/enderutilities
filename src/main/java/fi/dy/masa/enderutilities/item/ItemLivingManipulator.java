@@ -144,9 +144,9 @@ public class ItemLivingManipulator extends ItemModular implements IKeyBound
                 // Special case to update the Shulker's attached position and position
                 if (tag.hasKey("APX", Constants.NBT.TAG_INT))
                 {
-                    int xi = pos.getX() + side.getFrontOffsetX();
-                    int yi = pos.getY() + side.getFrontOffsetY();
-                    int zi = pos.getZ() + side.getFrontOffsetZ();
+                    int xi = pos.getX() + side.getXOffset();
+                    int yi = pos.getY() + side.getYOffset();
+                    int zi = pos.getZ() + side.getZOffset();
 
                     tag.setTag("Pos", NBTUtils.writeDoubles(new double[] {xi + 0.5d, yi, zi + 0.5d}));
                     tag.setInteger("APX", xi);

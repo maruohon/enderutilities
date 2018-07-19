@@ -55,7 +55,7 @@ public class ItemEnderPart extends ItemModule
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         int damage = stack.getMetadata();
 
@@ -64,55 +64,55 @@ public class ItemEnderPart extends ItemModule
             case 0: // Damage 0: Ender Alloy (Basic)
             case 1: // Damage 1: Ender Alloy (Enhanced)
             case 2: // Damage 2: Ender Alloy (Advanced)
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "_" + damage;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERALLOY + "_" + damage;
 
             case 10: // Damage 10: Inactive Ender Core (Basic)
             case 11: // Damage 11: Inactive Ender Core (Enhanced)
             case 12: // Damage 12: Inactive Ender Core (Advanced)
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 10) + "_inactive";
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 10) + "_inactive";
 
             case 15: // Damage 15: Ender Core (Basic)
             case 16: // Damage 16: Ender Core (Enhanced)
             case 17: // Damage 17: Ender Core (Advanced)
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 15) + "_active";
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERCORE + "_" + (damage - 15) + "_active";
 
             case 20: // Damage 20: Ender Stick
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERSTICK;
 
             case 21: // Damage 21: Ender Rope
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERROPE;
 
             case 30: // Damage 30: Creative Breaking module
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_CREATIVE_BREAKING;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_CREATIVE_BREAKING;
 
             case 40: // Damage 40: Ender Relic
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_ENDERRELIC;
 
             case 45: // Damage 45: Mob Persistence
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_JAILER;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_JAILER;
 
             case 50: // Damage 50: Memory Card (misc)
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_MISC;
 
             case 51: // Damage 51: Memory Card (items) 6 B
             case 52: // Damage 52: Memory Card (items) 8 B
             case 53: // Damage 53: Memory Card (items) 10 B
             case 54: // Damage 54: Memory Card (items) 12 B
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "_" + (damage - 51);
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_MEMORY_CARD_ITEMS + "_" + (damage - 51);
 
             case 70: // Barrel Label
             case 71: // Barrel Structural Upgrade
             case 72: // Barrel Capacity Upgrade
             case 73: // Barrel Void Upgrade
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_BARREL_UPGRADE + "_" + (damage - 70);
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_BARREL_UPGRADE + "_" + (damage - 70);
 
             case 80: // Storage Key
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY;
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY;
             case 81: // Creative Storage Key
-                return super.getUnlocalizedName() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY + "_creative";
+                return super.getTranslationKey() + "_" + ReferenceNames.NAME_ITEM_ENDERPART_STORAGE_KEY + "_creative";
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     @Override
@@ -203,7 +203,7 @@ public class ItemEnderPart extends ItemModule
         int meta = stack.getMetadata();
         NBTTagCompound nbt = stack.getTagCompound();
 
-        if (meta >= 50 && meta <= 54 && (nbt == null || nbt.hasNoTags()))
+        if (meta >= 50 && meta <= 54 && (nbt == null || nbt.isEmpty()))
         {
             list.add(I18n.format("enderutilities.tooltip.item.memorycard.nodata"));
             return;

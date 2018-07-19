@@ -464,7 +464,7 @@ public class ModelEnderTools implements IModel
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) && modelLocation.getResourcePath().contains("generated_model_endertool");
+            return modelLocation.getNamespace().equals(Reference.MOD_ID) && modelLocation.getPath().contains("generated_model_endertool");
         }
 
         @Override

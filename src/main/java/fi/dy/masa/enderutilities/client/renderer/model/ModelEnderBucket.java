@@ -198,7 +198,8 @@ public class ModelEnderBucket implements IModel
         if (this.fluid != null)
         {
             TextureAtlasSprite fluidTex = bakedTextureGetter.apply(this.fluid.getStill());
-            int color = fluid.getColor();
+            final int color = this.fluid.getColor();
+            final int tint = 0xFFFFFFFF;
             float capacity = this.capacity > 0 ? this.capacity : 1000;
             float height = (float)this.amount / capacity;
             // top x: 4 .. 12 ; y: 3 .. 7
@@ -206,14 +207,14 @@ public class ModelEnderBucket implements IModel
             float yt = 7 - height * 4;
             float yb = 13 - height * 4;
             // Top part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.469f, fluidTex, EnumFacing.NORTH, color));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.469f, fluidTex, EnumFacing.NORTH, color, tint));
             // Bottom part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.469f, fluidTex, EnumFacing.NORTH, color));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.469f, fluidTex, EnumFacing.NORTH, color, tint));
 
             // Top part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.531f, fluidTex, EnumFacing.SOUTH, color));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform,   4f, yt, 12f,  7f, 0.531f, fluidTex, EnumFacing.SOUTH, color, tint));
             // Bottom part fluid
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.531f, fluidTex, EnumFacing.SOUTH, color));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 6.5f, yb, 10f, 13f, 0.531f, fluidTex, EnumFacing.SOUTH, color, tint));
         }
 
         return new BakedEnderBucket(this, builder.build(), mainSprite, format, Maps.immutableEnumMap(transformMap), Maps.<String, IBakedModel>newHashMap());
@@ -352,7 +353,7 @@ public class ModelEnderBucket implements IModel
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) && modelLocation.getResourcePath().contains("generated_model_enderbucket");
+            return modelLocation.getNamespace().equals(Reference.MOD_ID) && modelLocation.getPath().contains("generated_model_enderbucket");
         }
 
         @Override

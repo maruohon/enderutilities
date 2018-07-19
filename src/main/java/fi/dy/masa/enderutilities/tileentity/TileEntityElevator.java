@@ -117,7 +117,7 @@ public class TileEntityElevator extends TileEntityEnderUtilities
 
         if (redstone != this.redstoneState && redstone)
         {
-            this.activateByRedstone(worldIn.isBlockIndirectlyGettingPowered(pos) < 8);
+            this.activateByRedstone(worldIn.getRedstonePowerFromNeighbors(pos) < 8);
         }
 
         this.redstoneState = redstone;

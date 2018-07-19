@@ -93,16 +93,16 @@ public class ItemEnderTool extends ItemLocationBoundModular implements IAnvilRep
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         ToolType toolType = ToolType.fromStack(stack);
 
         if (toolType != ToolType.INVALID)
         {
-            return super.getUnlocalizedName() + "_" + toolType.getName();
+            return super.getTranslationKey() + "_" + toolType.getName();
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     @Override

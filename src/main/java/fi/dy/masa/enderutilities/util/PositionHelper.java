@@ -88,8 +88,8 @@ public class PositionHelper
      */
     public void adjustPositionToTouchFace(Entity entity, EnumFacing facing)
     {
-        this.posX += (facing.getFrontOffsetX() * entity.width / 2);
-        this.posZ += (facing.getFrontOffsetZ() * entity.width / 2);
+        this.posX += (facing.getXOffset() * entity.width / 2);
+        this.posZ += (facing.getZOffset() * entity.width / 2);
 
         // Bottom side
         if (facing.equals(EnumFacing.DOWN))

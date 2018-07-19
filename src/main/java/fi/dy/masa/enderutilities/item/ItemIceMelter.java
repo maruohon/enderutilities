@@ -31,9 +31,9 @@ public class ItemIceMelter extends ItemEnderUtilities
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        String name = super.getUnlocalizedName();
+        String name = super.getTranslationKey();
         return stack.getMetadata() == 1 ? name + "_super" : name + "_basic";
     }
 

@@ -288,7 +288,7 @@ public class TeleportEntity
     private static Entity teleportEntityInsideSameDimension(Entity entity, double x, double y, double z)
     {
         // Load the chunk first
-        entity.getEntityWorld().getChunkFromChunkCoords((int) Math.floor(x / 16D), (int) Math.floor(z / 16D));
+        entity.getEntityWorld().getChunk((int) Math.floor(x / 16D), (int) Math.floor(z / 16D));
 
         entity.setLocationAndAngles(x, y, z, entity.rotationYaw, entity.rotationPitch);
         entity.setPositionAndUpdate(x, y, z);

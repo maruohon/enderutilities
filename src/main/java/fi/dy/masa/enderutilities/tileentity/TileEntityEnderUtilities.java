@@ -278,7 +278,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (nbt.hasKey("Rotation", Constants.NBT.TAG_BYTE))
         {
-            this.facing = EnumFacing.getFront(nbt.getByte("Rotation"));
+            this.facing = EnumFacing.byIndex(nbt.getByte("Rotation"));
         }
 
         /*
@@ -406,7 +406,7 @@ public class TileEntityEnderUtilities extends TileEntity
     {
         if (tag.hasKey("r"))
         {
-            this.setFacing(EnumFacing.getFront((byte)(tag.getByte("r") & 0x07)));
+            this.setFacing(EnumFacing.byIndex((byte)(tag.getByte("r") & 0x07)));
         }
 
         if (tag.hasKey("o", Constants.NBT.TAG_STRING))

@@ -910,7 +910,7 @@ public class ItemEnderBucket extends ItemLocationBoundModular implements IKeyBou
             {
                 nbt.removeTag("Fluid");
 
-                if (nbt.hasNoTags())
+                if (nbt.isEmpty())
                 {
                     stack.setTagCompound(null);
                 }

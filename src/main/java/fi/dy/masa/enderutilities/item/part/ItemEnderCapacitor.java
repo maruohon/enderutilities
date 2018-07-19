@@ -33,7 +33,7 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         // Damage 0: Ender Capacitor (Basic)
         // Damage 1: Ender Capacitor (Enhanced)
@@ -41,10 +41,10 @@ public class ItemEnderCapacitor extends ItemEnderUtilities implements IChargeabl
         // Damage 3: Ender Capacitor (Creative)
         if (stack.getMetadata() >= 0 && stack.getMetadata() <= 3)
         {
-            return super.getUnlocalizedName() + "_" + stack.getMetadata();
+            return super.getTranslationKey() + "_" + stack.getMetadata();
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     public int getCapacityFromItemType(ItemStack stack)

@@ -748,7 +748,7 @@ public class PositionUtils
                     continue;
                 }
 
-                Chunk chunk = world.getChunkFromChunkCoords(cx, cz);
+                Chunk chunk = world.getChunk(cx, cz);
                 if (chunk != null)
                 {
                     Map<BlockPos, TileEntity> map = chunk.getTileEntityMap();
@@ -829,8 +829,8 @@ public class PositionUtils
 
         target = target.copy();
         float widthAdj = entity.width / 2;
-        target.dPosX += target.facing.getFrontOffsetX() * widthAdj;
-        target.dPosZ += target.facing.getFrontOffsetZ() * widthAdj;
+        target.dPosX += target.facing.getXOffset() * widthAdj;
+        target.dPosZ += target.facing.getZOffset() * widthAdj;
 
         // Targeting the bottom face of a block, adjust the position lower
         if (target.facing == EnumFacing.DOWN)

@@ -56,7 +56,7 @@ public class BlockMolecularExciter extends BlockEnderUtilities
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState()
-                .withProperty(FACING, EnumFacing.getFront(meta & 0x7))
+                .withProperty(FACING, EnumFacing.byIndex(meta & 0x7))
                 .withProperty(POWERED, (meta & 0x8) != 0);
     }
 

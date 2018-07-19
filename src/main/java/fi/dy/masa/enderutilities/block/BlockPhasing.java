@@ -145,7 +145,7 @@ public class BlockPhasing extends BlockEnderUtilities
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }

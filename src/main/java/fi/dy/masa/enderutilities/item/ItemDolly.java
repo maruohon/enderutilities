@@ -226,7 +226,7 @@ public class ItemDolly extends ItemEnderUtilities
             {
                 @SuppressWarnings("deprecation")
                 IBlockState state = block.getStateFromMeta(meta);
-                EnumFacing pickupFacing = EnumFacing.getFront(tagCarrying.getByte("PickupFacing"));
+                EnumFacing pickupFacing = EnumFacing.byIndex(tagCarrying.getByte("PickupFacing"));
                 EnumFacing currentFacing = EntityUtils.getHorizontalLookingDirection(player);
                 Rotation rotation = PositionUtils.getRotation(pickupFacing, currentFacing);
                 state = state.withRotation(rotation);

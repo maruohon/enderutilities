@@ -29,15 +29,15 @@ public class ItemEnderPearlReusable extends ItemEnderUtilities
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         // damage 1: Elite Ender Pearl
         if (stack.getMetadata() == 1)
         {
-            return super.getUnlocalizedName() + "_elite";
+            return super.getTranslationKey() + "_elite";
         }
 
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     /**

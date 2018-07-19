@@ -78,7 +78,7 @@ public class BlockPortalPanel extends BlockEnderUtilitiesInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta & 0x7));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byIndex(meta & 0x7));
     }
 
     @Override

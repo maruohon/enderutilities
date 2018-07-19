@@ -156,8 +156,8 @@ public class ModelCamouflageBlock
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(Reference.MOD_ID) &&
-                   modelLocation.getResourcePath().startsWith("models/block/custom/camo_");
+            return modelLocation.getNamespace().equals(Reference.MOD_ID) &&
+                   modelLocation.getPath().startsWith("models/block/custom/camo_");
         }
 
         @Override

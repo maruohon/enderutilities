@@ -79,7 +79,7 @@ public class EntityUtils
             reach = ((EntityPlayer) player).getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         }
 
-        Vec3d vec3d1 = vec3d.addVector(f6 * reach, f5 * reach, f7 * reach);
+        Vec3d vec3d1 = vec3d.add(f6 * reach, f5 * reach, f7 * reach);
 
         return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, false, false);
     }
@@ -107,7 +107,7 @@ public class EntityUtils
      */
     public static int getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, List<AxisAlignedBB> boxes)
     {
-        Vec3d lookEndVec = eyesVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+        Vec3d lookEndVec = eyesVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
         //AxisAlignedBB box = null;
         //Vec3d hitVec = null;
         double distance = reach;
@@ -164,7 +164,7 @@ public class EntityUtils
     @Nullable
     public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
     {
-        Vec3d lookEndVec = eyesVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+        Vec3d lookEndVec = eyesVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
         double distance = reach;
         T key = null;
 

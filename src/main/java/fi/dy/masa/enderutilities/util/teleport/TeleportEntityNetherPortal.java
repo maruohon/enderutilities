@@ -155,23 +155,23 @@ public class TeleportEntityNetherPortal
             EnumFacing dirPortal = this.portalAxis;
 
             // Get the axis where there are more portal blocks (if only 2 wide portal)
-            BlockPos posTmp = this.portalPos.add(dirPortal.getFrontOffsetX(), 0, dirPortal.getFrontOffsetZ());
+            BlockPos posTmp = this.portalPos.add(dirPortal.getXOffset(), 0, dirPortal.getZOffset());
             if (world.getBlockState(posTmp).getBlock() != Blocks.PORTAL)
             {
                 dirPortal = dirPortal.getOpposite();
             }
 
             List<BlockPos> list = new ArrayList<BlockPos>();
-            int xOff = dirSide.getFrontOffsetX();
-            int zOff = dirSide.getFrontOffsetZ();
+            int xOff = dirSide.getXOffset();
+            int zOff = dirSide.getZOffset();
             list.add(this.portalPos.add(xOff, -1, zOff));
             list.add(this.portalPos.add(xOff, -2, zOff));
-            list.add(this.portalPos.add(xOff + dirPortal.getFrontOffsetX(), -1, zOff + dirPortal.getFrontOffsetZ()));
-            list.add(this.portalPos.add(xOff + dirPortal.getFrontOffsetX(), -2, zOff + dirPortal.getFrontOffsetZ()));
+            list.add(this.portalPos.add(xOff + dirPortal.getXOffset(), -1, zOff + dirPortal.getZOffset()));
+            list.add(this.portalPos.add(xOff + dirPortal.getXOffset(), -2, zOff + dirPortal.getZOffset()));
             list.add(this.portalPos.add(-xOff, -1, -zOff));
             list.add(this.portalPos.add(-xOff, -2, -zOff));
-            list.add(this.portalPos.add(-xOff + dirPortal.getFrontOffsetX(), -1, -zOff + dirPortal.getFrontOffsetZ()));
-            list.add(this.portalPos.add(-xOff + dirPortal.getFrontOffsetX(), -2, -zOff + dirPortal.getFrontOffsetZ()));
+            list.add(this.portalPos.add(-xOff + dirPortal.getXOffset(), -1, -zOff + dirPortal.getZOffset()));
+            list.add(this.portalPos.add(-xOff + dirPortal.getXOffset(), -2, -zOff + dirPortal.getZOffset()));
 
             // Try to find a suitable position on either side of the portal
             for (BlockPos pos : list)
@@ -198,7 +198,7 @@ public class TeleportEntityNetherPortal
 
             // No suitable positions found on either side of the portal, what should we do here??
             // Let's just stick the player to wherever he ends up on the side of the portal for now...
-            return this.portalPos.add(dirSide.getFrontOffsetX(), 0, dirSide.getFrontOffsetZ());
+            return this.portalPos.add(dirSide.getXOffset(), 0, dirSide.getZOffset());
         }
     }
 }

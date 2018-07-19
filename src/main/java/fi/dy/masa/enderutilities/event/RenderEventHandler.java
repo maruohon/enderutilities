@@ -200,8 +200,8 @@ public class RenderEventHandler
 
         if (facing.getAxis().isHorizontal())
         {
-            int frontX = facing.getFrontOffsetX();
-            int frontZ = facing.getFrontOffsetZ();
+            int frontX = facing.getXOffset();
+            int frontZ = facing.getZOffset();
 
             if (facing == EnumFacing.NORTH || facing == EnumFacing.WEST)
             {
@@ -231,7 +231,7 @@ public class RenderEventHandler
             }
 
             y += frontOffset;
-            angleV = facing.getFrontOffsetY() * -90f;
+            angleV = facing.getYOffset() * -90f;
         }
 
         this.renderLabel(text, x - dx, y - dy, z - dz, angleH, angleV);

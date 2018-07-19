@@ -368,7 +368,7 @@ public class EntityEnderArrow extends EntityArrow
 
                 if (state.getMaterial() != Material.AIR)
                 {
-                    this.inBlock.onEntityCollidedWithBlock(this.getEntityWorld(), mopPos, state, this);
+                    this.inBlock.onEntityCollision(this.getEntityWorld(), mopPos, state, this);
                 }
             }
         }

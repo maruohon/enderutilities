@@ -64,7 +64,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta & 0x7));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byIndex(meta & 0x7));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
@@ -149,7 +149,7 @@ public class BlockEnderUtilitiesPortal extends BlockEnderUtilitiesTileEntity
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (worldIn.isRemote == false)
         {

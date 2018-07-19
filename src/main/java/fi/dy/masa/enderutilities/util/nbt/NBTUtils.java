@@ -58,7 +58,7 @@ public class NBTUtils
     @Nonnull
     public static ItemStack setRootCompoundTag(@Nonnull ItemStack stack, @Nullable NBTTagCompound nbt)
     {
-        if (nbt != null && nbt.hasNoTags())
+        if (nbt != null && nbt.isEmpty())
         {
             nbt = null;
         }
@@ -169,7 +169,7 @@ public class NBTUtils
         {
             nbt.removeTag(tagName);
 
-            if (nbt.hasNoTags())
+            if (nbt.isEmpty())
             {
                 if (containerTagName != null)
                 {
@@ -205,7 +205,7 @@ public class NBTUtils
             }
         }
 
-        return newTag.hasNoTags() ? null : newTag;
+        return newTag.isEmpty() ? null : newTag;
     }
 
     @Nonnull

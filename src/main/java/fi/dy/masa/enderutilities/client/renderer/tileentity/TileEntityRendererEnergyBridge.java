@@ -134,17 +134,17 @@ public class TileEntityRendererEnergyBridge extends TileEntitySpecialRenderer<Ti
 
             // From Resonator to Receiver
             GlStateManager.pushMatrix();
-            GlStateManager.translate(x + 0.5d * dirFront.getFrontOffsetX(), y + 0.5d, z + 0.5d * dirFront.getFrontOffsetZ());
-            GlStateManager.rotate(90, -dirSide.getFrontOffsetX(), 0, -dirSide.getFrontOffsetZ());
+            GlStateManager.translate(x + 0.5d * dirFront.getXOffset(), y + 0.5d, z + 0.5d * dirFront.getZOffset());
+            GlStateManager.rotate(90, -dirSide.getXOffset(), 0, -dirSide.getZOffset());
             GlStateManager.translate(-x, -y, -z);
             this.renderBeamVertical(x, y, z, 0.0d, 2.0d, 0.2d, rot, 3.0d, teeb.getIsPowered());
             GlStateManager.popMatrix();
 
             // From resonator to next resonator
             GlStateManager.pushMatrix();
-            GlStateManager.translate(x + 0.3d * dirSide.getFrontOffsetX() - 0.2d * dirFront.getFrontOffsetX(), y + 0.5d, z + 0.3d * dirSide.getFrontOffsetZ() - 0.2d * dirFront.getFrontOffsetZ());
-            GlStateManager.rotate(90, dirFront.getFrontOffsetX(), 0, dirFront.getFrontOffsetZ());
-            GlStateManager.rotate(45, -dirSide.getFrontOffsetX(), 0, -dirSide.getFrontOffsetZ());
+            GlStateManager.translate(x + 0.3d * dirSide.getXOffset() - 0.2d * dirFront.getXOffset(), y + 0.5d, z + 0.3d * dirSide.getZOffset() - 0.2d * dirFront.getZOffset());
+            GlStateManager.rotate(90, dirFront.getXOffset(), 0, dirFront.getZOffset());
+            GlStateManager.rotate(45, -dirSide.getXOffset(), 0, -dirSide.getZOffset());
             GlStateManager.translate(-x, -y, -z);
             this.renderBeamVertical(x, y, z, 0.0d, 4.2d, 0.14d, rot, 3.0d, teeb.getIsPowered());
             GlStateManager.popMatrix();

@@ -1080,7 +1080,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (tag.hasKey("FlipAxis", Constants.NBT.TAG_BYTE))
         {
-            return EnumFacing.getFront(tag.getByte("FlipAxis"));
+            return EnumFacing.byIndex(tag.getByte("FlipAxis"));
         }
 
         return defaultFlipAxis;
@@ -1232,7 +1232,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
         if (posStart != null && posEnd != null)
         {
             int v = reverse ? 1 : -1;
-            posEnd = posEnd.add(direction.getFrontOffsetX() * v, direction.getFrontOffsetY() * v, direction.getFrontOffsetZ() * v);
+            posEnd = posEnd.add(direction.getXOffset() * v, direction.getYOffset() * v, direction.getZOffset() * v);
 
             if (mode == Mode.WALLS || mode == Mode.CUBE)
             {
@@ -2404,7 +2404,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
     public EnumFacing getTemplateFacing(ItemStack stack)
     {
         NBTTagCompound tag = this.getSelectedTemplateTag(stack, Mode.PASTE, true);
-        return EnumFacing.getFront(tag.getByte("TemplateFacing"));
+        return EnumFacing.byIndex(tag.getByte("TemplateFacing"));
     }
 
     public EnumFacing getAreaFacing(ItemStack stack, Mode mode)
@@ -2413,7 +2413,7 @@ public class ItemBuildersWand extends ItemLocationBoundModular implements IStrin
 
         if (tag.hasKey("Rotation", Constants.NBT.TAG_BYTE))
         {
-            return EnumFacing.getFront(tag.getByte("Rotation"));
+            return EnumFacing.byIndex(tag.getByte("Rotation"));
         }
         else
         {

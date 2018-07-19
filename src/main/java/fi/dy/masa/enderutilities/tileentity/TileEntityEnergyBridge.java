@@ -268,9 +268,9 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
 
         for (BlockPos pos : positions)
         {
-            int x = pos.getX() * facing.getFrontOffsetX() + pos.getZ() * facing.getFrontOffsetZ();
+            int x = pos.getX() * facing.getXOffset() + pos.getZ() * facing.getZOffset();
             int y = pos.getY();
-            int z = pos.getX() * dirNext.getFrontOffsetX() + pos.getZ() * dirNext.getFrontOffsetZ();
+            int z = pos.getX() * dirNext.getXOffset() + pos.getZ() * dirNext.getZOffset();
 
             if (world.isAirBlock(basePos.add(x, y, z)) == false)
             {
@@ -319,7 +319,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
             return true;
         }
 
-        int top = world.getChunkFromChunkCoords(posMaster.getX() >> 4, posMaster.getZ() >> 4).getTopFilledSegment() + 15;
+        int top = world.getChunk(posMaster.getX() >> 4, posMaster.getZ() >> 4).getTopFilledSegment() + 15;
 
         return this.isVerticalBeamObstructed(world, posMaster.getX(), posMaster.getZ(), posMaster.getY() + 1, top);
     }
@@ -419,7 +419,7 @@ public class TileEntityEnergyBridge extends TileEntityEnderUtilities implements 
         int posX = this.getPos().getX();
         int posY = this.getPos().getY();
         int posZ = this.getPos().getZ();
-        int top = this.getWorld().getChunkFromChunkCoords(posX >> 4, posZ >> 4).getTopFilledSegment() + 15;
+        int top = this.getWorld().getChunk(posX >> 4, posZ >> 4).getTopFilledSegment() + 15;
 
         // Energy Bridge Transmitter
         if (Type.fromMeta(this.getBlockMetadata()) == Type.TRANSMITTER)

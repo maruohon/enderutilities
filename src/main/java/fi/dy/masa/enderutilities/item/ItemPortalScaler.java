@@ -378,19 +378,19 @@ public class ItemPortalScaler extends ItemModular implements IKeyBound
         int z = tag.hasKey("scaleZ", Constants.NBT.TAG_BYTE) ? tag.getByte("scaleZ") : 8;
 
         EnumFacing facing = EntityUtils.getLookingDirection(player);
-        x += Math.abs(facing.getFrontOffsetX()) * amount;
-        y += Math.abs(facing.getFrontOffsetY()) * amount;
-        z += Math.abs(facing.getFrontOffsetZ()) * amount;
+        x += Math.abs(facing.getXOffset()) * amount;
+        y += Math.abs(facing.getYOffset()) * amount;
+        z += Math.abs(facing.getZOffset()) * amount;
 
         // Hop over zero and 1/1 (ie. -1)
-        if (x == -1) { x += Math.abs(facing.getFrontOffsetX()) * amount * 2; }
-        if (y == -1) { y += Math.abs(facing.getFrontOffsetY()) * amount * 2; }
-        if (z == -1) { z += Math.abs(facing.getFrontOffsetZ()) * amount * 2; }
+        if (x == -1) { x += Math.abs(facing.getXOffset()) * amount * 2; }
+        if (y == -1) { y += Math.abs(facing.getYOffset()) * amount * 2; }
+        if (z == -1) { z += Math.abs(facing.getZOffset()) * amount * 2; }
 
         // Hop over zero
-        if (x == 0) { x += Math.abs(facing.getFrontOffsetX()) * amount * 2; }
-        if (y == 0) { y += Math.abs(facing.getFrontOffsetY()) * amount * 2; }
-        if (z == 0) { z += Math.abs(facing.getFrontOffsetZ()) * amount * 2; }
+        if (x == 0) { x += Math.abs(facing.getXOffset()) * amount * 2; }
+        if (y == 0) { y += Math.abs(facing.getYOffset()) * amount * 2; }
+        if (z == 0) { z += Math.abs(facing.getZOffset()) * amount * 2; }
 
         x = MathHelper.clamp(x, -64, 64);
         y = MathHelper.clamp(y, -64, 64);

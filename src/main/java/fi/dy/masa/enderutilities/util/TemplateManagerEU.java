@@ -39,7 +39,7 @@ public class TemplateManagerEU
 
     public TemplateEnderUtilities getTemplate(ResourceLocation id)
     {
-        String s = id.getResourcePath();
+        String s = id.getPath();
 
         if (this.templates.containsKey(s))
         {
@@ -60,7 +60,7 @@ public class TemplateManagerEU
 
     public boolean readTemplate(ResourceLocation id)
     {
-        String fileName = id.getResourcePath();
+        String fileName = id.getPath();
         File templateFile = new File(this.directory, fileName + ".nbt");
         InputStream inputStream = null;
 
@@ -98,7 +98,7 @@ public class TemplateManagerEU
 
     public boolean writeTemplate(ResourceLocation id)
     {
-        String fileName = id.getResourcePath();
+        String fileName = id.getPath();
 
         if (this.templates.containsKey(fileName) == false)
         {
@@ -146,7 +146,7 @@ public class TemplateManagerEU
 
     public TemplateMetadata getTemplateMetadata(ResourceLocation rl)
     {
-        String s = rl.getResourcePath();
+        String s = rl.getPath();
 
         if (this.templateMetas.containsKey(s))
         {
@@ -173,7 +173,7 @@ public class TemplateManagerEU
         try
         {
             inputStream = new FileInputStream(templateFile);
-            this.readTemplateMetadataFromStream(rl.getResourcePath(), inputStream);
+            this.readTemplateMetadataFromStream(rl.getPath(), inputStream);
             return true;
         }
         catch (Throwable e)
@@ -190,7 +190,7 @@ public class TemplateManagerEU
 
     protected File getTemplateMetadataFile(ResourceLocation rl)
     {
-        return new File(this.directory, rl.getResourcePath() + "_meta.nbt");
+        return new File(this.directory, rl.getPath() + "_meta.nbt");
     }
 
     private void readTemplateMetadataFromStream(String id, InputStream stream) throws IOException
@@ -203,7 +203,7 @@ public class TemplateManagerEU
 
     public boolean writeTemplateMetadata(ResourceLocation rl)
     {
-        String fileName = rl.getResourcePath();
+        String fileName = rl.getPath();
 
         if (this.templateMetas.containsKey(fileName) == false)
         {

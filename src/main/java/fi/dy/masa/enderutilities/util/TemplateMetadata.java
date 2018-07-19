@@ -54,7 +54,7 @@ public class TemplateMetadata
     {
         NBTTagList tagList = nbt.getTagList("endPosRelative", 3);
         this.endPosRelative = new BlockPos(tagList.getIntAt(0), tagList.getIntAt(1), tagList.getIntAt(2));
-        this.facing = EnumFacing.getFront(nbt.getByte("facing"));
+        this.facing = EnumFacing.byIndex(nbt.getByte("facing"));
         this.templateName = nbt.getString("name");
         this.author = nbt.getString("author");
     }

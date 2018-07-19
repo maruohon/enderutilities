@@ -189,7 +189,7 @@ public class TemplateEnderUtilities
             NBTTagCompound nbt = entityInfo.entityData;
             UUID uuidOriginal = nbt.getUniqueId("UUID");
             Vec3d vec3d = PositionUtils.transformedVec3d(entityInfo.pos, mirror, rotation);
-            Vec3d vec3d1 = vec3d.addVector((double)posStart.getX(), (double)posStart.getY(), (double)posStart.getZ());
+            Vec3d vec3d1 = vec3d.add((double)posStart.getX(), (double)posStart.getY(), (double)posStart.getZ());
             NBTTagList tagList = new NBTTagList();
             tagList.appendTag(new NBTTagDouble(vec3d1.x));
             tagList.appendTag(new NBTTagDouble(vec3d1.y));

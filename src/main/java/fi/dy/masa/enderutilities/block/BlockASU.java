@@ -36,7 +36,7 @@ public class BlockASU extends BlockEnderUtilitiesInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.getBlockState().getBaseState().withProperty(TIER, 1));
-        this.setUnlocalizedName(Reference.MOD_ID + "." + name);
+        this.setTranslationKey(Reference.MOD_ID + "." + name);
     }
 
     @Override

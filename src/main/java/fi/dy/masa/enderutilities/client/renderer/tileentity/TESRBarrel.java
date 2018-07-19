@@ -58,9 +58,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                         int lv = ambLight / 65536;
                         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
-                        double posX = x + 0.502 * side.getFrontOffsetX();
-                        double posY = y + 0.502 * side.getFrontOffsetY();
-                        double posZ = z + 0.502 * side.getFrontOffsetZ();
+                        double posX = x + 0.502 * side.getXOffset();
+                        double posY = y + 0.502 * side.getYOffset();
+                        double posZ = z + 0.502 * side.getZOffset();
 
                         if (locked)
                         {
@@ -92,9 +92,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                 int lv = ambLight / 65536;
                 OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
-                double posX = x + 0.502 * side.getFrontOffsetX();
-                double posY = y + 0.502 * side.getFrontOffsetY();
-                double posZ = z + 0.502 * side.getFrontOffsetZ();
+                double posX = x + 0.502 * side.getXOffset();
+                double posY = y + 0.502 * side.getYOffset();
+                double posZ = z + 0.502 * side.getZOffset();
 
                 this.renderStack(te.renderStack, posX, posY, posZ, side, barrelFront);
             }
@@ -109,9 +109,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                     int lv = ambLight / 65536;
                     OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
-                    double posX = x + 0.502 * side.getFrontOffsetX();
-                    double posY = y + 0.502 * side.getFrontOffsetY();
-                    double posZ = z + 0.502 * side.getFrontOffsetZ();
+                    double posX = x + 0.502 * side.getXOffset();
+                    double posY = y + 0.502 * side.getYOffset();
+                    double posZ = z + 0.502 * side.getZOffset();
 
                     this.renderFullnessBar(te.cachedFullness, posX, posY, posZ, side, barrelFront);
                 }
@@ -127,9 +127,9 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
                     int lv = ambLight / 65536;
                     OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
-                    double posX = x + 0.502 * side.getFrontOffsetX();
-                    double posY = y + 0.502 * side.getFrontOffsetY();
-                    double posZ = z + 0.502 * side.getFrontOffsetZ();
+                    double posX = x + 0.502 * side.getXOffset();
+                    double posY = y + 0.502 * side.getYOffset();
+                    double posZ = z + 0.502 * side.getZOffset();
 
                     this.renderText(te.cachedStackSizeString, posX, posY, posZ, side, barrelFront);
                 }
@@ -156,7 +156,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         if (side == EnumFacing.UP || side == EnumFacing.DOWN)
         {
             GlStateManager.rotate(MODEL_ROT_SIDE_Y[barrelFront.getIndex()], 0, 1, 0);
-            GlStateManager.rotate(-90f * side.getFrontOffsetY(), 1, 0, 0);
+            GlStateManager.rotate(-90f * side.getYOffset(), 1, 0, 0);
         }
         else
         {
@@ -240,7 +240,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         if (side == EnumFacing.UP || side == EnumFacing.DOWN)
         {
             GlStateManager.rotate(LABEL_ROT_SIDE_Y[barrelFront.getIndex()], 0, 1, 0);
-            GlStateManager.rotate(90f * side.getFrontOffsetY(), 1, 0, 0);
+            GlStateManager.rotate(90f * side.getYOffset(), 1, 0, 0);
         }
         else
         {
@@ -275,7 +275,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         if (side == EnumFacing.UP || side == EnumFacing.DOWN)
         {
             GlStateManager.rotate(LABEL_ROT_SIDE_Y[barrelFront.getIndex()], 0, 1, 0);
-            GlStateManager.rotate(90f * side.getFrontOffsetY(), 1, 0, 0);
+            GlStateManager.rotate(90f * side.getYOffset(), 1, 0, 0);
         }
         else
         {
@@ -329,7 +329,7 @@ public class TESRBarrel extends TileEntitySpecialRenderer<TileEntityBarrel>
         if (side == EnumFacing.UP || side == EnumFacing.DOWN)
         {
             GlStateManager.rotate(LABEL_ROT_SIDE_Y[barrelFront.getIndex()], 0, 1, 0);
-            GlStateManager.rotate(90f * side.getFrontOffsetY(), 1, 0, 0);
+            GlStateManager.rotate(90f * side.getYOffset(), 1, 0, 0);
         }
         else
         {

@@ -399,7 +399,7 @@ public class ClientProxy extends CommonProxy
         {
             ResourceLocation rl = item.getRegistryName();
             ModelLoader.setCustomModelResourceLocation(item, meta,
-                    new ModelResourceLocation(rl.getResourceDomain() + ":" + namePrefix + rl.getResourcePath(), "inventory"));
+                    new ModelResourceLocation(rl.getNamespace() + ":" + namePrefix + rl.getPath(), "inventory"));
         }
     }
 
@@ -494,7 +494,7 @@ public class ClientProxy extends CommonProxy
         if (blockIn.isEnabled())
         {
             NonNullList<ItemStack> stacks = NonNullList.create();
-            blockIn.getSubBlocks(blockIn.getCreativeTabToDisplayOn(), stacks);
+            blockIn.getSubBlocks(blockIn.getCreativeTab(), stacks);
             String[] names = blockIn.getUnlocalizedNames();
 
             for (ItemStack stack : stacks)

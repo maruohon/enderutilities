@@ -145,7 +145,7 @@ public class TargetData
         this.blockMeta = tag.getByte("BlockMeta");
         this.itemMeta = tag.getByte("ItemMeta");
         this.blockFace = tag.getByte("BlockFace");
-        this.facing = EnumFacing.getFront(this.blockFace);
+        this.facing = EnumFacing.byIndex(this.blockFace);
 
         this.dPosX = tag.hasKey("dPosX", Constants.NBT.TAG_DOUBLE) ? tag.getDouble("dPosX") : this.pos.getX() + 0.5d;
         this.dPosY = tag.hasKey("dPosY", Constants.NBT.TAG_DOUBLE) ? tag.getDouble("dPosY") : this.pos.getY();
