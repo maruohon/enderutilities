@@ -65,23 +65,17 @@ public class EntityUtils
 
     public static RayTraceResult getRayTraceFromPlayer(World world, EntityPlayer player, boolean useLiquids)
     {
-        Vec3d vec3d = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
-        float f2 = MathHelper.cos(player.rotationYaw * -0.017453292F - (float)Math.PI);
-        float f3 = MathHelper.sin(player.rotationYaw * -0.017453292F - (float)Math.PI);
-        float f4 = -MathHelper.cos(player.rotationPitch * -0.017453292F);
-        double f5 = MathHelper.sin(player.rotationPitch * -0.017453292F);
-        double f6 = f3 * f4;
-        double f7 = f2 * f4;
-        double reach = 5.0D;
+        double range = 5.0D;
+        Vec3d eyesVec = getEyesVec(player);
+        Vec3d rangedLookRot = player.getLook(1f).scale(range);
+        Vec3d lookVec = eyesVec.add(rangedLookRot);
 
         if (player instanceof EntityPlayer)
         {
-            reach = ((EntityPlayer) player).getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+            range = ((EntityPlayer) player).getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         }
 
-        Vec3d vec3d1 = vec3d.add(f6 * reach, f5 * reach, f7 * reach);
-
-        return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, false, false);
+        return world.rayTraceBlocks(eyesVec, lookVec, useLiquids, false, false);
     }
 
     public static Vec3d getEyesVec(Entity entity)
