@@ -211,12 +211,22 @@ public class ItemEnderSword extends ItemLocationBoundModular implements IAnvilRe
         {
             return player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP); // main inventory
         }
-
         // 2: Teleport drops to the Link Crystal's bound target; To allow this, we require an active second tier Ender Core
+        // For cross-dimensional item teleport we require the third tier of active Ender Core
         else if (mode == SwordMode.REMOTE &&
                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) >= ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ENHANCED &&
                 UtilItemModular.useEnderCharge(toolStack, ENDER_CHARGE_COST, true))
         {
+            TargetData target = TargetData.getTargetFromSelectedModule(toolStack, ModuleType.TYPE_LINKCRYSTAL);
+
+            // For cross-dimensional item teleport we require the third tier of active Ender Core
+            if (target == null ||
+                (target.dimension != player.getEntityWorld().provider.getDimension() &&
+                 this.getMaxModuleTier(toolStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
+            {
+                return null;
+            }
+
             return UtilItemModular.getBoundInventory(toolStack, player, 15);
         }
 

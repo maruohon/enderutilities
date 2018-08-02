@@ -25,7 +25,6 @@ import fi.dy.masa.enderutilities.item.base.IModular;
 import fi.dy.masa.enderutilities.item.base.IModule;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.item.part.ItemEnderCapacitor;
-import fi.dy.masa.enderutilities.item.part.ItemEnderPart;
 import fi.dy.masa.enderutilities.item.part.ItemLinkCrystal;
 import fi.dy.masa.enderutilities.util.ChunkLoading;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
@@ -829,7 +828,9 @@ public class UtilItemModular
         IModular iModular = (IModular) modularStack.getItem();
         TargetData target = TargetData.getTargetFromSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL);
 
-        if (iModular.getSelectedModuleTier(modularStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK || target == null)
+        if (target == null ||
+            iModular.getSelectedModuleTier(modularStack, ModuleType.TYPE_LINKCRYSTAL) != ItemLinkCrystal.TYPE_BLOCK ||
+            OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false)
         {
             return null;
         }
@@ -838,14 +839,6 @@ public class UtilItemModular
         if ("minecraft:ender_chest".equals(target.blockName))
         {
             return new InvWrapper(player.getInventoryEnderChest());
-        }
-
-        // For cross-dimensional item teleport we require the third tier of active Ender Core
-        if (OwnerData.canAccessSelectedModule(modularStack, ModuleType.TYPE_LINKCRYSTAL, player) == false ||
-            (target.dimension != player.getEntityWorld().provider.getDimension() &&
-                iModular.getMaxModuleTier(modularStack, ModuleType.TYPE_ENDERCORE) != ItemEnderPart.ENDER_CORE_TYPE_ACTIVE_ADVANCED))
-        {
-            return null;
         }
 
         World targetWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(target.dimension);
