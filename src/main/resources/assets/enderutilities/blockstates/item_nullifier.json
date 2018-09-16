@@ -2,7 +2,30 @@
     "forge_marker": 1,
     "defaults": {
         "model": "enderutilities:custom/nullifier",
-        "transform": "forge:default-item"
+        "transform": {
+          "thirdperson_lefthand": {
+            "translation": [ 0, 0.25, 0.05 ],
+            "scale": 0.6
+          },
+          "thirdperson_righthand": {
+            "translation": [ 0, 0.25, 0.05 ],
+            "scale": 0.6
+          },
+          "firstperson_lefthand": {
+            "rotation": [ {"x": -40}, {"y": -80}, {"z": -20 } ],
+            "translation": [ 0.2, 0.05, 0 ],
+            "scale": 0.5
+          },
+          "firstperson_righthand": {
+            "rotation": [ {"x": -30}, {"y": -260}, {"z": -10 } ],
+            "translation": [ 0.2, 0.05, 0 ],
+            "scale": 0.5
+          },
+          "ground": {
+            "translation": [ 0, 0.15, 0 ],
+            "scale": 0.5
+          }
+        }
     },
     "variants": {
         "inventory": [{}]
