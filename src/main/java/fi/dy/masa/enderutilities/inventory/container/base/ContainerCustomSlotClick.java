@@ -616,7 +616,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     @Override
     public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
     {
-        //String side = this.player.worldObj.isRemote ? "client" : "server";
+        //String side = this.player.getEntityWorld().isRemote ? "client" : "server";
         //EnderUtilities.logger.info(String.format("slotClick(): side: %s slotNum: %d, button: %d type: %s", side, slotNum, dragType, clickType));
 
         // slotNum: real button: 0 type: PICKUP - regular  left click - on button down with empty cursor, on button up with stack in cursor
@@ -721,7 +721,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
                 ItemStackHandlerLockable inv = (ItemStackHandlerLockable) this.inventoryNonWrapped;
 
                 // Middle click or middle click drag
-                if (((clickType == ClickType.CLONE && dragType == 2) ||
+                if (((clickType == ClickType.CLONE) ||
                     (clickType == ClickType.QUICK_CRAFT && dragType == 9)) &&
                     slotNum >= 0 && slotNum < inv.getSlots())
                 {
@@ -731,7 +731,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
             }
 
             // Middle click on a slot - select the slot for swapping, or swap the contents with the selected slot
-            if (clickType == ClickType.CLONE && dragType == 2)
+            if (clickType == ClickType.CLONE)
             {
                 this.middleClickSlot(slotNum, player);
             }

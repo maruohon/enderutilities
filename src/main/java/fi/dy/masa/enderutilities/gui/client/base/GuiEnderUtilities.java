@@ -3,6 +3,7 @@ package fi.dy.masa.enderutilities.gui.client.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
@@ -168,6 +169,33 @@ public class GuiEnderUtilities extends GuiContainer
                 }
 
                 this.actionPerformedWithButton(guibutton, mouseButton);
+            }
+        }
+    }
+
+    // This method is overridden simply to remove the getHasStack() check from the hovered slot,
+    // as we also need to get the pick block events for empty slots in some cases.
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    {
+        if (keyCode == Keyboard.KEY_ESCAPE || this.mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode))
+        {
+            this.mc.player.closeScreen();
+        }
+
+        this.checkHotbarKeys(keyCode);
+
+        Slot slot = this.getSlotUnderMouse();
+
+        if (slot != null)
+        {
+            if (this.mc.gameSettings.keyBindPickBlock.isActiveAndMatches(keyCode))
+            {
+                this.handleMouseClick(slot, slot.slotNumber, 0, ClickType.CLONE);
+            }
+            else if (this.mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode))
+            {
+                this.handleMouseClick(slot, slot.slotNumber, isCtrlKeyDown() ? 1 : 0, ClickType.THROW);
             }
         }
     }
