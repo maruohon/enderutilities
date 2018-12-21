@@ -449,7 +449,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.rightClickTimes.put(player.getUniqueID(), time);
 
-        int amount = player.isSneaking() ? 1 : 64;
+        int amount = player.isSneaking() ? 64 : 1;
         ItemStack stack = this.itemHandlerExternal.extractItem(0, amount, false);
 
         if (stack.isEmpty() == false)
