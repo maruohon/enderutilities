@@ -20,7 +20,7 @@
     "key":
     {
         "A" : { "item" : "#ALLOY_0" },
-        "H" : { "item" : "#CHEST" },
+        "H" : { "item" : "#ORE_CHEST_WOOD" },
         "P" : { "item" : "#PISTON" },
         "C" : { "item" : "#CORE_INACTIVE_0" }
     }

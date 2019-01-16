@@ -20,7 +20,7 @@
     "key":
     {
         "C" : { "item" : "minecraft:cobblestone" },
-        "H" : { "item" : "#CHEST" },
+        "H" : { "item" : "#ORE_CHEST_WOOD" },
         "M" : { "item" : "enderutilities:storage_0", "data" : 3 }
     }
 }

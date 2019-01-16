@@ -19,7 +19,7 @@
     ],
     "key":
     {
-        "C" : { "item" : "#CHEST" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
         "L" : { "item" : "minecraft:lava_bucket" },
         "A" : { "item" : "#ALLOY_0" }
     }

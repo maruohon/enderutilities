@@ -22,6 +22,6 @@
     {
         "R" : { "item" : "#REPEATER" },
         "A" : { "item" : "#ALLOY_0" },
-        "C" : { "item" : "#CHEST" }
+        "C" : { "item" : "#ORE_CHEST_WOOD" }
     }
 }

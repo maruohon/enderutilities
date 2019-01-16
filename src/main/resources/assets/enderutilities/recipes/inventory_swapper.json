@@ -21,7 +21,7 @@
     {
         "R" : { "item" : "#ENDER_ROPE" },
         "A" : { "item" : "#ALLOY_0" },
-        "C" : { "item" : "#CHEST" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
         "S" : { "item" : "#STICKY_PISTON" }
     }
 }

@@ -23,6 +23,6 @@
         "S" : { "item" : "#ORE_SLIMEBALL" },
         "C" : { "item" : "#ORE_WORKBENCH" },
         "O" : { "item" : "#ORE_OBSIDIAN" },
-        "H" : { "item" : "#CHEST" }
+        "H" : { "item" : "#ORE_CHEST_WOOD" }
     }
 }
