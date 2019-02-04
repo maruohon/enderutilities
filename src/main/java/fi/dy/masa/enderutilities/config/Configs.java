@@ -18,6 +18,7 @@ public class Configs
     public static int portalFrameCheckLimit;
     public static int portalLoopCheckLimit;
     public static int portalAreaCheckLimit;
+    public static boolean barrelInversedSneak;
     public static boolean barrelRenderFullnessBar;
     public static boolean fallingBlockDropsAsItemOnPlacementFail;
     public static boolean handyBagEnableItemUpdate;

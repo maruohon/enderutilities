@@ -87,6 +87,10 @@ public class ConfigReader
         prop.setComment("How many stacks of storage each Barrel Capacity Upgrade adds");
         Configs.barrelCapacityUpgradeStacksPer = prop.getInt();
 
+        prop = getProp("barrelInversedSneak", false);
+        prop.setComment("Inverses the sneak behavior of taking out items from barrels.\nWhen inversed, you take out one item when NOT sneaking.");
+        Configs.barrelInversedSneak = prop.getBoolean();
+
         prop = getProp("barrelMaxCapacityUpgrades", 64);
         prop.setComment("How many Barrel Capacity Upgrades can be applied to one barrel");
         Configs.barrelMaxCapacityUpgrades = prop.getInt();

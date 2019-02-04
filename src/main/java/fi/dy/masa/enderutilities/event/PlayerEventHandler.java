@@ -20,8 +20,10 @@ import fi.dy.masa.enderutilities.event.tasks.PlayerTaskScheduler;
 import fi.dy.masa.enderutilities.item.ItemBuildersWand;
 import fi.dy.masa.enderutilities.item.ItemRuler;
 import fi.dy.masa.enderutilities.network.PacketHandler;
+import fi.dy.masa.enderutilities.network.message.MessageGuiAction;
 import fi.dy.masa.enderutilities.network.message.MessageKeyPressed;
 import fi.dy.masa.enderutilities.reference.HotKeys;
+import fi.dy.masa.enderutilities.reference.ReferenceGuiIds;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityBarrel;
@@ -64,13 +66,31 @@ public class PlayerEventHandler
             }
         }
 
-        if (player.capabilities.isCreativeMode && world.getBlockState(pos).getBlock() == EnderUtilitiesBlocks.BARREL)
+        if (world.getBlockState(pos).getBlock() == EnderUtilitiesBlocks.BARREL)
         {
-            TileEntityBarrel te = BlockEnderUtilities.getTileEntitySafely(world, pos, TileEntityBarrel.class);
+            boolean takeItems = true;
 
-            if (te != null && te.getLabeledFaces().contains(face))
+            if (player.capabilities.isCreativeMode)
             {
-                world.getBlockState(pos).getBlock().onBlockClicked(world, pos, player);
+                TileEntityBarrel te = BlockEnderUtilities.getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+                if (te == null || te.getLabeledFaces().contains(face) == false)
+                {
+                    takeItems = false;
+                }
+            }
+
+            if (takeItems)
+            {
+                if (world.isRemote)
+                {
+                    int dim = world.provider.getDimension();
+                    int guiId = ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC;
+                    int fullStacks = Configs.barrelInversedSneak == player.isSneaking() ? 1 : 0;
+
+                    PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, pos, guiId, TileEntityBarrel.GUI_ACTION_TAKE_ITEMS, fullStacks));
+                }
+
                 event.setCanceled(true);
             }
         }

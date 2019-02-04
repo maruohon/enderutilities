@@ -44,6 +44,9 @@ import fi.dy.masa.enderutilities.util.nbt.NBTUtils;
 
 public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implements ISyncableTile
 {
+    public static final int GUI_ACTION_TAKE_ITEMS = 0;
+    public static final int GUI_ACTION_TOGGLE_CREATIVE_MODE = 1;
+
     private ItemStackHandlerLockable itemHandlerLockable;
     private ItemHandlerBarrelUpgrades itemHandlerUpgrades;
     private Map<UUID, Long> rightClickTimes = new HashMap<UUID, Long>();
@@ -435,8 +438,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
         return false;
     }
 
-    @Override
-    public void onLeftClickBlock(EntityPlayer player)
+    private void takeItems(EntityPlayer player, boolean fullStacks)
     {
         long time = System.currentTimeMillis();
         Long last = this.rightClickTimes.get(player.getUniqueID());
@@ -449,7 +451,7 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
 
         this.rightClickTimes.put(player.getUniqueID(), time);
 
-        int amount = player.isSneaking() ? 1 : 64;
+        int amount = fullStacks ? 64 : 1;
         ItemStack stack = this.itemHandlerExternal.extractItem(0, amount, false);
 
         if (stack.isEmpty() == false)
@@ -491,7 +493,11 @@ public class TileEntityBarrel extends TileEntityEnderUtilitiesInventory implemen
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
-        if (action == 1)
+        if (action == GUI_ACTION_TAKE_ITEMS)
+        {
+            this.takeItems(player, element == 1);
+        }
+        else if (action == GUI_ACTION_TOGGLE_CREATIVE_MODE)
         {
             this.toggleCreativeMode(player, false);
         }

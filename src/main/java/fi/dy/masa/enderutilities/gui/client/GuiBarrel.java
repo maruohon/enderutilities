@@ -100,7 +100,7 @@ public class GuiBarrel extends GuiContainerLargeStacks implements IButtonStateCa
         if (button.id == 1 && this.player.capabilities.isCreativeMode)
         {
             PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(this.tebarrel.getWorld().provider.getDimension(), this.tebarrel.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, 1, 0));
+                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, TileEntityBarrel.GUI_ACTION_TOGGLE_CREATIVE_MODE, 0));
         }
     }
 
