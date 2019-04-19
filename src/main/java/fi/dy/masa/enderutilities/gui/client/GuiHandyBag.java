@@ -434,8 +434,8 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
 
     private void drawActivePotionEffects()
     {
-        int i = this.guiLeft - 124;
-        int j = this.guiTop;
+        int x = this.guiLeft - 124;
+        int y = this.guiTop;
 
         Collection<PotionEffect> collection = this.mc.player.getActivePotionEffects();
 
@@ -443,11 +443,11 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
         {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.disableLighting();
-            int l = 33;
+            int entryHeight = 33;
 
             if (collection.size() > 5)
             {
-                l = 132 / (collection.size() - 1);
+                entryHeight = 132 / (collection.size() - 1);
             }
 
             for (PotionEffect potioneffect : Ordering.natural().sortedCopy(collection))
@@ -461,19 +461,19 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
 
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 this.mc.getTextureManager().bindTexture(INVENTORY_BACKGROUND);
-                this.drawTexturedModalRect(i, j, 0, 166, 140, 32);
+                this.drawTexturedModalRect(x, y, 0, 166, 140, 32);
 
                 if (potion.hasStatusIcon())
                 {
                     int i1 = potion.getStatusIconIndex();
-                    this.drawTexturedModalRect(i + 6, j + 7, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
+                    this.drawTexturedModalRect(x + 6, y + 7, 0 + i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
                 }
 
-                potion.renderInventoryEffect(i, j, potioneffect, mc);
+                potion.renderInventoryEffect(potioneffect, this, x, y, this.zLevel);
 
                 if (potion.shouldRenderInvText(potioneffect) == false)
                 {
-                    j += l;
+                    y += entryHeight;
                     continue;
                 }
 
@@ -485,10 +485,10 @@ public class GuiHandyBag extends GuiContainerLargeStacks implements IButtonState
                     s1 = s1 + " " + I18n.format("enchantment.level." + (amp + 1));
                 }
 
-                this.fontRenderer.drawStringWithShadow(s1, (float)(i + 10 + 18), (float)(j + 6), 16777215);
+                this.fontRenderer.drawStringWithShadow(s1, (float)(x + 10 + 18), (float)(y + 6), 16777215);
                 String s = Potion.getPotionDurationString(potioneffect, 1.0F);
-                this.fontRenderer.drawStringWithShadow(s, (float)(i + 10 + 18), (float)(j + 6 + 10), 8355711);
-                j += l;
+                this.fontRenderer.drawStringWithShadow(s, (float)(x + 10 + 18), (float)(y + 6 + 10), 8355711);
+                y += entryHeight;
             }
         }
     }

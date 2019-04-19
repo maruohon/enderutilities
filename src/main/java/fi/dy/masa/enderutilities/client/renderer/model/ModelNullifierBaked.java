@@ -46,8 +46,8 @@ import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.registries.IRegistryDelegate;
 import fi.dy.masa.enderutilities.EnderUtilities;
@@ -246,7 +246,8 @@ public class ModelNullifierBaked implements IBakedModel
             {
                 ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
-                Field locs = ReflectionHelper.findField(ItemModelMesherForge.class, "locations");
+                Field locs = ItemModelMesherForge.class.getDeclaredField("locations");
+                locs.setAccessible(true);
 
                 try
                 {
@@ -291,10 +292,11 @@ public class ModelNullifierBaked implements IBakedModel
                 {
                 }
 
-                Field shapers = ReflectionHelper.findField(ItemModelMesher.class, "field_178092_c", "shapers");
+                Field shapers = ObfuscationReflectionHelper.findField(ItemModelMesher.class, "field_178092_c");
                 SHAPERS = (Map<Item, ItemMeshDefinition>) shapers.get(mesher);
 
-                Field models = ReflectionHelper.findField(ModelLoader.class, "stateModels");
+                Field models = ModelLoader.class.getDeclaredField("stateModels");
+                models.setAccessible(true);
                 STATE_MODELS = (Map<ModelResourceLocation, IModel>) models.get(MODEL_LOADER);
             }
             catch (Exception e)

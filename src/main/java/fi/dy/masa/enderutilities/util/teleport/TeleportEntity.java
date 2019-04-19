@@ -22,9 +22,8 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemModule.ModuleType;
 import fi.dy.masa.enderutilities.network.PacketHandler;
@@ -390,14 +389,14 @@ public class TeleportEntity
         {
             try
             {
-                BossInfoServer bossInfo = ReflectionHelper.getPrivateValue(DragonFightManager.class, manager, "field_186109_c", "bossInfo");
+                BossInfoServer bossInfo = ObfuscationReflectionHelper.getPrivateValue(DragonFightManager.class, manager, "field_186109_c");
 
                 if (bossInfo != null)
                 {
                     bossInfo.removePlayer(player);
                 }
             }
-            catch (UnableToAccessFieldException e)
+            catch (Exception e)
             {
                 EnderUtilities.logger.warn("TP: Failed to get DragonFightManager#bossInfo");
             }
