@@ -361,6 +361,11 @@ public class ContainerCreationStation extends ContainerTileLargeStacks
         return ItemStack.EMPTY;
     }
 
+    public boolean isInventoryAccessible()
+    {
+        return this.tecs.isInventoryAccessible(this.player);
+    }
+
     private void syncRecipeStacks()
     {
         int start = this.inventorySlots.size();
