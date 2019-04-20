@@ -39,7 +39,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public int getSlotLimit(int slot)
     {
-        return this.stackLimit;
+        return this.getInventoryStackLimit();
     }
 
     @Override
