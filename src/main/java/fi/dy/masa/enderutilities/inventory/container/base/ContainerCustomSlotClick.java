@@ -24,7 +24,7 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     @Nullable
     protected IItemHandlerSize inventoryNonWrapped;
     protected boolean isDragging;
-    protected boolean draggingRightClick;
+    protected DragType dragType;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();
     protected int selectedSlot = -1;
     private int selectedSlotLast = -1;
@@ -72,14 +72,14 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
     }
 
-    protected void startDragging(boolean isRightClick)
+    protected void startDragging(DragType dragType)
     {
         this.isDragging = true;
-        this.draggingRightClick = isRightClick;
+        this.dragType = dragType;
         this.draggedSlots.clear();
     }
 
-    private void dragging(int slotNum)
+    protected void dragging(int slotNum)
     {
         this.draggedSlots.add(slotNum);
     }
@@ -194,31 +194,66 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
     {
         if (this.inventoryPlayer.getItemStack().isEmpty() == false)
         {
-            ItemStack stackCursor = this.inventoryPlayer.getItemStack().copy();
-            int numSlots = this.draggedSlots.size();
-            int itemsPerSlot = this.draggingRightClick ? 1 : (numSlots > 0 ? stackCursor.getCount() / numSlots : stackCursor.getCount());
-
-            for (int slotNum : this.draggedSlots)
+            if (this.dragType == DragType.DRAG_MIDDLE)
             {
-                if (stackCursor.isEmpty())
-                {
-                    break;
-                }
-
-                SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-
-                if (slot != null)
-                {
-                    int amount = Math.min(itemsPerSlot, this.getMaxStackSizeFromSlotAndStack(slot, stackCursor));
-                    amount = Math.min(amount, stackCursor.getCount());
-                    stackCursor = this.putItemsToSlot(slot, stackCursor, amount);
-                }
+                this.endDraggingMiddle();
             }
-
-            this.inventoryPlayer.setItemStack(stackCursor);
+            else
+            {
+                this.endDraggingLeftOrRight(this.dragType == DragType.DRAG_RIGHT);
+            }
         }
 
         this.isDragging = false;
+    }
+
+    protected void endDraggingLeftOrRight(boolean isRightClick)
+    {
+        ItemStack stackCursor = this.inventoryPlayer.getItemStack().copy();
+        int numSlots = this.draggedSlots.size();
+        int itemsPerSlot = isRightClick ? 1 : (numSlots > 0 ? stackCursor.getCount() / numSlots : stackCursor.getCount());
+
+        for (int slotNum : this.draggedSlots)
+        {
+            if (stackCursor.isEmpty())
+            {
+                break;
+            }
+
+            SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+
+            if (slot != null)
+            {
+                int amount = Math.min(itemsPerSlot, this.getMaxStackSizeFromSlotAndStack(slot, stackCursor));
+                amount = Math.min(amount, stackCursor.getCount());
+                stackCursor = this.putItemsToSlot(slot, stackCursor, amount);
+            }
+        }
+
+        this.inventoryPlayer.setItemStack(stackCursor);
+    }
+
+    protected void endDraggingMiddle()
+    {
+        if (this.player.capabilities.isCreativeMode)
+        {
+            for (int slotNum : this.draggedSlots)
+            {
+                ItemStack stackCursor = this.inventoryPlayer.getItemStack().copy();
+                SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+
+                if (slot != null && (slot.getHasStack() == false || InventoryUtils.areItemStacksEqual(stackCursor, slot.getStack())))
+                {
+                    int amount = stackCursor.getMaxStackSize() - slot.getStack().getCount();
+
+                    if (amount > 0)
+                    {
+                        stackCursor.setCount(amount);
+                        slot.insertItem(stackCursor, false);
+                    }
+                }
+            }
+        }
     }
 
     protected void leftClickOutsideInventory(EntityPlayer player)
@@ -652,23 +687,28 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         // slotNum: real button: 5 type: QUICK_CRAFT - right click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
         // slotNUm: -999 button: 6 type: QUICK_CRAFT - right click drag with stack in cursor end - after drag ends, as the last call
 
+        // slotNum: -999 button: 8 type: QUICK_CRAFT - middle click drag with stack in cursor start - after drag ends, as the first call
+        // slotNum: real button: 9 type: QUICK_CRAFT - middle click drag with stack in cursor - for each slot dragged over - after drag ends, in sequence
+        // slotNUm: -999 button: 10 type: QUICK_CRAFT - middle click drag with stack in cursor end - after drag ends, as the last call
+
         if (this.isDragging)
         {
             // End of dragging
-            if (clickType == ClickType.QUICK_CRAFT && (dragType == 2 || dragType == 6))
+            if (clickType == ClickType.QUICK_CRAFT && (dragType == 2 || dragType == 6 || dragType == 10))
             {
                 this.endDragging();
             }
             // This gets called for each slot that was dragged over
-            else if (clickType == ClickType.QUICK_CRAFT && (dragType == 1 || dragType == 5))
+            else if (clickType == ClickType.QUICK_CRAFT && (dragType == 1 || dragType == 5 || dragType == 9))
             {
                 this.dragging(slotNum);
             }
         }
-        // Starting a left or right click drag
-        else if (clickType == ClickType.QUICK_CRAFT && (dragType == 0 || dragType == 4))
+        // Starting a left or right or middle click drag
+        else if (clickType == ClickType.QUICK_CRAFT && (dragType == 0 || dragType == 4 || dragType == 8))
         {
-            this.startDragging(dragType == 4);
+            DragType dt = dragType == 0 ? DragType.DRAG_LEFT : (dragType == 4 ? DragType.DRAG_RIGHT : DragType.DRAG_MIDDLE);
+            this.startDragging(dt);
         }
         // Left or right click outside inventory with a stack in cursor
         else if (clickType == ClickType.PICKUP && slotNum == -999)
@@ -743,5 +783,12 @@ public class ContainerCustomSlotClick extends ContainerEnderUtilities
         }
 
         return ItemStack.EMPTY;
+    }
+
+    public enum DragType
+    {
+        DRAG_LEFT,
+        DRAG_RIGHT,
+        DRAG_MIDDLE
     }
 }

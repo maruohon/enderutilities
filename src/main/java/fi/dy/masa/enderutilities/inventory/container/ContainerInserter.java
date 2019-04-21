@@ -172,14 +172,14 @@ public class ContainerInserter extends ContainerTile
             // This gets called for each slot that was dragged over
             else if (clickType == ClickType.QUICK_CRAFT && (button == 1 || button == 5))
             {
-                this.draggedSlots.add(slotNum);
+                this.dragging(slotNum);
             }
         }
         // Starting a left or right click drag
         else if (clickType == ClickType.QUICK_CRAFT && (button == 0 || button == 4))
         {
             this.isDragging = true;
-            this.draggingRightClick = button == 4;
+            this.dragType = button == 4 ? DragType.DRAG_RIGHT : DragType.DRAG_LEFT;
             this.draggedSlots.clear();
         }
 
