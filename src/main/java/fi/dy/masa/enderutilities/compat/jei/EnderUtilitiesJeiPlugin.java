@@ -10,8 +10,6 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.startup.StackHelper;
 
 @mezz.jei.api.JEIPlugin
 public class EnderUtilitiesJeiPlugin implements IModPlugin
@@ -32,12 +30,7 @@ public class EnderUtilitiesJeiPlugin implements IModPlugin
         registry.addRecipeClickArea(GuiCreationStation.class,  97, 36, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
         registry.addRecipeClickArea(GuiCreationStation.class, 133, 72, 10, 10, VanillaRecipeCategoryUid.CRAFTING);
 
-        RecipeHandlerCreationStation transferInfo = new RecipeHandlerCreationStation();
-        StackHelper stackHelper = (StackHelper) registry.getJeiHelpers().getStackHelper();
-        IRecipeTransferHandlerHelper handlerHelper = registry.getJeiHelpers().recipeTransferHandlerHelper();
-        RecipeTransferHandlerCreationStation transferHandler = new RecipeTransferHandlerCreationStation(stackHelper, handlerHelper, transferInfo);
-
-        registry.getRecipeTransferRegistry().addRecipeTransferHandler(transferHandler, transferInfo.getRecipeCategoryUid());
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(new RecipeHandlerCreationStation());
 
         // Creation Station
         registry.addRecipeCatalyst(new ItemStack(EnderUtilitiesBlocks.MACHINE_1, 1, 2),

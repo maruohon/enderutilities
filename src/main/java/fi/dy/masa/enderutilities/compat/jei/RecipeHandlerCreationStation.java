@@ -25,7 +25,7 @@ public class RecipeHandlerCreationStation implements IRecipeTransferInfo<Contain
     @Override
     public boolean canHandle(ContainerCreationStation container)
     {
-        return true;
+        return container.isInventoryAccessible();
     }
 
     @Override
