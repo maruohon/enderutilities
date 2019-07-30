@@ -323,12 +323,6 @@ public class TeleportEntity
             player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
             server.getPlayerList().transferPlayerToDimension(player, dimDst, teleporter);
 
-            // See PlayerList#transferEntityToWorld()
-            if (worldOld.provider.getDimension() == 1)
-            {
-                worldDst.spawnEntity(player);
-            }
-
             // Teleporting FROM The End, remove the boss bar that would otherwise get stuck on
             if (worldOld.provider instanceof WorldProviderEnd)
             {
@@ -351,10 +345,6 @@ public class TeleportEntity
                 ((EntityMinecartContainer) entity).setDropItemsWhenDead(false);
             }
 
-            worldSrc.removeEntity(entity);
-            entity.isDead = false;
-            worldSrc.updateEntityWithOptionalForce(entity, false);
-
             Entity entityNew = EntityList.newEntity(entity.getClass(), worldDst);
 
             if (entityNew != null)
@@ -369,6 +359,9 @@ public class TeleportEntity
 
                 worldDst.updateEntityWithOptionalForce(entityNew, false);
                 entity.isDead = true;
+
+                worldSrc.removeEntity(entity);
+                worldSrc.updateEntityWithOptionalForce(entity, false);
 
                 worldSrc.resetUpdateEntityTick();
                 worldDst.resetUpdateEntityTick();
