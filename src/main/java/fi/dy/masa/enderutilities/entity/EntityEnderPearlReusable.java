@@ -188,10 +188,11 @@ public class EntityEnderPearlReusable extends EntityThrowableEU implements IItem
         Entity thrower = this.getThrower();
         int damage = (this.isElite ? 1 : 0);
 
-        // Tried to, but failed to add the pearl straight back to the thrower's inventory
-        if (thrower instanceof EntityPlayerMP)
+        if (thrower instanceof EntityPlayerMP && ((EntityPlayerMP) thrower).isEntityAlive())
         {
             EntityPlayerMP player = (EntityPlayerMP) thrower;
+
+            // Tried to, but failed to add the pearl straight back to the thrower's inventory
             if (player.inventory.addItemStackToInventory(new ItemStack(EnderUtilitiesItems.ENDER_PEARL_REUSABLE, 1, damage)) == false)
             {
                 return false;
