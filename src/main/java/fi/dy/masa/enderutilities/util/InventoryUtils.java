@@ -1478,7 +1478,7 @@ public class InventoryUtils
 
             while (true)
             {
-                int max = inv instanceof IItemHandlerSize ? ((IItemHandlerSize) inv).getItemStackLimit(slot, stack) : inv.getSlotLimit(slot);
+                final int max = inv instanceof IItemHandlerSize ? ((IItemHandlerSize) inv).getItemStackLimit(slot, stack) : Math.min(inv.getSlotLimit(slot), stack.getMaxStackSize());
                 //System.out.printf("sorting for: %s - slot: %d, max: %d\n", stack.toString(), slot, max);
 
                 if (slot >= range.lastInc)
