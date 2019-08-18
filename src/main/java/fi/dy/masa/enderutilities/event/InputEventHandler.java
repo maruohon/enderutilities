@@ -35,11 +35,11 @@ import fi.dy.masa.enderutilities.registry.Keybindings;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilities;
 import fi.dy.masa.enderutilities.util.EntityUtils;
 import fi.dy.masa.enderutilities.util.InventoryUtils;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 
 public class InputEventHandler
 {
-    private static final TIntObjectHashMap<Long> KEY_PRESS_TIMES = new TIntObjectHashMap<Long>(16);
+    private static final Int2LongOpenHashMap KEY_PRESS_TIMES = new Int2LongOpenHashMap();
     private final Minecraft mc;
     /** Has the active mouse scroll modifier mask, if any */
     private static int scrollingMask = 0;
@@ -80,93 +80,10 @@ public class InputEventHandler
     @SubscribeEvent
     public void onKeyInputEvent(InputEvent.KeyInputEvent event)
     {
-        EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-        int eventKey = Keyboard.getEventKey();
+        int keyCode = Keyboard.getEventKey();
         boolean keyState = Keyboard.getEventKeyState();
 
-        // One of our supported modifier keys was pressed or released
-        if (HotKeys.isModifierKey(eventKey))
-        {
-            int mask = HotKeys.getModifierMask(eventKey);
-
-            // Key was pressed
-            if (keyState)
-            {
-                modifierMask |= mask;
-
-                // Only add scrolling mode mask if the currently selected item is one of our IKeyBound items
-                if (isHoldingKeyboundItem(player))
-                {
-                    scrollingMask |= mask;
-                }
-            }
-            // Key was released
-            else
-            {
-                modifierMask &= ~mask;
-                scrollingMask &= ~mask;
-            }
-        }
-
-        // In-game (no GUI open)
-        if (FMLClientHandler.instance().getClient().inGameHasFocus)
-        {
-            if (keyState && Keybindings.keyToggleMode.isActiveAndMatches(eventKey))
-            {
-                if (this.buildersWandClientSideHandling())
-                {
-                    return;
-                }
-
-                if (isHoldingKeyboundItem(player))
-                {
-                    int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
-                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
-                    return;
-                }
-            }
-
-            if (keyState && Keybindings.keyActivateUnselected.isActiveAndMatches(eventKey) && hasKeyBoundUnselectedItem(player))
-            {
-                int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
-                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
-                return;
-            }
-            // Track the event of opening and closing the player's inventory.
-            // This is intended to have the Handy Bag either open or not open ie. do the same thing for the duration
-            // that the inventory is open at once. This is intended to get rid of the previous unintended behavior where
-            // if you sneak + open the inventory to open just the regular player inventory, if you then look at recipes in JEI
-            // or something similar where the GuiScreen changes, then the bag would suddenly open instead of the player inventory
-            // when closing the recipe screen and returning to the inventory.
-
-            // Based on a quick test, the inventory key fires as state when opening the inventory (before the gui opens)
-            // and as state == false when closing the inventory (after the gui has closed).
-            else if (eventKey == this.mc.gameSettings.keyBindInventory.getKeyCode())
-            {
-                boolean shouldOpen = keyState && player.isSneaking() == Configs.handyBagOpenRequiresSneak;
-                GuiEventHandler.instance().setHandyBagShouldOpen(shouldOpen);
-            }
-            else if (eventKey == Keyboard.KEY_ESCAPE)
-            {
-                GuiEventHandler.instance().setHandyBagShouldOpen(false);
-            }
-
-            // Jump or sneak above an Ender Elevator - activate it
-            if (keyState && (eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ||
-                             eventKey == this.mc.gameSettings.keyBindSneak.getKeyCode()))
-            {
-                BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-                World world = player.getEntityWorld();
-
-                // Check the player's feet position in case they are standing inside a slab or layer elevator
-                if (world.getBlockState(pos       ).getBlock() instanceof BlockElevator ||
-                    world.getBlockState(pos.down()).getBlock() instanceof BlockElevator)
-                {
-                    int key = eventKey == this.mc.gameSettings.keyBindJump.getKeyCode() ? HotKeys.KEYCODE_JUMP : HotKeys.KEYCODE_SNEAK;
-                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
-                }
-            }
-        }
+        this.onInputEvent(keyCode, keyState);
     }
 
     @SubscribeEvent
@@ -221,13 +138,86 @@ public class InputEventHandler
                 }
             }
         }
-        else if (Mouse.getEventButtonState() &&
-                 Mouse.getEventButton() == Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getKeyCode() + 100)
+        else if (this.onInputEvent(Mouse.getEventButton() - 100, Mouse.getEventButtonState()))
         {
-            Minecraft mc = Minecraft.getMinecraft();
-            EntityPlayer player = mc.player;
+            event.setCanceled(true);
+        }
+    }
 
-            if (player != null)
+    private boolean onInputEvent(int keyCode, boolean keyState)
+    {
+        EntityPlayer player = this.mc.player;
+
+        if (player == null)
+        {
+            return false;
+        }
+
+        // One of our supported modifier keys was pressed or released
+        if (HotKeys.isModifierKey(keyCode))
+        {
+            int mask = HotKeys.getModifierMask(keyCode);
+
+            // Key was pressed
+            if (keyState)
+            {
+                modifierMask |= mask;
+
+                // Only add scrolling mode mask if the currently selected item is one of our IKeyBound items
+                if (isHoldingKeyboundItem(player))
+                {
+                    scrollingMask |= mask;
+                }
+            }
+            // Key was released
+            else
+            {
+                modifierMask &= ~mask;
+                scrollingMask &= ~mask;
+            }
+        }
+
+        // In-game (no GUI open)
+        if (this.mc.inGameHasFocus)
+        {
+            if (keyState && Keybindings.keyToggleMode.isActiveAndMatches(keyCode))
+            {
+                if (this.buildersWandClientSideHandling())
+                {
+                    return false;
+                }
+
+                if (isHoldingKeyboundItem(player))
+                {
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask));
+                    return false;
+                }
+            }
+
+            if (keyState && Keybindings.keyActivateUnselected.isActiveAndMatches(keyCode) && hasKeyBoundUnselectedItem(player))
+            {
+                PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask));
+                return false;
+            }
+            // Track the event of opening and closing the player's inventory.
+            // This is intended to have the Handy Bag either open or not open ie. do the same thing for the duration
+            // that the inventory is open at once. This is intended to get rid of the previous unintended behavior where
+            // if you sneak + open the inventory to open just the regular player inventory, if you then look at recipes in JEI
+            // or something similar where the GuiScreen changes, then the bag would suddenly open instead of the player inventory
+            // when closing the recipe screen and returning to the inventory.
+
+            // Based on a quick test, the inventory key fires as state when opening the inventory (before the gui opens)
+            // and as state == false when closing the inventory (after the gui has closed).
+            else if (this.mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode))
+            {
+                boolean shouldOpen = keyState && player.isSneaking() == Configs.handyBagOpenRequiresSneak;
+                GuiEventHandler.instance().setHandyBagShouldOpen(shouldOpen);
+            }
+            else if (keyCode == Keyboard.KEY_ESCAPE)
+            {
+                GuiEventHandler.instance().setHandyBagShouldOpen(false);
+            }
+            else if (keyState && this.mc.gameSettings.keyBindPickBlock.isActiveAndMatches(keyCode))
             {
                 World world = player.getEntityWorld();
                 RayTraceResult trace = EntityUtils.getRayTraceFromPlayer(world, player, true);
@@ -241,20 +231,38 @@ public class InputEventHandler
                     if (te != null && te.onInputAction(key, player, trace, world, pos))
                     {
                         PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
-                        event.setCanceled(true);
+                        return true;
                     }
                 }
             }
+            // Jump or sneak above an Ender Elevator - activate it
+            else if (keyState && (keyCode == this.mc.gameSettings.keyBindJump.getKeyCode() ||
+                                  keyCode == this.mc.gameSettings.keyBindSneak.getKeyCode()))
+            {
+                BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+                World world = player.getEntityWorld();
+
+                // Check the player's feet position in case they are standing inside a slab or layer elevator
+                if (world.getBlockState(pos       ).getBlock() instanceof BlockElevator ||
+                    world.getBlockState(pos.down()).getBlock() instanceof BlockElevator)
+                {
+                    int key = keyCode == this.mc.gameSettings.keyBindJump.getKeyCode() ? HotKeys.KEYCODE_JUMP : HotKeys.KEYCODE_SNEAK;
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(key));
+                }
+            }
         }
+
+        return false;
     }
 
     private boolean checkForDoubleTap(int key)
     {
-        boolean ret = KEY_PRESS_TIMES.containsKey(key) && (System.currentTimeMillis() - KEY_PRESS_TIMES.get(key)) <= doubleTapLimit;
+        long currentTime = System.currentTimeMillis();
+        boolean ret = KEY_PRESS_TIMES.containsKey(key) && (currentTime - KEY_PRESS_TIMES.get(key)) <= doubleTapLimit;
 
         if (ret == false)
         {
-            KEY_PRESS_TIMES.put(key, System.currentTimeMillis());
+            KEY_PRESS_TIMES.put(key, currentTime);
         }
         else
         {
@@ -271,12 +279,12 @@ public class InputEventHandler
             return false;
         }
 
-        ItemStack stack = Minecraft.getMinecraft().player.getHeldItemMainhand();
+        ItemStack stack = this.mc.player.getHeldItemMainhand();
 
         if (stack.isEmpty() == false && stack.getItem() == EnderUtilitiesItems.BUILDERS_WAND &&
             ItemBuildersWand.Mode.getMode(stack) == Mode.COPY)
         {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiScreenBuilderWandTemplate());
+            this.mc.displayGuiScreen(new GuiScreenBuilderWandTemplate());
             return true;
         }
 
