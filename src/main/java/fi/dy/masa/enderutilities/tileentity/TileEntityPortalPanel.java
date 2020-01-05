@@ -30,6 +30,7 @@ import fi.dy.masa.enderutilities.registry.EnderUtilitiesBlocks;
 import fi.dy.masa.enderutilities.registry.EnderUtilitiesItems;
 import fi.dy.masa.enderutilities.tileentity.TileEntityPortal.PortalData;
 import fi.dy.masa.enderutilities.util.EUStringUtils;
+import fi.dy.masa.enderutilities.util.InventoryUtils;
 import fi.dy.masa.enderutilities.util.PortalFormer;
 import fi.dy.masa.enderutilities.util.nbt.OwnerData;
 import fi.dy.masa.enderutilities.util.nbt.TargetData;
@@ -304,7 +305,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 }
             }
 
-            return stack.getItem() == Items.DYE;
+            return InventoryUtils.doesStackMatchOreDictName(stack, "dye");
         }
     }
 

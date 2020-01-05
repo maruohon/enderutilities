@@ -348,6 +348,23 @@ public class InventoryUtils
         return false;
     }
 
+    public static boolean doesStackMatchOreDictName(ItemStack stack, String name)
+    {
+        int[] ids = OreDictionary.getOreIDs(stack);
+
+        for (int id : ids)
+        {
+            String oreName = OreDictionary.getOreName(id);
+
+            if (oreName.startsWith(name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Returns the slot number of the first empty slot in the given inventory, or -1 if there are no empty slots.
      */
