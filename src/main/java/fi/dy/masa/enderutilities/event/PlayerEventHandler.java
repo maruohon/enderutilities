@@ -68,7 +68,7 @@ public class PlayerEventHandler
 
         if (world.getBlockState(pos).getBlock() == EnderUtilitiesBlocks.BARREL)
         {
-            boolean takeItems = true;
+            boolean takeItems = stack.isEmpty() || stack.getItem().getToolClasses(stack).contains("pickaxe") == false;
 
             if (player.capabilities.isCreativeMode)
             {
