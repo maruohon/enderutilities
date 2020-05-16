@@ -245,13 +245,13 @@ public class BlockUtils
 
     public static void setBlockToAirWithoutSpillingContents(World world, BlockPos pos, int flags)
     {
-        EntityEventHandler.setPreventItemSpawning(true);
+        EntityEventHandler.setPreventEntitySpawning(true);
         world.restoringBlockSnapshots = true;
 
         world.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
 
         world.restoringBlockSnapshots = false;
-        EntityEventHandler.setPreventItemSpawning(false);
+        EntityEventHandler.setPreventEntitySpawning(false);
     }
 
     /**

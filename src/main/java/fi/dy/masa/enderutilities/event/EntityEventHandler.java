@@ -4,7 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -40,11 +39,11 @@ import fi.dy.masa.enderutilities.util.teleport.TeleportEntity;
 
 public class EntityEventHandler
 {
-    private static boolean preventItemSpawningInWorld;
+    private static boolean preventAllEntitySpawningInWorld;
 
-    public static void setPreventItemSpawning(boolean preventItemSpawning)
+    public static void setPreventEntitySpawning(boolean preventSpawning)
     {
-        preventItemSpawningInWorld = preventItemSpawning;
+        preventAllEntitySpawningInWorld = preventSpawning;
     }
 
     @SubscribeEvent
@@ -193,7 +192,7 @@ public class EntityEventHandler
             {
                 ItemSyringe.passifyEntity((EntityLiving) event.getEntity());
             }
-            else if (preventItemSpawningInWorld && (event.getEntity() instanceof EntityItem))
+            else if (preventAllEntitySpawningInWorld)
             {
                 event.setCanceled(true);
             }
