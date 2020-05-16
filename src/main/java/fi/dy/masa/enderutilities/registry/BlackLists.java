@@ -19,12 +19,32 @@ import fi.dy.masa.enderutilities.util.BlockUtils;
 
 public class BlackLists
 {
-    private static final Set<String> ENDER_BAG_BLACKLIST_NAMES = new HashSet<String>();
-    private static final Set<String> ENDER_BAG_WHITELIST_NAMES = new HashSet<String>();
-    private static final Set<Block> ENDER_BAG_BLACKLIST_BLOCKS = new HashSet<Block>();
-    private static final Set<Block> ENDER_BAG_WHITELIST_BLOCKS = new HashSet<Block>();
+    private static final Set<String> ENDER_BAG_BLACKLIST_NAMES = new HashSet<>();
+    private static final Set<String> ENDER_BAG_WHITELIST_NAMES = new HashSet<>();
+    private static final Set<Block> ENDER_BAG_BLACKLIST_BLOCKS = new HashSet<>();
+    private static final Set<Block> ENDER_BAG_WHITELIST_BLOCKS = new HashSet<>();
+    private static final Set<IBlockState> DOLLY_BLACKLIST = new HashSet<>();
     private static final Set<IBlockState> ENERGY_BRIDGE_BEDROCK_WHITELIST = new HashSet<>();
-    private static final Set<Class<? extends Entity>> TELEPORT_BLACKLIST_CLASSES = new HashSet<Class<? extends Entity>>();
+    private static final Set<Class<? extends Entity>> TELEPORT_BLACKLIST_CLASSES = new HashSet<>();
+
+    public static void registerDollyBlacklist(String[] list)
+    {
+        DOLLY_BLACKLIST.clear();
+
+        for (String name : list)
+        {
+            Set<IBlockState> states = BlockUtils.getMatchingBlockStatesForString(name);
+
+            if (states.isEmpty() == false)
+            {
+                DOLLY_BLACKLIST.addAll(states);
+            }
+            else
+            {
+                EnderUtilities.logger.warn("Invalid block state '{}' in the dolly block blacklist", name);
+            }
+        }
+    }
 
     public static void registerEnergyBridgeBedrockWhitelist(String[] whitelist)
     {
@@ -76,6 +96,11 @@ public class BlackLists
                 ENDER_BAG_BLACKLIST_BLOCKS.add(block);
             }
         }
+    }
+
+    public static boolean isBlockAllowedForDolly(IBlockState state)
+    {
+        return DOLLY_BLACKLIST.contains(state) == false;
     }
 
     public static boolean isBlockAllowedForEnderBag(World world, BlockPos pos)

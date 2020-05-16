@@ -337,6 +337,13 @@ public class ConfigReader
         currentRequiresMcRestart = false;
         currentCategory = CATEGORY_LISTS;
 
+        prop = getProp("dollyBlockBlacklist", new String[0]);
+        prop.setComment("A list of blockstates that are not allowed to be picked up\nby the Dolly (only effective in survival mode!)\n" +
+                        "Use a blockstate string, for example:\n'minecraft:gold_block' or 'minecraft:stone[variant=andesite]'.\n" +
+                        "A block name without properties will match all states,\nfor example: 'minecraft:stone'\n" +
+                        "would match smooth stone and all the granite/andesite/diorite\nvariants that are in the same block.");
+        Configs.dollyBlockBlacklist = prop.getStringList();
+
         prop = getProp("energyBridgeBedrockWhitelist", new String[] { "minecraft:bedrock" });
         prop.setComment("A list of blockstates that are valid for the Energy Bridge's Bedrock requirement.\n" +
                         "Use a blockstate string, for example: 'minecraft:gold_block' or 'minecraft:stone[variant=andesite]'.\n" +
@@ -395,6 +402,7 @@ public class ConfigReader
         prop.setComment("Entities that are not allowed to be teleported using any methods");
         Configs.teleportBlacklist = prop.getStringList();
 
+        BlackLists.registerDollyBlacklist(Configs.dollyBlockBlacklist);
         BlackLists.registerEnergyBridgeBedrockWhitelist(Configs.energyBridgeBedrockWhitelist);
         BlackLists.registerEnderBagLists(Configs.enderBagBlacklist, Configs.enderBagWhitelist);
         BlackLists.registerTeleportBlacklist(Configs.teleportBlacklist);

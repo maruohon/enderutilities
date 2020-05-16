@@ -48,6 +48,7 @@ public class Configs
     // Black lists and white lists
     public static boolean enderBagListTypeIsWhitelist;
     public static boolean lmmListIsWhitelist;
+    public static String[] dollyBlockBlacklist;
     public static String[] energyBridgeBedrockWhitelist;
     public static String[] endDimensions;
     public static String[] enderBagBlacklist;

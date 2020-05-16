@@ -27,6 +27,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.enderutilities.EnderUtilities;
 import fi.dy.masa.enderutilities.item.base.ItemEnderUtilities;
 import fi.dy.masa.enderutilities.reference.Reference;
+import fi.dy.masa.enderutilities.registry.BlackLists;
 import fi.dy.masa.enderutilities.tileentity.TileEntityEnderUtilitiesInventory;
 import fi.dy.masa.enderutilities.util.BlockUtils;
 import fi.dy.masa.enderutilities.util.EntityUtils;
@@ -152,10 +153,17 @@ public class ItemDolly extends ItemEnderUtilities
             return true;
         }
 
+        IBlockState state = world.getBlockState(pos);
+
+        if (BlackLists.isBlockAllowedForDolly(state) == false)
+        {
+            return false;
+        }
+
         TileEntity te = world.getTileEntity(pos);
 
         // Unbreakable block, player not in creative mode
-        if (world.getBlockState(pos).getBlockHardness(world, pos) < 0)
+        if (state.getBlockHardness(world, pos) < 0)
         {
             if ((te instanceof TileEntityEnderUtilitiesInventory) == false)
             {
