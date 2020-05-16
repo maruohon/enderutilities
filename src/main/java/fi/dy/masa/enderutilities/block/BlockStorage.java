@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -249,6 +250,31 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
     }
 
     @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
+    {
+        if (state.getValue(TYPE).isFullCube())
+        {
+            return BlockFaceShape.SOLID;
+        }
+        else
+        {
+            return BlockFaceShape.UNDEFINED;
+        }
+    }
+
+    @Override
+    public boolean isNormalCube(IBlockState state)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
+    public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
     public boolean isOpaqueCube(IBlockState state)
     {
         return state.getValue(TYPE).isFullCube();
@@ -256,6 +282,18 @@ public class BlockStorage extends BlockEnderUtilitiesInventory
 
     @Override
     public boolean isFullCube(IBlockState state)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
+    public boolean isSideSolid(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+    {
+        return state.getValue(TYPE).isFullCube();
+    }
+
+    @Override
+    public boolean isTopSolid(IBlockState state)
     {
         return state.getValue(TYPE).isFullCube();
     }
