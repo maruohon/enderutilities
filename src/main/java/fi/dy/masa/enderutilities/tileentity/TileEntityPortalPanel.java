@@ -1,10 +1,10 @@
 package fi.dy.masa.enderutilities.tileentity;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
@@ -38,11 +38,11 @@ import fi.dy.masa.enderutilities.util.nbt.TargetData;
 public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 {
     private final ItemHandlerWrapper inventoryWrapper;
+    private final String[] targetDisplayNames = new String[9];
+    private final int[] colors = new int[9];
     private int activeTargetId;
     private int portalTargetId;
     private String displayName = EUStringUtils.EMPTY;
-    private String[] targetDisplayNames = new String[9];
-    private int[] colors = new int[9];
 
     public TileEntityPortalPanel()
     {
@@ -94,31 +94,45 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
     private int getPortalColor()
     {
-        return this.getColorFromDyeMeta(this.getDyeMetaFromItem(8));
+        int targetId = this.getActiveTargetId();
+        return this.getPortalColorForTargetId(targetId);
     }
 
-    private int getDyeMetaFromItem(int target)
+    private int getDyeDamageFromItem(int targetId)
+    {
+        EnumDyeColor dye = this.getDyeForTargetId(targetId);
+        return dye != null ? dye.getDyeDamage() : -1;
+    }
+
+    private int getPortalColorForTargetId(int targetId)
+    {
+        EnumDyeColor dye = this.getDyeForTargetId(targetId);
+        return dye != null ? MapColor.getBlockColor(dye).colorValue : 0xFFFFFFFF;
+    }
+
+    @Nullable
+    private EnumDyeColor getDyeForTargetId(int targetId)
     {
         // The large button in the center will take the color of the active target
-        if (target == 8)
+        if (targetId == 8)
         {
-            target = this.getActiveTargetId();
+            targetId = this.getActiveTargetId();
         }
 
-        if (target >= 0 && target < 8)
+        if (targetId >= 0 && targetId < 8)
         {
-            ItemStack stack = this.itemHandlerBase.getStackInSlot(target + 8);
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(targetId + 8);
 
-            if (stack.isEmpty() == false && stack.getItem() == Items.DYE)
+            if (stack.isEmpty() == false)
             {
-                return stack.getMetadata();
+                return InventoryUtils.getDyeColorForItem(stack);
             }
         }
 
-        return -1;
+        return null;
     }
 
-    private int getColorFromDyeMeta(int dyeMeta)
+    private int getColorFromDyeDamage(int dyeMeta)
     {
         return dyeMeta >= 0 && dyeMeta <= 15 ? MapColor.getBlockColor(EnumDyeColor.byDyeDamage(dyeMeta)).colorValue : 0xFFFFFF;
     }
@@ -223,7 +237,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         for (int i = 0; i < 9; i++)
         {
-            nbt.setByte("mt" + i, (byte) this.getDyeMetaFromItem(i));
+            nbt.setByte("mt" + i, (byte) this.getDyeDamageFromItem(i));
         }
 
         for (int i = 0; i < 8; i++)
@@ -242,7 +256,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
 
         for (int i = 0; i < 9; i++)
         {
-            this.colors[i] = this.getColorFromDyeMeta(tag.getByte("mt" + i));
+            this.colors[i] = this.getColorFromDyeDamage(tag.getByte("mt" + i));
         }
 
         for (int i = 0; i < 8; i++)
@@ -305,7 +319,7 @@ public class TileEntityPortalPanel extends TileEntityEnderUtilitiesInventory
                 }
             }
 
-            return InventoryUtils.doesStackMatchOreDictName(stack, "dye");
+            return InventoryUtils.doesStackOreDictNameStartWith(stack, "dye");
         }
     }
 

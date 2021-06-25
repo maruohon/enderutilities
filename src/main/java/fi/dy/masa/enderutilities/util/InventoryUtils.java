@@ -9,7 +9,10 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -29,6 +32,59 @@ public class InventoryUtils
 {
     public static final int SLOT_ITER_LIMIT = 256;
     public static final ItemStackHandlerBasic NULL_INV = new ItemStackHandlerBasic(0);
+    public static final ImmutableMap<String, EnumDyeColor> ORE_DICT_TO_DYE = ImmutableMap.<String, EnumDyeColor>builder()
+        .put("dyeBlack", EnumDyeColor.BLACK)
+        .put("dyeBlue", EnumDyeColor.BLUE)
+        .put("dyeBrown", EnumDyeColor.BROWN)
+        .put("dyeCyan", EnumDyeColor.CYAN)
+        .put("dyeGray", EnumDyeColor.GRAY)
+        .put("dyeGreen", EnumDyeColor.GREEN)
+        .put("dyeLightBlue", EnumDyeColor.LIGHT_BLUE)
+        .put("dyeLightGray", EnumDyeColor.SILVER)
+        .put("dyeLime", EnumDyeColor.LIME)
+        .put("dyeMagenta", EnumDyeColor.MAGENTA)
+        .put("dyeOrange", EnumDyeColor.ORANGE)
+        .put("dyePink", EnumDyeColor.PINK)
+        .put("dyePurple", EnumDyeColor.PURPLE)
+        .put("dyeRed", EnumDyeColor.RED)
+        .put("dyeWhite", EnumDyeColor.WHITE)
+        .put("dyeYellow", EnumDyeColor.YELLOW).build();
+
+    @Nullable
+    public static EnumDyeColor getDyeColorForItem(ItemStack stack)
+    {
+        if (stack.isEmpty() == false)
+        {
+            if (stack.getItem() == Items.DYE)
+            {
+                return EnumDyeColor.byDyeDamage(stack.getMetadata());
+            }
+            else if (InventoryUtils.doesStackOreDictNameStartWith(stack, "dye"))
+            {
+                return getDyeColorForItemByOreDictName(stack);
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static EnumDyeColor getDyeColorForItemByOreDictName(ItemStack stack)
+    {
+        int[] ids = OreDictionary.getOreIDs(stack);
+
+        for (int id : ids)
+        {
+            String oreName = OreDictionary.getOreName(id);
+
+            if (oreName.startsWith("dye") && oreName.length() > 3)
+            {
+                return InventoryUtils.ORE_DICT_TO_DYE.get(oreName);
+            }
+        }
+
+        return null;
+    }
 
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
@@ -348,7 +404,7 @@ public class InventoryUtils
         return false;
     }
 
-    public static boolean doesStackMatchOreDictName(ItemStack stack, String name)
+    public static boolean doesStackOreDictNameStartWith(ItemStack stack, String name)
     {
         int[] ids = OreDictionary.getOreIDs(stack);
 
